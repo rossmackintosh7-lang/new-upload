@@ -1,0 +1,1 @@
+import { error } from '../../_lib/json.js'; export async function onRequestGet(){ return error('Unauthorized.',401); }

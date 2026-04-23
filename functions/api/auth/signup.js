@@ -1,0 +1,1 @@
+import { error } from '../../_lib/json.js'; export async function onRequestPost(){ return error('Setup incomplete.',500); }
