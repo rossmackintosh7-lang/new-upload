@@ -1,1 +1,332 @@
-<!doctype html><html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>Builder • PBI</title><link rel='stylesheet' href='/assets/styles.css'></head><body><nav class="nav"><div class="container nav-inner"><a class="brand" href="/"><div class="brand-mark"></div><div><div class="brand-title">PBI</div><div class="brand-sub">Purbeck Business Innovations</div></div></a><div class='row'><button class='btn-ghost' id='backBtn'>Dashboard</button><button class='btn-ghost' id='logoutBtn'>Logout</button><button class='btn' id='saveBtn'>Save project</button></div></div></nav><main class='container section'><div class='row-between' style='margin-bottom:18px'><div><h1 class='section-title'>Website builder</h1><p class='muted'>Edit content on the left. The live preview stays on the right.</p></div><div class='row'><button class='btn-ghost' id='checkDomainBtn'>Check domain</button><button class='btn-secondary' id='onboardDomainBtn'>Onboard custom hostname</button></div></div><div class='builder-app'><div class='builder-layout'><section class='builder-left'><div class='builder-stack'><div class='card'><h3>Project</h3><div class='field'><label>Project name</label><input id='projectName' class='input'></div><div class='field'><label>Business name</label><input id='businessName' class='input'></div><div class='grid-2'><div class='field'><label>Location</label><input id='location' class='input'></div><div class='field'><label>Accent colour</label><input id='accentColor' class='input' type='color' value='#ff8a1a'></div></div><div class='field'><label>Brand tone</label><textarea id='brandTone' class='textarea'></textarea></div></div><div class='card'><h3>Brand assets</h3><div class='field'><label>Upload logo</label><input id='logoUpload' class='input' type='file' accept='image/*'></div><div class='field'><label>Upload gallery images</label><input id='galleryUpload' class='input' type='file' accept='image/*' multiple></div><div id='galleryThumbs' class='thumb-grid'></div></div><div class='card'><h3>Domain</h3><div class='grid-2'><div class='field'><label>Use custom domain</label><select id='useCustomDomain' class='select'><option value='false'>No</option><option value='true'>Yes</option></select></div><div class='field'><label>HTTPS</label><select id='httpsEnabled' class='select'><option value='true'>On</option><option value='false'>Off</option></select></div></div><div class='field'><label>PBI subdomain slug</label><input id='subdomainSlug' class='input' placeholder='your-business'></div><div class='field'><label>Custom domain</label><input id='customDomain' class='input' placeholder='www.yourdomain.co.uk'></div><div id='domainResult' class='notice'>No domain check run yet.</div></div></div></section><aside class='builder-right'><div class='preview-panel'><div class='preview-top'><div><div class='muted' style='font-size:12px;text-transform:uppercase;letter-spacing:.16em'>Live preview</div><div style='font-size:24px;font-weight:700;margin-top:4px'>Website window</div></div><div class='toggle-group'><button id='desktopBtn' class='active'>Desktop</button><button id='mobileBtn'>Mobile</button></div></div><div id='previewFrame' class='browser'><div class='browser-bar'><span class='browser-dot'></span><span class='browser-dot'></span><span class='browser-dot'></span><div class='address'>https://your-business.pbi.dev</div></div><div class='preview-scroll'><div class='site-nav'><div class='site-brand'><div class='site-logo'></div><span>YOUR BUSINESS</span></div><div class='site-links'><button class='active'>Home</button><button>About</button><button>Services</button><button>Contact</button></div></div><div class='page'><h2>Your homepage headline</h2><p>Your website intro will appear here as you build it out.</p></div><footer class='preview-footer'>© Your Business • Crafted with PBI</footer></div></div></div></aside></div></div></main><script src='/assets/builder.js'></script></body></html>
+const projectId = new URLSearchParams(window.location.search).get('project');
+
+const els = {
+  saveBtn: document.getElementById('saveBtn'),
+  backBtn: document.getElementById('backBtn'),
+  logoutBtn: document.getElementById('logoutBtn'),
+  checkDomainBtn: document.getElementById('checkDomainBtn'),
+  onboardDomainBtn: document.getElementById('onboardDomainBtn'),
+
+  projectName: document.getElementById('projectName'),
+  businessName: document.getElementById('businessName'),
+  location: document.getElementById('location'),
+  accentColor: document.getElementById('accentColor'),
+  brandTone: document.getElementById('brandTone'),
+  subdomainSlug: document.getElementById('subdomainSlug'),
+  customDomain: document.getElementById('customDomain'),
+  useCustomDomain: document.getElementById('useCustomDomain'),
+  httpsEnabled: document.getElementById('httpsEnabled'),
+  domainResult: document.getElementById('domainResult'),
+
+  logoUpload: document.getElementById('logoUpload'),
+  galleryUpload: document.getElementById('galleryUpload'),
+  galleryThumbs: document.getElementById('galleryThumbs'),
+
+  previewFrame: document.getElementById('previewFrame'),
+  desktopBtn: document.getElementById('desktopBtn'),
+  mobileBtn: document.getElementById('mobileBtn')
+};
+
+let state = {
+  project_name: '',
+  business_name: '',
+  location: '',
+  accent_color: '#ff8a1a',
+  brand_tone: '',
+  subdomain_slug: '',
+  custom_domain: '',
+  use_custom_domain: false,
+  https_enabled: true,
+  logo_data_url: '',
+  gallery_images: []
+};
+
+function setMessage(message, type = 'info') {
+  if (!els.domainResult) return;
+
+  els.domainResult.textContent = message;
+  els.domainResult.style.display = 'block';
+
+  if (type === 'error') {
+    els.domainResult.style.borderColor = 'rgba(255, 90, 90, 0.6)';
+  } else if (type === 'success') {
+    els.domainResult.style.borderColor = 'rgba(90, 255, 150, 0.6)';
+  } else {
+    els.domainResult.style.borderColor = 'rgba(255, 255, 255, 0.12)';
+  }
+}
+
+function collectFormData() {
+  state.project_name = els.projectName?.value?.trim() || '';
+  state.business_name = els.businessName?.value?.trim() || '';
+  state.location = els.location?.value?.trim() || '';
+  state.accent_color = els.accentColor?.value || '#ff8a1a';
+  state.brand_tone = els.brandTone?.value?.trim() || '';
+  state.subdomain_slug = els.subdomainSlug?.value?.trim() || '';
+  state.custom_domain = els.customDomain?.value?.trim() || '';
+  state.use_custom_domain = els.useCustomDomain?.value === 'true';
+  state.https_enabled = els.httpsEnabled?.value !== 'false';
+
+  return state;
+}
+
+function applyFormData(data) {
+  if (!data) return;
+
+  state = {
+    ...state,
+    ...data
+  };
+
+  if (els.projectName) els.projectName.value = state.project_name || state.name || '';
+  if (els.businessName) els.businessName.value = state.business_name || '';
+  if (els.location) els.location.value = state.location || '';
+  if (els.accentColor) els.accentColor.value = state.accent_color || '#ff8a1a';
+  if (els.brandTone) els.brandTone.value = state.brand_tone || '';
+  if (els.subdomainSlug) els.subdomainSlug.value = state.subdomain_slug || '';
+  if (els.customDomain) els.customDomain.value = state.custom_domain || '';
+  if (els.useCustomDomain) els.useCustomDomain.value = String(Boolean(state.use_custom_domain));
+  if (els.httpsEnabled) els.httpsEnabled.value = String(state.https_enabled !== false);
+
+  renderPreview();
+}
+
+function renderPreview() {
+  collectFormData();
+
+  const business = state.business_name || 'Your Business';
+  const location = state.location || 'Your local area';
+  const tone = state.brand_tone || 'Your website intro will appear here as you build it out.';
+  const accent = state.accent_color || '#ff8a1a';
+  const slug = state.subdomain_slug || 'your-business';
+
+  const preview = els.previewFrame;
+  if (!preview) return;
+
+  const logo = preview.querySelector('.site-logo');
+  const brand = preview.querySelector('.site-brand span');
+  const headline = preview.querySelector('.page h2');
+  const intro = preview.querySelector('.page p');
+  const footer = preview.querySelector('.preview-footer');
+  const address = preview.querySelector('.address');
+
+  if (logo) {
+    logo.style.background = state.logo_data_url
+      ? `url("${state.logo_data_url}") center/cover no-repeat`
+      : accent;
+  }
+
+  if (brand) brand.textContent = business.toUpperCase();
+  if (headline) headline.textContent = `${business} in ${location}`;
+  if (intro) intro.textContent = tone;
+  if (footer) footer.textContent = `© ${business} • Crafted with PBI`;
+  if (address) {
+    address.textContent = state.use_custom_domain && state.custom_domain
+      ? `https://${state.custom_domain}`
+      : `https://${slug}.pbi.dev`;
+  }
+}
+
+async function api(path, options = {}) {
+  const response = await fetch(path, {
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(options.headers || {})
+    },
+    ...options
+  });
+
+  let data = null;
+
+  try {
+    data = await response.json();
+  } catch {
+    data = {};
+  }
+
+  if (!response.ok) {
+    throw new Error(data.error || data.message || `Request failed with status ${response.status}`);
+  }
+
+  return data;
+}
+
+async function loadProject() {
+  if (!projectId) {
+    setMessage('No project ID found in the URL.', 'error');
+    return;
+  }
+
+  try {
+    const data = await api(`/api/projects/get?id=${encodeURIComponent(projectId)}`);
+
+    if (data.project) {
+      const project = data.project;
+      const savedData = project.data_json
+        ? typeof project.data_json === 'string'
+          ? JSON.parse(project.data_json)
+          : project.data_json
+        : {};
+
+      applyFormData({
+        ...savedData,
+        project_name: project.name || savedData.project_name || ''
+      });
+    }
+  } catch (err) {
+    console.warn('Project load skipped:', err.message);
+    renderPreview();
+  }
+}
+
+async function saveProject() {
+  if (!projectId) {
+    setMessage('No project ID found. Cannot save.', 'error');
+    return;
+  }
+
+  const data = collectFormData();
+
+  if (els.saveBtn) {
+    els.saveBtn.disabled = true;
+    els.saveBtn.textContent = 'Saving...';
+  }
+
+  try {
+    const result = await api('/api/projects/update', {
+      method: 'POST',
+      body: JSON.stringify({
+        id: projectId,
+        name: data.project_name || 'Untitled website',
+        data
+      })
+    });
+
+    setMessage('Project saved successfully.', 'success');
+    console.log('Saved project:', result);
+  } catch (err) {
+    setMessage(err.message || 'Save failed.', 'error');
+    console.error(err);
+  } finally {
+    if (els.saveBtn) {
+      els.saveBtn.disabled = false;
+      els.saveBtn.textContent = 'Save project';
+    }
+  }
+}
+
+function readFileAsDataURL(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error('Could not read file.'));
+    reader.readAsDataURL(file);
+  });
+}
+
+async function handleLogoUpload(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+
+  state.logo_data_url = await readFileAsDataURL(file);
+  renderPreview();
+}
+
+async function handleGalleryUpload(event) {
+  const files = [...(event.target.files || [])];
+
+  for (const file of files) {
+    const dataUrl = await readFileAsDataURL(file);
+    state.gallery_images.push(dataUrl);
+  }
+
+  renderGalleryThumbs();
+  renderPreview();
+}
+
+function renderGalleryThumbs() {
+  if (!els.galleryThumbs) return;
+
+  els.galleryThumbs.innerHTML = '';
+
+  for (const image of state.gallery_images) {
+    const img = document.createElement('img');
+    img.src = image;
+    img.alt = 'Gallery image';
+    img.style.width = '72px';
+    img.style.height = '72px';
+    img.style.objectFit = 'cover';
+    img.style.borderRadius = '12px';
+    img.style.border = '1px solid rgba(255,255,255,.12)';
+    els.galleryThumbs.appendChild(img);
+  }
+}
+
+function bindEvents() {
+  const inputs = [
+    els.projectName,
+    els.businessName,
+    els.location,
+    els.accentColor,
+    els.brandTone,
+    els.subdomainSlug,
+    els.customDomain,
+    els.useCustomDomain,
+    els.httpsEnabled
+  ];
+
+  for (const input of inputs) {
+    if (!input) continue;
+    input.addEventListener('input', renderPreview);
+    input.addEventListener('change', renderPreview);
+  }
+
+  els.saveBtn?.addEventListener('click', saveProject);
+
+  els.backBtn?.addEventListener('click', () => {
+    window.location.href = '/dashboard/';
+  });
+
+  els.logoutBtn?.addEventListener('click', async () => {
+    try {
+      await api('/api/auth/logout', { method: 'POST' });
+    } catch {}
+    window.location.href = '/login/';
+  });
+
+  els.logoUpload?.addEventListener('change', handleLogoUpload);
+  els.galleryUpload?.addEventListener('change', handleGalleryUpload);
+
+  els.desktopBtn?.addEventListener('click', () => {
+    els.previewFrame?.classList.remove('mobile-preview');
+    els.desktopBtn.classList.add('active');
+    els.mobileBtn?.classList.remove('active');
+  });
+
+  els.mobileBtn?.addEventListener('click', () => {
+    els.previewFrame?.classList.add('mobile-preview');
+    els.mobileBtn.classList.add('active');
+    els.desktopBtn?.classList.remove('active');
+  });
+
+  els.checkDomainBtn?.addEventListener('click', () => {
+    const domain = els.customDomain?.value?.trim() || els.subdomainSlug?.value?.trim();
+
+    if (!domain) {
+      setMessage('Enter a domain or subdomain first.', 'error');
+      return;
+    }
+
+    setMessage(`Domain check placeholder: ${domain}`, 'info');
+  });
+
+  els.onboardDomainBtn?.addEventListener('click', () => {
+    setMessage('Custom hostname onboarding placeholder. We can wire this next.', 'info');
+  });
+}
+
+bindEvents();
+loadProject();
+renderPreview();
