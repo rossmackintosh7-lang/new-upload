@@ -13,6 +13,11 @@ document.addEventListener('DOMContentLoaded', () => {
     message.className = `notice domain-${type}`;
   }
 
+  function getTurnstileToken() {
+    const tokenInput = document.querySelector('input[name="cf-turnstile-response"]');
+    return String(tokenInput?.value || '').trim();
+  }
+
   if (!form) {
     console.error('Login form not found.');
     return;
@@ -20,12 +25,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
+    event.stopPropagation();
 
     const email = String(emailInput?.value || '').trim();
     const password = String(passwordInput?.value || '');
+    const turnstileToken = getTurnstileToken();
 
     if (!email || !password) {
       showMessage('Enter your email and password.', 'error');
+      return;
+    }
+
+    if (!turnstileToken) {
+      showMessage('Please complete the security check before logging in.', 'error');
       return;
     }
 
@@ -45,13 +57,18 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         body: JSON.stringify({
           email,
-          password
+          password,
+          turnstileToken
         })
       });
 
       const result = await response.json().catch(() => ({}));
 
       if (!response.ok) {
+        if (window.turnstile) {
+          window.turnstile.reset();
+        }
+
         throw new Error(result.error || result.message || `Login failed with status ${response.status}`);
       }
 
