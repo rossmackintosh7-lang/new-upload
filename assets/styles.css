@@ -24,12 +24,7 @@
 html {
   min-height: 100%;
   scroll-behavior: smooth;
-  background:
-    linear-gradient(
-      rgba(255, 248, 241, 0.70),
-      rgba(255, 248, 241, 0.70)
-    ),
-    url("/assets/website-background.png") center center / cover no-repeat fixed;
+  background: #f4ede5;
 }
 
 body {
@@ -41,6 +36,41 @@ body {
   overflow-x: hidden;
   overflow-y: auto;
   position: relative;
+}
+
+/* =========================
+   GLOBAL BACKGROUND IMAGE
+   Your file: Website background image.png
+   70% transparent veil = softly visible
+   ========================= */
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background-image:
+    linear-gradient(
+      rgba(255, 248, 241, 0.70),
+      rgba(255, 248, 241, 0.70)
+    ),
+    url("/assets/Website%20background%20image.png");
+  background-size: cover, cover;
+  background-position: center center, center center;
+  background-repeat: no-repeat, no-repeat;
+  background-attachment: fixed, fixed;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at top right, rgba(255, 247, 238, 0.35), transparent 38%),
+    linear-gradient(135deg, rgba(255, 248, 241, 0.18), rgba(246, 229, 214, 0.12));
 }
 
 /* =========================
@@ -99,7 +129,7 @@ body {
   top: 0;
   z-index: 50;
   width: 100%;
-  background: rgba(255, 250, 245, 0.74);
+  background: rgba(255, 250, 245, 0.72);
   border-bottom: 1px solid var(--pbi-border);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
@@ -209,6 +239,11 @@ p {
   line-height: 1.5;
 }
 
+a {
+  color: var(--pbi-orange-dark);
+  font-weight: 800;
+}
+
 .muted {
   color: var(--pbi-muted);
 }
@@ -287,7 +322,7 @@ p {
    ========================= */
 
 .card {
-  background: var(--pbi-card);
+  background: rgba(255, 250, 245, 0.78);
   border: 1px solid var(--pbi-border);
   border-radius: var(--pbi-radius);
   box-shadow: var(--pbi-shadow);
@@ -381,6 +416,10 @@ label {
 .auth-card {
   width: min(560px, 100%);
   margin: 80px auto;
+}
+
+.auth-card h1 {
+  margin-bottom: 24px;
 }
 
 /* =========================
@@ -573,7 +612,7 @@ label {
 .preview-panel {
   position: sticky;
   top: 174px;
-  background: var(--pbi-card);
+  background: rgba(255, 250, 245, 0.78);
   border: 1px solid var(--pbi-border);
   border-radius: var(--pbi-radius);
   box-shadow: var(--pbi-shadow);
@@ -793,7 +832,7 @@ label {
   border: 1px solid var(--pbi-border);
   border-radius: 16px;
   padding: 14px 16px;
-  background: rgba(255, 250, 245, 0.72);
+  background: rgba(255, 250, 245, 0.78);
   color: var(--pbi-text);
   font-weight: 750;
 }
@@ -940,62 +979,4 @@ label {
   .btn-secondary {
     width: 100%;
   }
-}
-/* =========================
-   HARD FIX: GLOBAL BACKGROUND
-   ========================= */
-
-html,
-body {
-  min-height: 100%;
-}
-
-html {
-  background: #f4ede5 !important;
-}
-
-body {
-  background: transparent !important;
-}
-
-body::before {
-  content: "" !important;
-  position: fixed !important;
-  inset: 0 !important;
-  z-index: -2 !important;
-  pointer-events: none !important;
-  background-image:
-    linear-gradient(
-      rgba(255, 248, 241, 0.70),
-      rgba(255, 248, 241, 0.70)
-    ),
-    url("/assets/website-background.png") !important;
-  background-size: cover, cover !important;
-  background-position: center center, center center !important;
-  background-repeat: no-repeat, no-repeat !important;
-  background-attachment: fixed, fixed !important;
-}
-
-body::after {
-  content: "" !important;
-  position: fixed !important;
-  inset: 0 !important;
-  z-index: -1 !important;
-  pointer-events: none !important;
-  background:
-    radial-gradient(circle at top right, rgba(255, 247, 238, 0.35), transparent 38%),
-    linear-gradient(135deg, rgba(255, 248, 241, 0.18), rgba(246, 229, 214, 0.12)) !important;
-}
-
-.nav {
-  background: rgba(255, 250, 245, 0.72) !important;
-}
-
-.card,
-.auth-card,
-.preview-panel,
-.project-item,
-.project-row,
-.notice {
-  background-color: rgba(255, 250, 245, 0.78) !important;
 }
