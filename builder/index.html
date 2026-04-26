@@ -18,9 +18,9 @@
       </a>
 
       <div class="row">
-        <button class="btn-ghost" id="backBtn">Dashboard</button>
-        <button class="btn-ghost" id="logoutBtn">Logout</button>
-        <button class="btn" id="saveBtn">Save project</button>
+        <button class="btn-ghost" id="backBtn" type="button">Dashboard</button>
+        <button class="btn-ghost" id="logoutBtn" type="button">Logout</button>
+        <button class="btn" id="saveBtn" type="button">Save project</button>
       </div>
     </div>
   </nav>
@@ -29,64 +29,165 @@
     <div class="row-between" style="margin-bottom:18px">
       <div>
         <h1 class="section-title">Website builder</h1>
-        <p class="muted">Edit content on the left. The live preview stays on the right.</p>
-      </div>
-
-      <div class="row">
-        <button class="btn-ghost" id="checkDomainBtn">Check domain</button>
-        <button class="btn-secondary" id="onboardDomainBtn">Onboard custom hostname</button>
+        <p class="muted">Choose your layout, pages, colours, images and domain. The live preview updates as you build.</p>
       </div>
     </div>
+
+    <div id="saveStatus" class="builder-save-status" aria-live="polite"></div>
 
     <div class="builder-app">
       <div class="builder-layout">
         <section class="builder-left">
           <div class="builder-stack">
+
             <div class="card">
               <h3>Project</h3>
 
               <div class="field">
-                <label>Project name</label>
-                <input id="projectName" class="input">
+                <label for="projectName">Project name</label>
+                <input id="projectName" class="input" placeholder="My business website">
               </div>
 
               <div class="field">
-                <label>Business name</label>
-                <input id="businessName" class="input">
+                <label for="businessName">Business name</label>
+                <input id="businessName" class="input" placeholder="Your business name">
               </div>
 
-              <div class="grid-2">
+              <div class="field">
+                <label for="location">Page main heading</label>
+                <input id="location" class="input" placeholder="A bold headline for your homepage">
+              </div>
+
+              <div class="field">
+                <label for="brandTone">Sub heading</label>
+                <textarea id="brandTone" class="textarea" placeholder="A short supporting line that explains what the business does."></textarea>
+              </div>
+
+              <div class="field">
+                <label for="templateChoice">Website template</label>
+                <select id="templateChoice" class="select">
+                  <option value="warm-classic">Warm Classic</option>
+                  <option value="clean-local">Clean Local</option>
+                  <option value="bold-trade">Bold Trade</option>
+                  <option value="elegant-studio">Elegant Studio</option>
+                </select>
+              </div>
+
+              <div class="colour-grid">
                 <div class="field">
-                  <label>Location</label>
-                  <input id="location" class="input">
+                  <label for="backgroundColor">Background colour</label>
+                  <input id="backgroundColor" class="input" type="color" value="#fbf3ec">
                 </div>
 
                 <div class="field">
-                  <label>Accent colour</label>
-                  <input id="accentColor" class="input" type="color" value="#ff8a1a">
+                  <label for="accentColor">Accent colour</label>
+                  <input id="accentColor" class="input" type="color" value="#c86f3d">
+                </div>
+
+                <div class="field">
+                  <label for="textColor">Text colour</label>
+                  <input id="textColor" class="input" type="color" value="#2f1b12">
+                </div>
+
+                <div class="field">
+                  <label for="navColor">Menu colour</label>
+                  <input id="navColor" class="input" type="color" value="#7a3f20">
+                </div>
+
+                <div class="field">
+                  <label for="cardColor">Card colour</label>
+                  <input id="cardColor" class="input" type="color" value="#fffaf5">
+                </div>
+
+                <div class="field">
+                  <label for="buttonColor">Button colour</label>
+                  <input id="buttonColor" class="input" type="color" value="#c86f3d">
                 </div>
               </div>
 
               <div class="field">
-                <label>Brand tone</label>
-                <textarea id="brandTone" class="textarea"></textarea>
+                <label for="buttonTransparency">Button transparency</label>
+                <input id="buttonTransparency" class="range" type="range" min="0" max="70" value="0">
+                <div class="range-note"><span id="buttonTransparencyValue">0%</span> transparent</div>
               </div>
             </div>
 
             <div class="card">
-              <h3>Brand assets</h3>
+              <h3>Page selection</h3>
+              <p class="muted">Choose the pages this website should include, then edit each page below.</p>
+
+              <div class="page-choice-grid">
+                <label class="page-choice">
+                  <input type="checkbox" class="page-toggle" value="home" checked disabled>
+                  <span>Home</span>
+                </label>
+
+                <label class="page-choice">
+                  <input type="checkbox" class="page-toggle" value="about" checked>
+                  <span>About</span>
+                </label>
+
+                <label class="page-choice">
+                  <input type="checkbox" class="page-toggle" value="services" checked>
+                  <span>Services</span>
+                </label>
+
+                <label class="page-choice">
+                  <input type="checkbox" class="page-toggle" value="gallery" checked>
+                  <span>Gallery</span>
+                </label>
+
+                <label class="page-choice">
+                  <input type="checkbox" class="page-toggle" value="contact" checked>
+                  <span>Contact</span>
+                </label>
+              </div>
+
+              <div class="page-tabs" id="pageTabs">
+                <button type="button" class="active" data-page="home">Home</button>
+                <button type="button" data-page="about">About</button>
+                <button type="button" data-page="services">Services</button>
+                <button type="button" data-page="gallery">Gallery</button>
+                <button type="button" data-page="contact">Contact</button>
+              </div>
 
               <div class="field">
-                <label>Upload logo</label>
+                <label for="pageTitle">Page heading</label>
+                <input id="pageTitle" class="input">
+              </div>
+
+              <div class="field">
+                <label for="pageBody">Page text</label>
+                <textarea id="pageBody" class="textarea"></textarea>
+              </div>
+            </div>
+
+            <div class="card">
+              <h3>Brand design</h3>
+
+              <div class="field">
+                <label for="logoUpload">Upload logo</label>
                 <input id="logoUpload" class="input" type="file" accept="image/*">
               </div>
 
               <div class="field">
-                <label>Upload gallery images</label>
+                <label for="galleryUpload">Upload pictures</label>
                 <input id="galleryUpload" class="input" type="file" accept="image/*" multiple>
+                <p class="muted small-note">Uploaded pictures appear below. Drag them into the live preview window.</p>
               </div>
 
               <div id="galleryThumbs" class="thumb-grid"></div>
+
+              <div class="field" style="margin-top:24px">
+                <label for="backgroundUpload">Upload background image</label>
+                <input id="backgroundUpload" class="input" type="file" accept="image/*">
+              </div>
+
+              <div class="field">
+                <label for="backgroundTransparency">Background image transparency</label>
+                <input id="backgroundTransparency" class="range" type="range" min="0" max="60" value="25">
+                <div class="range-note"><span id="backgroundTransparencyValue">25%</span> transparent, maximum 60%</div>
+              </div>
             </div>
 
             <div class="card">
@@ -94,7 +195,7 @@
 
               <div class="grid-2">
                 <div class="field">
-                  <label>Use custom domain</label>
+                  <label for="useCustomDomain">Use custom domain</label>
                   <select id="useCustomDomain" class="select">
                     <option value="false">No</option>
                     <option value="true">Yes</option>
@@ -102,7 +203,7 @@
                 </div>
 
                 <div class="field">
-                  <label>HTTPS</label>
+                  <label for="httpsEnabled">HTTPS</label>
                   <select id="httpsEnabled" class="select">
                     <option value="true">On</option>
                     <option value="false">Off</option>
@@ -111,17 +212,23 @@
               </div>
 
               <div class="field">
-                <label>PBI subdomain slug</label>
+                <label for="subdomainSlug">PBI subdomain slug</label>
                 <input id="subdomainSlug" class="input" placeholder="your-business">
               </div>
 
               <div class="field">
-                <label>Custom domain</label>
-                <input id="customDomain" class="input" placeholder="www.yourdomain.co.uk">
+                <label for="customDomain">Custom domain</label>
+                <input id="customDomain" class="input" placeholder="yourdomain.co.uk">
               </div>
 
-              <div id="domainResult" class="notice">No domain check run yet.</div>
+              <div class="row">
+                <button class="btn-ghost" id="checkDomainBtn" type="button">Check domain</button>
+                <button class="btn-secondary" id="onboardDomainBtn" type="button">Onboard custom hostname</button>
+              </div>
+
+              <div id="domainResult" class="notice" style="margin-top:16px">No domain check run yet.</div>
             </div>
+
           </div>
         </section>
 
@@ -129,13 +236,13 @@
           <div class="preview-panel">
             <div class="preview-top">
               <div>
-                <div class="muted" style="font-size:12px;text-transform:uppercase;letter-spacing:.16em">Live preview</div>
+                <div class="muted">Live preview</div>
                 <div style="font-size:24px;font-weight:700;margin-top:4px">Website window</div>
               </div>
 
               <div class="toggle-group">
-                <button id="desktopBtn" class="active">Desktop</button>
-                <button id="mobileBtn">Mobile</button>
+                <button id="desktopBtn" class="active" type="button">Desktop</button>
+                <button id="mobileBtn" type="button">Mobile</button>
               </div>
             </div>
 
@@ -147,24 +254,32 @@
                 <div class="address">https://your-business.pbi.dev</div>
               </div>
 
-              <div class="preview-scroll">
+              <div class="preview-scroll" id="previewDropZone">
+                <div class="preview-bg-layer" id="previewBgLayer"></div>
+
                 <div class="site-nav">
                   <div class="site-brand">
                     <div class="site-logo"></div>
                     <span>YOUR BUSINESS</span>
                   </div>
 
-                  <div class="site-links">
-                    <button class="active">Home</button>
-                    <button>About</button>
-                    <button>Services</button>
-                    <button>Contact</button>
+                  <div class="site-links" id="previewLinks">
+                    <button type="button" class="active" data-page="home">Home</button>
+                    <button type="button" data-page="about">About</button>
+                    <button type="button" data-page="services">Services</button>
+                    <button type="button" data-page="gallery">Gallery</button>
+                    <button type="button" data-page="contact">Contact</button>
                   </div>
                 </div>
 
                 <div class="page">
+                  <div class="preview-template-label" id="previewTemplateLabel">Warm Classic</div>
                   <h2>Your homepage headline</h2>
                   <p>Your website intro will appear here as you build it out.</p>
+                  <button class="preview-cta" type="button">Get started</button>
+                  <div id="previewImageArea" class="preview-image-area">
+                    <div class="drop-hint">Drag uploaded pictures here</div>
+                  </div>
                 </div>
 
                 <footer class="preview-footer">© Your Business • Crafted with PBI</footer>
