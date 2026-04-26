@@ -941,3 +941,61 @@ label {
     width: 100%;
   }
 }
+/* =========================
+   HARD FIX: GLOBAL BACKGROUND
+   ========================= */
+
+html,
+body {
+  min-height: 100%;
+}
+
+html {
+  background: #f4ede5 !important;
+}
+
+body {
+  background: transparent !important;
+}
+
+body::before {
+  content: "" !important;
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: -2 !important;
+  pointer-events: none !important;
+  background-image:
+    linear-gradient(
+      rgba(255, 248, 241, 0.70),
+      rgba(255, 248, 241, 0.70)
+    ),
+    url("/assets/website-background.png") !important;
+  background-size: cover, cover !important;
+  background-position: center center, center center !important;
+  background-repeat: no-repeat, no-repeat !important;
+  background-attachment: fixed, fixed !important;
+}
+
+body::after {
+  content: "" !important;
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: -1 !important;
+  pointer-events: none !important;
+  background:
+    radial-gradient(circle at top right, rgba(255, 247, 238, 0.35), transparent 38%),
+    linear-gradient(135deg, rgba(255, 248, 241, 0.18), rgba(246, 229, 214, 0.12)) !important;
+}
+
+.nav {
+  background: rgba(255, 250, 245, 0.72) !important;
+}
+
+.card,
+.auth-card,
+.preview-panel,
+.project-item,
+.project-row,
+.notice {
+  background-color: rgba(255, 250, 245, 0.78) !important;
+}
