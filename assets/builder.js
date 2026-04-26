@@ -184,32 +184,60 @@
     els.domainResult.className = `notice domain-${type}`;
   }
 
-  async function api(path, options = {}) {
-    const response = await fetch(path, {
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(options.headers || {})
-      },
-      ...options
-    });
+ async function onboardDomain() {
+  const domain = safeText(els.customDomain?.value, '');
 
-    let data = {};
-
-    try {
-      data = await response.json();
-    } catch {
-      data = {};
-    }
-
-    if (!response.ok) {
-      const message = data.error || data.message || `Request failed with ${response.status}`;
-      throw new Error(message);
-    }
-
-    return data;
+  if (!domain) {
+    setDomainMessage('Enter a custom domain before onboarding.', 'error');
+    return;
   }
 
+  if (els.onboardDomainBtn) {
+    els.onboardDomainBtn.disabled = true;
+    els.onboardDomainBtn.textContent = 'Onboarding...';
+  }
+
+  setDomainMessage(`Onboarding ${domain} with Cloudflare...`, 'info');
+
+  try {
+    const data = await api('/api/domain/onboard', {
+      method: 'POST',
+      body: JSON.stringify({
+        hostname: domain
+      })
+    });
+
+    console.log('Custom hostname onboarded:', data);
+
+    const result = data.result || {};
+    const ssl = result.ssl || {};
+    const ownershipVerification = result.ownership_verification || {};
+    const ownershipVerificationHttp = result.ownership_verification_http || {};
+
+    const status = result.status || 'pending';
+    const sslStatus = ssl.status || 'pending_validation';
+
+    let instructions = `${domain} has been submitted to Cloudflare. Status: ${status}. SSL: ${sslStatus}.`;
+
+    if (ownershipVerification.name && ownershipVerification.value) {
+      instructions += ` Add this TXT record: ${ownershipVerification.name} = ${ownershipVerification.value}.`;
+    }
+
+    if (ownershipVerificationHttp.http_url && ownershipVerificationHttp.http_body) {
+      instructions += ` HTTP validation is available. URL: ${ownershipVerificationHttp.http_url}`;
+    }
+
+    setDomainMessage(instructions, 'success');
+  } catch (err) {
+    console.error(err);
+    setDomainMessage(err.message || 'Could not onboard custom hostname.', 'error');
+  } finally {
+    if (els.onboardDomainBtn) {
+      els.onboardDomainBtn.disabled = false;
+      els.onboardDomainBtn.textContent = 'Onboard custom hostname';
+    }
+  }
+}
   function readFileAsDataUrl(file) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
