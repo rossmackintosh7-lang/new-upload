@@ -7,7 +7,6 @@
     logoutBtn: document.getElementById('logoutBtn'),
 
     checkDomainBtn: document.getElementById('checkDomainBtn'),
-    onboardDomainBtn: document.getElementById('onboardDomainBtn'),
 
     projectName: document.getElementById('projectName'),
     businessName: document.getElementById('businessName'),
@@ -28,35 +27,6 @@
     desktopBtn: document.getElementById('desktopBtn'),
     mobileBtn: document.getElementById('mobileBtn'),
     previewFrame: document.getElementById('previewFrame')
-  };
-
-  const state = {
-    project: null,
-    activePage: 'home',
-    logoDataUrl: '',
-    backgroundImageDataUrl: '',
-    galleryImages: [],
-    textBoxes: {},
-    selectedPages: ['home', 'gallery'],
-    data: {
-      project_name: '',
-      business_name: '',
-      page_heading: '',
-      sub_heading: '',
-      accent_color: '#c86f3d',
-      background_color: '#fff8f1',
-      text_color: '#2f1b12',
-      nav_color: '#8a431d',
-      card_color: '#fffaf5',
-      button_color: '#c86f3d',
-      button_transparency: 100,
-      background_image_transparency: 25,
-      template: 'warm-classic',
-      subdomain_slug: '',
-      custom_domain: '',
-      use_custom_domain: false,
-      https_enabled: true
-    }
   };
 
   const templates = [
@@ -89,6 +59,34 @@
     { id: 'gallery', label: 'Gallery' },
     { id: 'contact', label: 'Contact' }
   ];
+
+  const state = {
+    project: null,
+    activePage: 'home',
+    selectedPages: ['home', 'gallery'],
+    logoDataUrl: '',
+    backgroundImageDataUrl: '',
+    galleryImages: [],
+    data: {
+      project_name: '',
+      business_name: '',
+      page_heading: '',
+      sub_heading: '',
+      accent_color: '#c86f3d',
+      background_color: '#fff8f1',
+      text_color: '#2f1b12',
+      nav_color: '#8a431d',
+      card_color: '#fffaf5',
+      button_color: '#c86f3d',
+      button_transparency: 100,
+      background_image_transparency: 25,
+      template: 'warm-classic',
+      subdomain_slug: '',
+      custom_domain: '',
+      use_custom_domain: false,
+      https_enabled: true
+    }
+  };
 
   function safeText(value, fallback = '') {
     const text = String(value || '').trim();
@@ -138,25 +136,10 @@
     return `${prefix}_${Date.now()}_${Math.random().toString(16).slice(2)}`;
   }
 
-  function getSaveStatusEl() {
-    let el = document.getElementById('builderSaveStatus');
-
-    if (!el) {
-      el = document.createElement('div');
-      el.id = 'builderSaveStatus';
-      el.className = 'builder-save-status';
-
-      const mainSection = document.querySelector('main .row-between') || document.querySelector('main');
-      if (mainSection) {
-        mainSection.insertAdjacentElement('afterend', el);
-      }
-    }
-
-    return el;
-  }
-
   function setMessage(message, type = 'info') {
-    const el = getSaveStatusEl();
+    const el = document.getElementById('builderSaveStatus');
+
+    if (!el) return;
 
     if (!message) {
       el.textContent = '';
@@ -184,60 +167,32 @@
     els.domainResult.className = `notice domain-${type}`;
   }
 
- async function onboardDomain() {
-  const domain = safeText(els.customDomain?.value, '');
-
-  if (!domain) {
-    setDomainMessage('Enter a custom domain before onboarding.', 'error');
-    return;
-  }
-
-  if (els.onboardDomainBtn) {
-    els.onboardDomainBtn.disabled = true;
-    els.onboardDomainBtn.textContent = 'Onboarding...';
-  }
-
-  setDomainMessage(`Onboarding ${domain} with Cloudflare...`, 'info');
-
-  try {
-    const data = await api('/api/domain/onboard', {
-      method: 'POST',
-      body: JSON.stringify({
-        hostname: domain
-      })
+  async function api(path, options = {}) {
+    const response = await fetch(path, {
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(options.headers || {})
+      },
+      ...options
     });
 
-    console.log('Custom hostname onboarded:', data);
+    let data = {};
 
-    const result = data.result || {};
-    const ssl = result.ssl || {};
-    const ownershipVerification = result.ownership_verification || {};
-    const ownershipVerificationHttp = result.ownership_verification_http || {};
-
-    const status = result.status || 'pending';
-    const sslStatus = ssl.status || 'pending_validation';
-
-    let instructions = `${domain} has been submitted to Cloudflare. Status: ${status}. SSL: ${sslStatus}.`;
-
-    if (ownershipVerification.name && ownershipVerification.value) {
-      instructions += ` Add this TXT record: ${ownershipVerification.name} = ${ownershipVerification.value}.`;
+    try {
+      data = await response.json();
+    } catch {
+      data = {};
     }
 
-    if (ownershipVerificationHttp.http_url && ownershipVerificationHttp.http_body) {
-      instructions += ` HTTP validation is available. URL: ${ownershipVerificationHttp.http_url}`;
+    if (!response.ok) {
+      const message = data.error || data.message || `Request failed with ${response.status}`;
+      throw new Error(message);
     }
 
-    setDomainMessage(instructions, 'success');
-  } catch (err) {
-    console.error(err);
-    setDomainMessage(err.message || 'Could not onboard custom hostname.', 'error');
-  } finally {
-    if (els.onboardDomainBtn) {
-      els.onboardDomainBtn.disabled = false;
-      els.onboardDomainBtn.textContent = 'Onboard custom hostname';
-    }
+    return data;
   }
-}
+
   function readFileAsDataUrl(file) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -248,39 +203,14 @@
     });
   }
 
-  function updateFieldLabels() {
-    const brandToneLabel =
-      document.querySelector('label[for="brandTone"]') ||
-      els.brandTone?.closest('.field')?.querySelector('label');
-
-    if (brandToneLabel) {
-      brandToneLabel.textContent = 'Sub heading';
-    }
-
-    const locationLabel =
-      document.querySelector('label[for="location"]') ||
-      els.location?.closest('.field')?.querySelector('label');
-
-    if (locationLabel) {
-      locationLabel.textContent = 'Page main heading';
-    }
-
-    const brandAssetsHeading = [...document.querySelectorAll('.card h3')]
-      .find((heading) => heading.textContent.trim().toLowerCase() === 'brand assets');
-
-    if (brandAssetsHeading) {
-      brandAssetsHeading.textContent = 'Brand design';
-    }
-  }
-
   function addColourAndTemplateControls() {
     const projectCard = els.projectName?.closest('.card');
 
     if (!projectCard || document.getElementById('templateChoice')) return;
 
-    const controlBlock = document.createElement('div');
+    const block = document.createElement('div');
 
-    controlBlock.innerHTML = `
+    block.innerHTML = `
       <div class="field">
         <label for="templateChoice">Website template</label>
         <select id="templateChoice" class="select">
@@ -290,11 +220,6 @@
       </div>
 
       <div class="colour-grid">
-        <div class="field">
-          <label for="accentColor">Accent colour</label>
-          <input id="accentColorReplacement" class="input" type="color" value="#c86f3d">
-        </div>
-
         <div class="field">
           <label for="backgroundColor">Background colour</label>
           <input id="backgroundColor" class="input" type="color" value="#fff8f1">
@@ -328,17 +253,7 @@
       </div>
     `;
 
-    projectCard.appendChild(controlBlock);
-
-    const oldAccent = document.getElementById('accentColor');
-    const newAccent = document.getElementById('accentColorReplacement');
-
-    if (oldAccent && newAccent) {
-      newAccent.value = oldAccent.value || '#c86f3d';
-      oldAccent.closest('.field')?.remove();
-      newAccent.id = 'accentColor';
-      els.accentColor = newAccent;
-    }
+    projectCard.appendChild(block);
   }
 
   function addPageSelectionControls() {
@@ -346,17 +261,7 @@
 
     if (!brandCard) return;
 
-    document.querySelectorAll('#pageSelectionCard').forEach((card) => {
-      card.remove();
-    });
-
-    document.querySelectorAll('.combined-page-section').forEach((section) => {
-      const parentCard = section.closest('.card');
-
-      if (parentCard && parentCard.id !== 'pageSelectionCard') {
-        parentCard.remove();
-      }
-    });
+    document.querySelectorAll('#pageSelectionCard').forEach((card) => card.remove());
 
     const card = document.createElement('div');
     card.className = 'card';
@@ -373,11 +278,7 @@
           <div id="pageChoiceGrid" class="page-choice-grid">
             ${pageOptions.map((page) => `
               <label class="page-choice">
-                <input
-                  type="checkbox"
-                  value="${page.id}"
-                  ${state.selectedPages.includes(page.id) ? 'checked' : ''}
-                >
+                <input type="checkbox" value="${page.id}" ${state.selectedPages.includes(page.id) ? 'checked' : ''}>
                 <span>${page.label}</span>
               </label>
             `).join('')}
@@ -386,18 +287,8 @@
 
         <div>
           <h4 class="mini-heading">Page currently editing</h4>
-
           <div id="pageTabs" class="page-tabs"></div>
-
-          <div class="textbox-toolbar">
-            <button id="addTextBoxBtn" type="button" class="btn-secondary">
-              Add text box
-            </button>
-
-            <p class="muted small-note">
-              Adds a movable text box to the selected page. Click the text box to edit it, then drag it around the live preview.
-            </p>
-          </div>
+          <p class="muted small-note">Select a page above to preview it. Page-specific text editing will be added cleanly in the next upgrade.</p>
         </div>
       </div>
     `;
@@ -411,22 +302,14 @@
     if (!brandCard || document.getElementById('backgroundImageUpload')) return;
 
     const heading = brandCard.querySelector('h3');
+    if (heading) heading.textContent = 'Brand design';
 
-    if (heading) {
-      heading.textContent = 'Brand design';
-    }
+    const galleryLabel = els.galleryUpload?.closest('.field')?.querySelector('label');
+    if (galleryLabel) galleryLabel.textContent = 'Upload pictures';
 
-    if (els.galleryUpload) {
-      const galleryLabel = els.galleryUpload.closest('.field')?.querySelector('label');
+    const block = document.createElement('div');
 
-      if (galleryLabel) {
-        galleryLabel.textContent = 'Upload pictures';
-      }
-    }
-
-    const backgroundBlock = document.createElement('div');
-
-    backgroundBlock.innerHTML = `
+    block.innerHTML = `
       <div class="field">
         <label for="backgroundImageUpload">Upload background image</label>
         <input id="backgroundImageUpload" class="input" type="file" accept="image/*">
@@ -439,49 +322,7 @@
       </div>
     `;
 
-    brandCard.appendChild(backgroundBlock);
-  }
-
-  function moveDomainButtonsIntoDomainCard() {
-    const domainCard = els.customDomain?.closest('.card') || els.domainResult?.closest('.card');
-
-    if (!domainCard) return;
-
-    let buttonRow = document.getElementById('domainButtonRow');
-
-    if (!buttonRow) {
-      buttonRow = document.createElement('div');
-      buttonRow.id = 'domainButtonRow';
-      buttonRow.className = 'row';
-      buttonRow.style.marginTop = '12px';
-
-      if (els.customDomain) {
-        els.customDomain.closest('.field')?.insertAdjacentElement('afterend', buttonRow);
-      } else {
-        domainCard.appendChild(buttonRow);
-      }
-    }
-
-    if (els.checkDomainBtn && els.checkDomainBtn.parentElement !== buttonRow) {
-      buttonRow.appendChild(els.checkDomainBtn);
-    }
-
-    if (els.onboardDomainBtn && els.onboardDomainBtn.parentElement !== buttonRow) {
-      buttonRow.appendChild(els.onboardDomainBtn);
-    }
-  }
-
-  function removeImageDragDropOption() {
-    const previewImageArea = document.getElementById('previewImageArea');
-
-    if (previewImageArea) {
-      previewImageArea.remove();
-    }
-
-    document.querySelectorAll('.thumb-item').forEach((thumb) => {
-      thumb.draggable = false;
-      thumb.style.cursor = 'default';
-    });
+    brandCard.appendChild(block);
   }
 
   function getEnhancedEls() {
@@ -497,23 +338,42 @@
       buttonTransparencyNote: document.getElementById('buttonTransparencyNote'),
       pageChoiceGrid: document.getElementById('pageChoiceGrid'),
       pageTabs: document.getElementById('pageTabs'),
-      addTextBoxBtn: document.getElementById('addTextBoxBtn'),
       backgroundImageUpload: document.getElementById('backgroundImageUpload'),
       backgroundTransparency: document.getElementById('backgroundTransparency'),
       backgroundTransparencyNote: document.getElementById('backgroundTransparencyNote')
     };
   }
 
-  function collectFormData() {
+  function updateRangeNotes() {
     const enhanced = getEnhancedEls();
 
-    const buttonTransparency = Number(enhanced.buttonTransparency?.value || 100);
-    const backgroundImageTransparency = Math.min(60, Number(enhanced.backgroundTransparency?.value || 25));
+    if (enhanced.buttonTransparencyNote && enhanced.buttonTransparency) {
+      enhanced.buttonTransparencyNote.textContent = `${enhanced.buttonTransparency.value}% solid`;
+    }
+
+    if (enhanced.backgroundTransparencyNote && enhanced.backgroundTransparency) {
+      const value = Math.min(60, Number(enhanced.backgroundTransparency.value || 25));
+      enhanced.backgroundTransparency.value = String(value);
+      enhanced.backgroundTransparencyNote.textContent = `${value}% transparent, maximum 60%`;
+    }
+
+    if (enhanced.templateDescription && enhanced.templateChoice) {
+      const template = templates.find((item) => item.id === enhanced.templateChoice.value);
+      enhanced.templateDescription.textContent = template?.description || '';
+    }
+  }
+
+  function collectFormData() {
+    const enhanced = getEnhancedEls();
 
     const selectedPages = [...document.querySelectorAll('#pageChoiceGrid input[type="checkbox"]:checked')]
       .map((input) => input.value);
 
     state.selectedPages = selectedPages.length ? selectedPages : ['home'];
+
+    if (!state.selectedPages.includes(state.activePage)) {
+      state.activePage = state.selectedPages[0] || 'home';
+    }
 
     state.data = {
       project_name: safeText(els.projectName?.value, 'Untitled website'),
@@ -526,15 +386,14 @@
       nav_color: normaliseColour(enhanced.navColor?.value, '#8a431d'),
       card_color: normaliseColour(enhanced.cardColor?.value, '#fffaf5'),
       button_color: normaliseColour(enhanced.buttonColor?.value, '#c86f3d'),
-      button_transparency: buttonTransparency,
-      background_image_transparency: backgroundImageTransparency,
+      button_transparency: Number(enhanced.buttonTransparency?.value || 100),
+      background_image_transparency: Math.min(60, Number(enhanced.backgroundTransparency?.value || 25)),
       template: enhanced.templateChoice?.value || 'warm-classic',
       selected_pages: state.selectedPages,
       active_page: state.activePage,
       logo_data_url: state.logoDataUrl,
       background_image_data_url: state.backgroundImageDataUrl,
       gallery_images: state.galleryImages,
-      text_boxes: state.textBoxes,
       subdomain_slug: safeText(els.subdomainSlug?.value, ''),
       custom_domain: safeText(els.customDomain?.value, ''),
       use_custom_domain: ['true', 'yes', 'Yes'].includes(String(els.useCustomDomain?.value)),
@@ -555,7 +414,6 @@
     state.logoDataUrl = data.logo_data_url || '';
     state.backgroundImageDataUrl = data.background_image_data_url || '';
     state.galleryImages = Array.isArray(data.gallery_images) ? data.gallery_images : [];
-    state.textBoxes = data.text_boxes && typeof data.text_boxes === 'object' ? data.text_boxes : {};
 
     if (els.projectName) els.projectName.value = data.project_name || state.project?.name || '';
     if (els.businessName) els.businessName.value = data.business_name || '';
@@ -583,25 +441,6 @@
     renderPageChoices();
     renderGalleryThumbs();
     renderPreview();
-  }
-
-  function updateRangeNotes() {
-    const enhanced = getEnhancedEls();
-
-    if (enhanced.buttonTransparencyNote && enhanced.buttonTransparency) {
-      enhanced.buttonTransparencyNote.textContent = `${enhanced.buttonTransparency.value}% solid`;
-    }
-
-    if (enhanced.backgroundTransparencyNote && enhanced.backgroundTransparency) {
-      const value = Math.min(60, Number(enhanced.backgroundTransparency.value || 25));
-      enhanced.backgroundTransparency.value = String(value);
-      enhanced.backgroundTransparencyNote.textContent = `${value}% transparent, maximum 60%`;
-    }
-
-    if (enhanced.templateDescription && enhanced.templateChoice) {
-      const template = templates.find((item) => item.id === enhanced.templateChoice.value);
-      enhanced.templateDescription.textContent = template?.description || '';
-    }
   }
 
   function renderPageChoices() {
@@ -638,28 +477,23 @@
     const contentByPage = {
       home: {
         title: mainHeading,
-        body: subHeading,
-        label: 'Home'
+        body: subHeading
       },
       about: {
         title: `About ${businessName}`,
-        body: subHeading || 'Tell customers who you are, what you do and why your business matters.',
-        label: 'About'
+        body: subHeading || 'Tell customers who you are, what you do and why your business matters.'
       },
       services: {
         title: `${businessName} services`,
-        body: subHeading || 'Show your key services, offers and reasons to choose you.',
-        label: 'Services'
+        body: subHeading || 'Show your key services, offers and reasons to choose you.'
       },
       gallery: {
         title: `${businessName} gallery`,
-        body: subHeading || 'Show images that help customers understand your work.',
-        label: 'Gallery'
+        body: subHeading || 'Show images that help customers understand your work.'
       },
       contact: {
         title: `Contact ${businessName}`,
-        body: subHeading || 'Add your contact details, opening hours and location.',
-        label: 'Contact'
+        body: subHeading || 'Add your contact details, opening hours and location.'
       }
     };
 
@@ -674,7 +508,6 @@
     state.galleryImages.forEach((image, index) => {
       const item = document.createElement('div');
       item.className = 'thumb-item';
-      item.draggable = false;
 
       item.innerHTML = `
         <img src="${image.dataUrl}" alt="${image.name || 'Uploaded picture'}">
@@ -697,173 +530,6 @@
 
   function getPreviewPage() {
     return document.querySelector('.preview-scroll .page');
-  }
-
-  function renderTextBoxes() {
-    const page = getPreviewPage();
-
-    if (!page) return;
-
-    page.querySelectorAll('.pbi-movable-textbox').forEach((box) => box.remove());
-
-    page.style.position = 'relative';
-    page.style.minHeight = page.style.minHeight || '420px';
-    page.style.overflow = 'hidden';
-
-    const boxes = state.textBoxes[state.activePage] || [];
-
-    boxes.forEach((boxData) => {
-      const box = document.createElement('div');
-      box.className = 'pbi-movable-textbox';
-      box.dataset.textBoxId = boxData.id;
-      box.contentEditable = 'false';
-      box.spellcheck = true;
-
-      box.style.left = `${Number(boxData.x || 40)}px`;
-      box.style.top = `${Number(boxData.y || 180)}px`;
-      box.style.width = `${Number(boxData.width || 240)}px`;
-      box.style.fontSize = `${Number(boxData.fontSize || 20)}px`;
-      box.style.color = boxData.color || state.data.text_color || '#2f1b12';
-      box.style.background = boxData.background || 'rgba(255, 250, 245, 0.76)';
-
-      const textNode = document.createElement('span');
-      textNode.className = 'pbi-textbox-text';
-      textNode.contentEditable = 'true';
-      textNode.textContent = boxData.text || 'New text box';
-
-      const controls = document.createElement('div');
-      controls.className = 'pbi-textbox-controls';
-      controls.contentEditable = 'false';
-
-      const smallerBtn = document.createElement('button');
-      smallerBtn.type = 'button';
-      smallerBtn.textContent = 'A-';
-
-      const largerBtn = document.createElement('button');
-      largerBtn.type = 'button';
-      largerBtn.textContent = 'A+';
-
-      const deleteBtn = document.createElement('button');
-      deleteBtn.type = 'button';
-      deleteBtn.textContent = 'Delete';
-
-      controls.appendChild(smallerBtn);
-      controls.appendChild(largerBtn);
-      controls.appendChild(deleteBtn);
-
-      box.appendChild(textNode);
-      box.appendChild(controls);
-
-      textNode.addEventListener('input', () => {
-        boxData.text = textNode.textContent.trim();
-      });
-
-      smallerBtn.addEventListener('click', (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-
-        boxData.fontSize = Math.max(12, Number(boxData.fontSize || 20) - 2);
-        renderTextBoxes();
-      });
-
-      largerBtn.addEventListener('click', (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-
-        boxData.fontSize = Math.min(72, Number(boxData.fontSize || 20) + 2);
-        renderTextBoxes();
-      });
-
-      deleteBtn.addEventListener('click', (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-
-        const list = state.textBoxes[state.activePage] || [];
-        state.textBoxes[state.activePage] = list.filter((item) => item.id !== boxData.id);
-
-        renderTextBoxes();
-      });
-
-      attachTextboxDrag(box, boxData, page);
-
-      page.appendChild(box);
-    });
-  }
-
-  function attachTextboxDrag(box, boxData, boundary) {
-    let isDragging = false;
-    let startX = 0;
-    let startY = 0;
-    let originalX = 0;
-    let originalY = 0;
-
-    box.addEventListener('pointerdown', (event) => {
-      if (event.target.closest('.pbi-textbox-controls')) return;
-      if (event.target.classList.contains('pbi-textbox-text')) return;
-
-      isDragging = true;
-      startX = event.clientX;
-      startY = event.clientY;
-      originalX = Number(boxData.x || 0);
-      originalY = Number(boxData.y || 0);
-
-      box.classList.add('dragging');
-      box.setPointerCapture(event.pointerId);
-    });
-
-    box.addEventListener('pointermove', (event) => {
-      if (!isDragging) return;
-
-      const dx = event.clientX - startX;
-      const dy = event.clientY - startY;
-
-      const maxX = Math.max(0, boundary.clientWidth - box.offsetWidth - 10);
-      const maxY = Math.max(0, boundary.clientHeight - box.offsetHeight - 10);
-
-      const nextX = Math.min(Math.max(0, originalX + dx), maxX);
-      const nextY = Math.min(Math.max(0, originalY + dy), maxY);
-
-      boxData.x = nextX;
-      boxData.y = nextY;
-
-      box.style.left = `${nextX}px`;
-      box.style.top = `${nextY}px`;
-    });
-
-    box.addEventListener('pointerup', (event) => {
-      if (!isDragging) return;
-
-      isDragging = false;
-      box.classList.remove('dragging');
-
-      try {
-        box.releasePointerCapture(event.pointerId);
-      } catch {
-        // Ignore pointer release failure.
-      }
-    });
-  }
-
-  function addTextBox() {
-    const page = state.activePage || 'home';
-
-    if (!state.textBoxes[page]) {
-      state.textBoxes[page] = [];
-    }
-
-    state.textBoxes[page].push({
-      id: uid('textbox'),
-      text: 'New text box',
-      x: 40,
-      y: 180,
-      width: 240,
-      fontSize: 20,
-      color: state.data.text_color || '#2f1b12',
-      background: 'rgba(255, 250, 245, 0.76)'
-    });
-
-    renderTextBoxes();
-    setMessage('Text box added. Remember to save your project.', 'info');
   }
 
   function renderPreview() {
@@ -1007,9 +673,6 @@
 
     const footer = document.querySelector('.preview-footer');
     if (footer) footer.textContent = `© ${businessName} • Crafted with PBI`;
-
-    renderTextBoxes();
-    removeImageDragDropOption();
   }
 
   async function loadProject() {
@@ -1161,17 +824,6 @@
     }
   }
 
-  async function onboardDomain() {
-    const domain = safeText(els.customDomain?.value, '');
-
-    if (!domain) {
-      setDomainMessage('Enter a custom domain before onboarding.', 'error');
-      return;
-    }
-
-    setDomainMessage('Custom hostname onboarding placeholder. We can wire this next.', 'info');
-  }
-
   async function handleLogoUpload(event) {
     const file = event.target.files?.[0];
 
@@ -1231,7 +883,7 @@
         credentials: 'include'
       });
     } catch {
-      // Still send user to login.
+      // Still redirect.
     }
 
     window.location.href = '/login/';
@@ -1249,7 +901,6 @@
     if (els.logoutBtn) els.logoutBtn.addEventListener('click', logout);
 
     if (els.checkDomainBtn) els.checkDomainBtn.addEventListener('click', checkDomain);
-    if (els.onboardDomainBtn) els.onboardDomainBtn.addEventListener('click', onboardDomain);
 
     if (els.logoUpload) els.logoUpload.addEventListener('change', handleLogoUpload);
     if (els.galleryUpload) els.galleryUpload.addEventListener('change', handleGalleryUpload);
@@ -1302,10 +953,6 @@
         renderPageChoices();
         renderPreview();
       }
-
-      if (event.target.closest('#addTextBoxBtn')) {
-        addTextBox();
-      }
     });
 
     if (els.desktopBtn && els.mobileBtn && els.previewFrame) {
@@ -1326,12 +973,9 @@
   }
 
   function bootEnhancements() {
-    updateFieldLabels();
     addColourAndTemplateControls();
     addPageSelectionControls();
     upgradeBrandDesignSection();
-    moveDomainButtonsIntoDomainCard();
-    removeImageDragDropOption();
     updateRangeNotes();
     renderPageChoices();
   }
@@ -1349,7 +993,6 @@
 
     setTimeout(() => {
       renderPreview();
-      removeImageDragDropOption();
     }, 500);
   }
 
