@@ -1,141 +1,109 @@
-document.addEventListener('DOMContentLoaded', () => {
+(() => {
   const projectId = new URLSearchParams(window.location.search).get('project');
 
-  const saveBtn = document.getElementById('saveBtn');
-  const backBtn = document.getElementById('backBtn');
-  const logoutBtn = document.getElementById('logoutBtn');
+  const els = {
+    saveBtn: document.getElementById('saveBtn'),
+    backBtn: document.getElementById('backBtn'),
+    logoutBtn: document.getElementById('logoutBtn'),
 
-  const projectName = document.getElementById('projectName');
-  const businessName = document.getElementById('businessName');
-  const locationInput = document.getElementById('location');
-  const accentColor = document.getElementById('accentColor');
-  const brandTone = document.getElementById('brandTone');
+    checkDomainBtn: document.getElementById('checkDomainBtn'),
+    onboardDomainBtn: document.getElementById('onboardDomainBtn'),
 
-  const templateChoice = document.getElementById('templateChoice');
-  const backgroundColor = document.getElementById('backgroundColor');
-  const textColor = document.getElementById('textColor');
-  const navColor = document.getElementById('navColor');
-  const cardColor = document.getElementById('cardColor');
-  const buttonColor = document.getElementById('buttonColor');
-  const buttonTransparency = document.getElementById('buttonTransparency');
-  const buttonTransparencyValue = document.getElementById('buttonTransparencyValue');
+    projectName: document.getElementById('projectName'),
+    businessName: document.getElementById('businessName'),
+    location: document.getElementById('location'),
+    accentColor: document.getElementById('accentColor'),
+    brandTone: document.getElementById('brandTone'),
 
-  const subdomainSlug = document.getElementById('subdomainSlug');
-  const customDomain = document.getElementById('customDomain');
-  const useCustomDomain = document.getElementById('useCustomDomain');
-  const httpsEnabled = document.getElementById('httpsEnabled');
-  const domainResult = document.getElementById('domainResult');
-  const saveStatus = document.getElementById('saveStatus');
+    useCustomDomain: document.getElementById('useCustomDomain'),
+    httpsEnabled: document.getElementById('httpsEnabled'),
+    subdomainSlug: document.getElementById('subdomainSlug'),
+    customDomain: document.getElementById('customDomain'),
+    domainResult: document.getElementById('domainResult'),
 
-  const pageTabs = document.getElementById('pageTabs');
-  const previewLinks = document.getElementById('previewLinks');
-  const pageTitle = document.getElementById('pageTitle');
-  const pageBody = document.getElementById('pageBody');
-  const pageToggles = document.querySelectorAll('.page-toggle');
+    logoUpload: document.getElementById('logoUpload'),
+    galleryUpload: document.getElementById('galleryUpload'),
+    galleryThumbs: document.getElementById('galleryThumbs'),
 
-  const desktopBtn = document.getElementById('desktopBtn');
-  const mobileBtn = document.getElementById('mobileBtn');
-  const previewFrame = document.getElementById('previewFrame');
-  const previewDropZone = document.getElementById('previewDropZone');
-  const previewBgLayer = document.getElementById('previewBgLayer');
-  const previewImageArea = document.getElementById('previewImageArea');
-  const previewTemplateLabel = document.getElementById('previewTemplateLabel');
-
-  const logoUpload = document.getElementById('logoUpload');
-  const galleryUpload = document.getElementById('galleryUpload');
-  const backgroundUpload = document.getElementById('backgroundUpload');
-  const backgroundTransparency = document.getElementById('backgroundTransparency');
-  const backgroundTransparencyValue = document.getElementById('backgroundTransparencyValue');
-  const galleryThumbs = document.getElementById('galleryThumbs');
-
-  const checkDomainBtn = document.getElementById('checkDomainBtn');
-  const onboardDomainBtn = document.getElementById('onboardDomainBtn');
-
-  let activePage = 'home';
-
-  const defaultPages = {
-    home: {
-      label: 'Home',
-      title: 'Your homepage headline',
-      body: 'Your website intro will appear here as you build it out.'
-    },
-    about: {
-      label: 'About',
-      title: 'About your business',
-      body: 'Tell visitors who you are, what you do, and why they should trust you.'
-    },
-    services: {
-      label: 'Services',
-      title: 'Your services',
-      body: 'List your main services and explain how you help customers.'
-    },
-    gallery: {
-      label: 'Gallery',
-      title: 'Gallery',
-      body: 'Showcase your best work, products, food, projects, or team.'
-    },
-    contact: {
-      label: 'Contact',
-      title: 'Contact',
-      body: 'Tell customers how to get in touch.'
-    }
-  };
-
-  const templateLabels = {
-    'warm-classic': 'Warm Classic',
-    'clean-local': 'Clean Local',
-    'bold-trade': 'Bold Trade',
-    'elegant-studio': 'Elegant Studio'
+    desktopBtn: document.getElementById('desktopBtn'),
+    mobileBtn: document.getElementById('mobileBtn'),
+    previewFrame: document.getElementById('previewFrame')
   };
 
   const state = {
-    project_name: '',
-    business_name: '',
-    page_main_heading: '',
-    sub_heading: '',
-
-    template_choice: 'warm-classic',
-
-    background_color: '#fbf3ec',
-    accent_color: '#c86f3d',
-    text_color: '#2f1b12',
-    nav_color: '#7a3f20',
-    card_color: '#fffaf5',
-    button_color: '#c86f3d',
-    button_transparency: 0,
-
-    subdomain_slug: '',
-    custom_domain: '',
-    use_custom_domain: false,
-    https_enabled: true,
-
-    logo_data_url: '',
-    gallery_images: [],
-    preview_images: [],
-    background_image_url: '',
-    background_transparency: 25,
-
-    selected_pages: ['home', 'about', 'services', 'gallery', 'contact'],
-    pages: structuredClone(defaultPages)
+    project: null,
+    activePage: 'home',
+    logoDataUrl: '',
+    backgroundImageDataUrl: '',
+    galleryImages: [],
+    previewImages: {},
+    textBoxes: {},
+    selectedPages: ['home', 'gallery'],
+    data: {
+      project_name: '',
+      business_name: '',
+      page_heading: '',
+      sub_heading: '',
+      accent_color: '#c86f3d',
+      background_color: '#fff8f1',
+      text_color: '#2f1b12',
+      nav_color: '#8a431d',
+      card_color: '#fffaf5',
+      button_color: '#c86f3d',
+      button_transparency: 100,
+      background_image_transparency: 25,
+      template: 'warm-classic',
+      subdomain_slug: '',
+      custom_domain: '',
+      use_custom_domain: false,
+      https_enabled: true
+    }
   };
 
-  function structuredCloneFallback(value) {
-    return JSON.parse(JSON.stringify(value));
-  }
+  const templates = [
+    {
+      id: 'warm-classic',
+      label: 'Warm classic',
+      description: 'Soft, welcoming, rounded and local-business friendly.'
+    },
+    {
+      id: 'clean-local',
+      label: 'Clean local',
+      description: 'Light, tidy and simple for trades, cafés and services.'
+    },
+    {
+      id: 'bold-trade',
+      label: 'Bold trade',
+      description: 'Strong headings and confident buttons.'
+    },
+    {
+      id: 'elegant-studio',
+      label: 'Elegant studio',
+      description: 'Centered, polished and calm.'
+    }
+  ];
 
-  function safeClone(value) {
-    if (typeof structuredClone === 'function') return structuredClone(value);
-    return structuredCloneFallback(value);
+  const pageOptions = [
+    { id: 'home', label: 'Home' },
+    { id: 'about', label: 'About' },
+    { id: 'services', label: 'Services' },
+    { id: 'gallery', label: 'Gallery' },
+    { id: 'contact', label: 'Contact' }
+  ];
+
+  function normaliseColour(value, fallback) {
+    if (!value || typeof value !== 'string') return fallback;
+    return value.startsWith('#') ? value : fallback;
   }
 
   function hexToRgb(hex) {
-    const cleaned = String(hex || '#000000').replace('#', '');
+    const clean = String(hex || '').replace('#', '').trim();
 
-    const full = cleaned.length === 3
-      ? cleaned.split('').map((char) => char + char).join('')
-      : cleaned;
+    if (clean.length !== 6) {
+      return { r: 200, g: 111, b: 61 };
+    }
 
-    const number = parseInt(full, 16);
+    const number = parseInt(clean, 16);
 
     return {
       r: (number >> 16) & 255,
@@ -158,463 +126,91 @@ document.addEventListener('DOMContentLoaded', () => {
       .slice(0, 60);
   }
 
+  function safeText(value, fallback = '') {
+    const text = String(value || '').trim();
+    return text || fallback;
+  }
+
+  function uid(prefix = 'id') {
+    if (window.crypto && crypto.randomUUID) {
+      return crypto.randomUUID();
+    }
+
+    return `${prefix}_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+  }
+
+  function getSaveStatusEl() {
+    let el = document.getElementById('builderSaveStatus');
+
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'builderSaveStatus';
+      el.className = 'builder-save-status';
+
+      const mainSection = document.querySelector('main .row-between') || document.querySelector('main');
+      if (mainSection) {
+        mainSection.insertAdjacentElement('afterend', el);
+      }
+    }
+
+    return el;
+  }
+
   function setMessage(message, type = 'info') {
-    if (!saveStatus) return;
+    const el = getSaveStatusEl();
 
-    saveStatus.textContent = message;
-    saveStatus.className = `builder-save-status ${type}`;
+    if (!message) {
+      el.textContent = '';
+      el.className = 'builder-save-status';
+      return;
+    }
 
-    if (message) {
+    el.textContent = message;
+    el.className = `builder-save-status ${type}`;
+
+    if (type === 'success' || type === 'info') {
       setTimeout(() => {
-        if (saveStatus.textContent === message) {
-          saveStatus.textContent = '';
-          saveStatus.className = 'builder-save-status';
+        if (el.textContent === message) {
+          el.textContent = '';
+          el.className = 'builder-save-status';
         }
-      }, 3500);
+      }, 4200);
     }
   }
 
-  function showDomainMessage(message, type = 'info') {
-    if (!domainResult) return;
+  function setDomainMessage(message, type = 'info') {
+    if (!els.domainResult) return;
 
-    domainResult.textContent = message;
-    domainResult.className = `notice domain-${type}`;
-    domainResult.style.display = 'block';
+    els.domainResult.textContent = message;
+    els.domainResult.className = `notice domain-${type}`;
   }
 
-  function ensurePages() {
-    state.pages = {
-      ...safeClone(defaultPages),
-      ...(state.pages || {})
-    };
-
-    if (!Array.isArray(state.selected_pages) || state.selected_pages.length === 0) {
-      state.selected_pages = ['home', 'about', 'services', 'gallery', 'contact'];
-    }
-
-    if (!state.selected_pages.includes('home')) {
-      state.selected_pages.unshift('home');
-    }
-  }
-
-  function syncStateFromInputs() {
-    ensurePages();
-
-    state.project_name = projectName?.value || '';
-    state.business_name = businessName?.value || '';
-    state.page_main_heading = locationInput?.value || '';
-    state.sub_heading = brandTone?.value || '';
-
-    state.template_choice = templateChoice?.value || 'warm-classic';
-
-    state.background_color = backgroundColor?.value || '#fbf3ec';
-    state.accent_color = accentColor?.value || '#c86f3d';
-    state.text_color = textColor?.value || '#2f1b12';
-    state.nav_color = navColor?.value || '#7a3f20';
-    state.card_color = cardColor?.value || '#fffaf5';
-    state.button_color = buttonColor?.value || '#c86f3d';
-    state.button_transparency = Number(buttonTransparency?.value || 0);
-
-    state.subdomain_slug = subdomainSlug?.value || '';
-    state.custom_domain = customDomain?.value || '';
-    state.use_custom_domain = useCustomDomain?.value === 'true';
-    state.https_enabled = httpsEnabled?.value !== 'false';
-
-    state.background_transparency = Math.min(Number(backgroundTransparency?.value || 0), 60);
-
-    state.selected_pages = Array.from(pageToggles)
-      .filter((input) => input.checked)
-      .map((input) => input.value);
-
-    if (!state.selected_pages.includes('home')) {
-      state.selected_pages.unshift('home');
-    }
-
-    if (!state.selected_pages.includes(activePage)) {
-      activePage = state.selected_pages[0] || 'home';
-    }
-
-    if (!state.pages[activePage]) {
-      state.pages[activePage] = {
-        label: defaultPages[activePage]?.label || activePage,
-        title: '',
-        body: ''
-      };
-    }
-
-    state.pages[activePage].title = pageTitle?.value || '';
-    state.pages[activePage].body = pageBody?.value || '';
-  }
-
-  function syncInputsFromState() {
-    ensurePages();
-
-    if (projectName) projectName.value = state.project_name || '';
-    if (businessName) businessName.value = state.business_name || '';
-    if (locationInput) locationInput.value = state.page_main_heading || state.location || '';
-    if (brandTone) brandTone.value = state.sub_heading || state.brand_tone || '';
-
-    if (templateChoice) templateChoice.value = state.template_choice || 'warm-classic';
-
-    if (backgroundColor) backgroundColor.value = state.background_color || '#fbf3ec';
-    if (accentColor) accentColor.value = state.accent_color || '#c86f3d';
-    if (textColor) textColor.value = state.text_color || '#2f1b12';
-    if (navColor) navColor.value = state.nav_color || '#7a3f20';
-    if (cardColor) cardColor.value = state.card_color || '#fffaf5';
-    if (buttonColor) buttonColor.value = state.button_color || '#c86f3d';
-    if (buttonTransparency) buttonTransparency.value = String(state.button_transparency || 0);
-    if (buttonTransparencyValue) buttonTransparencyValue.textContent = `${state.button_transparency || 0}%`;
-
-    if (subdomainSlug) subdomainSlug.value = state.subdomain_slug || '';
-    if (customDomain) customDomain.value = state.custom_domain || '';
-    if (useCustomDomain) useCustomDomain.value = String(Boolean(state.use_custom_domain));
-    if (httpsEnabled) httpsEnabled.value = String(state.https_enabled !== false);
-
-    if (backgroundTransparency) {
-      backgroundTransparency.value = String(Math.min(Number(state.background_transparency || 0), 60));
-    }
-
-    if (backgroundTransparencyValue) {
-      backgroundTransparencyValue.textContent = `${Math.min(Number(state.background_transparency || 0), 60)}%`;
-    }
-
-    pageToggles.forEach((input) => {
-      input.checked = state.selected_pages.includes(input.value);
+  async function api(path, options = {}) {
+    const response = await fetch(path, {
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(options.headers || {})
+      },
+      ...options
     });
 
-    syncPageInputs();
-  }
-
-  function syncPageInputs() {
-    ensurePages();
-
-    if (!state.selected_pages.includes(activePage)) {
-      activePage = state.selected_pages[0] || 'home';
-    }
-
-    const page = state.pages[activePage] || {
-      title: '',
-      body: ''
-    };
-
-    if (pageTitle) pageTitle.value = page.title || '';
-    if (pageBody) pageBody.value = page.body || '';
-
-    document.querySelectorAll('[data-page]').forEach((button) => {
-      const pageName = button.dataset.page;
-      const isSelected = state.selected_pages.includes(pageName);
-
-      button.classList.toggle('active', pageName === activePage);
-      button.style.display = isSelected ? '' : 'none';
-    });
-  }
-
-  function renderGallery() {
-    if (!galleryThumbs) return;
-
-    galleryThumbs.innerHTML = '';
-
-    state.gallery_images.forEach((image, index) => {
-      const wrapper = document.createElement('div');
-      wrapper.className = 'thumb-item';
-      wrapper.draggable = true;
-      wrapper.dataset.index = String(index);
-
-      const img = document.createElement('img');
-      img.src = image;
-      img.alt = `Uploaded image ${index + 1}`;
-
-      const remove = document.createElement('button');
-      remove.type = 'button';
-      remove.textContent = '×';
-      remove.className = 'thumb-remove';
-      remove.addEventListener('click', () => {
-        state.gallery_images.splice(index, 1);
-        state.preview_images = state.preview_images.filter((previewImage) => previewImage !== image);
-        renderGallery();
-        renderPreview();
-        setMessage('Image removed. Remember to save.', 'info');
-      });
-
-      wrapper.appendChild(img);
-      wrapper.appendChild(remove);
-
-      wrapper.addEventListener('dragstart', (event) => {
-        event.dataTransfer.setData('text/plain', image);
-        event.dataTransfer.effectAllowed = 'copy';
-      });
-
-      galleryThumbs.appendChild(wrapper);
-    });
-  }
-
-  function renderPreviewImages() {
-    if (!previewImageArea) return;
-
-    previewImageArea.innerHTML = '';
-
-    if (!state.preview_images || state.preview_images.length === 0) {
-      const hint = document.createElement('div');
-      hint.className = 'drop-hint';
-      hint.textContent = 'Drag uploaded pictures here';
-      previewImageArea.appendChild(hint);
-      return;
-    }
-
-    state.preview_images.forEach((image, index) => {
-      const tile = document.createElement('div');
-      tile.className = 'preview-image-tile';
-      tile.draggable = true;
-      tile.dataset.index = String(index);
-
-      const img = document.createElement('img');
-      img.src = image;
-      img.alt = `Preview image ${index + 1}`;
-
-      const remove = document.createElement('button');
-      remove.type = 'button';
-      remove.textContent = 'Remove';
-      remove.addEventListener('click', () => {
-        state.preview_images.splice(index, 1);
-        renderPreviewImages();
-        setMessage('Preview image removed. Remember to save.', 'info');
-      });
-
-      tile.appendChild(img);
-      tile.appendChild(remove);
-      previewImageArea.appendChild(tile);
-    });
-  }
-
-  function applyTemplate(previewScroll, pageElement) {
-    const template = state.template_choice || 'warm-classic';
-
-    previewScroll.classList.remove(
-      'template-warm-classic',
-      'template-clean-local',
-      'template-bold-trade',
-      'template-elegant-studio'
-    );
-
-    previewScroll.classList.add(`template-${template}`);
-
-    if (previewTemplateLabel) {
-      previewTemplateLabel.textContent = templateLabels[template] || 'Template';
-    }
-
-    if (pageElement) {
-      pageElement.dataset.template = template;
-    }
-  }
-
-  function renderPreview() {
-    syncStateFromInputs();
-
-    const business = state.business_name || 'Your Business';
-    const heading = state.page_main_heading || state.location || 'Your homepage headline';
-    const subHeading = state.sub_heading || state.brand_tone || 'Your website intro will appear here as you build it out.';
-    const slug = state.subdomain_slug || slugify(business) || 'your-business';
-    const page = state.pages[activePage] || state.pages.home;
-
-    const brandText = document.querySelector('.site-brand span');
-    const headline = document.querySelector('.page h2');
-    const intro = document.querySelector('.page p');
-    const footer = document.querySelector('.preview-footer');
-    const address = document.querySelector('.address');
-    const logo = document.querySelector('.site-logo');
-    const previewScroll = document.querySelector('.preview-scroll');
-    const siteNav = document.querySelector('.site-nav');
-    const pageElement = document.querySelector('.page');
-    const previewCta = document.querySelector('.preview-cta');
-
-    if (brandText) brandText.textContent = business.toUpperCase();
-
-    if (headline) {
-      headline.textContent = activePage === 'home'
-        ? heading
-        : page?.title || heading;
-    }
-
-    if (intro) {
-      intro.textContent = activePage === 'home'
-        ? subHeading
-        : page?.body || subHeading;
-    }
-
-    if (footer) {
-      footer.textContent = `© ${business} • Crafted with PBI`;
-    }
-
-    if (address) {
-      address.textContent = state.use_custom_domain && state.custom_domain
-        ? `https://${state.custom_domain}`
-        : `https://${slug}.pbi.dev`;
-    }
-
-    if (logo) {
-      if (state.logo_data_url) {
-        logo.style.background = `center / cover no-repeat url("${state.logo_data_url}")`;
-      } else {
-        logo.style.background = state.accent_color;
-      }
-    }
-
-    if (previewScroll) {
-      previewScroll.style.background = `linear-gradient(180deg, ${rgbaFromHex(state.accent_color, 0.28)}, ${state.background_color} 88%)`;
-      applyTemplate(previewScroll, pageElement);
-    }
-
-    if (siteNav) {
-      siteNav.style.background = `linear-gradient(90deg, ${state.nav_color}, ${state.accent_color})`;
-    }
-
-    if (pageElement) {
-      pageElement.style.color = state.text_color;
-    }
-
-    if (headline) headline.style.color = state.text_color;
-    if (intro) intro.style.color = rgbaFromHex(state.text_color, 0.78);
-
-    if (previewCta) {
-      const alpha = Math.max(0.3, 1 - Number(state.button_transparency || 0) / 100);
-      previewCta.style.background = rgbaFromHex(state.button_color, alpha);
-      previewCta.style.color = '#fffaf5';
-      previewCta.style.borderColor = rgbaFromHex(state.button_color, 0.25);
-    }
-
-    if (previewBgLayer) {
-      const transparency = Math.min(Number(state.background_transparency || 0), 60);
-      const opacity = 1 - transparency / 100;
-
-      if (state.background_image_url) {
-        previewBgLayer.style.backgroundImage = `url("${state.background_image_url}")`;
-        previewBgLayer.style.opacity = String(opacity);
-      } else {
-        previewBgLayer.style.backgroundImage = '';
-        previewBgLayer.style.opacity = '0';
-      }
-    }
-
-    if (buttonTransparencyValue) {
-      buttonTransparencyValue.textContent = `${state.button_transparency || 0}%`;
-    }
-
-    if (backgroundTransparencyValue) {
-      backgroundTransparencyValue.textContent = `${Math.min(Number(state.background_transparency || 0), 60)}%`;
-    }
-
-    syncPageInputs();
-    renderPreviewImages();
-  }
-
-  async function saveProject() {
-    syncStateFromInputs();
-
-    if (!projectId) {
-      setMessage('No project ID found in the URL.', 'error');
-      return;
-    }
-
-    if (saveBtn) {
-      saveBtn.disabled = true;
-      saveBtn.textContent = 'Saving...';
-    }
-
-    setMessage('Saving project...', 'saving');
-
+    let data = {};
     try {
-      const response = await fetch('/api/projects/update', {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          id: projectId,
-          name: state.project_name || state.business_name || 'Untitled website',
-          data: state
-        })
-      });
-
-      const result = await response.json().catch(() => ({}));
-
-      if (!response.ok) {
-        throw new Error(result.error || result.message || `Save failed with status ${response.status}`);
-      }
-
-      setMessage('Project saved successfully.', 'success');
-    } catch (err) {
-      setMessage(err.message || 'Save failed.', 'error');
-    } finally {
-      if (saveBtn) {
-        saveBtn.disabled = false;
-        saveBtn.textContent = 'Save project';
-      }
-    }
-  }
-
-  async function loadProject() {
-    if (!projectId) return;
-
-    try {
-      const response = await fetch(`/api/projects/get?id=${encodeURIComponent(projectId)}`, {
-        credentials: 'include'
-      });
-
-      if (!response.ok) return;
-
-      const result = await response.json();
-
-      if (!result.project) return;
-
-      const project = result.project;
-      let savedData = {};
-
-      if (project.data_json) {
-        savedData = typeof project.data_json === 'string'
-          ? JSON.parse(project.data_json)
-          : project.data_json;
-      }
-
-      Object.assign(state, savedData);
-
-      state.project_name = project.name || savedData.project_name || '';
-      state.page_main_heading = savedData.page_main_heading || savedData.location || '';
-      state.sub_heading = savedData.sub_heading || savedData.brand_tone || '';
-      state.pages = {
-        ...safeClone(defaultPages),
-        ...(savedData.pages || {})
-      };
-
-      ensurePages();
-      syncInputsFromState();
-      renderGallery();
-      renderPreview();
-    } catch (err) {
-      console.warn('Could not load project:', err);
-    }
-  }
-
-  function switchPage(pageName) {
-    syncStateFromInputs();
-
-    if (!state.selected_pages.includes(pageName)) return;
-
-    activePage = pageName;
-
-    if (!state.pages[activePage]) {
-      state.pages[activePage] = safeClone(defaultPages[activePage] || {
-        label: pageName,
-        title: '',
-        body: ''
-      });
+      data = await response.json();
+    } catch {
+      data = {};
     }
 
-    syncPageInputs();
-    renderPreview();
+    if (!response.ok) {
+      const message = data.error || data.message || `Request failed with ${response.status}`;
+      throw new Error(message);
+    }
+
+    return data;
   }
 
-  function fileToDataUrl(file) {
+  function readFileAsDataUrl(file) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
 
@@ -624,35 +220,907 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  function updateFieldLabels() {
+    const brandToneLabel = document.querySelector('label[for="brandTone"]') || els.brandTone?.closest('.field')?.querySelector('label');
+    if (brandToneLabel) brandToneLabel.textContent = 'Sub heading';
+
+    const locationLabel = document.querySelector('label[for="location"]') || els.location?.closest('.field')?.querySelector('label');
+    if (locationLabel) locationLabel.textContent = 'Page main heading';
+
+    const brandAssetsHeading = [...document.querySelectorAll('.card h3')]
+      .find((heading) => heading.textContent.trim().toLowerCase() === 'brand assets');
+
+    if (brandAssetsHeading) {
+      brandAssetsHeading.textContent = 'Brand design';
+    }
+  }
+
+  function addColourAndTemplateControls() {
+    const projectCard = els.projectName?.closest('.card');
+    if (!projectCard || document.getElementById('templateChoice')) return;
+
+    const controlBlock = document.createElement('div');
+    controlBlock.innerHTML = `
+      <div class="field">
+        <label for="templateChoice">Website template</label>
+        <select id="templateChoice" class="select">
+          ${templates.map((template) => `<option value="${template.id}">${template.label}</option>`).join('')}
+        </select>
+        <div id="templateDescription" class="small-note muted"></div>
+      </div>
+
+      <div class="colour-grid">
+        <div class="field">
+          <label for="accentColor">Accent colour</label>
+          <input id="accentColorReplacement" class="input" type="color" value="#c86f3d">
+        </div>
+
+        <div class="field">
+          <label for="backgroundColor">Background colour</label>
+          <input id="backgroundColor" class="input" type="color" value="#fff8f1">
+        </div>
+
+        <div class="field">
+          <label for="textColor">Text colour</label>
+          <input id="textColor" class="input" type="color" value="#2f1b12">
+        </div>
+
+        <div class="field">
+          <label for="navColor">Navigation colour</label>
+          <input id="navColor" class="input" type="color" value="#8a431d">
+        </div>
+
+        <div class="field">
+          <label for="cardColor">Card colour</label>
+          <input id="cardColor" class="input" type="color" value="#fffaf5">
+        </div>
+
+        <div class="field">
+          <label for="buttonColor">Button colour</label>
+          <input id="buttonColor" class="input" type="color" value="#c86f3d">
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="buttonTransparency">Button transparency</label>
+        <input id="buttonTransparency" class="range" type="range" min="40" max="100" value="100">
+        <div id="buttonTransparencyNote" class="range-note">100% solid</div>
+      </div>
+    `;
+
+    projectCard.appendChild(controlBlock);
+
+    const oldAccent = document.getElementById('accentColor');
+    const newAccent = document.getElementById('accentColorReplacement');
+
+    if (oldAccent && newAccent) {
+      newAccent.value = oldAccent.value || '#c86f3d';
+      oldAccent.closest('.field')?.remove();
+      newAccent.id = 'accentColor';
+      els.accentColor = newAccent;
+    }
+  }
+
+  function addPageSelectionControls() {
+    const projectCard = els.projectName?.closest('.card');
+    const brandCard = els.logoUpload?.closest('.card') || els.galleryUpload?.closest('.card');
+
+    if (!projectCard || !brandCard || document.getElementById('pageSelectionCard')) return;
+
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.id = 'pageSelectionCard';
+
+    card.innerHTML = `
+      <h3>Page selection</h3>
+      <p class="muted">Choose which pages this website should include, then select a page to edit its text.</p>
+
+      <div id="pageChoiceGrid" class="page-choice-grid">
+        ${pageOptions.map((page) => `
+          <label class="page-choice">
+            <input type="checkbox" value="${page.id}" ${state.selectedPages.includes(page.id) ? 'checked' : ''}>
+            <span>${page.label}</span>
+          </label>
+        `).join('')}
+      </div>
+
+      <div id="pageTabs" class="page-tabs"></div>
+
+      <div class="textbox-toolbar">
+        <button id="addTextBoxBtn" type="button" class="btn-secondary">Add text box</button>
+        <p class="muted small-note">Adds a movable text box to the selected page. Click the box to edit it, then drag it around the live preview.</p>
+      </div>
+    `;
+
+    brandCard.parentElement.insertBefore(card, brandCard);
+  }
+
+  function upgradeBrandDesignSection() {
+    const brandCard = els.logoUpload?.closest('.card') || els.galleryUpload?.closest('.card');
+    if (!brandCard || document.getElementById('backgroundImageUpload')) return;
+
+    const heading = brandCard.querySelector('h3');
+    if (heading) heading.textContent = 'Brand design';
+
+    if (els.galleryUpload) {
+      const galleryLabel = els.galleryUpload.closest('.field')?.querySelector('label');
+      if (galleryLabel) galleryLabel.textContent = 'Upload pictures';
+    }
+
+    const backgroundBlock = document.createElement('div');
+    backgroundBlock.innerHTML = `
+      <div class="field">
+        <label for="backgroundImageUpload">Upload background image</label>
+        <input id="backgroundImageUpload" class="input" type="file" accept="image/*">
+      </div>
+
+      <div class="field">
+        <label for="backgroundTransparency">Background image transparency</label>
+        <input id="backgroundTransparency" class="range" type="range" min="0" max="60" value="25">
+        <div id="backgroundTransparencyNote" class="range-note">25% transparent, maximum 60%</div>
+      </div>
+    `;
+
+    brandCard.appendChild(backgroundBlock);
+  }
+
+  function moveDomainButtonsIntoDomainCard() {
+    const domainCard = els.customDomain?.closest('.card') || els.domainResult?.closest('.card');
+
+    if (!domainCard) return;
+
+    let buttonRow = document.getElementById('domainButtonRow');
+
+    if (!buttonRow) {
+      buttonRow = document.createElement('div');
+      buttonRow.id = 'domainButtonRow';
+      buttonRow.className = 'row';
+      buttonRow.style.marginTop = '12px';
+
+      if (els.customDomain) {
+        els.customDomain.closest('.field')?.insertAdjacentElement('afterend', buttonRow);
+      } else {
+        domainCard.appendChild(buttonRow);
+      }
+    }
+
+    if (els.checkDomainBtn && els.checkDomainBtn.parentElement !== buttonRow) {
+      buttonRow.appendChild(els.checkDomainBtn);
+    }
+
+    if (els.onboardDomainBtn && els.onboardDomainBtn.parentElement !== buttonRow) {
+      buttonRow.appendChild(els.onboardDomainBtn);
+    }
+  }
+
+  function removeImageDragDropOption() {
+    const previewImageArea = document.getElementById('previewImageArea');
+    if (previewImageArea) previewImageArea.remove();
+
+    document.querySelectorAll('.thumb-item').forEach((thumb) => {
+      thumb.draggable = false;
+      thumb.style.cursor = 'default';
+    });
+  }
+
+  function getEnhancedEls() {
+    return {
+      templateChoice: document.getElementById('templateChoice'),
+      templateDescription: document.getElementById('templateDescription'),
+      backgroundColor: document.getElementById('backgroundColor'),
+      textColor: document.getElementById('textColor'),
+      navColor: document.getElementById('navColor'),
+      cardColor: document.getElementById('cardColor'),
+      buttonColor: document.getElementById('buttonColor'),
+      buttonTransparency: document.getElementById('buttonTransparency'),
+      buttonTransparencyNote: document.getElementById('buttonTransparencyNote'),
+      pageChoiceGrid: document.getElementById('pageChoiceGrid'),
+      pageTabs: document.getElementById('pageTabs'),
+      addTextBoxBtn: document.getElementById('addTextBoxBtn'),
+      backgroundImageUpload: document.getElementById('backgroundImageUpload'),
+      backgroundTransparency: document.getElementById('backgroundTransparency'),
+      backgroundTransparencyNote: document.getElementById('backgroundTransparencyNote')
+    };
+  }
+
+  function collectFormData() {
+    const enhanced = getEnhancedEls();
+
+    const buttonTransparency = Number(enhanced.buttonTransparency?.value || 100);
+    const backgroundImageTransparency = Math.min(60, Number(enhanced.backgroundTransparency?.value || 25));
+
+    const selectedPages = [...document.querySelectorAll('#pageChoiceGrid input[type="checkbox"]:checked')]
+      .map((input) => input.value);
+
+    state.selectedPages = selectedPages.length ? selectedPages : ['home'];
+
+    state.data = {
+      project_name: safeText(els.projectName?.value, 'Untitled website'),
+      business_name: safeText(els.businessName?.value, ''),
+      page_heading: safeText(els.location?.value, ''),
+      sub_heading: safeText(els.brandTone?.value, ''),
+      accent_color: normaliseColour(els.accentColor?.value, '#c86f3d'),
+      background_color: normaliseColour(enhanced.backgroundColor?.value, '#fff8f1'),
+      text_color: normaliseColour(enhanced.textColor?.value, '#2f1b12'),
+      nav_color: normaliseColour(enhanced.navColor?.value, '#8a431d'),
+      card_color: normaliseColour(enhanced.cardColor?.value, '#fffaf5'),
+      button_color: normaliseColour(enhanced.buttonColor?.value, '#c86f3d'),
+      button_transparency: buttonTransparency,
+      background_image_transparency: backgroundImageTransparency,
+      template: enhanced.templateChoice?.value || 'warm-classic',
+      selected_pages: state.selectedPages,
+      active_page: state.activePage,
+      logo_data_url: state.logoDataUrl,
+      background_image_data_url: state.backgroundImageDataUrl,
+      gallery_images: state.galleryImages,
+      preview_images: state.previewImages,
+      text_boxes: state.textBoxes,
+      subdomain_slug: safeText(els.subdomainSlug?.value, ''),
+      custom_domain: safeText(els.customDomain?.value, ''),
+      use_custom_domain: ['true', 'yes', 'Yes'].includes(String(els.useCustomDomain?.value)),
+      https_enabled: !['false', 'no', 'No'].includes(String(els.httpsEnabled?.value))
+    };
+
+    return state.data;
+  }
+
+  function applyFormData(data = {}) {
+    state.data = { ...state.data, ...data };
+
+    state.selectedPages = Array.isArray(data.selected_pages) && data.selected_pages.length
+      ? data.selected_pages
+      : state.selectedPages;
+
+    state.activePage = data.active_page || state.selectedPages[0] || 'home';
+    state.logoDataUrl = data.logo_data_url || '';
+    state.backgroundImageDataUrl = data.background_image_data_url || '';
+    state.galleryImages = Array.isArray(data.gallery_images) ? data.gallery_images : [];
+    state.previewImages = data.preview_images && typeof data.preview_images === 'object' ? data.preview_images : {};
+    state.textBoxes = data.text_boxes && typeof data.text_boxes === 'object' ? data.text_boxes : {};
+
+    if (els.projectName) els.projectName.value = data.project_name || state.project?.name || '';
+    if (els.businessName) els.businessName.value = data.business_name || '';
+    if (els.location) els.location.value = data.page_heading || data.location || '';
+    if (els.brandTone) els.brandTone.value = data.sub_heading || data.brand_tone || '';
+    if (els.accentColor) els.accentColor.value = normaliseColour(data.accent_color, '#c86f3d');
+
+    if (els.subdomainSlug) els.subdomainSlug.value = data.subdomain_slug || '';
+    if (els.customDomain) els.customDomain.value = data.custom_domain || '';
+    if (els.useCustomDomain) els.useCustomDomain.value = data.use_custom_domain ? 'true' : 'false';
+    if (els.httpsEnabled) els.httpsEnabled.value = data.https_enabled === false ? 'false' : 'true';
+
+    const enhanced = getEnhancedEls();
+
+    if (enhanced.templateChoice) enhanced.templateChoice.value = data.template || 'warm-classic';
+    if (enhanced.backgroundColor) enhanced.backgroundColor.value = normaliseColour(data.background_color, '#fff8f1');
+    if (enhanced.textColor) enhanced.textColor.value = normaliseColour(data.text_color, '#2f1b12');
+    if (enhanced.navColor) enhanced.navColor.value = normaliseColour(data.nav_color, '#8a431d');
+    if (enhanced.cardColor) enhanced.cardColor.value = normaliseColour(data.card_color, '#fffaf5');
+    if (enhanced.buttonColor) enhanced.buttonColor.value = normaliseColour(data.button_color, '#c86f3d');
+    if (enhanced.buttonTransparency) enhanced.buttonTransparency.value = String(data.button_transparency ?? 100);
+    if (enhanced.backgroundTransparency) enhanced.backgroundTransparency.value = String(Math.min(60, data.background_image_transparency ?? 25));
+
+    updateRangeNotes();
+    renderPageChoices();
+    renderGalleryThumbs();
+    renderPreview();
+  }
+
+  function updateRangeNotes() {
+    const enhanced = getEnhancedEls();
+
+    if (enhanced.buttonTransparencyNote && enhanced.buttonTransparency) {
+      enhanced.buttonTransparencyNote.textContent = `${enhanced.buttonTransparency.value}% solid`;
+    }
+
+    if (enhanced.backgroundTransparencyNote && enhanced.backgroundTransparency) {
+      const value = Math.min(60, Number(enhanced.backgroundTransparency.value || 25));
+      enhanced.backgroundTransparency.value = String(value);
+      enhanced.backgroundTransparencyNote.textContent = `${value}% transparent, maximum 60%`;
+    }
+
+    if (enhanced.templateDescription && enhanced.templateChoice) {
+      const template = templates.find((item) => item.id === enhanced.templateChoice.value);
+      enhanced.templateDescription.textContent = template?.description || '';
+    }
+  }
+
+  function renderPageChoices() {
+    const enhanced = getEnhancedEls();
+
+    if (enhanced.pageChoiceGrid) {
+      enhanced.pageChoiceGrid.querySelectorAll('input[type="checkbox"]').forEach((input) => {
+        input.checked = state.selectedPages.includes(input.value);
+      });
+    }
+
+    if (!enhanced.pageTabs) return;
+
+    if (!state.selectedPages.includes(state.activePage)) {
+      state.activePage = state.selectedPages[0] || 'home';
+    }
+
+    enhanced.pageTabs.innerHTML = state.selectedPages.map((pageId) => {
+      const page = pageOptions.find((item) => item.id === pageId);
+      const label = page?.label || pageId;
+
+      return `<button type="button" data-page="${pageId}" class="${pageId === state.activePage ? 'active' : ''}">${label}</button>`;
+    }).join('');
+  }
+
+  function getActivePageContent() {
+    const data = collectFormData();
+    const page = state.activePage || 'home';
+
+    const businessName = safeText(data.business_name, 'Your Business');
+    const mainHeading = safeText(data.page_heading, `${businessName} in your local area`);
+    const subHeading = safeText(data.sub_heading, 'Your website intro will appear here as you build it out.');
+
+    const contentByPage = {
+      home: {
+        title: mainHeading,
+        body: subHeading,
+        label: 'Home'
+      },
+      about: {
+        title: `About ${businessName}`,
+        body: subHeading || `Tell customers who you are, what you do and why your business matters.`,
+        label: 'About'
+      },
+      services: {
+        title: `${businessName} services`,
+        body: subHeading || `Show your key services, offers and reasons to choose you.`,
+        label: 'Services'
+      },
+      gallery: {
+        title: `${businessName} gallery`,
+        body: subHeading || `Show images that help customers understand your work.`,
+        label: 'Gallery'
+      },
+      contact: {
+        title: `Contact ${businessName}`,
+        body: subHeading || `Add your contact details, opening hours and location.`,
+        label: 'Contact'
+      }
+    };
+
+    return contentByPage[page] || contentByPage.home;
+  }
+
+  function renderGalleryThumbs() {
+    if (!els.galleryThumbs) return;
+
+    els.galleryThumbs.innerHTML = '';
+
+    state.galleryImages.forEach((image, index) => {
+      const item = document.createElement('div');
+      item.className = 'thumb-item';
+      item.draggable = false;
+
+      item.innerHTML = `
+        <img src="${image.dataUrl}" alt="${image.name || 'Uploaded picture'}">
+        <button type="button" class="thumb-remove" aria-label="Remove image">×</button>
+      `;
+
+      item.querySelector('button')?.addEventListener('click', () => {
+        state.galleryImages.splice(index, 1);
+        renderGalleryThumbs();
+        renderPreview();
+      });
+
+      els.galleryThumbs.appendChild(item);
+    });
+  }
+
+  function getPreviewRoot() {
+    return document.querySelector('.preview-scroll');
+  }
+
+  function getPreviewPage() {
+    return document.querySelector('.preview-scroll .page');
+  }
+
+  function renderTextBoxes() {
+    const page = getPreviewPage();
+    if (!page) return;
+
+    page.querySelectorAll('.pbi-movable-textbox').forEach((box) => box.remove());
+
+    page.style.position = 'relative';
+    page.style.minHeight = page.style.minHeight || '420px';
+    page.style.overflow = 'hidden';
+
+    const boxes = state.textBoxes[state.activePage] || [];
+
+    boxes.forEach((boxData) => {
+      const box = document.createElement('div');
+      box.className = 'pbi-movable-textbox';
+      box.dataset.textBoxId = boxData.id;
+      box.contentEditable = 'true';
+      box.spellcheck = true;
+
+      box.style.left = `${Number(boxData.x || 40)}px`;
+      box.style.top = `${Number(boxData.y || 180)}px`;
+      box.style.width = `${Number(boxData.width || 240)}px`;
+      box.style.fontSize = `${Number(boxData.fontSize || 20)}px`;
+      box.style.color = boxData.color || state.data.text_color || '#2f1b12';
+      box.style.background = boxData.background || 'rgba(255, 250, 245, 0.76)';
+
+      const textNode = document.createElement('span');
+      textNode.className = 'pbi-textbox-text';
+      textNode.textContent = boxData.text || 'New text box';
+
+      const controls = document.createElement('div');
+      controls.className = 'pbi-textbox-controls';
+      controls.contentEditable = 'false';
+
+      const smallerBtn = document.createElement('button');
+      smallerBtn.type = 'button';
+      smallerBtn.textContent = 'A-';
+
+      const largerBtn = document.createElement('button');
+      largerBtn.type = 'button';
+      largerBtn.textContent = 'A+';
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.type = 'button';
+      deleteBtn.textContent = 'Delete';
+
+      controls.appendChild(smallerBtn);
+      controls.appendChild(largerBtn);
+      controls.appendChild(deleteBtn);
+
+      box.appendChild(textNode);
+      box.appendChild(controls);
+
+      textNode.contentEditable = 'true';
+
+      textNode.addEventListener('input', () => {
+        boxData.text = textNode.textContent.trim();
+      });
+
+      smallerBtn.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        boxData.fontSize = Math.max(12, Number(boxData.fontSize || 20) - 2);
+        renderTextBoxes();
+      });
+
+      largerBtn.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        boxData.fontSize = Math.min(72, Number(boxData.fontSize || 20) + 2);
+        renderTextBoxes();
+      });
+
+      deleteBtn.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const list = state.textBoxes[state.activePage] || [];
+        state.textBoxes[state.activePage] = list.filter((item) => item.id !== boxData.id);
+
+        renderTextBoxes();
+      });
+
+      attachTextboxDrag(box, boxData, page);
+
+      page.appendChild(box);
+    });
+  }
+
+  function attachTextboxDrag(box, boxData, boundary) {
+    let isDragging = false;
+    let startX = 0;
+    let startY = 0;
+    let originalX = 0;
+    let originalY = 0;
+
+    box.addEventListener('pointerdown', (event) => {
+      if (event.target.closest('.pbi-textbox-controls')) return;
+      if (event.target.classList.contains('pbi-textbox-text')) return;
+
+      isDragging = true;
+      startX = event.clientX;
+      startY = event.clientY;
+      originalX = Number(boxData.x || 0);
+      originalY = Number(boxData.y || 0);
+
+      box.classList.add('dragging');
+      box.setPointerCapture(event.pointerId);
+    });
+
+    box.addEventListener('pointermove', (event) => {
+      if (!isDragging) return;
+
+      const dx = event.clientX - startX;
+      const dy = event.clientY - startY;
+
+      const maxX = Math.max(0, boundary.clientWidth - box.offsetWidth - 10);
+      const maxY = Math.max(0, boundary.clientHeight - box.offsetHeight - 10);
+
+      const nextX = Math.min(Math.max(0, originalX + dx), maxX);
+      const nextY = Math.min(Math.max(0, originalY + dy), maxY);
+
+      boxData.x = nextX;
+      boxData.y = nextY;
+
+      box.style.left = `${nextX}px`;
+      box.style.top = `${nextY}px`;
+    });
+
+    box.addEventListener('pointerup', (event) => {
+      if (!isDragging) return;
+
+      isDragging = false;
+      box.classList.remove('dragging');
+
+      try {
+        box.releasePointerCapture(event.pointerId);
+      } catch {
+        // No problem.
+      }
+    });
+  }
+
+  function addTextBox() {
+    const page = state.activePage || 'home';
+
+    if (!state.textBoxes[page]) {
+      state.textBoxes[page] = [];
+    }
+
+    state.textBoxes[page].push({
+      id: uid('textbox'),
+      text: 'New text box',
+      x: 40,
+      y: 180,
+      width: 240,
+      fontSize: 20,
+      color: state.data.text_color || '#2f1b12',
+      background: 'rgba(255, 250, 245, 0.76)'
+    });
+
+    renderTextBoxes();
+    setMessage('Text box added. Remember to save your project.', 'info');
+  }
+
+  function renderPreview() {
+    const previewRoot = getPreviewRoot();
+    const previewPage = getPreviewPage();
+
+    if (!previewRoot || !previewPage) return;
+
+    const data = collectFormData();
+    const content = getActivePageContent();
+
+    const businessName = safeText(data.business_name, 'Your Business');
+    const slug = slugify(data.subdomain_slug || businessName || 'your-business') || 'your-business';
+    const domain = data.use_custom_domain && data.custom_domain
+      ? data.custom_domain
+      : `${slug}.pbi.dev`;
+
+    const buttonAlpha = Math.max(0.4, Math.min(1, Number(data.button_transparency || 100) / 100));
+    const bgImageAlpha = 1 - Math.min(60, Number(data.background_image_transparency || 25)) / 100;
+
+    const templateClass = `template-${data.template || 'warm-classic'}`;
+
+    const pageClassList = ['preview-scroll', templateClass];
+    previewRoot.className = pageClassList.join(' ');
+    previewRoot.style.background = data.background_color || '#fff8f1';
+    previewRoot.style.color = data.text_color || '#2f1b12';
+
+    let bgLayer = previewRoot.querySelector('.preview-bg-layer');
+
+    if (!bgLayer) {
+      bgLayer = document.createElement('div');
+      bgLayer.className = 'preview-bg-layer';
+      previewRoot.prepend(bgLayer);
+    }
+
+    if (state.backgroundImageDataUrl) {
+      bgLayer.style.backgroundImage = `url("${state.backgroundImageDataUrl}")`;
+      bgLayer.style.opacity = String(bgImageAlpha);
+    } else {
+      bgLayer.style.backgroundImage = '';
+      bgLayer.style.opacity = '0';
+    }
+
+    const address = document.querySelector('.address');
+    if (address) address.textContent = `https://${domain}`;
+
+    const siteNav = document.querySelector('.site-nav');
+    if (siteNav) {
+      siteNav.style.background = `linear-gradient(135deg, ${data.nav_color}, ${rgbaFromHex(data.button_color, 0.88)})`;
+    }
+
+    const siteLogo = document.querySelector('.site-logo');
+    if (siteLogo) {
+      if (state.logoDataUrl) {
+        siteLogo.style.backgroundImage = `url("${state.logoDataUrl}")`;
+        siteLogo.style.backgroundSize = 'contain';
+        siteLogo.style.backgroundRepeat = 'no-repeat';
+        siteLogo.style.backgroundPosition = 'center';
+        siteLogo.style.backgroundColor = 'transparent';
+      } else {
+        siteLogo.style.backgroundImage = '';
+        siteLogo.style.backgroundColor = data.button_color;
+      }
+    }
+
+    const siteBrand = document.querySelector('.site-brand span');
+    if (siteBrand) siteBrand.textContent = businessName;
+
+    const siteLinks = document.querySelector('.site-links');
+    if (siteLinks) {
+      siteLinks.id = 'previewLinks';
+      siteLinks.innerHTML = state.selectedPages.map((pageId) => {
+        const page = pageOptions.find((item) => item.id === pageId);
+        const label = page?.label || pageId;
+        const active = pageId === state.activePage ? 'active' : '';
+
+        return `<button type="button" data-page="${pageId}" class="${active}">${label}</button>`;
+      }).join('');
+    }
+
+    previewPage.style.background = 'transparent';
+    previewPage.style.color = data.text_color || '#2f1b12';
+
+    const heading = previewPage.querySelector('h2');
+    if (heading) {
+      heading.textContent = content.title;
+      heading.style.color = data.text_color || '#2f1b12';
+    }
+
+    const paragraph = previewPage.querySelector('p');
+    if (paragraph) {
+      paragraph.textContent = content.body;
+      paragraph.style.color = rgbaFromHex(data.text_color || '#2f1b12', 0.76);
+    }
+
+    let templateLabel = previewPage.querySelector('.preview-template-label');
+
+    if (!templateLabel) {
+      templateLabel = document.createElement('div');
+      templateLabel.className = 'preview-template-label';
+      previewPage.insertBefore(templateLabel, previewPage.firstChild);
+    }
+
+    const template = templates.find((item) => item.id === data.template);
+    templateLabel.textContent = template?.label || 'Warm classic';
+
+    let cta = previewPage.querySelector('.preview-cta');
+
+    if (!cta) {
+      cta = document.createElement('button');
+      cta.className = 'preview-cta';
+      cta.type = 'button';
+      previewPage.appendChild(cta);
+    }
+
+    cta.textContent = state.activePage === 'contact' ? 'Get in touch' : 'Find out more';
+    cta.style.background = rgbaFromHex(data.button_color, buttonAlpha);
+    cta.style.color = '#fffaf5';
+
+    if (state.activePage === 'gallery') {
+      let galleryPreview = previewPage.querySelector('.preview-gallery-grid');
+
+      if (!galleryPreview) {
+        galleryPreview = document.createElement('div');
+        galleryPreview.className = 'preview-gallery-grid';
+        previewPage.appendChild(galleryPreview);
+      }
+
+      galleryPreview.innerHTML = state.galleryImages.length
+        ? state.galleryImages.map((image) => `<img src="${image.dataUrl}" alt="${image.name || 'Gallery image'}">`).join('')
+        : '<div class="drop-hint">Upload pictures in Brand design to show them here.</div>';
+    } else {
+      previewPage.querySelector('.preview-gallery-grid')?.remove();
+    }
+
+    const footer = document.querySelector('.preview-footer');
+    if (footer) footer.textContent = `© ${businessName} • Crafted with PBI`;
+
+    document.querySelectorAll('.site-links button').forEach((button) => {
+      button.style.setProperty('--button-color', data.button_color);
+    });
+
+    renderTextBoxes();
+    removeImageDragDropOption();
+  }
+
+  async function loadProject() {
+    if (!projectId) {
+      setMessage('No project ID found in the URL.', 'error');
+      return;
+    }
+
+    try {
+      const result = await api(`/api/projects/get?id=${encodeURIComponent(projectId)}`);
+      const project = result.project;
+
+      if (!project) {
+        setMessage('Project not found.', 'error');
+        return;
+      }
+
+      state.project = project;
+
+      let savedData = {};
+
+      if (project.data_json) {
+        savedData = typeof project.data_json === 'string'
+          ? JSON.parse(project.data_json)
+          : project.data_json;
+      }
+
+      applyFormData({
+        ...savedData,
+        project_name: savedData.project_name || project.name || ''
+      });
+    } catch (err) {
+      console.warn('Project load skipped:', err);
+      setMessage(err.message || 'Could not load project.', 'error');
+      renderPreview();
+    }
+  }
+
+  async function saveProject() {
+    if (!projectId) {
+      setMessage('No project ID found in the URL.', 'error');
+      return;
+    }
+
+    const data = collectFormData();
+
+    if (els.saveBtn) {
+      els.saveBtn.disabled = true;
+      els.saveBtn.textContent = 'Saving...';
+    }
+
+    setMessage('Saving project...', 'saving');
+
+    try {
+      const result = await api('/api/projects/update', {
+        method: 'POST',
+        body: JSON.stringify({
+          id: projectId,
+          name: data.project_name || 'Untitled website',
+          data
+        })
+      });
+
+      state.project = result.project || state.project;
+
+      setMessage('Project saved successfully.', 'success');
+      console.log('Project saved:', result);
+    } catch (err) {
+      console.error(err);
+      setMessage(err.message || 'Could not save project.', 'error');
+    } finally {
+      if (els.saveBtn) {
+        els.saveBtn.disabled = false;
+        els.saveBtn.textContent = 'Save project';
+      }
+    }
+  }
+
+  function getDomainToCheck() {
+    const useCustom = ['true', 'yes', 'Yes'].includes(String(els.useCustomDomain?.value));
+    const custom = safeText(els.customDomain?.value, '');
+    const slug = slugify(els.subdomainSlug?.value || 'your-business') || 'your-business';
+
+    return useCustom ? custom : `${slug}.dev`;
+  }
+
+  async function checkDomain() {
+    const domain = getDomainToCheck();
+
+    if (!domain) {
+      setDomainMessage('Enter a domain first.', 'error');
+      return;
+    }
+
+    setDomainMessage(`Checking ${domain}...`, 'info');
+
+    if (els.checkDomainBtn) {
+      els.checkDomainBtn.disabled = true;
+      els.checkDomainBtn.textContent = 'Checking...';
+    }
+
+    try {
+      const data = await api('/api/domain/check', {
+        method: 'POST',
+        body: JSON.stringify({ domain })
+      });
+
+      const cloudflareResult = data.result || {};
+      const checkedDomain = data.domain || domain;
+
+      const firstDomain =
+        Array.isArray(cloudflareResult.domains) && cloudflareResult.domains.length
+          ? cloudflareResult.domains[0]
+          : null;
+
+      if (firstDomain && firstDomain.registrable === true) {
+        const price = firstDomain.pricing?.registration_cost;
+        const currency = firstDomain.pricing?.currency || '';
+
+        const priceText = price
+          ? ` Registration cost: ${currency} ${price}.`
+          : '';
+
+        setDomainMessage(
+          `${checkedDomain} appears to be available.${priceText}`,
+          'success'
+        );
+      } else if (firstDomain && firstDomain.registrable === false) {
+        setDomainMessage(
+          `${checkedDomain} does not appear to be available.`,
+          'error'
+        );
+      } else {
+        console.log('Domain check unclear response:', data);
+
+        setDomainMessage(
+          `Cloudflare returned a result for ${checkedDomain}, but availability was unclear. Check the console/API response.`,
+          'info'
+        );
+      }
+    } catch (err) {
+      console.error(err);
+      setDomainMessage(err.message || 'Could not check domain.', 'error');
+    } finally {
+      if (els.checkDomainBtn) {
+        els.checkDomainBtn.disabled = false;
+        els.checkDomainBtn.textContent = 'Check domain';
+      }
+    }
+  }
+
+  async function onboardDomain() {
+    const domain = safeText(els.customDomain?.value, '');
+
+    if (!domain) {
+      setDomainMessage('Enter a custom domain before onboarding.', 'error');
+      return;
+    }
+
+    setDomainMessage('Custom hostname onboarding placeholder. We can wire this next.', 'info');
+  }
+
   async function handleLogoUpload(event) {
     const file = event.target.files?.[0];
-
     if (!file) return;
 
     try {
-      state.logo_data_url = await fileToDataUrl(file);
+      state.logoDataUrl = await readFileAsDataUrl(file);
       renderPreview();
-      setMessage('Logo added. Remember to save the project.', 'info');
+      setMessage('Logo added. Remember to save your project.', 'info');
     } catch (err) {
       setMessage(err.message || 'Could not upload logo.', 'error');
     }
   }
 
   async function handleGalleryUpload(event) {
-    const files = Array.from(event.target.files || []);
+    const files = [...(event.target.files || [])];
 
-    if (files.length === 0) return;
+    if (!files.length) return;
 
     try {
-      const images = [];
+      for (const file of files) {
+        const dataUrl = await readFileAsDataUrl(file);
 
-      for (const file of files.slice(0, 12)) {
-        images.push(await fileToDataUrl(file));
+        state.galleryImages.push({
+          id: uid('image'),
+          name: file.name,
+          dataUrl
+        });
       }
 
-      state.gallery_images = [...state.gallery_images, ...images].slice(0, 24);
-      renderGallery();
-      setMessage('Pictures added. Drag them into the preview, then save.', 'info');
+      renderGalleryThumbs();
+      renderPreview();
+      setMessage('Pictures uploaded. Remember to save your project.', 'info');
     } catch (err) {
       setMessage(err.message || 'Could not upload pictures.', 'error');
     }
@@ -660,195 +1128,147 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function handleBackgroundUpload(event) {
     const file = event.target.files?.[0];
-
     if (!file) return;
 
     try {
-      state.background_image_url = await fileToDataUrl(file);
+      state.backgroundImageDataUrl = await readFileAsDataUrl(file);
       renderPreview();
-      setMessage('Background image added. Remember to save.', 'info');
+      setMessage('Background image added. Remember to save your project.', 'info');
     } catch (err) {
       setMessage(err.message || 'Could not upload background image.', 'error');
     }
   }
 
-  async function checkDomain() {
-    syncStateFromInputs();
-
-    const domain = state.use_custom_domain
-      ? state.custom_domain.trim()
-      : `${state.subdomain_slug || slugify(state.business_name) || 'your-business'}.dev`;
-
-    if (!domain || !domain.includes('.')) {
-      showDomainMessage('Enter a full domain name first, for example yourbusiness.co.uk.', 'error');
-      return;
-    }
-
-    showDomainMessage(`Checking ${domain} with Cloudflare...`, 'info');
-
+  async function logout() {
     try {
-      const response = await fetch('/api/domain/check', {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          domain
-        })
-      });
-
-      const result = await response.json().catch(() => ({}));
-
-      if (!response.ok) {
-        throw new Error(result.error || result.message || `Domain check failed with status ${response.status}`);
-      }
-
-      const checked = result.result?.[0] || result.result || result.domain || result;
-
-      const available = checked.available ?? checked.registrable ?? checked.is_available;
-      const reason = checked.reason || checked.status || '';
-
-      if (available === true) {
-        showDomainMessage(`${domain} looks available.`, 'success');
-      } else if (available === false) {
-        showDomainMessage(`${domain} is not available${reason ? `: ${reason}` : '.'}`, 'error');
-      } else {
-        showDomainMessage(`Cloudflare returned a result for ${domain}, but availability was unclear. Check the console/API response.`, 'info');
-        console.log('Domain check result:', result);
-      }
-    } catch (err) {
-      showDomainMessage(err.message || 'Could not check domain.', 'error');
-    }
-  }
-
-  function onboardDomain() {
-    syncStateFromInputs();
-
-    const domain = state.custom_domain || state.subdomain_slug || '';
-
-    showDomainMessage(
-      domain
-        ? `Custom hostname onboarding placeholder for ${domain}. Next step is wiring this to Cloudflare for SaaS.`
-        : 'Add a custom domain or subdomain first.',
-      'info'
-    );
-  }
-
-  if (saveBtn) saveBtn.addEventListener('click', saveProject);
-
-  if (backBtn) {
-    backBtn.addEventListener('click', () => {
-      window.location.href = '/dashboard/';
-    });
-  }
-
-  if (logoutBtn) {
-    logoutBtn.addEventListener('click', async () => {
       await fetch('/api/auth/logout', {
         method: 'POST',
         credentials: 'include'
-      }).catch(() => {});
+      });
+    } catch {
+      // Still send them to login.
+    }
 
-      window.location.href = '/login/';
-    });
+    window.location.href = '/login/';
   }
 
-  if (desktopBtn && mobileBtn && previewFrame) {
-    desktopBtn.addEventListener('click', () => {
-      previewFrame.style.maxWidth = '100%';
-      previewFrame.style.margin = '0';
-      desktopBtn.classList.add('active');
-      mobileBtn.classList.remove('active');
+  function bindEvents() {
+    if (els.saveBtn) els.saveBtn.addEventListener('click', saveProject);
+
+    if (els.backBtn) {
+      els.backBtn.addEventListener('click', () => {
+        window.location.href = '/dashboard/';
+      });
+    }
+
+    if (els.logoutBtn) els.logoutBtn.addEventListener('click', logout);
+
+    if (els.checkDomainBtn) els.checkDomainBtn.addEventListener('click', checkDomain);
+    if (els.onboardDomainBtn) els.onboardDomainBtn.addEventListener('click', onboardDomain);
+
+    if (els.logoUpload) els.logoUpload.addEventListener('change', handleLogoUpload);
+    if (els.galleryUpload) els.galleryUpload.addEventListener('change', handleGalleryUpload);
+
+    document.addEventListener('input', (event) => {
+      const target = event.target;
+
+      if (
+        target.matches('#projectName, #businessName, #location, #brandTone, #accentColor, #backgroundColor, #textColor, #navColor, #cardColor, #buttonColor, #buttonTransparency, #backgroundTransparency, #subdomainSlug, #customDomain')
+      ) {
+        updateRangeNotes();
+        renderPreview();
+      }
     });
 
-    mobileBtn.addEventListener('click', () => {
-      previewFrame.style.maxWidth = '390px';
-      previewFrame.style.margin = '0 auto';
-      mobileBtn.classList.add('active');
-      desktopBtn.classList.remove('active');
+    document.addEventListener('change', (event) => {
+      const target = event.target;
+
+      if (target.matches('#templateChoice, #useCustomDomain, #httpsEnabled')) {
+        updateRangeNotes();
+        renderPreview();
+      }
+
+      if (target.matches('#pageChoiceGrid input[type="checkbox"]')) {
+        const selected = [...document.querySelectorAll('#pageChoiceGrid input[type="checkbox"]:checked')]
+          .map((input) => input.value);
+
+        state.selectedPages = selected.length ? selected : ['home'];
+
+        if (!state.selectedPages.includes(state.activePage)) {
+          state.activePage = state.selectedPages[0];
+        }
+
+        renderPageChoices();
+        renderPreview();
+      }
+
+      if (target.matches('#backgroundImageUpload')) {
+        handleBackgroundUpload(event);
+      }
     });
+
+    document.addEventListener('click', (event) => {
+      const pageButton = event.target.closest('#pageTabs button[data-page], #previewLinks button[data-page]');
+
+      if (pageButton) {
+        state.activePage = pageButton.dataset.page;
+        renderPageChoices();
+        renderPreview();
+      }
+
+      if (event.target.closest('#addTextBoxBtn')) {
+        addTextBox();
+      }
+    });
+
+    if (els.desktopBtn && els.mobileBtn && els.previewFrame) {
+      els.desktopBtn.addEventListener('click', () => {
+        els.previewFrame.style.maxWidth = '100%';
+        els.previewFrame.style.margin = '0';
+        els.desktopBtn.classList.add('active');
+        els.mobileBtn.classList.remove('active');
+      });
+
+      els.mobileBtn.addEventListener('click', () => {
+        els.previewFrame.style.maxWidth = '390px';
+        els.previewFrame.style.margin = '0 auto';
+        els.mobileBtn.classList.add('active');
+        els.desktopBtn.classList.remove('active');
+      });
+    }
   }
 
-  if (pageTabs) {
-    pageTabs.querySelectorAll('[data-page]').forEach((button) => {
-      button.addEventListener('click', () => switchPage(button.dataset.page));
-    });
+  function bootEnhancements() {
+    updateFieldLabels();
+    addColourAndTemplateControls();
+    addPageSelectionControls();
+    upgradeBrandDesignSection();
+    moveDomainButtonsIntoDomainCard();
+    removeImageDragDropOption();
+    updateRangeNotes();
+    renderPageChoices();
   }
 
-  if (previewLinks) {
-    previewLinks.querySelectorAll('[data-page]').forEach((button) => {
-      button.addEventListener('click', () => switchPage(button.dataset.page));
-    });
-  }
+  async function boot() {
+    bootEnhancements();
+    bindEvents();
 
-  pageToggles.forEach((input) => {
-    input.addEventListener('change', () => {
-      syncStateFromInputs();
-      syncPageInputs();
+    await loadProject();
+
+    updateRangeNotes();
+    renderPageChoices();
+    renderGalleryThumbs();
+    renderPreview();
+
+    setTimeout(() => {
       renderPreview();
-      setMessage('Page selection updated. Remember to save.', 'info');
-    });
-  });
-
-  if (checkDomainBtn) checkDomainBtn.addEventListener('click', checkDomain);
-  if (onboardDomainBtn) onboardDomainBtn.addEventListener('click', onboardDomain);
-
-  if (logoUpload) logoUpload.addEventListener('change', handleLogoUpload);
-  if (galleryUpload) galleryUpload.addEventListener('change', handleGalleryUpload);
-  if (backgroundUpload) backgroundUpload.addEventListener('change', handleBackgroundUpload);
-
-  if (previewImageArea) {
-    previewImageArea.addEventListener('dragover', (event) => {
-      event.preventDefault();
-      previewImageArea.classList.add('drag-over');
-    });
-
-    previewImageArea.addEventListener('dragleave', () => {
-      previewImageArea.classList.remove('drag-over');
-    });
-
-    previewImageArea.addEventListener('drop', (event) => {
-      event.preventDefault();
-      previewImageArea.classList.remove('drag-over');
-
-      const image = event.dataTransfer.getData('text/plain');
-
-      if (!image) return;
-
-      state.preview_images.push(image);
-      renderPreviewImages();
-      setMessage('Image added to preview. Remember to save.', 'info');
-    });
+      removeImageDragDropOption();
+    }, 500);
   }
 
-  [
-    projectName,
-    businessName,
-    locationInput,
-    accentColor,
-    brandTone,
-    templateChoice,
-    backgroundColor,
-    textColor,
-    navColor,
-    cardColor,
-    buttonColor,
-    buttonTransparency,
-    subdomainSlug,
-    customDomain,
-    useCustomDomain,
-    httpsEnabled,
-    pageTitle,
-    pageBody,
-    backgroundTransparency
-  ].forEach((input) => {
-    if (!input) return;
-    input.addEventListener('input', renderPreview);
-    input.addEventListener('change', renderPreview);
-  });
-
-  ensurePages();
-  loadProject();
-  renderPreview();
-});
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
+})();
