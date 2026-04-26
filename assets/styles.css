@@ -980,3 +980,159 @@ label {
     width: 100%;
   }
 }
+/* =========================
+   PBI CONTENT SECTIONS
+   ========================= */
+
+.eyebrow {
+  margin: 0 0 16px;
+  color: var(--pbi-orange-dark);
+  font-size: 13px;
+  font-weight: 950;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.hero-text {
+  max-width: 720px;
+  margin: 22px 0 0;
+  font-size: clamp(20px, 2vw, 26px);
+  line-height: 1.35;
+  color: var(--pbi-text);
+  font-weight: 700;
+}
+
+.hero-support {
+  max-width: 760px;
+  margin-top: 18px;
+  font-size: 17px;
+}
+
+.hero-card p {
+  font-size: 16px;
+}
+
+.soft-section {
+  background: rgba(255, 250, 245, 0.34);
+  border-top: 1px solid var(--pbi-border);
+  border-bottom: 1px solid var(--pbi-border);
+}
+
+.two-column {
+  display: grid;
+  grid-template-columns: 0.85fr 1.15fr;
+  gap: 70px;
+  align-items: start;
+}
+
+.two-column h2 {
+  max-width: 620px;
+}
+
+.two-column p {
+  margin-top: 0;
+  font-size: 18px;
+  color: var(--pbi-muted);
+}
+
+.centered-intro {
+  width: min(780px, 100%);
+  margin: 0 auto 36px;
+  text-align: center;
+}
+
+.centered-intro h2 {
+  margin-bottom: 18px;
+}
+
+.centered-intro p {
+  font-size: 18px;
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.mini-card {
+  padding: 24px;
+}
+
+.mini-card h4 {
+  margin-bottom: 12px;
+}
+
+.mini-card p {
+  margin: 0;
+  color: var(--pbi-muted);
+}
+
+.simple-statement {
+  width: min(780px, 100%);
+  margin: 42px auto 0;
+  padding: 30px;
+  text-align: center;
+  border-radius: var(--pbi-radius);
+  background: rgba(255, 250, 245, 0.62);
+  border: 1px solid var(--pbi-border);
+}
+
+.simple-statement h3 {
+  margin-bottom: 10px;
+}
+
+.simple-statement p {
+  margin: 0;
+  color: var(--pbi-muted);
+  font-size: 18px;
+}
+
+.site-footer {
+  padding: 42px 0;
+  border-top: 1px solid var(--pbi-border);
+  background: rgba(255, 250, 245, 0.62);
+}
+
+.footer-inner {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.footer-inner strong {
+  font-size: 22px;
+  letter-spacing: 0.18em;
+}
+
+.footer-inner p {
+  margin: 6px 0 0;
+}
+
+.footer-tagline {
+  color: var(--pbi-orange-dark);
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  text-align: right;
+}
+
+@media (max-width: 980px) {
+  .two-column,
+  .feature-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .centered-intro {
+    text-align: left;
+  }
+
+  .footer-inner {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .footer-tagline {
+    text-align: left;
+  }
+}
