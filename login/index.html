@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Login • PBI</title>
   <link rel="stylesheet" href="/assets/styles.css">
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 
 <body>
@@ -26,7 +27,7 @@
       <h1 class="section-title">Login</h1>
       <p class="muted">Access your saved website projects.</p>
 
-      <form id="loginForm">
+      <form id="loginForm" method="post" action="javascript:void(0)">
         <div class="field">
           <label for="email">Email address</label>
           <input id="email" name="email" class="input" type="email" autocomplete="email" required>
@@ -35,6 +36,14 @@
         <div class="field">
           <label for="password">Password</label>
           <input id="password" name="password" class="input" type="password" autocomplete="current-password" required>
+        </div>
+
+        <div class="field">
+          <div
+            class="cf-turnstile"
+            data-sitekey="YOUR_TURNSTILE_SITE_KEY_HERE"
+            data-theme="light">
+          </div>
         </div>
 
         <button id="loginBtn" class="btn" type="submit">Login</button>
