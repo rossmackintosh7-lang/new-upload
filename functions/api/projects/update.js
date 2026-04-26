@@ -13,9 +13,7 @@ function getCookie(request, name) {
   for (const cookie of cookies) {
     const separatorIndex = cookie.indexOf('=');
 
-    if (separatorIndex === -1) {
-      continue;
-    }
+    if (separatorIndex === -1) continue;
 
     const cookieName = cookie.slice(0, separatorIndex);
     const cookieValue = cookie.slice(separatorIndex + 1);
@@ -25,43 +23,39 @@ function getCookie(request, name) {
     }
   }
 
-  return null;
+  return '';
 }
 
-async function getCurrentUser(request, env) {
+async function readBody(request) {
+  try {
+    return await request.json();
+  } catch {
+    return {};
+  }
+}
+
+async function getUserFromSession(env, request) {
   const sessionId = getCookie(request, SESSION_COOKIE_NAME);
 
   if (!sessionId) {
     return null;
   }
 
-  const session = await env.DB.prepare(
-    `
-    SELECT
-      sessions.id,
-      sessions.user_id,
-      sessions.expires_at,
-      users.email
-    FROM sessions
-    INNER JOIN users ON users.id = sessions.user_id
-    WHERE sessions.id = ?
-    LIMIT 1
-    `
-  )
+  const session = await env.DB
+    .prepare(`
+      SELECT
+        sessions.id,
+        sessions.user_id,
+        users.email
+      FROM sessions
+      JOIN users ON users.id = sessions.user_id
+      WHERE sessions.id = ?
+      LIMIT 1
+    `)
     .bind(sessionId)
     .first();
 
   if (!session) {
-    return null;
-  }
-
-  const expiresAt = new Date(session.expires_at);
-
-  if (Number.isNaN(expiresAt.getTime()) || expiresAt <= new Date()) {
-    await env.DB.prepare('DELETE FROM sessions WHERE id = ?')
-      .bind(sessionId)
-      .run();
-
     return null;
   }
 
@@ -71,70 +65,92 @@ async function getCurrentUser(request, env) {
   };
 }
 
+function cleanName(value) {
+  const name = String(value || '').trim();
+
+  if (!name) {
+    return 'Untitled website';
+  }
+
+  return name.slice(0, 120);
+}
+
 export async function onRequestPost({ request, env }) {
-  try {
-    if (!env.DB) {
-      return error('Database binding missing.', 500);
-    }
+  const user = await getUserFromSession(env, request);
 
-    const user = await getCurrentUser(request, env);
+  if (!user) {
+    return error('Unauthorized.', 401);
+  }
 
-    if (!user) {
-      return error('Unauthorized.', 401);
-    }
+  const body = await readBody(request);
 
-    const body = await request.json();
+  const projectId = String(body.id || body.projectId || '').trim();
 
-    const projectId = String(body.id || '').trim();
-    const projectName = String(body.name || 'Untitled website').trim() || 'Untitled website';
-    const data = body.data || {};
+  if (!projectId) {
+    return error('Missing project id.', 400);
+  }
 
-    if (!projectId) {
-      return error('Project ID missing.', 400);
-    }
+  const name = cleanName(body.name || body.project_name);
 
-    const existing = await env.DB.prepare(
-      `
-      SELECT id
+  const data = body.data && typeof body.data === 'object'
+    ? body.data
+    : {};
+
+  const dataJson = JSON.stringify(data);
+
+  const existingProject = await env.DB
+    .prepare(`
+      SELECT id, user_id
       FROM projects
-      WHERE id = ? AND user_id = ?
+      WHERE id = ?
       LIMIT 1
-      `
-    )
-      .bind(projectId, user.id)
-      .first();
+    `)
+    .bind(projectId)
+    .first();
 
-    if (!existing) {
-      return error('Project not found.', 404);
-    }
+  if (!existingProject) {
+    return error('Project not found.', 404);
+  }
 
-    await env.DB.prepare(
-      `
+  if (existingProject.user_id !== user.id) {
+    return error('Forbidden.', 403);
+  }
+
+  await env.DB
+    .prepare(`
       UPDATE projects
       SET
         name = ?,
         data_json = ?,
-        updated_at = CURRENT_TIMESTAMP
-      WHERE id = ? AND user_id = ?
-      `
-    )
-      .bind(
-        projectName,
-        JSON.stringify(data),
-        projectId,
-        user.id
-      )
-      .run();
+        updated_at = datetime('now')
+      WHERE id = ?
+        AND user_id = ?
+    `)
+    .bind(name, dataJson, projectId, user.id)
+    .run();
 
-    return json({
-      ok: true,
-      project: {
-        id: projectId,
-        name: projectName,
-        data
-      }
-    });
-  } catch (err) {
-    return error(err?.message || 'Failed to save project.', 500);
-  }
+  const updatedProject = await env.DB
+    .prepare(`
+      SELECT
+        id,
+        name,
+        data_json,
+        created_at,
+        updated_at
+      FROM projects
+      WHERE id = ?
+        AND user_id = ?
+      LIMIT 1
+    `)
+    .bind(projectId, user.id)
+    .first();
+
+  return json({
+    ok: true,
+    project: updatedProject
+  });
+}
+
+export async function onRequestGet() {
+  return error('Method not allowed.', 405);
 }
