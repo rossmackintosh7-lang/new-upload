@@ -950,3 +950,27 @@ label {
     padding: 26px;
   }
 }
+/* whatever your last existing CSS is */
+}
+
+/* Combined page selection section */
+
+.combined-page-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+  align-items: start;
+}
+
+.mini-heading {
+  margin: 0 0 12px;
+  font-size: 15px;
+  letter-spacing: -0.02em;
+  color: var(--pbi-text);
+}
+
+@media (max-width: 760px) {
+  .combined-page-section {
+    grid-template-columns: 1fr;
+  }
+}
