@@ -9,12 +9,8 @@
 <body>
   <nav class="nav">
     <div class="container nav-inner">
-      <a class="brand" href="/">
-        <div class="brand-mark"></div>
-        <div>
-          <div class="brand-title">PBI</div>
-          <div class="brand-sub">Purbeck Business Innovations</div>
-        </div>
+      <a class="brand brand-logo-only" href="/">
+        <img src="/assets/pbi-logo.png" alt="Purbeck Business Solutions logo" class="header-logo">
       </a>
 
       <div class="row">
@@ -33,7 +29,7 @@
       </div>
     </div>
 
-    <div id="saveStatus" class="builder-save-status" aria-live="polite"></div>
+    <div id="builderSaveStatus" class="builder-save-status" aria-live="polite"></div>
 
     <div class="builder-app">
       <div class="builder-layout">
@@ -64,101 +60,8 @@
               </div>
 
               <div class="field">
-                <label for="templateChoice">Website template</label>
-                <select id="templateChoice" class="select">
-                  <option value="warm-classic">Warm Classic</option>
-                  <option value="clean-local">Clean Local</option>
-                  <option value="bold-trade">Bold Trade</option>
-                  <option value="elegant-studio">Elegant Studio</option>
-                </select>
-              </div>
-
-              <div class="colour-grid">
-                <div class="field">
-                  <label for="backgroundColor">Background colour</label>
-                  <input id="backgroundColor" class="input" type="color" value="#fbf3ec">
-                </div>
-
-                <div class="field">
-                  <label for="accentColor">Accent colour</label>
-                  <input id="accentColor" class="input" type="color" value="#c86f3d">
-                </div>
-
-                <div class="field">
-                  <label for="textColor">Text colour</label>
-                  <input id="textColor" class="input" type="color" value="#2f1b12">
-                </div>
-
-                <div class="field">
-                  <label for="navColor">Menu colour</label>
-                  <input id="navColor" class="input" type="color" value="#7a3f20">
-                </div>
-
-                <div class="field">
-                  <label for="cardColor">Card colour</label>
-                  <input id="cardColor" class="input" type="color" value="#fffaf5">
-                </div>
-
-                <div class="field">
-                  <label for="buttonColor">Button colour</label>
-                  <input id="buttonColor" class="input" type="color" value="#c86f3d">
-                </div>
-              </div>
-
-              <div class="field">
-                <label for="buttonTransparency">Button transparency</label>
-                <input id="buttonTransparency" class="range" type="range" min="0" max="70" value="0">
-                <div class="range-note"><span id="buttonTransparencyValue">0%</span> transparent</div>
-              </div>
-            </div>
-
-            <div class="card">
-              <h3>Page selection</h3>
-              <p class="muted">Choose the pages this website should include, then edit each page below.</p>
-
-              <div class="page-choice-grid">
-                <label class="page-choice">
-                  <input type="checkbox" class="page-toggle" value="home" checked disabled>
-                  <span>Home</span>
-                </label>
-
-                <label class="page-choice">
-                  <input type="checkbox" class="page-toggle" value="about" checked>
-                  <span>About</span>
-                </label>
-
-                <label class="page-choice">
-                  <input type="checkbox" class="page-toggle" value="services" checked>
-                  <span>Services</span>
-                </label>
-
-                <label class="page-choice">
-                  <input type="checkbox" class="page-toggle" value="gallery" checked>
-                  <span>Gallery</span>
-                </label>
-
-                <label class="page-choice">
-                  <input type="checkbox" class="page-toggle" value="contact" checked>
-                  <span>Contact</span>
-                </label>
-              </div>
-
-              <div class="page-tabs" id="pageTabs">
-                <button type="button" class="active" data-page="home">Home</button>
-                <button type="button" data-page="about">About</button>
-                <button type="button" data-page="services">Services</button>
-                <button type="button" data-page="gallery">Gallery</button>
-                <button type="button" data-page="contact">Contact</button>
-              </div>
-
-              <div class="field">
-                <label for="pageTitle">Page heading</label>
-                <input id="pageTitle" class="input">
-              </div>
-
-              <div class="field">
-                <label for="pageBody">Page text</label>
-                <textarea id="pageBody" class="textarea"></textarea>
+                <label for="accentColor">Accent colour</label>
+                <input id="accentColor" class="input" type="color" value="#c86f3d">
               </div>
             </div>
 
@@ -173,21 +76,10 @@
               <div class="field">
                 <label for="galleryUpload">Upload pictures</label>
                 <input id="galleryUpload" class="input" type="file" accept="image/*" multiple>
-                <p class="muted small-note">Uploaded pictures appear below. Drag them into the live preview window.</p>
+                <p class="muted small-note">Uploaded pictures will show in the gallery page preview.</p>
               </div>
 
               <div id="galleryThumbs" class="thumb-grid"></div>
-
-              <div class="field" style="margin-top:24px">
-                <label for="backgroundUpload">Upload background image</label>
-                <input id="backgroundUpload" class="input" type="file" accept="image/*">
-              </div>
-
-              <div class="field">
-                <label for="backgroundTransparency">Background image transparency</label>
-                <input id="backgroundTransparency" class="range" type="range" min="0" max="60" value="25">
-                <div class="range-note"><span id="backgroundTransparencyValue">25%</span> transparent, maximum 60%</div>
-              </div>
             </div>
 
             <div class="card">
@@ -221,9 +113,8 @@
                 <input id="customDomain" class="input" placeholder="yourdomain.co.uk">
               </div>
 
-              <div class="row">
+              <div class="row" id="domainButtonRow">
                 <button class="btn-ghost" id="checkDomainBtn" type="button">Check domain</button>
-                <button class="btn-secondary" id="onboardDomainBtn" type="button">Onboard custom hostname</button>
               </div>
 
               <div id="domainResult" class="notice" style="margin-top:16px">No domain check run yet.</div>
@@ -254,8 +145,8 @@
                 <div class="address">https://your-business.pbi.dev</div>
               </div>
 
-              <div class="preview-scroll" id="previewDropZone">
-                <div class="preview-bg-layer" id="previewBgLayer"></div>
+              <div class="preview-scroll">
+                <div class="preview-bg-layer"></div>
 
                 <div class="site-nav">
                   <div class="site-brand">
@@ -265,21 +156,15 @@
 
                   <div class="site-links" id="previewLinks">
                     <button type="button" class="active" data-page="home">Home</button>
-                    <button type="button" data-page="about">About</button>
-                    <button type="button" data-page="services">Services</button>
                     <button type="button" data-page="gallery">Gallery</button>
-                    <button type="button" data-page="contact">Contact</button>
                   </div>
                 </div>
 
                 <div class="page">
-                  <div class="preview-template-label" id="previewTemplateLabel">Warm Classic</div>
+                  <div class="preview-template-label">Warm classic</div>
                   <h2>Your homepage headline</h2>
                   <p>Your website intro will appear here as you build it out.</p>
-                  <button class="preview-cta" type="button">Get started</button>
-                  <div id="previewImageArea" class="preview-image-area">
-                    <div class="drop-hint">Drag uploaded pictures here</div>
-                  </div>
+                  <button class="preview-cta" type="button">Find out more</button>
                 </div>
 
                 <footer class="preview-footer">© Your Business • Crafted with PBI</footer>
