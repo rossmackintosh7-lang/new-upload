@@ -36,7 +36,6 @@
     logoDataUrl: '',
     backgroundImageDataUrl: '',
     galleryImages: [],
-    previewImages: {},
     textBoxes: {},
     selectedPages: ['home', 'gallery'],
     data: {
@@ -91,6 +90,11 @@
     { id: 'contact', label: 'Contact' }
   ];
 
+  function safeText(value, fallback = '') {
+    const text = String(value || '').trim();
+    return text || fallback;
+  }
+
   function normaliseColour(value, fallback) {
     if (!value || typeof value !== 'string') return fallback;
     return value.startsWith('#') ? value : fallback;
@@ -124,11 +128,6 @@
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '')
       .slice(0, 60);
-  }
-
-  function safeText(value, fallback = '') {
-    const text = String(value || '').trim();
-    return text || fallback;
   }
 
   function uid(prefix = 'id') {
@@ -196,6 +195,7 @@
     });
 
     let data = {};
+
     try {
       data = await response.json();
     } catch {
@@ -221,11 +221,21 @@
   }
 
   function updateFieldLabels() {
-    const brandToneLabel = document.querySelector('label[for="brandTone"]') || els.brandTone?.closest('.field')?.querySelector('label');
-    if (brandToneLabel) brandToneLabel.textContent = 'Sub heading';
+    const brandToneLabel =
+      document.querySelector('label[for="brandTone"]') ||
+      els.brandTone?.closest('.field')?.querySelector('label');
 
-    const locationLabel = document.querySelector('label[for="location"]') || els.location?.closest('.field')?.querySelector('label');
-    if (locationLabel) locationLabel.textContent = 'Page main heading';
+    if (brandToneLabel) {
+      brandToneLabel.textContent = 'Sub heading';
+    }
+
+    const locationLabel =
+      document.querySelector('label[for="location"]') ||
+      els.location?.closest('.field')?.querySelector('label');
+
+    if (locationLabel) {
+      locationLabel.textContent = 'Page main heading';
+    }
 
     const brandAssetsHeading = [...document.querySelectorAll('.card h3')]
       .find((heading) => heading.textContent.trim().toLowerCase() === 'brand assets');
@@ -237,9 +247,11 @@
 
   function addColourAndTemplateControls() {
     const projectCard = els.projectName?.closest('.card');
+
     if (!projectCard || document.getElementById('templateChoice')) return;
 
     const controlBlock = document.createElement('div');
+
     controlBlock.innerHTML = `
       <div class="field">
         <label for="templateChoice">Website template</label>
@@ -302,33 +314,63 @@
   }
 
   function addPageSelectionControls() {
-    const projectCard = els.projectName?.closest('.card');
     const brandCard = els.logoUpload?.closest('.card') || els.galleryUpload?.closest('.card');
 
-    if (!projectCard || !brandCard || document.getElementById('pageSelectionCard')) return;
+    if (!brandCard) return;
+
+    document.querySelectorAll('#pageSelectionCard').forEach((card) => {
+      card.remove();
+    });
+
+    document.querySelectorAll('.combined-page-section').forEach((section) => {
+      const parentCard = section.closest('.card');
+
+      if (parentCard && parentCard.id !== 'pageSelectionCard') {
+        parentCard.remove();
+      }
+    });
 
     const card = document.createElement('div');
     card.className = 'card';
     card.id = 'pageSelectionCard';
 
     card.innerHTML = `
-      <h3>Page selection</h3>
-      <p class="muted">Choose which pages this website should include, then select a page to edit its text.</p>
+      <h3>Pages</h3>
+      <p class="muted">Choose which pages your website should include, then select the page you want to edit.</p>
 
-      <div id="pageChoiceGrid" class="page-choice-grid">
-        ${pageOptions.map((page) => `
-          <label class="page-choice">
-            <input type="checkbox" value="${page.id}" ${state.selectedPages.includes(page.id) ? 'checked' : ''}>
-            <span>${page.label}</span>
-          </label>
-        `).join('')}
-      </div>
+      <div class="combined-page-section">
+        <div>
+          <h4 class="mini-heading">Pages included</h4>
 
-      <div id="pageTabs" class="page-tabs"></div>
+          <div id="pageChoiceGrid" class="page-choice-grid">
+            ${pageOptions.map((page) => `
+              <label class="page-choice">
+                <input
+                  type="checkbox"
+                  value="${page.id}"
+                  ${state.selectedPages.includes(page.id) ? 'checked' : ''}
+                >
+                <span>${page.label}</span>
+              </label>
+            `).join('')}
+          </div>
+        </div>
 
-      <div class="textbox-toolbar">
-        <button id="addTextBoxBtn" type="button" class="btn-secondary">Add text box</button>
-        <p class="muted small-note">Adds a movable text box to the selected page. Click the box to edit it, then drag it around the live preview.</p>
+        <div>
+          <h4 class="mini-heading">Page currently editing</h4>
+
+          <div id="pageTabs" class="page-tabs"></div>
+
+          <div class="textbox-toolbar">
+            <button id="addTextBoxBtn" type="button" class="btn-secondary">
+              Add text box
+            </button>
+
+            <p class="muted small-note">
+              Adds a movable text box to the selected page. Click the text box to edit it, then drag it around the live preview.
+            </p>
+          </div>
+        </div>
       </div>
     `;
 
@@ -337,17 +379,25 @@
 
   function upgradeBrandDesignSection() {
     const brandCard = els.logoUpload?.closest('.card') || els.galleryUpload?.closest('.card');
+
     if (!brandCard || document.getElementById('backgroundImageUpload')) return;
 
     const heading = brandCard.querySelector('h3');
-    if (heading) heading.textContent = 'Brand design';
+
+    if (heading) {
+      heading.textContent = 'Brand design';
+    }
 
     if (els.galleryUpload) {
       const galleryLabel = els.galleryUpload.closest('.field')?.querySelector('label');
-      if (galleryLabel) galleryLabel.textContent = 'Upload pictures';
+
+      if (galleryLabel) {
+        galleryLabel.textContent = 'Upload pictures';
+      }
     }
 
     const backgroundBlock = document.createElement('div');
+
     backgroundBlock.innerHTML = `
       <div class="field">
         <label for="backgroundImageUpload">Upload background image</label>
@@ -395,7 +445,10 @@
 
   function removeImageDragDropOption() {
     const previewImageArea = document.getElementById('previewImageArea');
-    if (previewImageArea) previewImageArea.remove();
+
+    if (previewImageArea) {
+      previewImageArea.remove();
+    }
 
     document.querySelectorAll('.thumb-item').forEach((thumb) => {
       thumb.draggable = false;
@@ -453,7 +506,6 @@
       logo_data_url: state.logoDataUrl,
       background_image_data_url: state.backgroundImageDataUrl,
       gallery_images: state.galleryImages,
-      preview_images: state.previewImages,
       text_boxes: state.textBoxes,
       subdomain_slug: safeText(els.subdomainSlug?.value, ''),
       custom_domain: safeText(els.customDomain?.value, ''),
@@ -475,7 +527,6 @@
     state.logoDataUrl = data.logo_data_url || '';
     state.backgroundImageDataUrl = data.background_image_data_url || '';
     state.galleryImages = Array.isArray(data.gallery_images) ? data.gallery_images : [];
-    state.previewImages = data.preview_images && typeof data.preview_images === 'object' ? data.preview_images : {};
     state.textBoxes = data.text_boxes && typeof data.text_boxes === 'object' ? data.text_boxes : {};
 
     if (els.projectName) els.projectName.value = data.project_name || state.project?.name || '';
@@ -564,22 +615,22 @@
       },
       about: {
         title: `About ${businessName}`,
-        body: subHeading || `Tell customers who you are, what you do and why your business matters.`,
+        body: subHeading || 'Tell customers who you are, what you do and why your business matters.',
         label: 'About'
       },
       services: {
         title: `${businessName} services`,
-        body: subHeading || `Show your key services, offers and reasons to choose you.`,
+        body: subHeading || 'Show your key services, offers and reasons to choose you.',
         label: 'Services'
       },
       gallery: {
         title: `${businessName} gallery`,
-        body: subHeading || `Show images that help customers understand your work.`,
+        body: subHeading || 'Show images that help customers understand your work.',
         label: 'Gallery'
       },
       contact: {
         title: `Contact ${businessName}`,
-        body: subHeading || `Add your contact details, opening hours and location.`,
+        body: subHeading || 'Add your contact details, opening hours and location.',
         label: 'Contact'
       }
     };
@@ -622,6 +673,7 @@
 
   function renderTextBoxes() {
     const page = getPreviewPage();
+
     if (!page) return;
 
     page.querySelectorAll('.pbi-movable-textbox').forEach((box) => box.remove());
@@ -636,7 +688,7 @@
       const box = document.createElement('div');
       box.className = 'pbi-movable-textbox';
       box.dataset.textBoxId = boxData.id;
-      box.contentEditable = 'true';
+      box.contentEditable = 'false';
       box.spellcheck = true;
 
       box.style.left = `${Number(boxData.x || 40)}px`;
@@ -648,6 +700,7 @@
 
       const textNode = document.createElement('span');
       textNode.className = 'pbi-textbox-text';
+      textNode.contentEditable = 'true';
       textNode.textContent = boxData.text || 'New text box';
 
       const controls = document.createElement('div');
@@ -673,8 +726,6 @@
       box.appendChild(textNode);
       box.appendChild(controls);
 
-      textNode.contentEditable = 'true';
-
       textNode.addEventListener('input', () => {
         boxData.text = textNode.textContent.trim();
       });
@@ -682,6 +733,7 @@
       smallerBtn.addEventListener('click', (event) => {
         event.preventDefault();
         event.stopPropagation();
+
         boxData.fontSize = Math.max(12, Number(boxData.fontSize || 20) - 2);
         renderTextBoxes();
       });
@@ -689,6 +741,7 @@
       largerBtn.addEventListener('click', (event) => {
         event.preventDefault();
         event.stopPropagation();
+
         boxData.fontSize = Math.min(72, Number(boxData.fontSize || 20) + 2);
         renderTextBoxes();
       });
@@ -758,7 +811,7 @@
       try {
         box.releasePointerCapture(event.pointerId);
       } catch {
-        // No problem.
+        // Ignore pointer release failure.
       }
     });
   }
@@ -796,6 +849,7 @@
 
     const businessName = safeText(data.business_name, 'Your Business');
     const slug = slugify(data.subdomain_slug || businessName || 'your-business') || 'your-business';
+
     const domain = data.use_custom_domain && data.custom_domain
       ? data.custom_domain
       : `${slug}.pbi.dev`;
@@ -805,8 +859,7 @@
 
     const templateClass = `template-${data.template || 'warm-classic'}`;
 
-    const pageClassList = ['preview-scroll', templateClass];
-    previewRoot.className = pageClassList.join(' ');
+    previewRoot.className = `preview-scroll ${templateClass}`;
     previewRoot.style.background = data.background_color || '#fff8f1';
     previewRoot.style.color = data.text_color || '#2f1b12';
 
@@ -830,11 +883,13 @@
     if (address) address.textContent = `https://${domain}`;
 
     const siteNav = document.querySelector('.site-nav');
+
     if (siteNav) {
       siteNav.style.background = `linear-gradient(135deg, ${data.nav_color}, ${rgbaFromHex(data.button_color, 0.88)})`;
     }
 
     const siteLogo = document.querySelector('.site-logo');
+
     if (siteLogo) {
       if (state.logoDataUrl) {
         siteLogo.style.backgroundImage = `url("${state.logoDataUrl}")`;
@@ -852,8 +907,10 @@
     if (siteBrand) siteBrand.textContent = businessName;
 
     const siteLinks = document.querySelector('.site-links');
+
     if (siteLinks) {
       siteLinks.id = 'previewLinks';
+
       siteLinks.innerHTML = state.selectedPages.map((pageId) => {
         const page = pageOptions.find((item) => item.id === pageId);
         const label = page?.label || pageId;
@@ -867,12 +924,14 @@
     previewPage.style.color = data.text_color || '#2f1b12';
 
     const heading = previewPage.querySelector('h2');
+
     if (heading) {
       heading.textContent = content.title;
       heading.style.color = data.text_color || '#2f1b12';
     }
 
     const paragraph = previewPage.querySelector('p');
+
     if (paragraph) {
       paragraph.textContent = content.body;
       paragraph.style.color = rgbaFromHex(data.text_color || '#2f1b12', 0.76);
@@ -920,10 +979,6 @@
 
     const footer = document.querySelector('.preview-footer');
     if (footer) footer.textContent = `© ${businessName} • Crafted with PBI`;
-
-    document.querySelectorAll('.site-links button').forEach((button) => {
-      button.style.setProperty('--button-color', data.button_color);
-    });
 
     renderTextBoxes();
     removeImageDragDropOption();
@@ -1091,6 +1146,7 @@
 
   async function handleLogoUpload(event) {
     const file = event.target.files?.[0];
+
     if (!file) return;
 
     try {
@@ -1128,6 +1184,7 @@
 
   async function handleBackgroundUpload(event) {
     const file = event.target.files?.[0];
+
     if (!file) return;
 
     try {
@@ -1146,7 +1203,7 @@
         credentials: 'include'
       });
     } catch {
-      // Still send them to login.
+      // Still send user to login.
     }
 
     window.location.href = '/login/';
@@ -1173,7 +1230,9 @@
       const target = event.target;
 
       if (
-        target.matches('#projectName, #businessName, #location, #brandTone, #accentColor, #backgroundColor, #textColor, #navColor, #cardColor, #buttonColor, #buttonTransparency, #backgroundTransparency, #subdomainSlug, #customDomain')
+        target.matches(
+          '#projectName, #businessName, #location, #brandTone, #accentColor, #backgroundColor, #textColor, #navColor, #cardColor, #buttonColor, #buttonTransparency, #backgroundTransparency, #subdomainSlug, #customDomain'
+        )
       ) {
         updateRangeNotes();
         renderPreview();
