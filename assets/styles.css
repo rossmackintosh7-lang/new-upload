@@ -76,10 +76,10 @@ body::after {
 }
 
 .hero {
-  min-height: calc(100vh - 96px);
+  min-height: calc(100vh - 150px);
   display: flex;
   align-items: center;
-  padding: 80px 0;
+  padding: 64px 0;
 }
 
 .hero-grid {
@@ -122,10 +122,12 @@ body::after {
   border-bottom: 1px solid var(--pbi-border);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
+  overflow: visible;
 }
 
 .nav-inner {
-  min-height: 104px;
+  height: 150px;
+  min-height: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -582,7 +584,7 @@ label {
 
 .preview-panel {
   position: sticky;
-  top: 128px;
+  top: 174px;
   background: var(--pbi-card);
   border: 1px solid var(--pbi-border);
   border-radius: var(--pbi-radius);
@@ -891,7 +893,8 @@ label {
   }
 
   .nav-inner {
-    min-height: 92px;
+    height: auto;
+    min-height: 118px;
     flex-direction: column;
     justify-content: center;
     padding: 16px 0;
