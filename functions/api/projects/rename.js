@@ -1,6 +1,14 @@
-import { json, error, readJson } from '../../_lib/json.js';
+import { json, error } from '../../_lib/json.js';
 
 const SESSION_COOKIE_NAME = 'session_id';
+
+async function readBody(request) {
+  try {
+    return await request.json();
+  } catch {
+    return {};
+  }
+}
 
 function getCookie(request, name) {
   const cookieHeader = request.headers.get('Cookie') || '';
@@ -49,7 +57,7 @@ export async function onRequestPost({ request, env }) {
     return error('Unauthorized.', 401);
   }
 
-  const body = await readJson(request);
+  const body = await readBody(request);
 
   const id = String(body.id || '').trim();
   const name = String(body.name || '').trim();
