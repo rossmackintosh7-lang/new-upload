@@ -371,3 +371,475 @@ a.btn-ghost {
 .btn-ghost {
   transition: all 0.2s ease;
 }
+/* =====================================================
+   PBI PREMIUM LIGHT POLISH
+   Dashboard, builder, buttons, spacing, forms, preview
+   ===================================================== */
+
+/* ---------- General page feel ---------- */
+
+body {
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.container {
+  max-width: 1180px;
+}
+
+.section {
+  padding-top: 64px;
+  padding-bottom: 72px;
+}
+
+.section-title,
+h1 {
+  font-size: clamp(38px, 5vw, 62px);
+  line-height: 0.95;
+  letter-spacing: -0.055em;
+  margin-bottom: 14px;
+}
+
+h2 {
+  letter-spacing: -0.035em;
+}
+
+h3 {
+  font-size: 20px;
+  letter-spacing: -0.02em;
+}
+
+/* ---------- Navigation polish ---------- */
+
+.nav {
+  min-height: 86px;
+}
+
+.nav-inner {
+  min-height: 86px;
+}
+
+.brand {
+  gap: 14px;
+  text-decoration: none;
+}
+
+.brand-mark {
+  width: 46px;
+  height: 46px;
+  border-radius: 16px;
+}
+
+.brand-title {
+  font-size: 15px;
+  letter-spacing: 0.18em;
+  font-weight: 900;
+}
+
+.brand-sub {
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* ---------- Buttons ---------- */
+
+.btn,
+.btn-secondary,
+.btn-ghost,
+button,
+a.btn,
+a.btn-secondary,
+a.btn-ghost {
+  min-height: 46px;
+  padding: 12px 20px;
+  border-radius: 999px;
+  font-weight: 800;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn {
+  letter-spacing: -0.01em;
+}
+
+.btn:active,
+.btn-secondary:active,
+.btn-ghost:active {
+  transform: translateY(1px);
+}
+
+/* ---------- Forms ---------- */
+
+.field {
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  font-size: 14px;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.input,
+.textarea,
+.select,
+input,
+textarea,
+select {
+  width: 100%;
+  min-height: 50px;
+  border-radius: 18px;
+  padding: 13px 16px;
+  font-size: 15px;
+}
+
+.textarea,
+textarea {
+  min-height: 140px;
+  resize: vertical;
+}
+
+input[type="color"] {
+  padding: 6px;
+  height: 50px;
+}
+
+/* ---------- Cards ---------- */
+
+.card,
+.auth-card,
+.preview-panel {
+  border-radius: 32px;
+  padding: 28px;
+}
+
+.card h3,
+.auth-card h2,
+.preview-panel h3 {
+  margin-top: 0;
+}
+
+.notice {
+  border-radius: 18px;
+  padding: 13px 16px;
+}
+
+/* ---------- Dashboard ---------- */
+
+.row-between {
+  gap: 24px;
+}
+
+#projectsList {
+  display: grid;
+  gap: 14px;
+}
+
+.project-row {
+  min-height: 74px;
+  border-radius: 22px;
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  text-decoration: none;
+}
+
+.project-row strong {
+  font-size: 18px;
+  line-height: 1.15;
+}
+
+.project-row .muted {
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+.project-row .btn-ghost {
+  min-width: 82px;
+  min-height: 42px;
+  padding: 10px 16px;
+}
+
+/* ---------- Builder page layout ---------- */
+
+.builder-app {
+  width: 100%;
+}
+
+.builder-layout {
+  display: grid;
+  grid-template-columns: minmax(330px, 0.85fr) minmax(480px, 1.15fr);
+  gap: 34px;
+  align-items: start;
+}
+
+.builder-left,
+.builder-right {
+  min-width: 0;
+}
+
+.builder-stack {
+  display: grid;
+  gap: 22px;
+}
+
+.builder-right {
+  position: sticky;
+  top: 108px;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+/* ---------- Builder toolbar ---------- */
+
+.builder-toolbar,
+.row,
+.row-between {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.row {
+  gap: 12px;
+}
+
+.row-between {
+  justify-content: space-between;
+}
+
+/* ---------- Preview panel ---------- */
+
+.preview-panel {
+  min-height: 580px;
+}
+
+.preview-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.preview-top .muted {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-weight: 900;
+}
+
+.toggle-group {
+  display: flex;
+  gap: 8px;
+  padding: 5px;
+  border-radius: 999px;
+  background: rgba(91, 52, 34, 0.08);
+}
+
+.toggle-group button {
+  min-height: 36px;
+  padding: 8px 14px;
+  font-size: 13px;
+}
+
+/* ---------- Browser preview ---------- */
+
+.browser {
+  width: 100%;
+  min-height: 500px;
+  border-radius: 26px;
+  overflow: hidden;
+}
+
+.browser-bar {
+  min-height: 48px;
+  padding: 12px 16px;
+}
+
+.browser-dot {
+  width: 11px;
+  height: 11px;
+}
+
+.address {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.preview-scroll {
+  min-height: 452px;
+}
+
+.site-nav {
+  padding: 22px 24px;
+}
+
+.site-brand {
+  min-width: 0;
+}
+
+.site-brand span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.site-links {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.site-links button {
+  min-height: 38px;
+  padding: 8px 14px;
+  font-size: 13px;
+}
+
+.page {
+  padding: 64px 32px 78px;
+}
+
+.page h2 {
+  max-width: 760px;
+  font-size: clamp(34px, 5vw, 58px);
+}
+
+.page p {
+  font-size: 18px;
+  max-width: 640px;
+}
+
+.preview-footer {
+  padding: 24px 32px;
+}
+
+/* ---------- Logo and gallery uploads ---------- */
+
+.thumb-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(74px, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.thumb-grid img {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 16px;
+  object-fit: cover;
+  border: 1px solid rgba(191, 111, 52, 0.18);
+}
+
+/* ---------- Save state helpers ---------- */
+
+.save-success {
+  background: rgba(38, 125, 74, 0.12);
+  border-color: rgba(38, 125, 74, 0.25);
+  color: #1f6a3f;
+}
+
+.save-error {
+  background: rgba(162, 55, 38, 0.12);
+  border-color: rgba(162, 55, 38, 0.25);
+  color: #9f321f;
+}
+
+/* ---------- Auth screens ---------- */
+
+.auth-shell {
+  padding-top: 76px;
+}
+
+.auth-card {
+  max-width: 560px;
+}
+
+/* ---------- Mobile polish ---------- */
+
+@media (max-width: 980px) {
+  .section {
+    padding-top: 44px;
+  }
+
+  .builder-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .builder-right {
+    position: static;
+  }
+
+  .preview-panel {
+    min-height: auto;
+  }
+}
+
+@media (max-width: 720px) {
+  .nav,
+  .nav-inner {
+    min-height: 76px;
+  }
+
+  .brand-sub {
+    display: none;
+  }
+
+  .section-title,
+  h1 {
+    font-size: 40px;
+  }
+
+  .card,
+  .auth-card,
+  .preview-panel {
+    border-radius: 26px;
+    padding: 22px;
+  }
+
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .row-between {
+    align-items: flex-start;
+  }
+
+  .project-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .project-row .btn-ghost {
+    width: 100%;
+  }
+
+  .site-nav {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .site-links {
+    width: 100%;
+  }
+
+  .site-links button {
+    flex: 1;
+  }
+}
