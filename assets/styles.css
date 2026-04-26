@@ -843,3 +843,90 @@ input[type="color"] {
     flex: 1;
   }
 }
+/* =========================
+   Builder form alignment fix
+   ========================= */
+
+.builder-left .card {
+  overflow: hidden;
+}
+
+.builder-left .field {
+  width: 100%;
+}
+
+.builder-left label {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.builder-left .input,
+.builder-left .textarea,
+.builder-left .select {
+  box-sizing: border-box;
+  width: 100%;
+}
+
+/* Make two-column form rows behave properly */
+.builder-left .grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 180px;
+  gap: 18px;
+  align-items: end;
+}
+
+/* Fix the colour picker specifically */
+#accentColor {
+  width: 100%;
+  min-width: 0;
+  height: 58px;
+  padding: 8px;
+  border-radius: 18px;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+/* Chrome/Safari colour picker inner square */
+#accentColor::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+#accentColor::-webkit-color-swatch {
+  border: none;
+  border-radius: 12px;
+}
+
+/* Prevent text fields stretching outside the card */
+#projectName,
+#businessName,
+#location,
+#brandTone,
+#pageTitle,
+#pageBody,
+#subdomainSlug,
+#customDomain {
+  max-width: 100%;
+}
+
+/* Better spacing between form groups */
+.builder-left .card .field:last-child {
+  margin-bottom: 0;
+}
+
+/* Keep the brand tone box neat */
+#brandTone {
+  display: block;
+  min-height: 130px;
+}
+
+/* On smaller screens, stack fields cleanly */
+@media (max-width: 760px) {
+  .builder-left .grid-2 {
+    grid-template-columns: 1fr;
+  }
+
+  #accentColor {
+    width: 100%;
+  }
+}
