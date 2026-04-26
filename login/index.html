@@ -29,18 +29,18 @@
       <form id="loginForm">
         <div class="field">
           <label for="email">Email address</label>
-          <input id="email" class="input" type="email" autocomplete="email" required>
+          <input id="email" name="email" class="input" type="email" autocomplete="email" required>
         </div>
 
         <div class="field">
           <label for="password">Password</label>
-          <input id="password" class="input" type="password" autocomplete="current-password" required>
+          <input id="password" name="password" class="input" type="password" autocomplete="current-password" required>
         </div>
 
-        <button class="btn" type="submit">Login</button>
+        <button id="loginBtn" class="btn" type="submit">Login</button>
       </form>
 
-      <div id="loginMessage" class="notice" style="margin-top:18px;display:none"></div>
+      <div id="message" class="notice" style="margin-top:18px;display:none"></div>
 
       <p class="muted" style="margin-top:22px">
         No account yet?
