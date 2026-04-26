@@ -5,53 +5,50 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Login • PBI</title>
   <link rel="stylesheet" href="/assets/styles.css">
-  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
+
 <body>
   <nav class="nav">
     <div class="container nav-inner">
-      <a class="brand" href="/">
-        <div class="brand-mark"></div>
-        <div>
-          <div class="brand-title">PBI</div>
-          <div class="brand-sub">Purbeck Business Innovations</div>
-        </div>
+      <a class="brand brand-logo-only" href="/">
+        <img src="/assets/PBI%20Logo.png" alt="Purbeck Business Solutions logo" class="header-logo">
       </a>
+
       <div class="row">
-        <a class="btn-ghost" href="/signup/">Create account</a>
+        <a class="btn-ghost" href="/">Home</a>
+        <a class="btn" href="/signup/">Create account</a>
       </div>
     </div>
   </nav>
 
-  <main class="auth-shell">
-    <div class="auth-card">
-      <h2 class="section-title">Login</h2>
-      <div id="message" class="notice" style="display:none;margin:16px 0"></div>
+  <main class="container section">
+    <div class="auth-card card">
+      <h1 class="section-title">Login</h1>
+      <p class="muted">Access your saved website projects.</p>
 
       <form id="loginForm">
         <div class="field">
-          <label>Email address</label>
-          <input class="input" type="email" name="email" required>
+          <label for="email">Email address</label>
+          <input id="email" class="input" type="email" autocomplete="email" required>
         </div>
 
         <div class="field">
-          <label>Password</label>
-          <input class="input" type="password" name="password" required>
+          <label for="password">Password</label>
+          <input id="password" class="input" type="password" autocomplete="current-password" required>
         </div>
 
-        <div class="cf-turnstile" data-sitekey="0x4AAAAAADBNXYq5lI5pxBLq"></div>
-
-        <div class="row" style="margin-top:16px">
-          <button class="btn" type="submit">Login</button>
-          <a class="btn-ghost" href="/signup/">Create account</a>
-        </div>
+        <button class="btn" type="submit">Login</button>
       </form>
+
+      <div id="loginMessage" class="notice" style="margin-top:18px;display:none"></div>
+
+      <p class="muted" style="margin-top:22px">
+        No account yet?
+        <a href="/signup/">Create one here</a>.
+      </p>
     </div>
   </main>
 
-  <script src="/assets/auth.js"></script>
-  <script>
-    PBIAuth.attachLogin('loginForm', 'message');
-  </script>
+  <script src="/assets/login.js"></script>
 </body>
 </html>
