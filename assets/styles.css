@@ -2301,3 +2301,22 @@ body:has(.builder-app) .container {
 .header-logo {
   filter: drop-shadow(0 8px 18px rgba(47, 27, 18, 0.10)) !important;
 }
+/* =========================
+   CUSTOM BUILD PAYMENT CARD
+   ========================= */
+
+.custom-build-card {
+  background:
+    linear-gradient(135deg, rgba(255, 250, 245, 0.92), rgba(255, 235, 214, 0.84));
+  border-color: rgba(200, 111, 61, 0.34);
+}
+
+.custom-build-card h2 {
+  color: var(--pbi-orange-dark);
+}
+
+@media (min-width: 981px) {
+  .pricing-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
