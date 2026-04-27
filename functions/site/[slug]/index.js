@@ -1,1 +1,99 @@
-export async function onRequestGet({params,env}){const slug=String(params.slug||'').trim();if(!slug)return new Response('Site not found.',{status:404});const project=await env.DB.prepare(`SELECT * FROM projects WHERE public_slug=? AND published=1 LIMIT 1`).bind(slug).first();if(!project)return new Response('This website is not published yet.',{status:404});let data={};try{data=typeof project.data_json==='string'?JSON.parse(project.data_json||'{}'):{}}catch{}return new Response(render(project,data),{headers:{'Content-Type':'text/html; charset=utf-8','Cache-Control':'public, max-age=60'}})}function esc(v){return String(v??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;')}function render(project,data){const name=data.business_name||project.name||'Website',pages=data.pages||{},sel=Array.isArray(data.selected_pages)&&data.selected_pages.length?data.selected_pages:['home','about','services','contact'],accent=data.accent_color||'#c86f3d',bg=data.background_color||'#fff8f1',text=data.text_color||'#2f1b12',button=data.button_color||accent,theme=data.template||'fashion';const nav=sel.map(k=>`<a href="#${esc(k)}">${esc((pages[k]||{}).label||k.charAt(0).toUpperCase()+k.slice(1))}</a>`).join('');const sections=sel.map(k=>{const p=pages[k]||{},title=p.title||(k==='home'?data.page_main_heading:k),body=p.body||(k==='home'?data.sub_heading:'');if(k==='gallery'){const imgs=Array.isArray(data.gallery_images)?data.gallery_images:[];return`<section id="${esc(k)}" class="published-section"><h2>${esc(title||'Gallery')}</h2><p>${esc(body||'')}</p><div class="published-gallery">${imgs.map(i=>`<img src="${i}" alt="">`).join('')}</div></section>`}return`<section id="${esc(k)}" class="published-section"><h2>${esc(title)}</h2><p>${esc(body)}</p></section>`}).join('');const logo=data.logo_data_url?`<img class="published-logo-img" src="${data.logo_data_url}" alt="${esc(name)} logo">`:`<span class="published-logo-dot"></span>`;const bgImg=data.background_image_data_url?`background-image:linear-gradient(rgba(255,255,255,.72),rgba(255,255,255,.72)),url('${data.background_image_data_url}');`:'';return`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(name)}</title><style>:root{--accent:${esc(accent)};--background:${esc(bg)};--text:${esc(text)};--button:${esc(button)}}*{box-sizing:border-box}body{margin:0;font-family:Inter,Arial,sans-serif;color:var(--text);background:var(--background);${bgImg}background-size:cover;background-position:center;background-attachment:fixed}.published-wrap{min-height:100vh;background:rgba(255,255,255,.18)}header{width:min(1180px,calc(100% - 32px));margin:0 auto;padding:28px 0;display:flex;align-items:center;justify-content:space-between;gap:22px}.brand{display:flex;align-items:center;gap:12px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}.published-logo-img{width:54px;height:54px;object-fit:contain;border-radius:10px}.published-logo-dot{width:44px;height:44px;display:inline-block;border-radius:14px;background:var(--accent)}nav{display:flex;gap:12px;flex-wrap:wrap}nav a{color:var(--text);text-decoration:none;font-weight:800;padding:10px 14px;border-radius:999px;background:rgba(255,255,255,.52)}.hero{width:min(1180px,calc(100% - 32px));margin:0 auto;padding:80px 0 70px}.badge{display:inline-flex;margin-bottom:18px;padding:9px 14px;border-radius:999px;color:#fff;background:var(--accent);font-weight:900;letter-spacing:.12em;text-transform:uppercase;font-size:12px}h1{max-width:900px;margin:0;font-size:clamp(48px,8vw,96px);line-height:.92;letter-spacing:-.06em}.hero p{max-width:700px;font-size:21px;line-height:1.45;margin-top:24px}.cta{display:inline-flex;margin-top:18px;padding:14px 22px;border-radius:999px;color:#fff;background:var(--button);text-decoration:none;font-weight:900}main{width:min(1180px,calc(100% - 32px));margin:0 auto;display:grid;gap:22px;padding-bottom:70px}.published-section{padding:40px;border-radius:28px;background:rgba(255,255,255,.68);backdrop-filter:blur(10px);border:1px solid rgba(0,0,0,.08)}.published-section h2{margin:0 0 14px;font-size:clamp(32px,4vw,56px);letter-spacing:-.04em}.published-section p{max-width:760px;font-size:18px;line-height:1.55}.published-gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:22px}.published-gallery img{width:100%;aspect-ratio:1/.78;object-fit:cover;border-radius:18px}footer{width:min(1180px,calc(100% - 32px));margin:0 auto;padding:28px 0 44px;color:rgba(0,0,0,.62);font-weight:800}body.theme-restaurant,body.theme-tech{color:#fff;background:#090909}body.theme-restaurant nav a,body.theme-tech nav a,body.theme-restaurant .published-section,body.theme-tech .published-section{color:#fff;background:rgba(255,255,255,.10);border-color:rgba(255,255,255,.12)}body.theme-restaurant footer,body.theme-tech footer{color:rgba(255,255,255,.62)}@media(max-width:760px){header{align-items:flex-start;flex-direction:column}.published-gallery{grid-template-columns:1fr}.published-section{padding:26px}}</style></head><body class="theme-${esc(theme)}"><div class="published-wrap"><header><div class="brand">${logo}<span>${esc(name)}</span></div><nav>${nav}</nav></header><section class="hero"><span class="badge">${esc(theme)}</span><h1>${esc(data.page_main_heading||pages.home?.title||name)}</h1><p>${esc(data.sub_heading||pages.home?.body||'')}</p><a class="cta" href="#contact">Get in touch</a></section><main>${sections}</main><footer>© ${esc(name)} • Built with PBI</footer></div></body></html>`}
+export async function onRequestGet({ params, env }) {
+  const slug = String(params.slug || '').trim();
+  if (!slug) return new Response('Site not found.', { status: 404 });
+
+  const project = await env.DB.prepare(`SELECT * FROM projects WHERE public_slug = ? AND published = 1 LIMIT 1`).bind(slug).first();
+  if (!project) return new Response('This website is not published yet.', { status: 404 });
+
+  let data = {};
+  try { data = typeof project.data_json === 'string' ? JSON.parse(project.data_json || '{}') : {}; } catch {}
+
+  return new Response(renderSite(project, data), {
+    headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'public, max-age=60' }
+  });
+}
+
+function escapeHtml(value) {
+  return String(value ?? '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'","&#039;");
+}
+
+function normaliseTemplate(value) {
+  const map = { fashion:'retail', restaurant:'hospitality', calm:'studio', tech:'event', minimal:'studio' };
+  return ['service','hospitality','retail','studio','event'].includes(value) ? value : (map[value] || 'service');
+}
+
+function renderSite(project, data) {
+  const businessName = data.business_name || project.name || 'Website';
+  const pages = data.pages || {};
+  const selectedPages = Array.isArray(data.selected_pages) && data.selected_pages.length ? Array.from(new Set(['home', ...data.selected_pages])) : ['home','about','services','contact'];
+  const template = normaliseTemplate(data.template || 'service');
+  const accent = data.accent_color || '#256b5b';
+  const background = data.background_color || '#f5f1e9';
+  const text = data.text_color || '#19231f';
+  const button = data.button_color || accent;
+  const buttonText = data.button_text_color || '#ffffff';
+
+  const pageNav = selectedPages.map((key)=> {
+    const page = pages[key] || {};
+    const label = page.label || key.charAt(0).toUpperCase() + key.slice(1);
+    return `<a href="#${escapeHtml(key)}">${escapeHtml(label)}</a>`;
+  }).join('');
+
+  const sections = selectedPages.map((key)=> {
+    if (key === 'home') return '';
+    const page = pages[key] || {};
+    const title = page.title || key;
+    const body = page.body || '';
+
+    if (key === 'gallery') {
+      const images = Array.isArray(data.gallery_images) ? data.gallery_images : [];
+      return `<section id="${escapeHtml(key)}" class="published-section published-gallery-section"><h2>${escapeHtml(title || 'Gallery')}</h2><p>${escapeHtml(body || '')}</p><div class="published-gallery">${images.map((image)=>`<img src="${image}" alt="">`).join('')}</div></section>`;
+    }
+
+    return `<section id="${escapeHtml(key)}" class="published-section"><h2>${escapeHtml(title)}</h2><p>${escapeHtml(body)}</p></section>`;
+  }).join('');
+
+  const logo = data.logo_data_url ? `<img class="published-logo-img" src="${data.logo_data_url}" alt="${escapeHtml(businessName)} logo">` : `<span class="published-logo-dot"></span>`;
+  const home = pages.home || {};
+  const heroTitle = data.page_main_heading || home.title || businessName;
+  const heroBody = data.sub_heading || home.body || '';
+  const firstImage = Array.isArray(data.gallery_images) && data.gallery_images.length ? data.gallery_images[0] : '';
+  const bgImage = data.background_image_data_url || '';
+
+  const hero = {
+    service: serviceHero,
+    hospitality: hospitalityHero,
+    retail: retailHero,
+    studio: studioHero,
+    event: eventHero
+  }[template]({ heroTitle, heroBody, firstImage, bgImage });
+
+  return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(businessName)}</title><style>
+    :root{--accent:${escapeHtml(accent)};--background:${escapeHtml(background)};--text:${escapeHtml(text)};--button:${escapeHtml(button)};--buttonText:${escapeHtml(buttonText)}}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,Arial,sans-serif;color:var(--text);background:var(--background)}a{color:inherit}.published-wrap{min-height:100vh;overflow:hidden}header{width:min(1180px,calc(100% - 32px));margin:0 auto;padding:28px 0;display:flex;justify-content:space-between;gap:22px;align-items:center}.brand{display:flex;gap:12px;align-items:center;font-weight:950;letter-spacing:.12em;text-transform:uppercase}.published-logo-img{width:58px;height:58px;object-fit:contain}.published-logo-dot{width:48px;height:48px;border-radius:16px;background:var(--accent);display:inline-block}nav{display:flex;gap:10px;flex-wrap:wrap}nav a{text-decoration:none;padding:10px 14px;border-radius:999px;background:rgba(255,255,255,.22);border:1px solid rgba(127,127,127,.16);font-weight:850}.cta{display:inline-flex;margin-top:18px;padding:14px 22px;border-radius:999px;color:var(--buttonText);background:var(--button);text-decoration:none;font-weight:950}.hero{width:min(1180px,calc(100% - 32px));margin:0 auto;padding:70px 0 72px}.kicker{display:inline-flex;margin-bottom:18px;color:var(--accent);font-weight:950;letter-spacing:.18em;text-transform:uppercase;font-size:12px}h1{margin:0;max-width:900px;font-size:clamp(48px,8vw,96px);line-height:.9;letter-spacing:-.07em}.hero p{max-width:690px;font-size:20px;line-height:1.5;color:color-mix(in srgb,var(--text) 76%,transparent)}main{width:min(1180px,calc(100% - 32px));margin:0 auto;display:grid;gap:22px;padding-bottom:70px}.published-section{padding:40px;border-radius:28px;background:rgba(255,255,255,.56);border:1px solid rgba(127,127,127,.16);backdrop-filter:blur(10px)}.published-section h2{margin:0 0 14px;font-size:clamp(32px,4vw,58px);letter-spacing:-.05em;line-height:.96}.published-section p{max-width:760px;font-size:18px;line-height:1.6}.published-gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:22px}.published-gallery img{width:100%;aspect-ratio:1/.78;object-fit:cover;border-radius:18px}footer{width:min(1180px,calc(100% - 32px));margin:0 auto;padding:26px 0 44px;font-weight:850;color:color-mix(in srgb,var(--text) 64%,transparent)}
+    body.template-service{background:radial-gradient(circle at top right,color-mix(in srgb,var(--accent) 18%,transparent),transparent 36%),linear-gradient(135deg,var(--background),#fff)}body.template-service .hero{display:grid;grid-template-columns:1fr 310px;gap:36px;align-items:stretch}.service-panel{padding:28px;border-radius:30px;color:#fff;background:var(--accent);box-shadow:0 28px 80px rgba(0,0,0,.12)}.service-panel ul{padding:0;margin:16px 0 0;list-style:none;display:grid;gap:12px;font-weight:850}
+    body.template-hospitality{background:linear-gradient(135deg,#2d160d,color-mix(in srgb,var(--accent) 52%,#2d160d));color:#fff8f1}body.template-hospitality header,body.template-event header{color:#fff}.hospitality-hero{width:min(1180px,calc(100% - 32px));margin:0 auto 46px;display:grid;grid-template-columns:1.05fr .95fr;gap:0;align-items:center}.hospitality-image{min-height:540px;border-radius:0 52px 52px 0;background:color-mix(in srgb,var(--accent) 36%,#fff8f1);background-size:cover;background-position:center}.hospitality-card{padding:44px;border-radius:34px;background:rgba(255,248,241,.96);color:#2d160d;transform:translateX(-34px);box-shadow:0 28px 90px rgba(0,0,0,.22)}.hospitality-card h1{font-family:Georgia,"Times New Roman",serif}
+    body.template-retail{background:linear-gradient(135deg,var(--background),#ffe367);color:#111}.retail-topline{padding:10px;text-align:center;color:#fff;background:#111;font-size:12px;font-weight:950;letter-spacing:.14em;text-transform:uppercase}.retail-products{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:34px}.retail-product{min-height:180px;border-radius:24px;background:rgba(255,255,255,.44);overflow:hidden;display:grid;place-items:center;font-weight:950}
+    body.template-studio{background:linear-gradient(135deg,#fffaf5,var(--background))}body.template-studio h1{font-family:Georgia,"Times New Roman",serif;font-weight:400;letter-spacing:-.04em}.studio-hero{width:min(1180px,calc(100% - 32px));margin:0 auto;padding:68px 0;display:grid;grid-template-columns:.86fr 1.14fr;gap:48px;align-items:center}.studio-image{min-height:460px;border-radius:150px 0 150px 0;background:color-mix(in srgb,var(--accent) 18%,#fff);overflow:hidden;display:grid;place-items:center;font-weight:900}.studio-image img{width:100%;height:100%;min-height:460px;object-fit:cover}
+    body.template-event{background:radial-gradient(circle at 72% 28%,color-mix(in srgb,var(--accent) 42%,transparent),transparent 28%),linear-gradient(135deg,#070717,#101033 64%,#080817);color:#f5f0ff}.event-hero{width:min(1180px,calc(100% - 32px));margin:0 auto;padding:74px 0;display:grid;grid-template-columns:1fr 320px;gap:46px;align-items:center}.event-orb{aspect-ratio:1;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 34% 28%,#fff,transparent 9%),radial-gradient(circle at 50% 50%,var(--accent),transparent 43%),conic-gradient(from 90deg,#3b82f6,#8b5cf6,#ec4899,#3b82f6);box-shadow:0 0 90px color-mix(in srgb,var(--accent) 55%,transparent);font-weight:950;letter-spacing:.18em}body.template-event .published-section,body.template-hospitality .published-section{background:rgba(255,255,255,.10);border-color:rgba(255,255,255,.14)}
+    @media(max-width:840px){header,body.template-service .hero,.hospitality-hero,.studio-hero,.event-hero{grid-template-columns:1fr;flex-direction:column;align-items:flex-start}.hospitality-card{transform:none}.retail-products,.published-gallery{grid-template-columns:1fr}}
+  </style></head><body class="template-${escapeHtml(template)}"><div class="published-wrap">${template === 'retail' ? '<div class="retail-topline">New arrivals • Local favourites • Shop small</div>' : ''}<header><div class="brand">${logo}<span>${escapeHtml(businessName)}</span></div><nav>${pageNav}</nav></header>${hero}<main>${sections}</main><footer>© ${escapeHtml(businessName)} • Built with PBI</footer></div></body></html>`;
+}
+
+function serviceHero({heroTitle,heroBody}) {
+  return `<section class="hero"><div><span class="kicker">Local service pro</span><h1>${escapeHtml(heroTitle)}</h1><p>${escapeHtml(heroBody)}</p><a class="cta" href="#contact">Request a quote</a></div><aside class="service-panel"><h2>How we help</h2><ul><li>Clear information for customers</li><li>Services explained properly</li><li>Simple route to enquiries</li></ul></aside></section>`;
+}
+function hospitalityHero({heroTitle,heroBody,firstImage,bgImage}) {
+  const image = firstImage || bgImage;
+  return `<section class="hospitality-hero"><div class="hospitality-image" ${image ? `style="background-image:url('${image}')"` : ''}></div><div class="hospitality-card"><span class="kicker">Food & hospitality</span><h1>${escapeHtml(heroTitle)}</h1><p>${escapeHtml(heroBody)}</p><a class="cta" href="#contact">Book or enquire</a></div></section>`;
+}
+function retailHero({heroTitle,heroBody}) {
+  return `<section class="hero"><div><span class="kicker">Boutique retail</span><h1>${escapeHtml(heroTitle)}</h1><p>${escapeHtml(heroBody)}</p><a class="cta" href="#contact">Browse now</a></div><div class="retail-products"><div class="retail-product">Featured</div><div class="retail-product">New</div><div class="retail-product">Local</div><div class="retail-product">Offers</div></div></section>`;
+}
+function studioHero({heroTitle,heroBody,firstImage,bgImage}) {
+  const image = firstImage || bgImage;
+  return `<section class="studio-hero"><div><span class="kicker">Premium studio</span><h1>${escapeHtml(heroTitle)}</h1><p>${escapeHtml(heroBody)}</p><a class="cta" href="#contact">Start a conversation</a></div><div class="studio-image">${image ? `<img src="${image}" alt="">` : 'Upload a calm premium image'}</div></section>`;
+}
+function eventHero({heroTitle,heroBody}) {
+  return `<section class="event-hero"><div><span class="kicker">Event launch</span><h1>${escapeHtml(heroTitle)}</h1><p>${escapeHtml(heroBody)}</p><a class="cta" href="#contact">Register interest</a></div><div class="event-orb">LIVE</div></section>`;
+}
