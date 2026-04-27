@@ -3202,3 +3202,33 @@ body:has(.builder-app) .container {
     width: min(280px, 100%);
   }
 }
+/* =========================
+   CUSTOM BUILD FORM
+   ========================= */
+
+.custom-build-form-card {
+  margin-top: 24px;
+  border-color: rgba(200, 111, 61, 0.30);
+}
+
+.custom-build-form {
+  margin-top: 24px;
+}
+
+.custom-form-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.custom-build-deposit-card {
+  margin-top: 24px;
+  border-color: rgba(31, 122, 71, 0.30);
+  background:
+    linear-gradient(135deg, rgba(239, 255, 246, 0.88), rgba(255, 250, 245, 0.88));
+}
+
+.custom-build-deposit-card h2 {
+  color: #1f7a47;
+}
