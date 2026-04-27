@@ -2076,3 +2076,37 @@ body:has(.builder-app) .container {
 .ai-status.success {
   color: #1f7a47;
 }
+/* =========================
+   SOFTER TOP NAV GLASS
+   Less solid, still readable
+   ========================= */
+
+.nav {
+  background: rgba(255, 248, 241, 0.28) !important;
+  backdrop-filter: blur(14px) saturate(120%) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(120%) !important;
+  border-bottom: 1px solid rgba(138, 67, 29, 0.07) !important;
+  box-shadow: 0 12px 30px rgba(98, 50, 26, 0.04) !important;
+}
+
+.nav::before {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(255, 248, 241, 0.38),
+      rgba(255, 248, 241, 0.18)
+    ),
+    radial-gradient(
+      circle at 20% 20%,
+      rgba(255, 255, 255, 0.22),
+      transparent 34%
+    ) !important;
+}
+
+.nav .btn-ghost {
+  background: rgba(255, 250, 245, 0.58) !important;
+}
+
+.nav .btn {
+  box-shadow: 0 12px 28px rgba(170, 82, 31, 0.16) !important;
+}
