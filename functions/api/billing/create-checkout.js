@@ -126,20 +126,11 @@ export async function onRequestPost({ request, env }) {
     form['subscription_data[metadata][project_name]'] = project.name || '';
   }
 
-  /*
-    Assisted setup is a one-off add-on.
-    Stripe Checkout can include one-time prices in subscription mode as extra invoice items,
-    but they need to be added using line_items alongside the recurring price.
-  */
   if (assistedSetup && assistedSetupPriceId && checkoutMode === 'subscription') {
     form['line_items[1][price]'] = assistedSetupPriceId;
     form['line_items[1][quantity]'] = '1';
   }
 
-  /*
-    For the custom built website deposit, do not add assisted setup.
-    The deposit is already a one-off payment for a custom project.
-  */
   const response = await fetch('https://api.stripe.com/v1/checkout/sessions', {
     method: 'POST',
     headers: {
