@@ -1,1 +1,126 @@
-document.addEventListener('DOMContentLoaded',()=>{const params=new URLSearchParams(location.search),projectId=params.get('project'),success=params.get('success')==='1',cancelled=params.get('cancelled')==='1',message=document.getElementById('paymentMessage'),assistedSetup=document.getElementById('assistedSetup');function show(t,type='info'){if(!message)return;message.textContent=t;message.style.display='block';message.className=`notice domain-${type}`}function opt(){return document.querySelector('input[name="domainOption"]:checked')?.value||'pbi_subdomain'}async function api(path,o={}){const r=await fetch(path,{credentials:'include',headers:{'Content-Type':'application/json',...(o.headers||{})},...o});const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||d.message||`Request failed with ${r.status}`);return d}async function checkout(plan){if(!projectId)return show('No project selected. Go back to your dashboard and choose a project to publish.','error');show('Preparing checkout...','info');try{const d=await api('/api/billing/create-checkout',{method:'POST',body:JSON.stringify({project_id:projectId,plan,domain_option:opt(),assisted_setup:!!assistedSetup?.checked})});if(d.url){location.href=d.url;return}if(d.setup_required){show(d.message||'Stripe is not connected yet. Add Stripe environment variables to enable live checkout.','info');return}show('Checkout was created, but no redirect URL was returned.','error')}catch(e){console.error(e);show(e.message||'Could not start checkout.','error')}}async function publish(){if(!projectId)return;show('Checking payment and publishing your website...','info');try{const d=await api('/api/projects/publish',{method:'POST',body:JSON.stringify({project_id:projectId,domain_option:opt()})});if(d.published)show(`Your website is live: ${d.live_url}`,'success');else if(d.payment_required)show('Payment is not active yet. If you have just paid, wait a few seconds and refresh this page.','info');else show(d.message||'Publish status is unclear.','info')}catch(e){console.error(e);show(e.message||'Could not publish website.','error')}}document.querySelectorAll('.planBtn').forEach(b=>b.onclick=()=>checkout(b.dataset.plan));if(success)publish();if(cancelled)show('Checkout was cancelled. Your website is still saved as a draft.','info')});
+document.addEventListener('DOMContentLoaded', () => {
+  const params = new URLSearchParams(window.location.search);
+  const projectId = params.get('project');
+  const success = params.get('success') === '1';
+  const cancelled = params.get('cancelled') === '1';
+  const message = document.getElementById('paymentMessage');
+  const assistedSetup = document.getElementById('assistedSetup');
+
+  function showMessage(text, type = 'info') {
+    if (!message) return;
+
+    message.textContent = text;
+    message.style.display = 'block';
+    message.className = `notice domain-${type}`;
+  }
+
+  function selectedDomainOption() {
+    return document.querySelector('input[name="domainOption"]:checked')?.value || 'pbi_subdomain';
+  }
+
+  async function api(path, options = {}) {
+    const response = await fetch(path, {
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(options.headers || {})
+      },
+      ...options
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      throw new Error(data.error || data.message || `Request failed with ${response.status}`);
+    }
+
+    return data;
+  }
+
+  async function createCheckout(plan) {
+    if (!projectId) {
+      showMessage('No project selected. Go back to your dashboard and choose a project to publish.', 'error');
+      return;
+    }
+
+    showMessage('Preparing checkout...', 'info');
+
+    try {
+      const data = await api('/api/billing/create-checkout', {
+        method: 'POST',
+        body: JSON.stringify({
+          project_id: projectId,
+          plan,
+          domain_option: selectedDomainOption(),
+          assisted_setup: Boolean(assistedSetup?.checked)
+        })
+      });
+
+      if (data.url) {
+        window.location.href = data.url;
+        return;
+      }
+
+      if (data.setup_required) {
+        showMessage(
+          data.message || 'Stripe is not connected yet. Add Stripe environment variables to enable live checkout.',
+          'info'
+        );
+        return;
+      }
+
+      showMessage('Checkout was created, but no redirect URL was returned.', 'error');
+    } catch (error) {
+      console.error(error);
+      showMessage(error.message || 'Could not start checkout.', 'error');
+    }
+  }
+
+  async function publishAfterPayment() {
+    if (!projectId) return;
+
+    showMessage('Checking payment and publishing your website...', 'info');
+
+    try {
+      const data = await api('/api/projects/publish', {
+        method: 'POST',
+        body: JSON.stringify({
+          project_id: projectId,
+          domain_option: selectedDomainOption()
+        })
+      });
+
+      if (data.published) {
+        showMessage(`Your website is live: ${data.live_url}`, 'success');
+        return;
+      }
+
+      if (data.payment_required) {
+        showMessage(
+          'Payment is not active yet. If you have just paid, wait a few seconds and refresh this page.',
+          'info'
+        );
+        return;
+      }
+
+      showMessage(data.message || 'Publish status is unclear.', 'info');
+    } catch (error) {
+      console.error(error);
+      showMessage(error.message || 'Could not publish website.', 'error');
+    }
+  }
+
+  document.querySelectorAll('.planBtn').forEach((button) => {
+    button.addEventListener('click', () => {
+      createCheckout(button.dataset.plan);
+    });
+  });
+
+  if (success) {
+    publishAfterPayment();
+  }
+
+  if (cancelled) {
+    showMessage('Checkout was cancelled. Your website is still saved as a draft.', 'info');
+  }
+});
