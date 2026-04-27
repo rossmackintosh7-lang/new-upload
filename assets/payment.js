@@ -3,8 +3,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const projectId = params.get('project');
   const success = params.get('success') === '1';
   const cancelled = params.get('cancelled') === '1';
+
   const message = document.getElementById('paymentMessage');
   const assistedSetup = document.getElementById('assistedSetup');
+
+  const customBuildRequestBtn = document.getElementById('customBuildRequestBtn');
+  const customBuildFormSection = document.getElementById('customBuildFormSection');
+  const customBuildForm = document.getElementById('customBuildForm');
+  const customBuildSubmitBtn = document.getElementById('customBuildSubmitBtn');
+  const customBuildCancelBtn = document.getElementById('customBuildCancelBtn');
+  const customBuildDepositSection = document.getElementById('customBuildDepositSection');
 
   function showMessage(text, type = 'info') {
     if (!message) return;
@@ -35,6 +43,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     return data;
+  }
+
+  function formToObject(form) {
+    return Object.fromEntries(new FormData(form).entries());
   }
 
   async function createCheckout(plan) {
@@ -110,11 +122,83 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  async function submitCustomBuildForm(event) {
+    event.preventDefault();
+
+    if (!projectId) {
+      showMessage('No project selected. Go back to your dashboard and choose a project first.', 'error');
+      return;
+    }
+
+    if (!customBuildForm) return;
+
+    const payload = formToObject(customBuildForm);
+    payload.project_id = projectId;
+    payload.domain_option = selectedDomainOption();
+
+    if (customBuildSubmitBtn) {
+      customBuildSubmitBtn.disabled = true;
+      customBuildSubmitBtn.textContent = 'Submitting...';
+    }
+
+    showMessage('Submitting your custom build request...', 'info');
+
+    try {
+      await api('/api/custom-build/enquiry', {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      });
+
+      showMessage(
+        'Your custom build request has been received. You can now pay the £500 deposit to secure the project slot.',
+        'success'
+      );
+
+      if (customBuildFormSection) {
+        customBuildFormSection.style.display = 'none';
+      }
+
+      if (customBuildDepositSection) {
+        customBuildDepositSection.style.display = 'block';
+        customBuildDepositSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    } catch (error) {
+      console.error(error);
+      showMessage(error.message || 'Could not submit custom build request.', 'error');
+    } finally {
+      if (customBuildSubmitBtn) {
+        customBuildSubmitBtn.disabled = false;
+        customBuildSubmitBtn.textContent = 'Submit Custom Build Request';
+      }
+    }
+  }
+
   document.querySelectorAll('.planBtn').forEach((button) => {
     button.addEventListener('click', () => {
       createCheckout(button.dataset.plan);
     });
   });
+
+  if (customBuildRequestBtn) {
+    customBuildRequestBtn.addEventListener('click', () => {
+      if (customBuildFormSection) {
+        customBuildFormSection.style.display = 'block';
+        customBuildFormSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  }
+
+  if (customBuildCancelBtn) {
+    customBuildCancelBtn.addEventListener('click', () => {
+      if (customBuildFormSection) {
+        customBuildFormSection.style.display = 'none';
+      }
+    });
+  }
+
+  if (customBuildForm) {
+    customBuildForm.addEventListener('submit', submitCustomBuildForm);
+  }
 
   if (success) {
     publishAfterPayment();
