@@ -20,9 +20,11 @@ export async function onRequestPost({ request, env }) {
   }
 
   const body = await readBody(request);
-  const selectedPages = Array.isArray(body.selected_pages) && body.selected_pages.length
-    ? body.selected_pages
-    : ['home', 'about', 'services', 'contact'];
+
+  const selectedPages =
+    Array.isArray(body.selected_pages) && body.selected_pages.length
+      ? body.selected_pages
+      : ['home', 'about', 'services', 'contact'];
 
   const prompt = `
 You are writing website copy for a small/local business website builder called PBI.
@@ -103,4 +105,8 @@ Rules:
     ok: true,
     copy
   });
+}
+
+export async function onRequestGet() {
+  return error('Method not allowed.', 405);
 }
