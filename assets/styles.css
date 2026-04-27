@@ -3232,3 +3232,113 @@ body:has(.builder-app) .container {
 .custom-build-deposit-card h2 {
   color: #1f7a47;
 }
+/* =========================
+   TEMPLATE PREVIEW MOCKUP FIX
+   Makes coded previews look intentional
+   No image files needed
+   ========================= */
+
+.template-image-wrap {
+  min-height: 360px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.template-image-wrap::before {
+  content: "Live preview style";
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  z-index: 2;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  color: rgba(47, 27, 18, 0.76);
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  backdrop-filter: blur(8px);
+}
+
+.template-image-mock {
+  width: min(520px, 86%);
+  min-height: 260px;
+  border-radius: 28px;
+  padding: 28px;
+  color: #2f1b12;
+  background: rgba(255,255,255,0.58);
+  box-shadow:
+    0 28px 80px rgba(47, 27, 18, 0.14),
+    inset 0 1px 0 rgba(255,255,255,0.76);
+  display: grid;
+  gap: 14px;
+  align-content: center;
+  border: 1px solid rgba(255,255,255,0.62);
+}
+
+.template-image-mock.dark {
+  color: #fff;
+  background: rgba(0,0,0,0.34);
+  border-color: rgba(255,255,255,0.16);
+}
+
+.template-image-mock .line {
+  height: 14px;
+  border-radius: 999px;
+  background: currentColor;
+  opacity: 0.20;
+}
+
+.template-image-mock .line.big {
+  height: 52px;
+  opacity: 0.86;
+}
+
+.template-image-mock .tiles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 11px;
+  margin-top: 8px;
+}
+
+.template-image-mock .tiles span {
+  height: 62px;
+  border-radius: 16px;
+  background: currentColor;
+  opacity: 0.16;
+}
+
+/* Give each preview its own stronger identity */
+
+.service-card .template-image-mock::after {
+  content: "Service quote layout";
+  font-weight: 950;
+  color: #256b5b;
+}
+
+.hospitality-card .template-image-mock::after {
+  content: "Venue image layout";
+  font-weight: 950;
+  color: #f6c28b;
+}
+
+.retail-card .template-image-mock::after {
+  content: "Product grid layout";
+  font-weight: 950;
+  color: #111;
+}
+
+.studio-card .template-image-mock::after {
+  content: "Editorial studio layout";
+  font-weight: 950;
+  color: #a1745e;
+}
+
+.event-card .template-image-mock::after {
+  content: "Launch page layout";
+  font-weight: 950;
+  color: #c4b5fd;
+}
