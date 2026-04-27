@@ -2238,3 +2238,66 @@ body:has(.builder-app) .container {
   .tpl-product-card:nth-child(even) { transform:none; }
   .tpl-event-orb { width:min(280px,100%); }
 }
+/* =========================
+   CLEAR TOP BAR WITH SUBTLE SCROLL SEPARATOR
+   Header looks clean again, but keeps page text from clashing
+   ========================= */
+
+.nav {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-bottom: 0 !important;
+  box-shadow: none !important;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 50 !important;
+  overflow: visible !important;
+}
+
+.nav::before {
+  display: none !important;
+}
+
+/* Invisible-ish line/soft fade under the nav */
+.nav::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -18px;
+  height: 42px;
+  pointer-events: none;
+  z-index: -1;
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(255, 248, 241, 0.38),
+      rgba(255, 248, 241, 0.14) 46%,
+      rgba(255, 248, 241, 0)
+    );
+}
+
+/* Keep the actual nav contents above the soft fade */
+.nav-inner {
+  position: relative;
+  z-index: 2;
+}
+
+/* Keep buttons readable without making the whole bar solid */
+.nav .btn-ghost {
+  background: rgba(255, 250, 245, 0.48) !important;
+  border-color: rgba(138, 67, 29, 0.12) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+}
+
+.nav .btn {
+  border-color: transparent !important;
+  box-shadow: 0 12px 28px rgba(170, 82, 31, 0.14) !important;
+}
+
+/* Give the logo just enough shadow to stay readable */
+.header-logo {
+  filter: drop-shadow(0 8px 18px rgba(47, 27, 18, 0.10)) !important;
+}
