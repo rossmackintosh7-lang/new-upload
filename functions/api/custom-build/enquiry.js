@@ -11,103 +11,34 @@ export async function onRequestPost(context) {
   try {
     const body = await request.json();
 
-    console.log("Custom build enquiry payload:", JSON.stringify(body));
+    const name = clean(body.contact_name || body.name);
+    const email = clean(body.email);
+    const phone = clean(body.phone);
 
-    const name = pick(body, [
-      "name",
-      "fullName",
-      "customerName",
-      "contactName",
-      "clientName",
-    ]);
+    const businessName = clean(body.business_name);
+    const industry = clean(body.industry);
+    const currentWebsite = clean(body.current_website);
 
-    const email = pick(body, [
-      "email",
-      "customerEmail",
-      "contactEmail",
-      "clientEmail",
-      "emailAddress",
-    ]);
+    const projectSummary = clean(body.project_summary);
+    const likedWebsites = clean(body.liked_websites);
+    const dislikedWebsites = clean(body.disliked_websites);
+    const featuresNeeded = clean(body.features_needed);
+    const pagesNeeded = clean(body.pages_needed);
 
-    const phone = pick(body, [
-      "phone",
-      "telephone",
-      "mobile",
-      "contactNumber",
-      "phoneNumber",
-    ]);
+    const brandColours = clean(body.brand_colours);
+    const logoStatus = clean(body.logo_status);
+    const logoIdeas = clean(body.logo_ideas);
 
-    const businessName = pick(body, [
-      "businessName",
-      "company",
-      "companyName",
-      "business",
-    ]);
+    const domainOption = clean(body.domain_option);
+    const domainName = clean(body.domain_name);
+    const domainStatus = clean(body.domain_status);
 
-    const currentWebsite = pick(body, [
-      "currentWebsite",
-      "website",
-      "existingWebsite",
-      "websiteUrl",
-    ]);
+    const imagesStatus = clean(body.images_status);
+    const wordingHelp = clean(body.wording_help);
+    const deadline = clean(body.deadline);
+    const budget = clean(body.budget);
 
-    const websitesLiked = pick(body, [
-      "websitesLiked",
-      "websitesYouLike",
-      "likedWebsites",
-      "sitesLiked",
-    ]);
-
-    const websitesDisliked = pick(body, [
-      "websitesDisliked",
-      "websitesYouDislike",
-      "dislikedWebsites",
-      "sitesDisliked",
-    ]);
-
-    const featuresNeeded = pick(body, [
-      "featuresNeeded",
-      "features",
-      "requiredFeatures",
-      "websiteFeatures",
-    ]);
-
-    const hasImages = pick(body, [
-      "hasImages",
-      "alreadyHaveImages",
-      "images",
-      "doYouAlreadyHaveImages",
-    ]);
-
-    const needsWording = pick(body, [
-      "needsWording",
-      "helpWithWording",
-      "wording",
-      "doYouNeedHelpWithWording",
-    ]);
-
-    const launchDate = pick(body, [
-      "launchDate",
-      "idealLaunchDate",
-      "timeframe",
-      "deadline",
-    ]);
-
-    const budget = pick(body, [
-      "budget",
-      "estimatedBudget",
-      "projectBudget",
-    ]);
-
-    const message = pick(body, [
-      "message",
-      "anythingElse",
-      "notes",
-      "extraInfo",
-      "additionalInfo",
-      "details",
-      "projectDetails",
-    ]);
+    const extraNotes = clean(body.extra_notes);
 
     if (!name || !email) {
       return json(
@@ -151,60 +82,106 @@ export async function onRequestPost(context) {
 
     const html = `
       <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #111;">
-        <h2>New custom build enquiry</h2>
+        <h2>New PBI Custom Build Enquiry</h2>
 
         <h3>Contact details</h3>
         <p><strong>Name:</strong> ${escapeHtml(name)}</p>
         <p><strong>Email:</strong> ${escapeHtml(email)}</p>
         <p><strong>Phone:</strong> ${escapeHtml(phone || "Not provided")}</p>
+
+        <hr />
+
+        <h3>Business details</h3>
         <p><strong>Business name:</strong> ${escapeHtml(businessName || "Not provided")}</p>
+        <p><strong>Industry:</strong> ${escapeHtml(industry || "Not provided")}</p>
         <p><strong>Current website:</strong> ${escapeHtml(currentWebsite || "Not provided")}</p>
 
         <hr />
 
         <h3>Website brief</h3>
-        <p><strong>Websites they like:</strong><br>${formatMultiline(websitesLiked || "Not provided")}</p>
-        <p><strong>Websites they dislike:</strong><br>${formatMultiline(websitesDisliked || "Not provided")}</p>
+        <p><strong>Project summary:</strong><br>${formatMultiline(projectSummary || "Not provided")}</p>
+        <p><strong>Pages needed:</strong><br>${formatMultiline(pagesNeeded || "Not provided")}</p>
         <p><strong>Features needed:</strong><br>${formatMultiline(featuresNeeded || "Not provided")}</p>
-        <p><strong>Already has images:</strong> ${escapeHtml(hasImages || "Not provided")}</p>
-        <p><strong>Needs help with wording:</strong> ${escapeHtml(needsWording || "Not provided")}</p>
-        <p><strong>Ideal launch date:</strong> ${escapeHtml(launchDate || "Not provided")}</p>
+        <p><strong>Websites they like:</strong><br>${formatMultiline(likedWebsites || "Not provided")}</p>
+        <p><strong>Websites they dislike:</strong><br>${formatMultiline(dislikedWebsites || "Not provided")}</p>
+
+        <hr />
+
+        <h3>Branding</h3>
+        <p><strong>Brand colours:</strong> ${escapeHtml(brandColours || "Not provided")}</p>
+        <p><strong>Logo status:</strong> ${escapeHtml(logoStatus || "Not provided")}</p>
+        <p><strong>Logo ideas:</strong><br>${formatMultiline(logoIdeas || "Not provided")}</p>
+
+        <hr />
+
+        <h3>Domain</h3>
+        <p><strong>Domain option:</strong> ${escapeHtml(domainOption || "Not provided")}</p>
+        <p><strong>Domain name:</strong> ${escapeHtml(domainName || "Not provided")}</p>
+        <p><strong>Domain status:</strong> ${escapeHtml(domainStatus || "Not provided")}</p>
+
+        <hr />
+
+        <h3>Project details</h3>
+        <p><strong>Images status:</strong> ${escapeHtml(imagesStatus || "Not provided")}</p>
+        <p><strong>Wording help:</strong> ${escapeHtml(wordingHelp || "Not provided")}</p>
+        <p><strong>Ideal launch date:</strong> ${escapeHtml(deadline || "Not provided")}</p>
         <p><strong>Estimated budget:</strong> ${escapeHtml(budget || "Not provided")}</p>
 
         <hr />
 
         <h3>Anything else</h3>
-        <p>${formatMultiline(message || "Not provided")}</p>
+        <p>${formatMultiline(extraNotes || "Not provided")}</p>
       </div>
     `;
 
     const text = `
-New custom build enquiry
+New PBI Custom Build Enquiry
 
 CONTACT DETAILS
 Name: ${name}
 Email: ${email}
 Phone: ${phone || "Not provided"}
+
+BUSINESS DETAILS
 Business name: ${businessName || "Not provided"}
+Industry: ${industry || "Not provided"}
 Current website: ${currentWebsite || "Not provided"}
 
 WEBSITE BRIEF
-Websites they like:
-${websitesLiked || "Not provided"}
+Project summary:
+${projectSummary || "Not provided"}
 
-Websites they dislike:
-${websitesDisliked || "Not provided"}
+Pages needed:
+${pagesNeeded || "Not provided"}
 
 Features needed:
 ${featuresNeeded || "Not provided"}
 
-Already has images: ${hasImages || "Not provided"}
-Needs help with wording: ${needsWording || "Not provided"}
-Ideal launch date: ${launchDate || "Not provided"}
+Websites they like:
+${likedWebsites || "Not provided"}
+
+Websites they dislike:
+${dislikedWebsites || "Not provided"}
+
+BRANDING
+Brand colours: ${brandColours || "Not provided"}
+Logo status: ${logoStatus || "Not provided"}
+Logo ideas:
+${logoIdeas || "Not provided"}
+
+DOMAIN
+Domain option: ${domainOption || "Not provided"}
+Domain name: ${domainName || "Not provided"}
+Domain status: ${domainStatus || "Not provided"}
+
+PROJECT DETAILS
+Images status: ${imagesStatus || "Not provided"}
+Wording help: ${wordingHelp || "Not provided"}
+Ideal launch date: ${deadline || "Not provided"}
 Estimated budget: ${budget || "Not provided"}
 
 ANYTHING ELSE
-${message || "Not provided"}
+${extraNotes || "Not provided"}
     `.trim();
 
     const resendResponse = await fetch("https://api.resend.com/emails", {
@@ -266,22 +243,9 @@ export async function onRequestGet() {
   );
 }
 
-function pick(body, keys) {
-  for (const key of keys) {
-    if (typeof body[key] === "string" && body[key].trim()) {
-      return body[key].trim();
-    }
-
-    if (typeof body[key] === "number") {
-      return String(body[key]);
-    }
-
-    if (typeof body[key] === "boolean") {
-      return body[key] ? "Yes" : "No";
-    }
-  }
-
-  return "";
+function clean(value) {
+  if (typeof value !== "string") return "";
+  return value.trim();
 }
 
 function isValidEmail(email) {
