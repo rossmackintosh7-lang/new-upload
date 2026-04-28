@@ -11,21 +11,110 @@ export async function onRequestPost(context) {
   try {
     const body = await request.json();
 
-    const name = clean(body.name);
-    const email = clean(body.email);
-    const phone = clean(body.phone);
-    const businessName = clean(body.businessName);
-    const currentWebsite = clean(body.currentWebsite);
-    const projectType = clean(body.projectType);
-    const budget = clean(body.budget);
-    const timeframe = clean(body.timeframe);
-    const message = clean(body.message);
+    console.log("Custom build enquiry payload:", JSON.stringify(body));
 
-    if (!name || !email || !message) {
+    const name = pick(body, [
+      "name",
+      "fullName",
+      "customerName",
+      "contactName",
+      "clientName",
+    ]);
+
+    const email = pick(body, [
+      "email",
+      "customerEmail",
+      "contactEmail",
+      "clientEmail",
+      "emailAddress",
+    ]);
+
+    const phone = pick(body, [
+      "phone",
+      "telephone",
+      "mobile",
+      "contactNumber",
+      "phoneNumber",
+    ]);
+
+    const businessName = pick(body, [
+      "businessName",
+      "company",
+      "companyName",
+      "business",
+    ]);
+
+    const currentWebsite = pick(body, [
+      "currentWebsite",
+      "website",
+      "existingWebsite",
+      "websiteUrl",
+    ]);
+
+    const websitesLiked = pick(body, [
+      "websitesLiked",
+      "websitesYouLike",
+      "likedWebsites",
+      "sitesLiked",
+    ]);
+
+    const websitesDisliked = pick(body, [
+      "websitesDisliked",
+      "websitesYouDislike",
+      "dislikedWebsites",
+      "sitesDisliked",
+    ]);
+
+    const featuresNeeded = pick(body, [
+      "featuresNeeded",
+      "features",
+      "requiredFeatures",
+      "websiteFeatures",
+    ]);
+
+    const hasImages = pick(body, [
+      "hasImages",
+      "alreadyHaveImages",
+      "images",
+      "doYouAlreadyHaveImages",
+    ]);
+
+    const needsWording = pick(body, [
+      "needsWording",
+      "helpWithWording",
+      "wording",
+      "doYouNeedHelpWithWording",
+    ]);
+
+    const launchDate = pick(body, [
+      "launchDate",
+      "idealLaunchDate",
+      "timeframe",
+      "deadline",
+    ]);
+
+    const budget = pick(body, [
+      "budget",
+      "estimatedBudget",
+      "projectBudget",
+    ]);
+
+    const message = pick(body, [
+      "message",
+      "anythingElse",
+      "notes",
+      "extraInfo",
+      "additionalInfo",
+      "details",
+      "projectDetails",
+    ]);
+
+    if (!name || !email) {
       return json(
         {
           success: false,
-          error: "Please complete your name, email and message.",
+          error: "Please complete your name and email.",
+          receivedFields: Object.keys(body),
         },
         400
       );
@@ -45,7 +134,7 @@ export async function onRequestPost(context) {
       return json(
         {
           success: false,
-          error: "Email service is not configured.",
+          error: "Email service is not configured. Missing RESEND_API_KEY.",
         },
         500
       );
@@ -62,46 +151,60 @@ export async function onRequestPost(context) {
 
     const html = `
       <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #111;">
-        <h2 style="margin-bottom: 10px;">New custom build enquiry</h2>
+        <h2>New custom build enquiry</h2>
 
+        <h3>Contact details</h3>
         <p><strong>Name:</strong> ${escapeHtml(name)}</p>
         <p><strong>Email:</strong> ${escapeHtml(email)}</p>
         <p><strong>Phone:</strong> ${escapeHtml(phone || "Not provided")}</p>
-        <p><strong>Business name:</strong> ${escapeHtml(
-          businessName || "Not provided"
-        )}</p>
-        <p><strong>Current website:</strong> ${escapeHtml(
-          currentWebsite || "Not provided"
-        )}</p>
-        <p><strong>Project type:</strong> ${escapeHtml(
-          projectType || "Not provided"
-        )}</p>
-        <p><strong>Budget:</strong> ${escapeHtml(budget || "Not provided")}</p>
-        <p><strong>Timeframe:</strong> ${escapeHtml(
-          timeframe || "Not provided"
-        )}</p>
+        <p><strong>Business name:</strong> ${escapeHtml(businessName || "Not provided")}</p>
+        <p><strong>Current website:</strong> ${escapeHtml(currentWebsite || "Not provided")}</p>
 
-        <hr style="margin: 24px 0;" />
+        <hr />
 
-        <h3>Message</h3>
-        <p>${escapeHtml(message).replace(/\n/g, "<br>")}</p>
+        <h3>Website brief</h3>
+        <p><strong>Websites they like:</strong><br>${formatMultiline(websitesLiked || "Not provided")}</p>
+        <p><strong>Websites they dislike:</strong><br>${formatMultiline(websitesDisliked || "Not provided")}</p>
+        <p><strong>Features needed:</strong><br>${formatMultiline(featuresNeeded || "Not provided")}</p>
+        <p><strong>Already has images:</strong> ${escapeHtml(hasImages || "Not provided")}</p>
+        <p><strong>Needs help with wording:</strong> ${escapeHtml(needsWording || "Not provided")}</p>
+        <p><strong>Ideal launch date:</strong> ${escapeHtml(launchDate || "Not provided")}</p>
+        <p><strong>Estimated budget:</strong> ${escapeHtml(budget || "Not provided")}</p>
+
+        <hr />
+
+        <h3>Anything else</h3>
+        <p>${formatMultiline(message || "Not provided")}</p>
       </div>
     `;
 
     const text = `
 New custom build enquiry
 
+CONTACT DETAILS
 Name: ${name}
 Email: ${email}
 Phone: ${phone || "Not provided"}
 Business name: ${businessName || "Not provided"}
 Current website: ${currentWebsite || "Not provided"}
-Project type: ${projectType || "Not provided"}
-Budget: ${budget || "Not provided"}
-Timeframe: ${timeframe || "Not provided"}
 
-Message:
-${message}
+WEBSITE BRIEF
+Websites they like:
+${websitesLiked || "Not provided"}
+
+Websites they dislike:
+${websitesDisliked || "Not provided"}
+
+Features needed:
+${featuresNeeded || "Not provided"}
+
+Already has images: ${hasImages || "Not provided"}
+Needs help with wording: ${needsWording || "Not provided"}
+Ideal launch date: ${launchDate || "Not provided"}
+Estimated budget: ${budget || "Not provided"}
+
+ANYTHING ELSE
+${message || "Not provided"}
     `.trim();
 
     const resendResponse = await fetch("https://api.resend.com/emails", {
@@ -128,7 +231,7 @@ ${message}
       return json(
         {
           success: false,
-          error: "The enquiry could not be sent. Please try again.",
+          error: "The enquiry could not be sent through Resend.",
           resendError: resendData,
         },
         500
@@ -163,9 +266,22 @@ export async function onRequestGet() {
   );
 }
 
-function clean(value) {
-  if (typeof value !== "string") return "";
-  return value.trim();
+function pick(body, keys) {
+  for (const key of keys) {
+    if (typeof body[key] === "string" && body[key].trim()) {
+      return body[key].trim();
+    }
+
+    if (typeof body[key] === "number") {
+      return String(body[key]);
+    }
+
+    if (typeof body[key] === "boolean") {
+      return body[key] ? "Yes" : "No";
+    }
+  }
+
+  return "";
 }
 
 function isValidEmail(email) {
@@ -179,6 +295,10 @@ function escapeHtml(value) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
+}
+
+function formatMultiline(value) {
+  return escapeHtml(value).replace(/\n/g, "<br>");
 }
 
 function json(data, status = 200) {
