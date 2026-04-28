@@ -351,3 +351,7 @@
   <script src="/assets/payment.js"></script>
 </body>
 </html>
+/* Hide old payment domain registration block */
+.domain-note {
+  display: none !important;
+}
