@@ -3905,3 +3905,22 @@ body:has(.builder-app) .container {
     min-height: auto;
   }
 }
+
+/* PBI dashboard, custom build and legal additions */
+.custom-home-section { padding-top: 0; }
+.custom-home-card { display: grid; grid-template-columns: 1.4fr .8fr; gap: 24px; align-items: center; background: linear-gradient(135deg, rgba(255,248,241,.96), rgba(239,250,242,.9)); }
+.custom-home-actions { display: flex; gap: 12px; flex-wrap: wrap; justify-content: flex-end; }
+.terms-check { display: flex; gap: 12px; align-items: flex-start; padding: 14px; border: 1px solid rgba(70,39,22,.16); border-radius: 18px; background: rgba(255,255,255,.58); margin: 14px 0; font-size: 14px; line-height: 1.5; }
+.terms-check input { margin-top: 4px; min-width: 18px; min-height: 18px; }
+.terms-check a { color: inherit; font-weight: 800; }
+.legal-page .legal-card { max-width: 900px; }
+.legal-card h2 { margin-top: 28px; font-size: 22px; }
+.dashboard-project { display: block; }
+.dashboard-upgrade-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; width: 100%; margin-top: 18px; }
+.dashboard-upgrade-card { border: 1px solid rgba(70,39,22,.14); border-radius: 22px; padding: 18px; background: rgba(255,255,255,.55); }
+.dashboard-upgrade-card h4 { margin: 4px 0 8px; font-size: 19px; }
+.dashboard-upgrade-card form { display: grid; gap: 10px; }
+.status-pill { display: inline-flex; align-items: center; padding: 8px 12px; border-radius: 999px; background: rgba(30,122,73,.12); color: #1e7a49; font-weight: 800; }
+.preview-cta { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; cursor: pointer; }
+.preview-cta[aria-disabled="true"] { cursor: default; opacity: .75; }
+@media (max-width: 900px) { .custom-home-card, .dashboard-upgrade-grid { grid-template-columns: 1fr; } .custom-home-actions { justify-content: flex-start; } }

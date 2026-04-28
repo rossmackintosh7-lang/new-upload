@@ -138,6 +138,7 @@ function renderSite(project, data) {
 
   const heroTitle = data.page_main_heading || home.title || businessName;
   const heroBody = data.sub_heading || home.body || '';
+  const cta = buildCta(data);
 
   const galleryImages = Array.isArray(data.gallery_images) ? data.gallery_images : [];
   const firstImage = galleryImages.length ? galleryImages[0] : '';
@@ -614,14 +615,31 @@ function renderSite(project, data) {
 </html>`;
 }
 
-function renderServiceHero({ heroTitle, heroBody }) {
+
+function buildCta(data) {
+  const label = escapeHtml(data.cta_button_text || 'Get in touch');
+  const action = data.cta_button_action || 'contact';
+  const destination = String(data.cta_button_destination || '').trim();
+  const page = data.cta_button_page || 'contact';
+  let href = '#contact';
+
+  if (action === 'none') href = '#';
+  if (action === 'page') href = '#' + encodeURIComponent(page);
+  if (action === 'external') href = destination || '#';
+  if (action === 'email') href = destination ? 'mailto:' + destination.replace(/^mailto:/, '') : '#contact';
+  if (action === 'phone') href = destination ? 'tel:' + destination.replace(/^tel:/, '') : '#contact';
+
+  return `<a class="cta" href="${escapeHtml(href)}">${label}</a>`;
+}
+
+function renderServiceHero({ heroTitle, heroBody, cta }) {
   return `
     <section class="hero">
       <div>
         <span class="kicker">Local service pro</span>
         <h1>${escapeHtml(heroTitle)}</h1>
         <p>${escapeHtml(heroBody)}</p>
-        <a class="cta" href="#contact">Request a quote</a>
+        ${cta}
       </div>
 
       <aside class="service-panel">
@@ -636,7 +654,7 @@ function renderServiceHero({ heroTitle, heroBody }) {
   `;
 }
 
-function renderHospitalityHero({ heroTitle, heroBody, firstImage, bgImage }) {
+function renderHospitalityHero({ heroTitle, heroBody, cta, firstImage, bgImage }) {
   const image = firstImage || bgImage;
 
   return `
@@ -650,20 +668,20 @@ function renderHospitalityHero({ heroTitle, heroBody, firstImage, bgImage }) {
         <span class="kicker">Food & hospitality</span>
         <h1>${escapeHtml(heroTitle)}</h1>
         <p>${escapeHtml(heroBody)}</p>
-        <a class="cta" href="#contact">Book or enquire</a>
+        ${cta}
       </div>
     </section>
   `;
 }
 
-function renderRetailHero({ heroTitle, heroBody }) {
+function renderRetailHero({ heroTitle, heroBody, cta }) {
   return `
     <section class="hero">
       <div>
         <span class="kicker">Boutique retail</span>
         <h1>${escapeHtml(heroTitle)}</h1>
         <p>${escapeHtml(heroBody)}</p>
-        <a class="cta" href="#contact">Browse now</a>
+        ${cta}
       </div>
 
       <div class="retail-products">
@@ -676,7 +694,7 @@ function renderRetailHero({ heroTitle, heroBody }) {
   `;
 }
 
-function renderStudioHero({ heroTitle, heroBody, firstImage, bgImage }) {
+function renderStudioHero({ heroTitle, heroBody, cta, firstImage, bgImage }) {
   const image = firstImage || bgImage;
 
   return `
@@ -685,7 +703,7 @@ function renderStudioHero({ heroTitle, heroBody, firstImage, bgImage }) {
         <span class="kicker">Premium studio</span>
         <h1>${escapeHtml(heroTitle)}</h1>
         <p>${escapeHtml(heroBody)}</p>
-        <a class="cta" href="#contact">Start a conversation</a>
+        ${cta}
       </div>
 
       <div class="studio-image">
@@ -695,14 +713,14 @@ function renderStudioHero({ heroTitle, heroBody, firstImage, bgImage }) {
   `;
 }
 
-function renderEventHero({ heroTitle, heroBody }) {
+function renderEventHero({ heroTitle, heroBody, cta }) {
   return `
     <section class="event-hero">
       <div>
         <span class="kicker">Event launch</span>
         <h1>${escapeHtml(heroTitle)}</h1>
         <p>${escapeHtml(heroBody)}</p>
-        <a class="cta" href="#contact">Register interest</a>
+        ${cta}
       </div>
 
       <div class="event-orb">LIVE</div>

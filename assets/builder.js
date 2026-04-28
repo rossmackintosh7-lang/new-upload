@@ -117,6 +117,11 @@
     buttonTransparency: $('buttonTransparency'),
     buttonTransparencyNote: $('buttonTransparencyNote'),
 
+    ctaButtonText: $('ctaButtonText'),
+    ctaButtonAction: $('ctaButtonAction'),
+    ctaButtonPage: $('ctaButtonPage'),
+    ctaButtonDestination: $('ctaButtonDestination'),
+
     pageTabs: $('pageTabs'),
     pageTitle: $('pageTitle'),
     pageBody: $('pageBody'),
@@ -158,6 +163,11 @@
     buttonColor: templates.service.button,
     buttonTextColor: templates.service.buttonText,
     buttonTransparency: 0,
+
+    ctaButtonText: 'Get in touch',
+    ctaButtonAction: 'contact',
+    ctaButtonPage: 'contact',
+    ctaButtonDestination: '',
 
     pages: JSON.parse(JSON.stringify(pageDefaults)),
     selectedPages: ['home', 'about', 'services', 'contact'],
@@ -267,6 +277,11 @@
     state.buttonTextColor = els.buttonTextColor?.value || state.buttonTextColor;
     state.buttonTransparency = Number(els.buttonTransparency?.value || 0);
 
+    state.ctaButtonText = els.ctaButtonText?.value || state.ctaButtonText || 'Get in touch';
+    state.ctaButtonAction = els.ctaButtonAction?.value || state.ctaButtonAction || 'contact';
+    state.ctaButtonPage = els.ctaButtonPage?.value || state.ctaButtonPage || 'contact';
+    state.ctaButtonDestination = els.ctaButtonDestination?.value || '';
+
     state.backgroundTransparency = Math.min(
       60,
       Number(els.backgroundTransparency?.value || 25)
@@ -315,6 +330,10 @@
     if (els.buttonColor) els.buttonColor.value = state.buttonColor;
     if (els.buttonTextColor) els.buttonTextColor.value = state.buttonTextColor || '#ffffff';
     if (els.buttonTransparency) els.buttonTransparency.value = state.buttonTransparency;
+    if (els.ctaButtonText) els.ctaButtonText.value = state.ctaButtonText || 'Get in touch';
+    if (els.ctaButtonAction) els.ctaButtonAction.value = state.ctaButtonAction || 'contact';
+    if (els.ctaButtonPage) els.ctaButtonPage.value = state.ctaButtonPage || 'contact';
+    if (els.ctaButtonDestination) els.ctaButtonDestination.value = state.ctaButtonDestination || '';
     if (els.backgroundTransparency) els.backgroundTransparency.value = state.backgroundTransparency;
 
     if (els.subdomainSlug) els.subdomainSlug.value = state.subdomainSlug || '';
@@ -476,8 +495,27 @@
     `;
   }
 
+  function getCtaLabel(fallback = 'Get in touch') {
+    return state.ctaButtonText?.trim() || fallback;
+  }
+
+  function getCtaHref() {
+    const action = state.ctaButtonAction || 'contact';
+    const destination = (state.ctaButtonDestination || '').trim();
+    const page = state.ctaButtonPage || 'contact';
+
+    if (action === 'none') return '#';
+    if (action === 'page') return `#${encodeURIComponent(page)}`;
+    if (action === 'external') return destination || '#';
+    if (action === 'email') return destination ? `mailto:${destination.replace(/^mailto:/, '')}` : '#contact';
+    if (action === 'phone') return destination ? `tel:${destination.replace(/^tel:/, '')}` : '#contact';
+    return '#contact';
+  }
+
   function cta(label = 'Get in touch') {
-    return `<button class="preview-cta" style="color:var(--site-button-text)">${escapeHtml(label)}</button>`;
+    const href = getCtaHref();
+    const disabled = (state.ctaButtonAction || 'contact') === 'none';
+    return `<a class="preview-cta" href="${escapeHtml(href)}" ${disabled ? 'aria-disabled="true"' : ''} style="color:var(--site-button-text)">${escapeHtml(getCtaLabel(label))}</a>`;
   }
 
   function activePage() {
@@ -758,6 +796,11 @@
       button_text_color: state.buttonTextColor,
       button_transparency: state.buttonTransparency,
 
+      cta_button_text: state.ctaButtonText,
+      cta_button_action: state.ctaButtonAction,
+      cta_button_page: state.ctaButtonPage,
+      cta_button_destination: state.ctaButtonDestination,
+
       pages: state.pages,
       selected_pages: state.selectedPages,
       active_page: state.activePage,
@@ -923,6 +966,10 @@
       state.buttonColor = data.button_color || templateDefaults.button;
       state.buttonTextColor = data.button_text_color || templateDefaults.buttonText || '#ffffff';
       state.buttonTransparency = Number(data.button_transparency || 0);
+      state.ctaButtonText = data.cta_button_text || 'Get in touch';
+      state.ctaButtonAction = data.cta_button_action || 'contact';
+      state.ctaButtonPage = data.cta_button_page || 'contact';
+      state.ctaButtonDestination = data.cta_button_destination || '';
 
       state.pages = {
         ...JSON.parse(JSON.stringify(pageDefaults)),
@@ -1129,6 +1176,10 @@
       els.buttonColor,
       els.buttonTextColor,
       els.buttonTransparency,
+      els.ctaButtonText,
+      els.ctaButtonAction,
+      els.ctaButtonPage,
+      els.ctaButtonDestination,
       els.pageTitle,
       els.pageBody,
       els.backgroundTransparency,
