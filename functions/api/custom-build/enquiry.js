@@ -4,6 +4,189 @@ function clean(value, maxLength = 5000) {
   return String(value || '').trim().slice(0, maxLength);
 }
 
+function escapeHtml(value) {
+  return String(value || '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
+
+function row(label, value) {
+  const cleaned = clean(value, 8000);
+
+  if (!cleaned) return '';
+
+  return `
+    <tr>
+      <td style="padding:10px 12px;border-bottom:1px solid #ead8cd;font-weight:700;width:220px;vertical-align:top;">
+        ${escapeHtml(label)}
+      </td>
+      <td style="padding:10px 12px;border-bottom:1px solid #ead8cd;vertical-align:top;white-space:pre-wrap;">
+        ${escapeHtml(cleaned)}
+      </td>
+    </tr>
+  `;
+}
+
+function buildEmailHtml({ enquiry, project, user }) {
+  return `
+    <div style="font-family:Arial,sans-serif;background:#fff8f1;padding:24px;color:#2f1b12;">
+      <div style="max-width:760px;margin:0 auto;background:#ffffff;border:1px solid #ead8cd;border-radius:18px;overflow:hidden;">
+        <div style="padding:22px 24px;background:#c86f3d;color:#ffffff;">
+          <p style="margin:0 0 6px;font-size:12px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;">
+            New custom build enquiry
+          </p>
+          <h1 style="margin:0;font-size:28px;line-height:1.1;">
+            ${escapeHtml(enquiry.business_name || 'Custom Build Request')}
+          </h1>
+        </div>
+
+        <div style="padding:22px 24px;">
+          <p style="margin:0 0 18px;line-height:1.5;">
+            A customer has submitted a custom website build enquiry through PBI.
+          </p>
+
+          <table style="width:100%;border-collapse:collapse;font-size:14px;">
+            ${row('Project ID', project.id)}
+            ${row('Project name', project.name)}
+            ${row('User account email', user.email)}
+
+            ${row('Business name', enquiry.business_name)}
+            ${row('Contact name', enquiry.contact_name)}
+            ${row('Email', enquiry.email)}
+            ${row('Phone', enquiry.phone)}
+            ${row('Industry', enquiry.industry)}
+            ${row('Current website', enquiry.current_website)}
+
+            ${row('Project summary', enquiry.project_summary)}
+            ${row('Pages needed', enquiry.pages_needed)}
+
+            ${row('Domain status', enquiry.domain_status)}
+            ${row('Domain name', enquiry.domain_name)}
+            ${row('Selected domain option', enquiry.domain_option)}
+
+            ${row('Logo status', enquiry.logo_status)}
+            ${row('Brand colours', enquiry.brand_colours)}
+            ${row('Logo ideas', enquiry.logo_ideas)}
+
+            ${row('Websites they like', enquiry.liked_websites)}
+            ${row('Websites they dislike', enquiry.disliked_websites)}
+
+            ${row('Features needed', enquiry.features_needed)}
+            ${row('Images status', enquiry.images_status)}
+            ${row('Wording help', enquiry.wording_help)}
+
+            ${row('Ideal launch date', enquiry.deadline)}
+            ${row('Estimated budget', enquiry.budget)}
+            ${row('Extra notes', enquiry.extra_notes)}
+          </table>
+
+          <p style="margin:20px 0 0;color:#7b6255;font-size:13px;">
+            This enquiry has also been saved in Cloudflare D1 under custom_build_enquiries.
+          </p>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function buildEmailText({ enquiry, project, user }) {
+  return `
+New custom build enquiry
+
+Project ID: ${project.id}
+Project name: ${project.name || ''}
+User account email: ${user.email || ''}
+
+Business name: ${enquiry.business_name}
+Contact name: ${enquiry.contact_name}
+Email: ${enquiry.email}
+Phone: ${enquiry.phone}
+Industry: ${enquiry.industry}
+Current website: ${enquiry.current_website}
+
+Project summary:
+${enquiry.project_summary}
+
+Pages needed:
+${enquiry.pages_needed}
+
+Domain status: ${enquiry.domain_status}
+Domain name: ${enquiry.domain_name}
+Selected domain option: ${enquiry.domain_option}
+
+Logo status: ${enquiry.logo_status}
+Brand colours: ${enquiry.brand_colours}
+
+Logo ideas:
+${enquiry.logo_ideas}
+
+Websites they like:
+${enquiry.liked_websites}
+
+Websites they dislike:
+${enquiry.disliked_websites}
+
+Features needed:
+${enquiry.features_needed}
+
+Images status: ${enquiry.images_status}
+Wording help: ${enquiry.wording_help}
+
+Ideal launch date: ${enquiry.deadline}
+Estimated budget: ${enquiry.budget}
+
+Extra notes:
+${enquiry.extra_notes}
+  `.trim();
+}
+
+async function sendNotificationEmail(env, { enquiry, project, user }) {
+  if (!env.RESEND_API_KEY) {
+    return {
+      sent: false,
+      reason: 'RESEND_API_KEY is not set.'
+    };
+  }
+
+  const to = env.CUSTOM_BUILD_NOTIFY_TO || 'hello@purbeckbusinessinnovations.co.uk';
+  const from = env.CUSTOM_BUILD_NOTIFY_FROM || 'PBI Enquiries <enquiry@purbeckbusinessinnovations.co.uk>';
+
+  const subject = `New custom build enquiry: ${enquiry.business_name || project.name || 'PBI website'}`;
+
+  const response = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${env.RESEND_API_KEY}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      from,
+      to,
+      reply_to: enquiry.email || user.email,
+      subject,
+      html: buildEmailHtml({ enquiry, project, user }),
+      text: buildEmailText({ enquiry, project, user })
+    })
+  });
+
+  const result = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    return {
+      sent: false,
+      reason: result.error?.message || result.message || 'Resend email failed.'
+    };
+  }
+
+  return {
+    sent: true,
+    id: result.id || ''
+  };
+}
+
 export async function onRequestPost({ request, env }) {
   const user = await getUserFromSession(env, request);
 
@@ -62,7 +245,10 @@ export async function onRequestPost({ request, env }) {
   };
 
   if (!enquiry.business_name || !enquiry.contact_name || !enquiry.email || !enquiry.project_summary) {
-    return error('Please complete the required fields: business name, contact name, email and project summary.', 400);
+    return error(
+      'Please complete the required fields: business name, contact name, email and project summary.',
+      400
+    );
   }
 
   await env.DB
@@ -145,9 +331,17 @@ export async function onRequestPost({ request, env }) {
     .bind(projectId, user.id)
     .run();
 
+  const emailResult = await sendNotificationEmail(env, {
+    enquiry,
+    project,
+    user
+  });
+
   return json({
     ok: true,
     enquiry_id: id,
+    email_sent: emailResult.sent,
+    email_message: emailResult.sent ? 'Notification email sent.' : emailResult.reason,
     message: 'Custom build enquiry submitted.'
   });
 }
