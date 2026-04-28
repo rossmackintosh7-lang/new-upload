@@ -3924,3 +3924,94 @@ body:has(.builder-app) .container {
 .preview-cta { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; cursor: pointer; }
 .preview-cta[aria-disabled="true"] { cursor: default; opacity: .75; }
 @media (max-width: 900px) { .custom-home-card, .dashboard-upgrade-grid { grid-template-columns: 1fr; } .custom-home-actions { justify-content: flex-start; } }
+/* =========================
+   MOBILE AUTH HEADER FIX
+   Keeps logo, nav buttons and login/signup card aligned on phones
+   ========================= */
+
+@media (max-width: 760px) {
+  .nav {
+    position: relative;
+    z-index: 10;
+  }
+
+  .nav-inner {
+    height: auto;
+    min-height: 0;
+    padding: 28px 0 14px;
+    flex-direction: column;
+    justify-content: center;
+    gap: 18px;
+  }
+
+  .brand-logo-only {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .header-logo {
+    width: min(310px, 78vw);
+    margin: 0 auto;
+  }
+
+  .nav .row {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .nav .btn,
+  .nav .btn-ghost,
+  .nav .btn-secondary {
+    width: 100%;
+    min-height: 50px;
+    padding: 12px 14px;
+    font-size: 15px;
+  }
+
+  main.container.section {
+    padding-top: 18px;
+  }
+
+  .auth-card {
+    width: 100%;
+    margin: 0 auto 34px;
+    padding: 24px 20px;
+    border-radius: 24px;
+  }
+
+  .auth-card h1,
+  .auth-card .section-title {
+    font-size: clamp(42px, 15vw, 64px);
+    line-height: 0.92;
+    margin: 0 0 18px;
+  }
+
+  .auth-card .btn {
+    width: 100%;
+  }
+
+  .cf-turnstile {
+    max-width: 100%;
+    overflow: hidden;
+  }
+}
+
+@media (max-width: 420px) {
+  .container {
+    width: min(100% - 24px, 1180px);
+  }
+
+  .header-logo {
+    width: min(280px, 76vw);
+  }
+
+  .nav-inner {
+    padding-top: 22px;
+  }
+
+  .auth-card {
+    padding: 22px 18px;
+  }
+}
