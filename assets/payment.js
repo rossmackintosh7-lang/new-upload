@@ -1,357 +1,226 @@
-<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Publish Website • PBI</title>
-  <link rel="stylesheet" href="/assets/styles.css">
-</head>
+document.addEventListener('DOMContentLoaded', () => {
+  function removeOldDomainRegistrationBlock() {
+    document.querySelectorAll('section, article, div.card').forEach((block) => {
+      const heading = block.querySelector('h1, h2, h3, h4');
 
-<body>
-  <nav class="nav">
-    <div class="container nav-inner">
-      <a class="brand brand-logo-only" href="/">
-        <img src="/assets/PBI%20Logo.png" alt="Purbeck Business Innovations logo" class="header-logo">
-      </a>
+      if (!heading) return;
 
-      <div class="row">
-        <a class="btn-ghost" href="/dashboard/">Dashboard</a>
-        <a class="btn-ghost" href="/login/">Login</a>
-      </div>
-    </div>
-  </nav>
+      const headingText = heading.textContent.trim().toLowerCase();
 
-  <main class="container section">
-    <div class="payment-hero">
-      <p class="eyebrow">Publish your website</p>
-      <h1 class="section-title">Choose how your website goes live</h1>
-      <p class="hero-text">
-        Build for free. When you are ready, choose your website plan, domain setup, or request a custom built website.
-      </p>
-    </div>
+      if (headingText === 'domain registration') {
+        block.remove();
+      }
+    });
+  }
 
-    <div id="paymentMessage" class="notice" style="display:none;margin-bottom:20px"></div>
+  removeOldDomainRegistrationBlock();
 
-    <section class="card domain-choice-section">
-      <div class="domain-choice-header">
-        <div>
-          <p class="eyebrow">Domain setup</p>
-          <h2>Choose your web address option</h2>
-          <p class="muted">
-            Not sure which one to choose? Start with the PBI subdomain. You can connect or register a custom domain later.
-          </p>
-        </div>
-      </div>
+  const params = new URLSearchParams(window.location.search);
+  const projectId = params.get('project');
+  const success = params.get('success') === '1';
+  const cancelled = params.get('cancelled') === '1';
 
-      <div class="domain-option-grid">
-        <label class="domain-option-card recommended-domain">
-          <input type="radio" name="domainOption" value="pbi_subdomain" checked>
-          <span>
-            <strong>PBI subdomain</strong>
-            <small>
-              Best for launching quickly. Your site goes live on a PBI web address while you test and refine it.
-            </small>
-            <em>Recommended for first launch</em>
-          </span>
-        </label>
+  const message = document.getElementById('paymentMessage');
+  const assistedSetup = document.getElementById('assistedSetup');
 
-        <label class="domain-option-card">
-          <input type="radio" name="domainOption" value="connect_existing">
-          <span>
-            <strong>Connect your own domain</strong>
-            <small>
-              Best if you already own a domain. PBI will guide you through the DNS setup needed to connect it.
-            </small>
-            <em>Good if you already own a domain</em>
-          </span>
-        </label>
+  const customBuildRequestBtn = document.getElementById('customBuildRequestBtn');
+  const customBuildFormSection = document.getElementById('customBuildFormSection');
+  const customBuildForm = document.getElementById('customBuildForm');
+  const customBuildSubmitBtn = document.getElementById('customBuildSubmitBtn');
+  const customBuildCancelBtn = document.getElementById('customBuildCancelBtn');
+  const customBuildDepositSection = document.getElementById('customBuildDepositSection');
 
-        <label class="domain-option-card">
-          <input type="radio" name="domainOption" value="register_new">
-          <span>
-            <strong>Register a new domain</strong>
-            <small>
-              Best if you need a new domain. Domain registration will be charged separately at live cost plus £10/year.
-            </small>
-            <em>Best for new businesses</em>
-          </span>
-        </label>
-      </div>
-    </section>
+  function showMessage(text, type = 'info') {
+    if (!message) return;
 
-    <section class="pricing-grid">
-      <article class="pricing-card card" data-plan="starter">
-        <p class="template-label">Starter Launch</p>
-        <h2>£12.99<span>/month</span></h2>
-        <p class="muted">
-          For a simple local business website launched on a PBI subdomain.
-        </p>
+    message.textContent = text;
+    message.style.display = 'block';
+    message.className = `notice domain-${type}`;
+  }
 
-        <ul>
-          <li>Publish live website</li>
-          <li>PBI subdomain</li>
-          <li>Hosting and SSL</li>
-          <li>Basic support</li>
-        </ul>
+  function selectedDomainOption() {
+    return document.querySelector('input[name="domainOption"]:checked')?.value || 'pbi_subdomain';
+  }
 
-        <button class="btn planBtn" type="button" data-plan="starter">
-          Choose Starter
-        </button>
-      </article>
+  async function api(path, options = {}) {
+    const response = await fetch(path, {
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(options.headers || {})
+      },
+      ...options
+    });
 
-      <article class="pricing-card card featured" data-plan="business">
-        <p class="template-label">Business Launch</p>
-        <h2>£24.99<span>/month</span></h2>
-        <p class="muted">
-          For most businesses. Publish on a PBI subdomain or connect your own domain.
-        </p>
+    const data = await response.json().catch(() => ({}));
 
-        <ul>
-          <li>Everything in Starter</li>
-          <li>Connect existing domain</li>
-          <li>More pages and images</li>
-          <li>Launch guidance</li>
-        </ul>
+    if (!response.ok) {
+      throw new Error(data.error || data.message || `Request failed with ${response.status}`);
+    }
 
-        <button class="btn planBtn" type="button" data-plan="business">
-          Choose Business
-        </button>
-      </article>
+    return data;
+  }
 
-      <article class="pricing-card card" data-plan="plus">
-        <p class="template-label">Business Plus</p>
-        <h2>£39.99<span>/month</span></h2>
-        <p class="muted">
-          For businesses that want priority support and extra help with setup.
-        </p>
+  function formToObject(form) {
+    return Object.fromEntries(new FormData(form).entries());
+  }
 
-        <ul>
-          <li>Everything in Business</li>
-          <li>Priority support</li>
-          <li>Custom domain help</li>
-          <li>Extra update support</li>
-        </ul>
+  async function createCheckout(plan) {
+    if (!projectId) {
+      showMessage('No project selected. Go back to your dashboard and choose a project to publish.', 'error');
+      return;
+    }
 
-        <button class="btn planBtn" type="button" data-plan="plus">
-          Choose Plus
-        </button>
-      </article>
+    showMessage('Preparing checkout...', 'info');
 
-      <article class="pricing-card card custom-build-card" data-plan="custom_build_deposit">
-        <p class="template-label">Custom Built Website</p>
-        <h2>From £1,500</h2>
-        <p class="muted">
-          For businesses that want PBI to design and build the website for them.
-        </p>
+    try {
+      const data = await api('/api/billing/create-checkout', {
+        method: 'POST',
+        body: JSON.stringify({
+          project_id: projectId,
+          plan,
+          domain_option: selectedDomainOption(),
+          assisted_setup: Boolean(assistedSetup?.checked)
+        })
+      });
 
-        <ul>
-          <li>Custom website built by PBI</li>
-          <li>Project quoted after enquiry</li>
-          <li>£500 deposit once scope is confirmed</li>
-          <li>Remaining balance due on completion</li>
-          <li>Custom layout, wording and styling</li>
-          <li>Launch guidance included</li>
-        </ul>
+      if (data.url) {
+        window.location.href = data.url;
+        return;
+      }
 
-        <button class="btn" id="customBuildRequestBtn" type="button">
-          Request Custom Build
-        </button>
-      </article>
-    </section>
+      if (data.setup_required) {
+        showMessage(
+          data.message || 'Stripe is not connected yet. Add Stripe environment variables to enable live checkout.',
+          'info'
+        );
+        return;
+      }
 
-    <section class="card assisted-setup">
-      <div>
-        <p class="eyebrow">Optional extra</p>
-        <h2>Assisted setup</h2>
-        <p class="muted">
-          Want PBI to help with wording, pages, layout and images? Add assisted setup for £99 one-off.
-        </p>
-      </div>
+      showMessage('Checkout was created, but no redirect URL was returned.', 'error');
+    } catch (error) {
+      console.error(error);
+      showMessage(error.message || 'Could not start checkout.', 'error');
+    }
+  }
 
-      <label class="assisted-toggle">
-        <input id="assistedSetup" type="checkbox">
-        <span>Add £99 assisted setup</span>
-      </label>
-    </section>
+  async function publishAfterPayment() {
+    if (!projectId) return;
 
-    <section class="card custom-build-form-card" id="customBuildFormSection" style="display:none;">
-      <p class="eyebrow">Custom build enquiry</p>
-      <h2>Tell us what you need</h2>
-      <p class="muted">
-        Complete this first so PBI can understand the project before taking a deposit. Once submitted, you’ll have the option to pay the £500 deposit to secure your build slot.
-      </p>
+    showMessage('Checking payment and publishing your website...', 'info');
 
-      <form id="customBuildForm" class="custom-build-form">
-        <div class="grid-2">
-          <div class="field">
-            <label for="customBusinessName">Business name</label>
-            <input id="customBusinessName" name="business_name" class="input" required>
-          </div>
+    try {
+      const data = await api('/api/projects/publish', {
+        method: 'POST',
+        body: JSON.stringify({
+          project_id: projectId,
+          domain_option: selectedDomainOption()
+        })
+      });
 
-          <div class="field">
-            <label for="customContactName">Contact name</label>
-            <input id="customContactName" name="contact_name" class="input" required>
-          </div>
-        </div>
+      if (data.published) {
+        showMessage(`Your website is live: ${data.live_url}`, 'success');
+        return;
+      }
 
-        <div class="grid-2">
-          <div class="field">
-            <label for="customEmail">Email address</label>
-            <input id="customEmail" name="email" type="email" class="input" required>
-          </div>
+      if (data.payment_required) {
+        showMessage(
+          'Payment is not active yet. If you have just paid, wait a few seconds and refresh this page.',
+          'info'
+        );
+        return;
+      }
 
-          <div class="field">
-            <label for="customPhone">Phone number</label>
-            <input id="customPhone" name="phone" class="input">
-          </div>
-        </div>
+      showMessage(data.message || 'Publish status is unclear.', 'info');
+    } catch (error) {
+      console.error(error);
+      showMessage(error.message || 'Could not publish website.', 'error');
+    }
+  }
 
-        <div class="grid-2">
-          <div class="field">
-            <label for="customIndustry">Business type / industry</label>
-            <input id="customIndustry" name="industry" class="input" placeholder="Café, electrician, salon, consultant, shop...">
-          </div>
+  async function submitCustomBuildForm(event) {
+    event.preventDefault();
 
-          <div class="field">
-            <label for="customCurrentWebsite">Current website, if you have one</label>
-            <input id="customCurrentWebsite" name="current_website" class="input" placeholder="https://...">
-          </div>
-        </div>
+    if (!projectId) {
+      showMessage('No project selected. Go back to your dashboard and choose a project first.', 'error');
+      return;
+    }
 
-        <div class="field">
-          <label for="customProjectSummary">What would you like your website to do?</label>
-          <textarea id="customProjectSummary" name="project_summary" class="textarea" required placeholder="Tell us what you need, what the business does, and what customers should be able to do on the site."></textarea>
-        </div>
+    if (!customBuildForm) return;
 
-        <div class="field">
-          <label for="customPages">Pages you think you need</label>
-          <textarea id="customPages" name="pages_needed" class="textarea" placeholder="Example: Home, About, Services, Gallery, Contact, Menu, Booking, FAQs..."></textarea>
-        </div>
+    const payload = formToObject(customBuildForm);
+    payload.project_id = projectId;
+    payload.domain_option = selectedDomainOption();
 
-        <div class="grid-2">
-          <div class="field">
-            <label for="customDomainStatus">Domain status</label>
-            <select id="customDomainStatus" name="domain_status" class="select">
-              <option value="">Select one</option>
-              <option value="already_have_domain">I already have a domain</option>
-              <option value="need_new_domain">I need a new domain</option>
-              <option value="not_sure">I’m not sure</option>
-            </select>
-          </div>
+    if (customBuildSubmitBtn) {
+      customBuildSubmitBtn.disabled = true;
+      customBuildSubmitBtn.textContent = 'Submitting...';
+    }
 
-          <div class="field">
-            <label for="customDomainName">Domain name, if known</label>
-            <input id="customDomainName" name="domain_name" class="input" placeholder="yourbusiness.co.uk">
-          </div>
-        </div>
+    showMessage('Submitting your custom build request...', 'info');
 
-        <div class="grid-2">
-          <div class="field">
-            <label for="customLogoStatus">Do you need a logo?</label>
-            <select id="customLogoStatus" name="logo_status" class="select">
-              <option value="">Select one</option>
-              <option value="have_logo">I already have a logo</option>
-              <option value="need_logo">I need a logo</option>
-              <option value="need_logo_refresh">I have a logo but want it improved</option>
-              <option value="not_sure">I’m not sure</option>
-            </select>
-          </div>
+    try {
+      await api('/api/custom-build/enquiry', {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      });
 
-          <div class="field">
-            <label for="customBrandColours">Brand colours</label>
-            <input id="customBrandColours" name="brand_colours" class="input" placeholder="Example: dark green, cream, gold">
-          </div>
-        </div>
+      showMessage(
+        'Your custom build request has been received. You can now pay the £500 deposit to secure the project slot.',
+        'success'
+      );
 
-        <div class="field">
-          <label for="customLogoIdeas">Logo ideas / brand style</label>
-          <textarea id="customLogoIdeas" name="logo_ideas" class="textarea" placeholder="Tell us what you have in mind for the logo or brand style."></textarea>
-        </div>
+      if (customBuildFormSection) {
+        customBuildFormSection.style.display = 'none';
+      }
 
-        <div class="field">
-          <label for="customLikedWebsites">Websites you like</label>
-          <textarea id="customLikedWebsites" name="liked_websites" class="textarea" placeholder="Paste links to websites you like and say what you like about them."></textarea>
-        </div>
+      if (customBuildDepositSection) {
+        customBuildDepositSection.style.display = 'block';
+        customBuildDepositSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    } catch (error) {
+      console.error(error);
+      showMessage(error.message || 'Could not submit custom build request.', 'error');
+    } finally {
+      if (customBuildSubmitBtn) {
+        customBuildSubmitBtn.disabled = false;
+        customBuildSubmitBtn.textContent = 'Submit Custom Build Request';
+      }
+    }
+  }
 
-        <div class="field">
-          <label for="customFeatures">Features needed</label>
-          <textarea id="customFeatures" name="features_needed" class="textarea" placeholder="Booking, contact form, payments, menus, gallery, blog, ecommerce-style products, newsletter, members area, etc."></textarea>
-        </div>
+  document.querySelectorAll('.planBtn').forEach((button) => {
+    button.addEventListener('click', () => {
+      createCheckout(button.dataset.plan);
+    });
+  });
 
-        <div class="grid-2">
-          <div class="field">
-            <label for="customImagesStatus">Do you already have images?</label>
-            <select id="customImagesStatus" name="images_status" class="select">
-              <option value="">Select one</option>
-              <option value="have_images">Yes, I have images</option>
-              <option value="need_images">No, I need help with images</option>
-              <option value="mixed">Some, but probably need more</option>
-            </select>
-          </div>
+  if (customBuildRequestBtn) {
+    customBuildRequestBtn.addEventListener('click', () => {
+      if (customBuildFormSection) {
+        customBuildFormSection.style.display = 'block';
+        customBuildFormSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  }
 
-          <div class="field">
-            <label for="customWordingHelp">Do you need help with wording?</label>
-            <select id="customWordingHelp" name="wording_help" class="select">
-              <option value="">Select one</option>
-              <option value="yes">Yes</option>
-              <option value="no">No</option>
-              <option value="some_help">Some help</option>
-            </select>
-          </div>
-        </div>
+  if (customBuildCancelBtn) {
+    customBuildCancelBtn.addEventListener('click', () => {
+      if (customBuildFormSection) {
+        customBuildFormSection.style.display = 'none';
+      }
+    });
+  }
 
-        <div class="grid-2">
-          <div class="field">
-            <label for="customDeadline">Ideal launch date</label>
-            <input id="customDeadline" name="deadline" class="input" placeholder="Example: within 4 weeks">
-          </div>
+  if (customBuildForm) {
+    customBuildForm.addEventListener('submit', submitCustomBuildForm);
+  }
 
-          <div class="field">
-            <label for="customBudget">Estimated budget</label>
-            <select id="customBudget" name="budget" class="select">
-              <option value="">Select one</option>
-              <option value="1500_2500">£1,500 – £2,500</option>
-              <option value="2500_3500">£2,500 – £3,500</option>
-              <option value="3500_plus">£3,500+</option>
-              <option value="not_sure">I’m not sure yet</option>
-            </select>
-          </div>
-        </div>
+  if (success) {
+    publishAfterPayment();
+  }
 
-        <div class="field">
-          <label for="customExtraNotes">Anything else?</label>
-          <textarea id="customExtraNotes" name="extra_notes" class="textarea" placeholder="Add anything else that would help us understand the project."></textarea>
-        </div>
-
-        <div class="custom-form-actions">
-          <button class="btn" type="submit" id="customBuildSubmitBtn">
-            Submit Custom Build Request
-          </button>
-
-          <button class="btn-ghost" type="button" id="customBuildCancelBtn">
-            Cancel
-          </button>
-        </div>
-      </form>
-    </section>
-
-    <section class="card custom-build-deposit-card" id="customBuildDepositSection" style="display:none;">
-      <p class="eyebrow">Deposit</p>
-      <h2>Secure your custom build slot</h2>
-      <p class="muted">
-        Thanks, your custom build request has been received. If you’re ready to secure your project slot, you can pay the £500 deposit now. The remaining balance will be confirmed after the project scope is reviewed and is payable before final launch.
-      </p>
-
-      <button class="btn planBtn" type="button" data-plan="custom_build_deposit">
-        Pay £500 Deposit
-      </button>
-    </section>
-  </main>
-
-  <script src="/assets/payment.js"></script>
-</body>
-</html>
-/* Hide old payment domain registration block */
-.domain-note {
-  display: none !important;
-}
+  if (cancelled) {
+    showMessage('Checkout was cancelled. Your website is still saved as a draft.', 'info');
+  }
+});
