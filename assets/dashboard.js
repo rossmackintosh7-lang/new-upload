@@ -51,7 +51,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const live = project.public_slug ? `/site/${encodeURIComponent(project.public_slug)}/` : '';
       const assistedPaid = data.assisted_setup_paid === true;
       const customDepositPaid = data.custom_build_deposit_paid === true || project.billing_status === 'custom_build_deposit_paid';
-      const domainName = data.custom_domain || project.custom_domain || data.subdomain_slug || '';
+      const domainName = data.custom_domain || project.custom_domain || data.domain_registration?.name || data.subdomain_slug || '';
+      const domainStatus = data.domain_registration_status || '';
+      const domainMessage = data.domain_registration_message || '';
 
       return `
         <div class="project-row dashboard-project" data-project-id="${esc(project.id)}">
@@ -87,6 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
               <p class="eyebrow">Domain renewal</p>
               <h4>Renewal reminder email</h4>
               <p class="muted">Send the customer a domain renewal reminder when a domain renewal date is due.</p>
+              ${domainStatus ? `<p class="muted"><strong>Registration status:</strong> ${esc(domainStatus.replaceAll('_', ' '))}${domainMessage ? ` — ${esc(domainMessage)}` : ''}</p>` : ''}
               <form class="domain-renewal-form" data-renewal-form="${esc(project.id)}">
                 <input class="input" name="domain_name" placeholder="Domain name" value="${esc(domainName)}">
                 <input class="input" name="renewal_date" type="date">

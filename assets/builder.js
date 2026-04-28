@@ -176,13 +176,14 @@
     logoDataUrl: '',
     galleryImages: [],
     backgroundImageDataUrl: '',
-    backgroundTransparency: 25,
+    backgroundTransparency: 20,
 
     subdomainSlug: '',
     customDomain: '',
     useCustomDomain: false,
     httpsEnabled: true,
-    domainOption: 'pbi_subdomain'
+    domainOption: 'pbi_subdomain',
+    domainRegistration: null
   };
 
   function escapeHtml(value) {
@@ -210,6 +211,64 @@
     if (!els.domainResult) return;
     els.domainResult.textContent = message || '';
     els.domainResult.className = `notice domain-${type}`;
+  }
+
+  function setDomainHtml(html, type = 'info') {
+    if (!els.domainResult) return;
+    els.domainResult.innerHTML = html || '';
+    els.domainResult.className = `notice domain-${type}`;
+  }
+
+  function escapeAttr(value) {
+    return escapeHtml(value).replaceAll('`', '&#096;');
+  }
+
+  function formatDomainPrice(domain) {
+    const pricing = domain?.pricing || {};
+    const currency = pricing.currency || 'GBP';
+    const registration = pricing.registration_cost || '';
+    if (!registration) return 'Price confirmed at checkout';
+    return `${currency} ${registration} for year one, plus PBI registration handling fee`;
+  }
+
+  function renderDomainResults(result) {
+    const requested = result.requested;
+    const suggestions = Array.isArray(result.suggestions) ? result.suggestions : [];
+
+    if (!requested && !suggestions.length) {
+      setDomainMessage('No domain results were returned. Try a simpler business name or another extension.', 'error');
+      return;
+    }
+
+    const requestedHtml = requested
+      ? `<div class="domain-check-summary"><strong>${escapeHtml(requested.name)}</strong><span>${requested.available ? 'Available' : escapeHtml(requested.message || 'Not available')}</span>${requested.available ? `<button class="btn domainSelectBtn" type="button" data-domain-json="${escapeAttr(JSON.stringify(requested))}">Select this domain</button>` : ''}</div>`
+      : '';
+
+    const suggestionsHtml = suggestions.length
+      ? `<div class="domain-suggestion-list"><h4>Available suggestions</h4>${suggestions.map((domain) => `<button class="domain-suggestion-card domainSelectBtn" type="button" data-domain-json="${escapeAttr(JSON.stringify(domain))}"><strong>${escapeHtml(domain.name)}</strong><span>${escapeHtml(formatDomainPrice(domain))}</span></button>`).join('')}</div>`
+      : '<p class="muted">No automatically registrable suggestions came back. Try another name or extension.</p>';
+
+    setDomainHtml(`${requestedHtml}${suggestionsHtml}<p class="small-note muted">Selecting a domain saves it against this project. The domain charge will be added to the first checkout payment, then PBI will attempt registration after payment if automatic registration is enabled.</p>`, suggestions.length || requested?.available ? 'success' : 'info');
+
+    els.domainResult.querySelectorAll('.domainSelectBtn').forEach((button) => {
+      button.addEventListener('click', () => {
+        try {
+          state.domainRegistration = JSON.parse(button.dataset.domainJson || '{}');
+        } catch {
+          state.domainRegistration = null;
+        }
+
+        if (!state.domainRegistration?.name) return;
+
+        state.customDomain = state.domainRegistration.name;
+        state.useCustomDomain = true;
+        state.domainOption = 'register_new';
+
+        syncStateToInputs();
+        renderPreview();
+        setDomainMessage(`${state.domainRegistration.name} selected. Save the project, then continue to payment when ready.`, 'success');
+      });
+    });
   }
 
   async function api(path, options = {}) {
@@ -283,8 +342,8 @@
     state.ctaButtonDestination = els.ctaButtonDestination?.value || '';
 
     state.backgroundTransparency = Math.min(
-      60,
-      Number(els.backgroundTransparency?.value || 25)
+      20,
+      Number(els.backgroundTransparency?.value || 20)
     );
 
     state.subdomainSlug = els.subdomainSlug?.value || '';
@@ -371,7 +430,7 @@
     }
 
     if (els.backgroundTransparencyNote) {
-      els.backgroundTransparencyNote.textContent = `${state.backgroundTransparency}% transparent, maximum 60%`;
+      els.backgroundTransparencyNote.textContent = `${state.backgroundTransparency}% transparent, maximum 20%`;
     }
   }
 
@@ -989,13 +1048,14 @@
       state.logoDataUrl = data.logo_data_url || '';
       state.galleryImages = Array.isArray(data.gallery_images) ? data.gallery_images : [];
       state.backgroundImageDataUrl = data.background_image_data_url || '';
-      state.backgroundTransparency = Number(data.background_transparency || 25);
+      state.backgroundTransparency = Math.min(20, Number(data.background_transparency || 20));
 
       state.subdomainSlug = data.subdomain_slug || '';
       state.customDomain = data.custom_domain || '';
       state.useCustomDomain = Boolean(data.use_custom_domain);
       state.httpsEnabled = data.https_enabled !== false;
       state.domainOption = data.domain_option || project.domain_option || 'pbi_subdomain';
+      state.domainRegistration = data.domain_registration || null;
     } catch (error) {
       console.error(error);
       setSaveMessage(error.message || 'Could not load project.', 'error');
@@ -1037,30 +1097,29 @@
   async function checkDomain() {
     syncInputsToState();
 
-    const domain =
-      state.useCustomDomain && state.customDomain.trim()
-        ? state.customDomain.trim()
-        : `${slugify(state.subdomainSlug || state.businessName || 'your-business')}.dev`;
+    const requestedDomain = state.customDomain.trim();
+    const keyword = state.businessName || state.subdomainSlug || state.projectName || requestedDomain || 'my business';
+    const domain = requestedDomain || `${slugify(keyword)}.co.uk`;
 
-    if (!domain) {
-      setDomainMessage('Enter a domain or subdomain first.', 'error');
+    if (!domain && !keyword) {
+      setDomainMessage('Enter a business name or domain first.', 'error');
       return;
     }
 
-    setDomainMessage('Checking domain...', 'info');
+    setDomainMessage('Checking live domain availability and suggestions...', 'info');
 
     try {
       const result = await api('/api/domain/check', {
         method: 'POST',
-        body: JSON.stringify({ domain })
+        body: JSON.stringify({
+          domain,
+          keyword,
+          business_name: state.businessName
+        })
       });
 
       console.log('Domain check result:', result);
-
-      setDomainMessage(
-        `Cloudflare returned a result for ${domain}. Check the console/API response for full detail.`,
-        'info'
-      );
+      renderDomainResults(result);
     } catch (error) {
       console.error(error);
       setDomainMessage(error.message || 'Could not check domain.', 'error');
