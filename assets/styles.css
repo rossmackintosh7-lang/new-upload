@@ -3342,3 +3342,446 @@ body:has(.builder-app) .container {
   font-weight: 950;
   color: #c4b5fd;
 }
+/* =========================
+   TEMPLATE PREVIEW MOCKUPS
+   No image files needed
+   ========================= */
+
+.template-preview-grid {
+  display: grid;
+  gap: 28px;
+}
+
+.template-preview-card {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  overflow: hidden;
+  border-radius: 32px;
+  border: 1px solid rgba(138, 67, 29, 0.16);
+  background: rgba(255, 250, 245, 0.76);
+  box-shadow: 0 24px 80px rgba(47, 27, 18, 0.08);
+}
+
+.template-preview-card:nth-child(even) {
+  grid-template-columns: 0.9fr 1.1fr;
+}
+
+.template-preview-card:nth-child(even) .template-image-wrap {
+  order: 2;
+}
+
+.template-image-wrap {
+  min-height: 380px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  position: relative;
+  padding: 44px;
+}
+
+.template-image-wrap::before {
+  content: "Live preview style";
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  z-index: 2;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  color: rgba(47, 27, 18, 0.76);
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  backdrop-filter: blur(8px);
+}
+
+.template-preview-content {
+  padding: 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.template-preview-content h2 {
+  margin: 0 0 18px;
+  font-size: clamp(38px, 4vw, 64px);
+  line-height: 0.9;
+  letter-spacing: -0.07em;
+}
+
+.template-preview-content p {
+  color: rgba(47, 27, 18, 0.72);
+  line-height: 1.55;
+  font-size: 17px;
+}
+
+.template-preview-content ul {
+  display: grid;
+  gap: 10px;
+  margin: 22px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.template-preview-content li {
+  position: relative;
+  padding-left: 28px;
+  font-weight: 900;
+}
+
+.template-preview-content li::before {
+  content: "✦";
+  position: absolute;
+  left: 0;
+  color: var(--pbi-orange, #c86f3d);
+}
+
+.template-label {
+  margin: 0 0 18px;
+  color: rgba(138, 67, 29, 0.82);
+  font-size: 13px;
+  font-weight: 950;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.template-image-mock {
+  width: min(560px, 100%);
+  min-height: 280px;
+  border-radius: 30px;
+  padding: 26px;
+  color: #2f1b12;
+  background: rgba(255,255,255,0.58);
+  box-shadow:
+    0 28px 80px rgba(47, 27, 18, 0.14),
+    inset 0 1px 0 rgba(255,255,255,0.76);
+  border: 1px solid rgba(255,255,255,0.62);
+  position: relative;
+  display: grid;
+  gap: 16px;
+}
+
+.template-image-mock.dark {
+  color: #fff;
+  background: rgba(0,0,0,0.34);
+  border-color: rgba(255,255,255,0.16);
+}
+
+.mock-caption {
+  margin: 8px 0 0;
+  font-size: 13px;
+  font-weight: 950;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: currentColor;
+  opacity: 0.72;
+}
+
+.mock-browser-top {
+  display: flex;
+  gap: 7px;
+}
+
+.mock-browser-top span {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: currentColor;
+  opacity: 0.22;
+}
+
+.mock-kicker {
+  width: 82px;
+  height: 10px;
+  border-radius: 999px;
+  background: currentColor;
+  opacity: 0.22;
+}
+
+.mock-title {
+  width: 100%;
+  max-width: 260px;
+  height: 44px;
+  border-radius: 14px;
+  background: currentColor;
+  opacity: 0.86;
+}
+
+.mock-title.small-title {
+  width: 68%;
+  height: 34px;
+}
+
+.mock-line {
+  width: 88%;
+  height: 12px;
+  border-radius: 999px;
+  background: currentColor;
+  opacity: 0.20;
+}
+
+.mock-line.short {
+  width: 62%;
+}
+
+.mock-button {
+  width: 116px;
+  height: 34px;
+  border-radius: 999px;
+  background: currentColor;
+  opacity: 0.78;
+}
+
+.mock-card-title {
+  width: 120px;
+  height: 22px;
+  border-radius: 999px;
+  background: currentColor;
+  opacity: 0.72;
+}
+
+.mock-check {
+  width: 100%;
+  height: 14px;
+  border-radius: 999px;
+  background: currentColor;
+  opacity: 0.22;
+}
+
+/* Local Service Pro preview */
+
+.service-card .template-image-wrap {
+  background:
+    radial-gradient(circle at top right, rgba(37, 107, 91, 0.18), transparent 36%),
+    linear-gradient(135deg, #ffffff, #dfeee9);
+}
+
+.service-mock {
+  color: #243b34;
+}
+
+.mock-service-layout {
+  display: grid;
+  grid-template-columns: 1fr 160px;
+  gap: 20px;
+  align-items: stretch;
+}
+
+.mock-service-copy,
+.mock-service-card {
+  display: grid;
+  gap: 12px;
+  align-content: center;
+}
+
+.mock-service-card {
+  padding: 18px;
+  border-radius: 22px;
+  background: #256b5b;
+  color: #ffffff;
+}
+
+/* Food & Hospitality preview */
+
+.hospitality-card .template-image-wrap {
+  background:
+    radial-gradient(circle at 70% 20%, rgba(255, 213, 170, 0.24), transparent 34%),
+    linear-gradient(135deg, #3a180c, #c96b34);
+}
+
+.hospitality-mock {
+  color: #fff8f1;
+}
+
+.mock-hospitality-layout {
+  display: grid;
+  grid-template-columns: 1fr 0.95fr;
+  gap: 0;
+  align-items: center;
+}
+
+.mock-food-image {
+  min-height: 190px;
+  border-radius: 24px 0 0 24px;
+  background:
+    radial-gradient(circle at 40% 42%, rgba(255,255,255,0.65), transparent 12%),
+    radial-gradient(circle at 56% 48%, rgba(255,205,148,0.84), transparent 18%),
+    linear-gradient(135deg, rgba(255,248,241,0.26), rgba(180,81,42,0.48));
+}
+
+.mock-hospitality-card {
+  display: grid;
+  gap: 12px;
+  padding: 20px;
+  border-radius: 24px;
+  background: rgba(255,248,241,0.92);
+  color: #2d160d;
+  transform: translateX(-22px);
+}
+
+/* Boutique Retail preview */
+
+.retail-card .template-image-wrap {
+  background: linear-gradient(135deg, #fff8cf, #efb321);
+}
+
+.retail-mock {
+  color: #111;
+  background: rgba(255,255,255,0.46);
+}
+
+.mock-retail-topline {
+  height: 18px;
+  border-radius: 999px;
+  background: #111;
+}
+
+.mock-retail-layout {
+  display: grid;
+  grid-template-columns: 0.8fr 1.2fr;
+  gap: 22px;
+  align-items: center;
+}
+
+.mock-product-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  transform: rotate(-2deg);
+}
+
+.mock-product-grid span {
+  min-height: 82px;
+  border-radius: 18px;
+  background: rgba(17, 17, 17, 0.18);
+  box-shadow: 0 12px 34px rgba(17,17,17,0.10);
+}
+
+.mock-product-grid span:nth-child(even) {
+  transform: translateY(18px);
+}
+
+/* Premium Studio preview */
+
+.studio-card .template-image-wrap {
+  background: linear-gradient(135deg, #fffaf5, #d8b6a4);
+}
+
+.studio-mock {
+  color: #3b332e;
+}
+
+.mock-studio-layout {
+  display: grid;
+  grid-template-columns: 0.85fr 1.15fr;
+  gap: 24px;
+  align-items: center;
+}
+
+.mock-studio-copy {
+  display: grid;
+  gap: 12px;
+}
+
+.mock-studio-image {
+  min-height: 220px;
+  border-radius: 90px 0 90px 0;
+  background:
+    radial-gradient(circle at 50% 38%, rgba(255,255,255,0.56), transparent 18%),
+    linear-gradient(135deg, rgba(161,116,94,0.28), rgba(255,255,255,0.38));
+}
+
+/* Event Launch preview */
+
+.event-card .template-image-wrap {
+  background:
+    radial-gradient(circle at 55% 40%, #8b5cf6, transparent 34%),
+    linear-gradient(135deg, #080817, #18183c);
+}
+
+.event-mock {
+  color: #f5f0ff;
+}
+
+.mock-event-layout {
+  display: grid;
+  grid-template-columns: 1fr 160px;
+  gap: 26px;
+  align-items: center;
+}
+
+.mock-event-layout > div:first-child {
+  display: grid;
+  gap: 12px;
+}
+
+.mock-event-orb {
+  aspect-ratio: 1;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at 34% 28%, #fff, transparent 9%),
+    radial-gradient(circle at 50% 50%, #8b5cf6, transparent 43%),
+    conic-gradient(from 90deg, #3b82f6, #8b5cf6, #ec4899, #3b82f6);
+  box-shadow: 0 0 70px rgba(139,92,246,0.52);
+  color: #fff;
+  font-weight: 950;
+  letter-spacing: 0.16em;
+}
+
+.mock-event-panels {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 11px;
+}
+
+.mock-event-panels span {
+  min-height: 54px;
+  border-radius: 18px;
+  background: rgba(255,255,255,0.14);
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
+/* Responsive template preview page */
+
+@media (max-width: 980px) {
+  .template-preview-card,
+  .template-preview-card:nth-child(even) {
+    grid-template-columns: 1fr;
+  }
+
+  .template-preview-card:nth-child(even) .template-image-wrap {
+    order: 0;
+  }
+
+  .template-preview-content {
+    padding: 32px;
+  }
+
+  .template-image-wrap {
+    min-height: 320px;
+    padding: 28px;
+  }
+
+  .mock-service-layout,
+  .mock-hospitality-layout,
+  .mock-retail-layout,
+  .mock-studio-layout,
+  .mock-event-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .mock-hospitality-card {
+    transform: none;
+  }
+
+  .mock-product-grid {
+    transform: none;
+  }
+
+  .mock-product-grid span:nth-child(even) {
+    transform: none;
+  }
+}
