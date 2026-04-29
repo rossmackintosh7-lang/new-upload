@@ -99,6 +99,7 @@
     backBtn: $('backBtn'),
     logoutBtn: $('logoutBtn'),
     saveStatus: $('builderSaveStatus'),
+    templatePresetBanner: $('builderTemplatePresetBanner'),
 
     projectName: $('projectName'),
     businessName: $('businessName'),
@@ -156,6 +157,7 @@
     subHeading: '',
     aiBrief: '',
 
+    templatePreset: '',
     template: 'service',
 
     accentColor: templates.service.accent,
@@ -315,6 +317,69 @@
     return templates[value] ? value : (legacyTemplateMap[value] || 'service');
   }
 
+
+  function getTemplatePreset(key) {
+    const api = window.PBITemplatePresets;
+    if (!api || !key) return null;
+    try {
+      return api.get(key);
+    } catch {
+      return null;
+    }
+  }
+
+  function projectLooksBlank(data = {}) {
+    const pages = data.pages || {};
+    const home = pages.home || {};
+    return !data.business_name && !data.page_main_heading && (!home.title || home.title === pageDefaults.home.title);
+  }
+
+  function showTemplatePresetBanner() {
+    if (!els.templatePresetBanner) return;
+    const preset = getTemplatePreset(state.templatePreset);
+    if (!preset) {
+      els.templatePresetBanner.style.display = 'none';
+      return;
+    }
+    els.templatePresetBanner.style.display = 'block';
+    els.templatePresetBanner.className = 'notice domain-success';
+    els.templatePresetBanner.innerHTML = `<strong>Loaded template demo:</strong> ${escapeHtml(preset.businessName)} (${escapeHtml(preset.label)}). You can now edit the wording, images and colours.`;
+  }
+
+  function applyTemplatePreset(presetKey, options = {}) {
+    const preset = getTemplatePreset(presetKey);
+    if (!preset) return false;
+
+    state.templatePreset = preset.id;
+    state.projectName = options.keepProjectName && state.projectName ? state.projectName : (preset.projectName || state.projectName);
+    state.businessName = preset.businessName || state.businessName;
+    state.pageMainHeading = preset.pageMainHeading || state.pageMainHeading;
+    state.subHeading = preset.subHeading || state.subHeading;
+    state.template = normaliseTemplate(preset.template || state.template);
+    state.accentColor = preset.accent || state.accentColor;
+    state.backgroundColor = preset.background || state.backgroundColor;
+    state.textColor = preset.text || state.textColor;
+    state.navColor = preset.nav || state.navColor;
+    state.buttonColor = preset.button || state.buttonColor;
+    state.buttonTextColor = preset.buttonText || state.buttonTextColor;
+    state.ctaButtonText = preset.ctaButtonText || state.ctaButtonText;
+    state.ctaButtonAction = preset.ctaButtonAction || state.ctaButtonAction;
+    state.ctaButtonPage = preset.ctaButtonPage || state.ctaButtonPage;
+    state.ctaButtonDestination = preset.ctaButtonDestination || '';
+    state.pages = JSON.parse(JSON.stringify(preset.pages || state.pages));
+    state.selectedPages = Array.isArray(preset.selectedPages) ? preset.selectedPages.slice() : state.selectedPages;
+    state.activePage = preset.activePage || 'home';
+    state.galleryImages = Array.isArray(preset.galleryImages) ? preset.galleryImages.slice() : state.galleryImages;
+    state.backgroundImageDataUrl = preset.backgroundImageDataUrl || '';
+    state.backgroundTransparency = typeof preset.backgroundTransparency === 'number' ? preset.backgroundTransparency : state.backgroundTransparency;
+    state.subdomainSlug = preset.subdomainSlug || state.subdomainSlug;
+    state.customDomain = preset.customDomain || '';
+    state.useCustomDomain = Boolean(preset.useCustomDomain);
+    state.httpsEnabled = preset.httpsEnabled !== false;
+    state.domainOption = preset.domainOption || 'pbi_subdomain';
+    return true;
+  }
+
   function getPage(pageKey) {
     return state.pages[pageKey] || pageDefaults[pageKey] || pageDefaults.home;
   }
@@ -424,6 +489,7 @@
 
     renderPageEditor();
     updateRangeNotes();
+    showTemplatePresetBanner();
   }
 
   function updateRangeNotes() {
@@ -835,6 +901,7 @@
     renderPageEditor();
     renderGalleryThumbs();
     renderPreview();
+    showTemplatePresetBanner();
   }
 
   function collectProjectData() {
@@ -848,6 +915,7 @@
       ai_brief: state.aiBrief,
 
       template: normaliseTemplate(state.template),
+      template_preset: state.templatePreset || '',
 
       accent_color: state.accentColor,
       background_color: state.backgroundColor,
@@ -1017,6 +1085,7 @@
       state.subHeading = data.sub_heading || data.brand_tone || '';
       state.aiBrief = data.ai_brief || '';
 
+      state.templatePreset = data.template_preset || '';
       state.template = normaliseTemplate(data.template || 'service');
 
       const templateDefaults = templates[state.template] || templates.service;
@@ -1059,6 +1128,12 @@
       state.httpsEnabled = data.https_enabled !== false;
       state.domainOption = data.domain_option || project.domain_option || 'pbi_subdomain';
       state.domainRegistration = data.domain_registration || null;
+
+      const urlPreset = params.get('preset') || '';
+      const presetToApply = urlPreset || state.templatePreset;
+      if (presetToApply && (projectLooksBlank(data) || urlPreset)) {
+        applyTemplatePreset(presetToApply, { keepProjectName: Boolean(project.name || data.project_name) });
+      }
     } catch (error) {
       console.error(error);
       setSaveMessage(error.message || 'Could not load project.', 'error');
