@@ -4,13 +4,15 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>PBI Website Assistant Dashboard</title>
+  <link rel="stylesheet" href="/assets/css/pbi-original-theme.css">
   <link rel="stylesheet" href="/assets/css/pbi-ai-agent.css">
+  <link rel="stylesheet" href="/assets/css/pbi-admin-hub.css">
 </head>
 <body>
   <header class="pbi-topbar">
     <div class="pbi-topbar-inner">
-      <a class="pbi-brand" href="/"><div class="pbi-brand-mark">PBI</div><div><div>Website Assistant</div><div class="pbi-small">Live dashboard demo</div></div></a>
-      <a class="pbi-agent-button-secondary" href="/">Back to overview</a>
+      <a class="logo" href="/"><img src="/assets/brand/pbi-logo.svg" alt="Purbeck Business Innovations" style="width:260px"></a>
+      <div style="display:flex;gap:10px;flex-wrap:wrap"><a class="pbi-agent-button-secondary" href="/admin/">🏠 Dashboard</a><a class="pbi-agent-button-secondary" href="/seo-agent/">SEO Agent</a><a class="pbi-agent-button-secondary" href="/">Public site</a></div>
     </div>
   </header>
 
@@ -60,5 +62,6 @@
     </section>
   </main>
   <script src="/assets/js/pbi-ai-agent-live.js" defer></script>
+  <a class="admin-fab" href="/admin/">🏠 Dashboard</a>
 </body>
 </html>
