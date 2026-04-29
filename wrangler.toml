@@ -1,2 +1,8 @@
-name = "pbi-platform"
-compatibility_date = "2026-04-22"
+name = "new-upload"
+compatibility_date = "2025-04-01"
+pages_build_output_dir = "public"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "pbi-db"
+database_id = "f4c649dc-8047-43c3-940a-fa3854d18c21"
