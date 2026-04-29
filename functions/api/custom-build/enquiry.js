@@ -84,6 +84,44 @@ export async function onRequestPost({ request, env }) {
 
     const text = `New PBI Custom Build Enquiry\n\nName: ${name}\nEmail: ${email}\nPhone: ${phone || 'Not provided'}\nBusiness: ${businessName || 'Not provided'}\nIndustry: ${industry || 'Not provided'}\nCurrent website: ${currentWebsite || 'Not provided'}\nMain promotion goal: ${mainPromotionGoal || 'Not provided'}\n\nProject summary:\n${projectSummary || 'Not provided'}\n\nPages needed:\n${pagesNeeded || 'Not provided'}\n\nFeatures needed:\n${featuresNeeded || 'Not provided'}\n\nLiked websites:\n${likedWebsites || 'Not provided'}\n\nDisliked websites:\n${dislikedWebsites || 'Not provided'}\n\nBrand colours: ${brandColours || 'Not provided'}\nLogo status: ${logoStatus || 'Not provided'}\nLogo ideas:\n${logoIdeas || 'Not provided'}\n\nDomain option: ${domainOption || 'Not provided'}\nDomain name: ${domainName || 'Not provided'}\nDomain status: ${domainStatus || 'Not provided'}\n\nImages: ${imagesStatus || 'Not provided'}\nWording help: ${wordingHelp || 'Not provided'}\nDeadline: ${deadline || 'Not provided'}\nBudget: ${budget || 'Not provided'}\n\nAnything else:\n${extraNotes || 'Not provided'}`;
 
+
+    if (env.DB) {
+      try {
+        await env.DB.prepare(`
+          CREATE TABLE IF NOT EXISTS custom_build_enquiries (
+            id TEXT PRIMARY KEY,
+            project_id TEXT,
+            contact_name TEXT,
+            email TEXT,
+            phone TEXT,
+            business_name TEXT,
+            main_promotion_goal TEXT,
+            status TEXT DEFAULT 'new',
+            body_json TEXT,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+          )
+        `).run();
+
+        await env.DB.prepare(`
+          INSERT INTO custom_build_enquiries
+          (id, project_id, contact_name, email, phone, business_name, main_promotion_goal, status, body_json, created_at, updated_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?, 'new', ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+        `).bind(
+          crypto.randomUUID(),
+          projectId || '',
+          name,
+          email,
+          phone || '',
+          businessName || '',
+          mainPromotionGoal || '',
+          JSON.stringify(body)
+        ).run();
+      } catch (adminStoreError) {
+        console.error('Could not store custom build enquiry for admin panel:', adminStoreError);
+      }
+    }
+
     const emailResult = await sendEmail(env, { to: notifyTo, replyTo: email, subject, html, text });
     if (!emailResult.ok) return json({ success: false, error: 'The enquiry could not be sent through Resend.', resendError: emailResult.error }, 500);
 

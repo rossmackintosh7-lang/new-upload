@@ -29,6 +29,16 @@
       <div class="card">Loading admin data...</div>
     </section>
 
+    <section class="card admin-create-card">
+      <h3>Create project for existing customer</h3>
+      <form id="adminCreateProjectForm" class="admin-create-form">
+        <input class="input" name="email" type="email" placeholder="Customer email">
+        <input class="input" name="name" placeholder="Project name">
+        <button class="btn-ghost" type="submit">Create project</button>
+      </form>
+      <p class="muted">The customer must already have an account. This creates a new draft project in their dashboard.</p>
+    </section>
+
     <section class="admin-layout">
       <aside class="card admin-sidebar">
         <div class="admin-search-wrap">

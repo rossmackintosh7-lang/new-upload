@@ -37,3 +37,18 @@ Use the exact email address you log in with. Separate multiple admin emails with
 ## Important
 
 The admin panel does not cancel Stripe subscriptions. If a customer should stop being billed, cancel their subscription in Stripe as well.
+
+
+## Expanded admin tools
+
+This version also includes:
+
+- Admin domain checker
+- Select/save domain to project
+- Custom build project stage tracker
+- Missing information checklist
+- Email templates
+- Simple quote builder
+- Domain status and renewal date controls
+- Customer email sending
+- Internal admin notes
