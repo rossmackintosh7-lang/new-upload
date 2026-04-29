@@ -19,10 +19,15 @@ export async function onRequestPost({ request, env }) {
   if (!email || !/^\S+@\S+\.\S+$/.test(email)) return error('Enter a valid email address.');
   if (!password || password.length < 8) return error('Password must be at least 8 characters.');
   if (!termsAccepted) return error('You must accept the Terms and Conditions before creating an account.', 400);
-  if (!token) return error('Turnstile token missing.');
 
-  const ok = await verifyTurnstile(env, token, request.headers.get('CF-Connecting-IP') || '');
-  if (!ok) return error('Turnstile validation failed.', 400);
+  const turnstileBypassed = env.PBI_BYPASS_TURNSTILE === 'true' || env.PBI_CRASH_TEST_MODE === 'true';
+
+  if (!turnstileBypassed) {
+    if (!token) return error('Turnstile token missing.');
+
+    const ok = await verifyTurnstile(env, token, request.headers.get('CF-Connecting-IP') || '');
+    if (!ok) return error('Turnstile validation failed.', 400);
+  }
 
   const existing = await env.DB.prepare('SELECT id FROM users WHERE email = ? LIMIT 1').bind(email).first();
   if (existing) return error('An account with that email already exists.', 409);

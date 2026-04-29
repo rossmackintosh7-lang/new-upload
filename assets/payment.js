@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const pricing = domain?.pricing || {};
     const registration = pricing.registration_cost || '';
     const currency = pricing.currency || 'GBP';
-    return registration ? `${currency} ${registration} plus PBI registration handling fee` : 'Price confirmed at checkout';
+    return registration ? `${currency} ${registration} first-year registration, plus annual PBI domain management fee at checkout` : 'Price confirmed at checkout';
   }
 
   async function api(path, options = {}) {
@@ -114,6 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
         })
       });
 
+      if (data.test_bypass) { showMessage(data.message || 'Crash test mode: payment bypassed. Redirecting to publish step...', 'success'); }
       if (data.url) { window.location.href = data.url; return; }
       if (data.setup_required) { showMessage(data.message || 'Stripe is not connected yet.', 'info'); return; }
       showMessage('Checkout was created, but no redirect URL was returned.', 'error');
@@ -128,7 +129,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
       const data = await api('/api/projects/publish', { method: 'POST', body: JSON.stringify({ project_id: projectId, domain_option: selectedDomainOption() }) });
-      if (data.published) { showMessage(`Your website is live: ${data.live_url}`, 'success'); return; }
+      if (data.published) {
+        if (message) {
+          message.style.display = 'block';
+          message.className = 'notice domain-success';
+          message.innerHTML = `Your website is live: <a href="${esc(data.live_url)}" target="_blank" rel="noopener">${esc(data.live_url)}</a>${data.fake_dev_url ? `<br><span class="muted">Fake dev preview label: ${esc(data.fake_dev_url)}</span>` : ''}`;
+        }
+        return;
+      }
       if (data.payment_required) { showMessage('Payment is not active yet. If you have just paid, wait a few seconds and refresh this page.', 'info'); return; }
       showMessage(data.message || 'Publish status is unclear.', 'info');
     } catch (error) { showMessage(error.message || 'Could not publish website.', 'error'); }

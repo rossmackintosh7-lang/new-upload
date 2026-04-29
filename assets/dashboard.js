@@ -37,7 +37,25 @@ document.addEventListener('DOMContentLoaded', () => {
     if (project.billing_status === 'active') return 'Paid, ready to publish';
     if (project.billing_status === 'pending') return 'Payment pending';
     if (project.billing_status === 'setup_required') return 'Stripe setup required';
+    if (project.billing_status === 'past_due') return 'Payment issue';
+    if (project.billing_status === 'cancelled') return 'Cancelled';
     return 'Draft';
+  }
+
+  function moneyMinor(amount, currency = 'gbp') {
+    const value = Number(amount || 0) / 100;
+    try {
+      return new Intl.NumberFormat('en-GB', { style: 'currency', currency: String(currency || 'gbp').toUpperCase() }).format(value);
+    } catch {
+      return `£${value.toFixed(2)}`;
+    }
+  }
+
+  function dateLabel(value) {
+    if (!value) return '';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '';
+    return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
   }
 
   function render(projects) {
@@ -54,6 +72,11 @@ document.addEventListener('DOMContentLoaded', () => {
       const domainName = data.custom_domain || project.custom_domain || data.domain_registration?.name || data.subdomain_slug || '';
       const domainStatus = data.domain_registration_status || '';
       const domainMessage = data.domain_registration_message || '';
+      const domainManagement = data.domain_management || {};
+      const domainManagementActive = domainManagement.active === true || domainManagement.status === 'active';
+      const domainFeeLabel = moneyMinor(domainManagement.annual_fee_minor || 1000, domainManagement.currency || 'gbp');
+      const nextDomainFeeDate = dateLabel(domainManagement.current_period_end || domainManagement.next_fee_estimate_at);
+      const lastDomainFeePaid = dateLabel(domainManagement.last_paid_at);
 
       return `
         <div class="project-row dashboard-project" data-project-id="${esc(project.id)}">
@@ -66,6 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ${Number(project.published || 0) === 1 && live ? `<a class="btn-ghost" href="${esc(live)}" target="_blank" rel="noopener">View live</a>` : ''}
             <a class="btn-ghost" href="/builder/?project=${encodeURIComponent(project.id)}">Edit</a>
             <a class="btn" href="/payment/?project=${encodeURIComponent(project.id)}">${Number(project.published || 0) === 1 ? 'Manage plan' : 'Publish'}</a>
+            <button class="btn-danger projectDeleteBtn" type="button" data-project-id="${esc(project.id)}" data-project-name="${esc(project.name || 'Untitled website')}">Delete</button>
           </div>
           <div class="dashboard-upgrade-grid">
             <div class="dashboard-upgrade-card">
@@ -86,10 +110,12 @@ document.addEventListener('DOMContentLoaded', () => {
               ${customDepositPaid ? '<span class="status-pill">Paid</span>' : `<button class="btn-ghost dashboardCheckoutBtn" type="button" data-plan="custom_build_deposit" data-project-id="${esc(project.id)}">Pay £500 deposit</button>`}
             </div>
             <div class="dashboard-upgrade-card">
-              <p class="eyebrow">Domain renewal</p>
-              <h4>Renewal reminder email</h4>
-              <p class="muted">Send the customer a domain renewal reminder when a domain renewal date is due.</p>
+              <p class="eyebrow">Domain billing</p>
+              <h4>${domainManagementActive ? 'Domain management active' : 'Domain renewal and management'}</h4>
+              <p class="muted">${domainManagementActive ? `The ongoing PBI domain fee is linked to this project at ${esc(domainFeeLabel)} per year.` : 'When a new domain is bought through PBI, the annual domain management fee is linked to the same Stripe subscription as the website plan.'}</p>
               ${domainStatus ? `<p class="muted"><strong>Registration status:</strong> ${esc(domainStatus.replaceAll('_', ' '))}${domainMessage ? ` — ${esc(domainMessage)}` : ''}</p>` : ''}
+              ${domainManagementActive ? `<p class="muted"><strong>Next estimated domain fee:</strong> ${esc(nextDomainFeeDate || 'Tracked in Stripe')}</p>` : ''}
+              ${lastDomainFeePaid ? `<p class="muted"><strong>Last domain fee payment:</strong> ${esc(lastDomainFeePaid)}</p>` : ''}
               <form class="domain-renewal-form" data-renewal-form="${esc(project.id)}">
                 <input class="input" name="domain_name" placeholder="Domain name" value="${esc(domainName)}">
                 <input class="input" name="renewal_date" type="date">
@@ -129,6 +155,34 @@ document.addEventListener('DOMContentLoaded', () => {
           form.reset();
           showMessage('Assisted setup request sent to PBI.', 'success');
         } catch (error) { showMessage(error.message || 'Could not send assisted setup request.', 'error'); }
+      });
+    });
+
+    document.querySelectorAll('.projectDeleteBtn').forEach((button) => {
+      button.addEventListener('click', async () => {
+        const projectId = button.dataset.projectId;
+        const projectName = button.dataset.projectName || 'this project';
+        const confirmText = `Delete "${projectName}"? This removes the project from your dashboard. If it has an active Stripe subscription, cancel that in Stripe too.`;
+
+        if (!projectId || !confirm(confirmText)) return;
+
+        const oldText = button.textContent;
+        button.disabled = true;
+        button.textContent = 'Deleting...';
+
+        try {
+          await api('/api/projects/delete', {
+            method: 'POST',
+            body: JSON.stringify({ project_id: projectId })
+          });
+
+          showMessage('Project deleted.', 'success');
+          await load();
+        } catch (error) {
+          showMessage(error.message || 'Could not delete project.', 'error');
+          button.disabled = false;
+          button.textContent = oldText;
+        }
       });
     });
 

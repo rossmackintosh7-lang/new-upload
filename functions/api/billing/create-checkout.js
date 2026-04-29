@@ -70,7 +70,7 @@ function safeJson(value) {
   try { return JSON.stringify(value || {}); } catch { return '{}'; }
 }
 
-function buildDomainLineItem(form, index, domain, env) {
+function buildDomainRegistrationLineItem(form, index, domain, env) {
   const pricing = domain?.pricing || {};
   const domainName = cleanDomain(domain?.name);
   const checkoutCurrency = String(env.DOMAIN_REGISTRATION_CURRENCY || 'GBP').toLowerCase();
@@ -80,16 +80,41 @@ function buildDomainLineItem(form, index, domain, env) {
   const baseAmount = providerCurrency === checkoutCurrency && providerBaseAmount > 0
     ? providerBaseAmount
     : defaultBaseAmount;
-  const markupAmount = Number(env.DOMAIN_MARKUP_AMOUNT_MINOR || env.DOMAIN_MARKUP_GBP_PENCE || 1000);
-  const amount = Math.max(100, baseAmount + (Number.isFinite(markupAmount) ? markupAmount : 1000));
+
+  // The ongoing £10/year PBI domain fee is now handled by STRIPE_PRICE_DOMAIN_MANAGEMENT_YEARLY.
+  // Keep this line item for the actual first-year domain registration cost only, plus any optional one-off setup fee you deliberately set.
+  const optionalOneOffHandling = Number(env.DOMAIN_REGISTRATION_ONE_OFF_HANDLING_AMOUNT_MINOR || 0);
+  const amount = Math.max(100, baseAmount + (Number.isFinite(optionalOneOffHandling) ? optionalOneOffHandling : 0));
 
   form[`line_items[${index}][price_data][currency]`] = checkoutCurrency;
   form[`line_items[${index}][price_data][unit_amount]`] = amount;
   form[`line_items[${index}][price_data][product_data][name]`] = `Domain registration: ${domainName}`;
-  form[`line_items[${index}][price_data][product_data][description]`] = 'One-year domain registration plus PBI registration handling.';
+  form[`line_items[${index}][price_data][product_data][description]`] = 'First-year domain registration charge. PBI domain management is billed separately as an annual recurring fee.';
   form[`line_items[${index}][quantity]`] = '1';
 
-  return { amount, currency: checkoutCurrency, domain_name: domainName, provider_currency: providerCurrency || null, provider_registration_cost: pricing.registration_cost || '' };
+  return {
+    amount,
+    currency: checkoutCurrency,
+    domain_name: domainName,
+    provider_currency: providerCurrency || null,
+    provider_registration_cost: pricing.registration_cost || '',
+    optional_one_off_handling_amount: optionalOneOffHandling || 0
+  };
+}
+
+function addDomainManagementLineItem(form, index, env) {
+  const priceId = String(env.STRIPE_PRICE_DOMAIN_MANAGEMENT_YEARLY || '').trim();
+  if (!priceId) return null;
+
+  form[`line_items[${index}][price]`] = priceId;
+  form[`line_items[${index}][quantity]`] = '1';
+
+  return {
+    price_id: priceId,
+    amount_minor: Number(env.DOMAIN_MANAGEMENT_FEE_AMOUNT_MINOR || 1000),
+    currency: String(env.DOMAIN_MANAGEMENT_FEE_CURRENCY || 'gbp').toLowerCase(),
+    interval: 'year'
+  };
 }
 
 export async function onRequestPost({ request, env }) {
@@ -116,9 +141,11 @@ export async function onRequestPost({ request, env }) {
   const checkoutMode = ONE_TIME_PAYMENT_PLANS.has(plan) ? 'payment' : 'subscription';
 
   let domainRegistration = null;
-  let domainLineItem = null;
+  let domainRegistrationLineItem = null;
+  let domainManagementLineItem = null;
+  const needsDomainBilling = domainOption === 'register_new' && !ONE_TIME_PAYMENT_PLANS.has(plan);
 
-  if (domainOption === 'register_new' && !ONE_TIME_PAYMENT_PLANS.has(plan)) {
+  if (needsDomainBilling) {
     domainRegistration = body.domain_registration && typeof body.domain_registration === 'object'
       ? body.domain_registration
       : projectData.domain_registration;
@@ -131,6 +158,10 @@ export async function onRequestPost({ request, env }) {
 
     if (domainRegistration?.available !== true && domainRegistration?.registrable !== true) {
       return error('The selected domain is not marked as available. Check the domain again before checkout.', 400);
+    }
+
+    if (!env.STRIPE_PRICE_DOMAIN_MANAGEMENT_YEARLY) {
+      return error('Domain billing is not fully set up. Add STRIPE_PRICE_DOMAIN_MANAGEMENT_YEARLY in Cloudflare before selling new domains.', 500);
     }
 
     domainRegistration = { ...domainRegistration, name: selectedDomain };
@@ -151,6 +182,65 @@ export async function onRequestPost({ request, env }) {
   const successPath = plan === 'assisted_setup' || plan === 'custom_build_deposit' ? '/dashboard/?success=1' : `/payment/?project=${encodeURIComponent(projectId)}&success=1`;
   const cancelPath = plan === 'assisted_setup' || plan === 'custom_build_deposit' ? '/dashboard/?cancelled=1' : `/payment/?project=${encodeURIComponent(projectId)}&cancelled=1`;
 
+
+  const paymentBypassed = env.PBI_BYPASS_PAYMENT === 'true' || env.PBI_CRASH_TEST_MODE === 'true';
+
+  if (paymentBypassed) {
+    const fakeSessionId = `pbi_test_${crypto.randomUUID()}`;
+    const fakeSubscriptionId = `sub_pbi_test_${projectId.slice(0, 12)}`;
+    const nextUrl = `${origin}/payment/?project=${encodeURIComponent(projectId)}&success=1&test_bypass=1`;
+
+    let updatedProjectData = projectData || {};
+
+    if (domainRegistration?.name) {
+      const fakeDomainLineItem = {
+        amount: Number(env.DOMAIN_REGISTRATION_DEFAULT_AMOUNT_MINOR || 2000),
+        currency: String(env.DOMAIN_REGISTRATION_CURRENCY || 'GBP').toLowerCase(),
+        domain_name: domainRegistration.name,
+        test_bypass: true
+      };
+
+      updatedProjectData = {
+        ...updatedProjectData,
+        domain_registration: domainRegistration,
+        domain_registration_payment: fakeDomainLineItem,
+        domain_registration_status: 'test_bypass_paid_pending_manual_registration',
+        domain_registration_message: 'Crash test bypass: no real payment or domain registration was processed.',
+        domain_management: {
+          active: true,
+          status: 'active',
+          annual_fee_minor: 1000,
+          currency: 'gbp',
+          stripe_subscription_id: fakeSubscriptionId,
+          test_bypass: true,
+          started_at: new Date().toISOString()
+        }
+      };
+    } else {
+      updatedProjectData = {
+        ...updatedProjectData,
+        domain_management: {
+          ...(updatedProjectData.domain_management || {}),
+          test_bypass: true
+        }
+      };
+    }
+
+    await env.DB
+      .prepare(`UPDATE projects SET plan = ?, domain_option = ?, custom_domain = ?, data_json = ?, billing_status = 'active', stripe_session_id = ?, stripe_customer_id = ?, stripe_subscription_id = ?, updated_at = datetime('now') WHERE id = ? AND user_id = ?`)
+      .bind(plan, domainOption, domainRegistration?.name || String(projectData.custom_domain || '').trim(), safeJson(updatedProjectData), fakeSessionId, `cus_pbi_test_${user.id.slice(0, 10)}`, fakeSubscriptionId, projectId, user.id)
+      .run();
+
+    return json({
+      ok: true,
+      test_bypass: true,
+      url: nextUrl,
+      session_id: fakeSessionId,
+      subscription_id: fakeSubscriptionId,
+      message: 'Crash test mode: payment bypassed and project marked active.'
+    });
+  }
+
   const form = {
     mode: checkoutMode,
     success_url: `${origin}${successPath}`,
@@ -166,12 +256,21 @@ export async function onRequestPost({ request, env }) {
     'line_items[0][quantity]': '1'
   };
 
-  if (domainRegistration?.name) {
-    domainLineItem = buildDomainLineItem(form, 1, domainRegistration, env);
-    form['metadata[selected_domain]'] = domainLineItem.domain_name;
+  let nextLineIndex = 1;
+
+  if (needsDomainBilling && domainRegistration?.name) {
+    domainManagementLineItem = addDomainManagementLineItem(form, nextLineIndex, env);
+    nextLineIndex += 1;
+    domainRegistrationLineItem = buildDomainRegistrationLineItem(form, nextLineIndex, domainRegistration, env);
+
+    form['metadata[selected_domain]'] = domainRegistrationLineItem.domain_name;
     form['metadata[domain_registration]'] = safeJson(domainRegistration).slice(0, 500);
-    form['metadata[domain_registration_amount]'] = domainLineItem.amount;
-    form['metadata[domain_registration_currency]'] = domainLineItem.currency;
+    form['metadata[domain_registration_amount]'] = domainRegistrationLineItem.amount;
+    form['metadata[domain_registration_currency]'] = domainRegistrationLineItem.currency;
+    form['metadata[includes_domain_management]'] = 'true';
+    form['metadata[domain_management_price_id]'] = domainManagementLineItem.price_id;
+    form['metadata[domain_management_fee_amount]'] = domainManagementLineItem.amount_minor;
+    form['metadata[domain_management_fee_currency]'] = domainManagementLineItem.currency;
   }
 
   if (checkoutMode === 'subscription') {
@@ -180,8 +279,17 @@ export async function onRequestPost({ request, env }) {
     form['subscription_data[metadata][plan]'] = plan;
     form['subscription_data[metadata][domain_option]'] = domainOption;
     form['subscription_data[metadata][project_name]'] = project.name || '';
-    if (domainRegistration?.name) {
+
+    if (needsDomainBilling && domainRegistration?.name) {
       form['subscription_data[metadata][selected_domain]'] = domainRegistration.name;
+      form['subscription_data[metadata][includes_domain_management]'] = 'true';
+      form['subscription_data[metadata][domain_management_price_id]'] = domainManagementLineItem.price_id;
+
+      // Required for monthly website plans and yearly domain management on the same subscription.
+      // Disable only if your Stripe account rejects flexible billing mode and you intentionally use separate subscriptions later.
+      if (env.STRIPE_DISABLE_FLEXIBLE_BILLING !== 'true') {
+        form['subscription_data[billing_mode][type]'] = 'flexible';
+      }
     }
   }
 
@@ -198,11 +306,20 @@ export async function onRequestPost({ request, env }) {
   if (!response.ok) return error(result.error?.message || 'Stripe checkout session could not be created.', 500);
 
   if (!ONE_TIME_PAYMENT_PLANS.has(plan)) {
-    const updatedProjectData = domainRegistration?.name
+    const updatedProjectData = needsDomainBilling && domainRegistration?.name
       ? {
           ...projectData,
           domain_registration: domainRegistration,
-          domain_registration_payment: domainLineItem,
+          domain_registration_payment: domainRegistrationLineItem,
+          domain_management: {
+            ...(projectData.domain_management || {}),
+            status: 'checkout_started',
+            price_id: domainManagementLineItem.price_id,
+            annual_fee_minor: domainManagementLineItem.amount_minor,
+            currency: domainManagementLineItem.currency,
+            interval: 'year',
+            linked_to_website_subscription: true
+          },
           domain_registration_status: 'checkout_started'
         }
       : projectData;
@@ -218,7 +335,14 @@ export async function onRequestPost({ request, env }) {
       .run();
   }
 
-  return json({ ok: true, url: result.url, session_id: result.id, mode: checkoutMode, domain_registration: domainLineItem });
+  return json({
+    ok: true,
+    url: result.url,
+    session_id: result.id,
+    mode: checkoutMode,
+    domain_registration: domainRegistrationLineItem,
+    domain_management: domainManagementLineItem
+  });
 }
 
 export async function onRequestGet() {

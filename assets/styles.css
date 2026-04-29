@@ -4023,3 +4023,423 @@ body:has(.builder-app) .container {
     flex-direction: column;
   }
 }
+
+/* =========================
+   DANGER / DELETE ACTIONS
+   ========================= */
+
+.btn-danger {
+  appearance: none;
+  border: 1px solid rgba(160, 43, 31, 0.22);
+  border-radius: 999px;
+  padding: 14px 18px;
+  min-height: 48px;
+  font: inherit;
+  font-weight: 850;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #8f2419;
+  background: rgba(255, 240, 236, 0.9);
+  transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+}
+
+.btn-danger:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 226, 219, 0.95);
+}
+
+.btn-danger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 760px) {
+  .project-actions .btn,
+  .project-actions .btn-ghost,
+  .project-actions .btn-danger {
+    width: 100%;
+  }
+}
+
+/* =========================
+   PHONE HEADER / NAV REFINEMENT
+   Smaller logo, smaller buttons, more solid compact banner
+   ========================= */
+
+@media (max-width: 760px) {
+  .nav {
+    background: rgba(255, 248, 241, 0.92) !important;
+    backdrop-filter: blur(12px) saturate(112%) !important;
+    -webkit-backdrop-filter: blur(12px) saturate(112%) !important;
+    border-bottom: 1px solid rgba(138, 67, 29, 0.12) !important;
+    box-shadow: 0 10px 24px rgba(98, 50, 26, 0.08) !important;
+  }
+
+  .nav::after {
+    display: none !important;
+  }
+
+  .nav-inner {
+    min-height: 86px !important;
+    height: auto !important;
+    padding: 10px 0 8px !important;
+    gap: 10px !important;
+  }
+
+  .brand-logo-only {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .header-logo {
+    width: min(220px, 62vw) !important;
+  }
+
+  .nav .row {
+    width: 100%;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .nav .btn,
+  .nav .btn-ghost,
+  .nav .btn-secondary {
+    width: auto !important;
+    min-width: 0;
+    min-height: 40px !important;
+    padding: 9px 14px !important;
+    font-size: 14px !important;
+    line-height: 1.1;
+    border-radius: 999px;
+    box-shadow: none !important;
+  }
+
+  .nav .btn-ghost,
+  .nav .btn-secondary {
+    background: rgba(255, 250, 245, 0.96) !important;
+    border-color: rgba(138, 67, 29, 0.14) !important;
+  }
+
+  .hero {
+    min-height: calc(100vh - 78px);
+    padding-top: 20px;
+  }
+
+  main.container.section,
+  .page-shell main.container.section {
+    padding-top: 20px;
+  }
+}
+
+@media (max-width: 520px) {
+  .nav-inner {
+    min-height: 78px !important;
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+  }
+
+  .header-logo {
+    width: min(190px, 58vw) !important;
+  }
+
+  .nav .row {
+    gap: 6px;
+  }
+
+  .nav .btn,
+  .nav .btn-ghost,
+  .nav .btn-secondary {
+    width: auto !important;
+    min-height: 36px !important;
+    padding: 8px 12px !important;
+    font-size: 13px !important;
+  }
+}
+
+
+/* =========================
+   POLISHED MOBILE PASS
+   tighter spacing, clearer hierarchy, cleaner phone nav
+   ========================= */
+
+@media (max-width: 760px) {
+  .container {
+    width: min(100% - 18px, 1180px) !important;
+  }
+
+  .section,
+  .hero {
+    padding: 30px 0 34px !important;
+  }
+
+  .hero {
+    min-height: auto !important;
+  }
+
+  .hero-grid {
+    gap: 22px !important;
+  }
+
+  .section-title,
+  h1 {
+    font-size: clamp(34px, 10.5vw, 44px) !important;
+    line-height: 0.98 !important;
+  }
+
+  h2 {
+    font-size: clamp(28px, 8.2vw, 38px) !important;
+  }
+
+  .hero-text {
+    margin-top: 16px !important;
+    font-size: 18px !important;
+    line-height: 1.35 !important;
+  }
+
+  .hero-support,
+  .template-preview-content p,
+  .published-section p,
+  .muted {
+    font-size: 15px;
+  }
+
+  .card,
+  .hero-card,
+  .custom-home-card,
+  .preview-panel,
+  .pricing-strip,
+  .dashboard-upgrade-card,
+  .project-row,
+  .auth-card {
+    padding: 18px !important;
+    border-radius: 18px !important;
+  }
+
+  .nav {
+    background: rgba(255, 248, 241, 0.97) !important;
+    backdrop-filter: blur(10px) saturate(108%) !important;
+    -webkit-backdrop-filter: blur(10px) saturate(108%) !important;
+    box-shadow: 0 8px 18px rgba(98, 50, 26, 0.08) !important;
+  }
+
+  .nav::before {
+    background:
+      linear-gradient(90deg, rgba(255, 248, 241, 0.98), rgba(255, 248, 241, 0.94)) !important;
+  }
+
+  .nav-inner {
+    min-height: 82px !important;
+    padding: 8px 0 !important;
+    gap: 8px !important;
+  }
+
+  .header-logo {
+    width: min(200px, 56vw) !important;
+  }
+
+  .nav .row {
+    width: 100%;
+    justify-content: center;
+    flex-wrap: nowrap;
+    gap: 6px !important;
+  }
+
+  .nav .btn,
+  .nav .btn-ghost,
+  .nav .btn-secondary {
+    min-height: 36px !important;
+    padding: 8px 12px !important;
+    font-size: 13px !important;
+    box-shadow: none !important;
+  }
+
+  #userEmail {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
+    font-size: 12px;
+  }
+
+  .hero .row,
+  .custom-home-actions,
+  .templates-cta,
+  .row-between {
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+
+  .hero .row .btn,
+  .hero .row .btn-ghost,
+  .custom-home-actions .btn,
+  .custom-home-actions .btn-ghost,
+  .templates-cta .btn,
+  .templates-cta .btn-ghost,
+  .row-between > .btn {
+    width: 100%;
+  }
+
+  .pricing-strip {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  .pricing-mini-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .builder-pricing-line {
+    display: grid !important;
+    grid-template-columns: 1fr;
+  }
+
+  .builder-pricing-line span {
+    width: 100%;
+  }
+
+  .preview-top,
+  .browser-bar {
+    gap: 10px;
+  }
+
+  .preview-top {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .toggle-group {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .toggle-group button {
+    flex: 1;
+  }
+
+  .browser-bar {
+    min-height: 48px;
+    padding: 10px 12px;
+  }
+
+  .address {
+    margin-left: 6px;
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+
+  .project-row {
+    gap: 14px !important;
+  }
+
+  .project-actions {
+    width: 100%;
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px !important;
+  }
+
+  .project-actions .btn,
+  .project-actions .btn-ghost,
+  .project-actions .btn-danger {
+    width: 100% !important;
+    min-height: 40px !important;
+    padding: 10px 12px !important;
+  }
+
+  .dashboard-upgrade-grid {
+    gap: 14px !important;
+  }
+
+  .domain-renewal-form,
+  .assisted-request-form {
+    display: grid;
+    gap: 10px;
+  }
+
+  .page {
+    padding: 34px 18px !important;
+  }
+}
+
+@media (max-width: 520px) {
+  .container {
+    width: min(100% - 14px, 1180px) !important;
+  }
+
+  .nav-inner {
+    min-height: 76px !important;
+    padding: 8px 0 !important;
+  }
+
+  .header-logo {
+    width: min(172px, 52vw) !important;
+  }
+
+  .nav .row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+  }
+
+  #userEmail {
+    grid-column: 1 / -1;
+    order: -1;
+    font-size: 11px;
+    margin-bottom: 2px;
+  }
+
+  .nav .btn,
+  .nav .btn-ghost,
+  .nav .btn-secondary {
+    width: 100% !important;
+    min-height: 34px !important;
+    padding: 8px 10px !important;
+    font-size: 12px !important;
+  }
+
+  .section-title,
+  h1 {
+    font-size: clamp(30px, 10vw, 38px) !important;
+  }
+
+  h2 {
+    font-size: clamp(25px, 8vw, 32px) !important;
+  }
+
+  .card,
+  .hero-card,
+  .custom-home-card,
+  .preview-panel,
+  .pricing-strip,
+  .dashboard-upgrade-card,
+  .project-row,
+  .auth-card {
+    padding: 16px !important;
+    border-radius: 16px !important;
+  }
+
+  .pricing-mini-grid,
+  .project-actions {
+    grid-template-columns: 1fr !important;
+  }
+
+  .btn,
+  .btn-ghost,
+  .btn-secondary,
+  .btn-danger {
+    min-height: 42px;
+  }
+
+  .thumb-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .builder-save-status {
+    font-size: 14px;
+  }
+}
