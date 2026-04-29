@@ -1,3 +1,41 @@
+-- PBI combined schema: original + AI Agent + SEO Agent
+
+CREATE TABLE IF NOT EXISTS users (id TEXT PRIMARY KEY, email TEXT UNIQUE, password_hash TEXT, password_salt TEXT);
+CREATE TABLE IF NOT EXISTS sessions (id TEXT PRIMARY KEY, user_id TEXT, expires_at TEXT);
+CREATE TABLE IF NOT EXISTS projects (id TEXT PRIMARY KEY, user_id TEXT, name TEXT, status TEXT DEFAULT 'draft', data_json TEXT DEFAULT '{}');
+CREATE TABLE IF NOT EXISTS domains (id TEXT PRIMARY KEY, project_id TEXT, hostname TEXT UNIQUE, status TEXT DEFAULT 'pending', provider_ref TEXT, verification_json TEXT);
+CREATE TABLE IF NOT EXISTS publishes (id TEXT PRIMARY KEY, project_id TEXT, status TEXT DEFAULT 'queued', target_hostname TEXT, details_json TEXT);
+
+
+CREATE TABLE IF NOT EXISTS custom_build_enquiries (
+  id TEXT PRIMARY KEY,
+  project_id TEXT,
+  contact_name TEXT,
+  email TEXT,
+  phone TEXT,
+  business_name TEXT,
+  main_promotion_goal TEXT,
+  status TEXT DEFAULT 'new',
+  body_json TEXT,
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS support_requests (
+  id TEXT PRIMARY KEY,
+  project_id TEXT,
+  user_id TEXT,
+  email TEXT,
+  type TEXT DEFAULT 'assisted_setup',
+  message TEXT,
+  status TEXT DEFAULT 'new',
+  body_json TEXT,
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
+
+-- AI Website Agent tables
 CREATE TABLE IF NOT EXISTS pbi_projects (
   id TEXT PRIMARY KEY,
   user_id TEXT,
@@ -51,63 +89,10 @@ CREATE INDEX IF NOT EXISTS idx_ai_website_drafts_project_id ON ai_website_drafts
 CREATE INDEX IF NOT EXISTS idx_ai_agent_messages_project_id ON ai_agent_messages(project_id);
 CREATE INDEX IF NOT EXISTS idx_pbi_custom_build_enquiries_project_id ON pbi_custom_build_enquiries(project_id);
 
+
 -- SEO Agent tables
-CREATE TABLE IF NOT EXISTS seo_pages (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  url TEXT NOT NULL UNIQUE,
-  title TEXT,
-  meta_description TEXT,
-  h1 TEXT,
-  canonical TEXT,
-  robots TEXT,
-  word_count INTEGER DEFAULT 0,
-  status_code INTEGER,
-  seo_score INTEGER DEFAULT 0,
-  last_checked TEXT
-);
-
-CREATE TABLE IF NOT EXISTS seo_issues (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  page_url TEXT NOT NULL,
-  issue_type TEXT NOT NULL,
-  issue_text TEXT NOT NULL,
-  severity TEXT DEFAULT 'medium',
-  status TEXT DEFAULT 'open',
-  created_at TEXT DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE IF NOT EXISTS seo_suggestions (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  page_url TEXT NOT NULL,
-  suggestion_type TEXT NOT NULL,
-  current_value TEXT,
-  suggested_value TEXT,
-  reasoning TEXT,
-  status TEXT DEFAULT 'pending',
-  created_at TEXT DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE IF NOT EXISTS seo_keywords (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  keyword TEXT NOT NULL,
-  target_url TEXT,
-  intent TEXT,
-  priority TEXT DEFAULT 'medium',
-  status TEXT DEFAULT 'active',
-  created_at TEXT DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE IF NOT EXISTS seo_reports (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  report_date TEXT NOT NULL,
-  total_pages INTEGER DEFAULT 0,
-  total_issues INTEGER DEFAULT 0,
-  average_score INTEGER DEFAULT 0,
-  summary TEXT,
-  created_at TEXT DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE INDEX IF NOT EXISTS idx_seo_pages_score ON seo_pages(seo_score);
-CREATE INDEX IF NOT EXISTS idx_seo_issues_page_status ON seo_issues(page_url, status);
-CREATE INDEX IF NOT EXISTS idx_seo_suggestions_page_status ON seo_suggestions(page_url, status);
-CREATE INDEX IF NOT EXISTS idx_seo_keywords_target_url ON seo_keywords(target_url);
+CREATE TABLE IF NOT EXISTS seo_pages (id INTEGER PRIMARY KEY AUTOINCREMENT, url TEXT NOT NULL UNIQUE, title TEXT, meta_description TEXT, h1 TEXT, canonical TEXT, robots TEXT, word_count INTEGER DEFAULT 0, status_code INTEGER, seo_score INTEGER DEFAULT 0, last_checked TEXT);
+CREATE TABLE IF NOT EXISTS seo_issues (id INTEGER PRIMARY KEY AUTOINCREMENT, page_url TEXT NOT NULL, issue_type TEXT NOT NULL, issue_text TEXT NOT NULL, severity TEXT DEFAULT 'medium', status TEXT DEFAULT 'open', created_at TEXT DEFAULT CURRENT_TIMESTAMP);
+CREATE TABLE IF NOT EXISTS seo_suggestions (id INTEGER PRIMARY KEY AUTOINCREMENT, page_url TEXT NOT NULL, suggestion_type TEXT NOT NULL, current_value TEXT, suggested_value TEXT, reasoning TEXT, status TEXT DEFAULT 'pending', created_at TEXT DEFAULT CURRENT_TIMESTAMP);
+CREATE TABLE IF NOT EXISTS seo_keywords (id INTEGER PRIMARY KEY AUTOINCREMENT, keyword TEXT NOT NULL, target_url TEXT, intent TEXT, priority TEXT DEFAULT 'medium', status TEXT DEFAULT 'active', created_at TEXT DEFAULT CURRENT_TIMESTAMP);
+CREATE TABLE IF NOT EXISTS seo_reports (id INTEGER PRIMARY KEY AUTOINCREMENT, report_date TEXT NOT NULL, total_pages INTEGER DEFAULT 0, total_issues INTEGER DEFAULT 0, average_score INTEGER DEFAULT 0, summary TEXT, created_at TEXT DEFAULT CURRENT_TIMESTAMP);
