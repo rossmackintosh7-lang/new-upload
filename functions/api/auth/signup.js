@@ -12,6 +12,7 @@ export async function onRequestPost({ request, env }) {
   const email = String(body.email || '').trim().toLowerCase();
   const password = String(body.password || '');
   const projectName = String(body.project_name || 'Untitled website').trim();
+  const templatePreset = String(body.template_preset || '').trim();
   const token = String(body.turnstileToken || '');
   const termsAccepted = body.terms_accepted === true;
   const termsVersion = String(body.terms_version || '2026-04-28').trim();
@@ -48,6 +49,12 @@ export async function onRequestPost({ request, env }) {
     `)
     .bind(projectId, userId, projectName || 'Untitled website')
     .run();
+
+  if (templatePreset) {
+    await env.DB.prepare(`UPDATE projects SET data_json = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`)
+      .bind(JSON.stringify({ template_preset: templatePreset, project_name: projectName || 'Untitled website' }), projectId)
+      .run();
+  }
 
   try {
     await env.DB.prepare(`

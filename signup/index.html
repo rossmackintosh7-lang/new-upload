@@ -21,6 +21,7 @@
       <h2 class="section-title">Create your account</h2>
       <p class="muted">Create your PBI dashboard, then build, save and publish your business website when you are ready.</p>
       <div id="message" class="notice" style="display:none;margin:16px 0"></div>
+      <div id="templateNotice" class="notice" style="display:none;margin:16px 0"></div>
 
       <form id="signupForm">
         <div class="field"><label>Email address</label><input class="input" type="email" name="email" required></div>
@@ -45,5 +46,7 @@
 
   <script src="/assets/auth.js"></script>
   <script>PBIAuth.attachSignup('signupForm', 'message');</script>
+  <script src="/assets/template-presets.js"></script>
+  <script src="/assets/template-signup.js"></script>
 </body>
 </html>
