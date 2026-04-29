@@ -1,11 +1,8 @@
-name = "pbi"
+name = "new-upload"
 compatibility_date = "2026-04-29"
 pages_build_output_dir = "dist"
 
 [[d1_databases]]
 binding = "DB"
-database_name = "f4c649dc-8047-43c3-940a-fa3854d18c21"
+database_name = "pbi-db"
 database_id = "f4c649dc-8047-43c3-940a-fa3854d18c21"
-
-[triggers]
-crons = ["0 7 * * MON"]
