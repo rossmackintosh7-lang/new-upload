@@ -1,0 +1,56 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>PBI Admin Panel</title>
+  <link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+  <nav class="nav">
+    <div class="container nav-inner">
+      <a class="brand brand-logo-only" href="/"><img src="/assets/PBI%20Logo.png" alt="PBI logo" class="header-logo"></a>
+      <div class="row">
+        <a class="btn-ghost" href="/dashboard/">Dashboard</a>
+        <button class="btn-ghost" id="adminRefreshBtn" type="button">Refresh</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container section admin-shell">
+    <div class="admin-hero">
+      <p class="eyebrow">PBI operations</p>
+      <h1 class="section-title">Admin panel</h1>
+      <p class="muted">View customers, projects, custom build enquiries, assisted setup requests, domains, billing status and builder content from one place.</p>
+      <div id="adminMessage" class="notice" style="display:none;margin-top:16px"></div>
+    </div>
+
+    <section class="admin-stats-grid" id="adminStats">
+      <div class="card">Loading admin data...</div>
+    </section>
+
+    <section class="admin-layout">
+      <aside class="card admin-sidebar">
+        <div class="admin-search-wrap">
+          <label class="label" for="adminSearch">Search</label>
+          <input class="input" id="adminSearch" placeholder="Customer, project, domain, email...">
+        </div>
+        <div class="admin-tabs">
+          <button class="active" data-admin-tab="projects" type="button">Projects</button>
+          <button data-admin-tab="enquiries" type="button">Custom enquiries</button>
+          <button data-admin-tab="support" type="button">Support</button>
+          <button data-admin-tab="users" type="button">Users</button>
+        </div>
+        <div id="adminList" class="admin-list"></div>
+      </aside>
+
+      <section class="card admin-detail" id="adminDetail">
+        <h2>Select an item</h2>
+        <p class="muted">Choose a customer project, enquiry or support request from the left. You can open the builder in admin mode and edit the same content the customer sees.</p>
+      </section>
+    </section>
+  </main>
+
+  <script src="/assets/admin.js"></script>
+</body>
+</html>

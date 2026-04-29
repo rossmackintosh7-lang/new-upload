@@ -22,6 +22,41 @@ export async function onRequestPost({ request, env }) {
   const subject = `PBI assisted setup request: ${project.name || 'Untitled website'}`;
   const snapshot = JSON.stringify({ project_id: project.id, project_name: project.name, data }, null, 2);
 
+
+  if (env.DB) {
+    try {
+      await env.DB.prepare(`
+        CREATE TABLE IF NOT EXISTS support_requests (
+          id TEXT PRIMARY KEY,
+          project_id TEXT,
+          user_id TEXT,
+          email TEXT,
+          type TEXT DEFAULT 'assisted_setup',
+          message TEXT,
+          status TEXT DEFAULT 'new',
+          body_json TEXT,
+          created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+          updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+      `).run();
+
+      await env.DB.prepare(`
+        INSERT INTO support_requests
+        (id, project_id, user_id, email, type, message, status, body_json, created_at, updated_at)
+        VALUES (?, ?, ?, ?, 'assisted_setup', ?, 'new', ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+      `).bind(
+        crypto.randomUUID(),
+        project.id,
+        user.id,
+        user.email,
+        message,
+        JSON.stringify({ project_id: project.id, project_name: project.name, message })
+      ).run();
+    } catch (storeError) {
+      console.error('Could not store assisted setup request for admin panel:', storeError);
+    }
+  }
+
   const result = await sendEmail(env, {
     to: notifyTo,
     replyTo: user.email,

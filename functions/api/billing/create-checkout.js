@@ -182,65 +182,6 @@ export async function onRequestPost({ request, env }) {
   const successPath = plan === 'assisted_setup' || plan === 'custom_build_deposit' ? '/dashboard/?success=1' : `/payment/?project=${encodeURIComponent(projectId)}&success=1`;
   const cancelPath = plan === 'assisted_setup' || plan === 'custom_build_deposit' ? '/dashboard/?cancelled=1' : `/payment/?project=${encodeURIComponent(projectId)}&cancelled=1`;
 
-
-  const paymentBypassed = env.PBI_BYPASS_PAYMENT === 'true' || env.PBI_CRASH_TEST_MODE === 'true';
-
-  if (paymentBypassed) {
-    const fakeSessionId = `pbi_test_${crypto.randomUUID()}`;
-    const fakeSubscriptionId = `sub_pbi_test_${projectId.slice(0, 12)}`;
-    const nextUrl = `${origin}/payment/?project=${encodeURIComponent(projectId)}&success=1&test_bypass=1`;
-
-    let updatedProjectData = projectData || {};
-
-    if (domainRegistration?.name) {
-      const fakeDomainLineItem = {
-        amount: Number(env.DOMAIN_REGISTRATION_DEFAULT_AMOUNT_MINOR || 2000),
-        currency: String(env.DOMAIN_REGISTRATION_CURRENCY || 'GBP').toLowerCase(),
-        domain_name: domainRegistration.name,
-        test_bypass: true
-      };
-
-      updatedProjectData = {
-        ...updatedProjectData,
-        domain_registration: domainRegistration,
-        domain_registration_payment: fakeDomainLineItem,
-        domain_registration_status: 'test_bypass_paid_pending_manual_registration',
-        domain_registration_message: 'Crash test bypass: no real payment or domain registration was processed.',
-        domain_management: {
-          active: true,
-          status: 'active',
-          annual_fee_minor: 1000,
-          currency: 'gbp',
-          stripe_subscription_id: fakeSubscriptionId,
-          test_bypass: true,
-          started_at: new Date().toISOString()
-        }
-      };
-    } else {
-      updatedProjectData = {
-        ...updatedProjectData,
-        domain_management: {
-          ...(updatedProjectData.domain_management || {}),
-          test_bypass: true
-        }
-      };
-    }
-
-    await env.DB
-      .prepare(`UPDATE projects SET plan = ?, domain_option = ?, custom_domain = ?, data_json = ?, billing_status = 'active', stripe_session_id = ?, stripe_customer_id = ?, stripe_subscription_id = ?, updated_at = datetime('now') WHERE id = ? AND user_id = ?`)
-      .bind(plan, domainOption, domainRegistration?.name || String(projectData.custom_domain || '').trim(), safeJson(updatedProjectData), fakeSessionId, `cus_pbi_test_${user.id.slice(0, 10)}`, fakeSubscriptionId, projectId, user.id)
-      .run();
-
-    return json({
-      ok: true,
-      test_bypass: true,
-      url: nextUrl,
-      session_id: fakeSessionId,
-      subscription_id: fakeSubscriptionId,
-      message: 'Crash test mode: payment bypassed and project marked active.'
-    });
-  }
-
   const form = {
     mode: checkoutMode,
     success_url: `${origin}${successPath}`,

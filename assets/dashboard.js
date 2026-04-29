@@ -95,19 +95,19 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="dashboard-upgrade-card">
               <p class="eyebrow">Assisted setup</p>
               <h4>${assistedPaid ? 'Assisted setup active' : 'Need a hand setting it up?'}</h4>
-              <p class="muted">${assistedPaid ? 'Send a setup request to PBI. Your current project details will be included so we can see what you are working on.' : 'Add assisted setup for £99. PBI can help with wording, page structure, layout and images.'}</p>
+              <p class="muted">${assistedPaid ? 'Send a setup request to PBI. Your current project details will be included so we can see what you are working on.' : 'Add assisted setup for <span data-gbp="99" data-price-suffix=" one-off">£99 one-off</span>. PBI can help with wording, page structure, layout and images.'}</p>
               ${assistedPaid ? `
                 <form class="assisted-request-form" data-assisted-form="${esc(project.id)}">
                   <textarea class="textarea" name="message" required placeholder="Tell PBI what you need help with on this project."></textarea>
                   <button class="btn" type="submit">Send assisted setup request</button>
                 </form>
-              ` : `<button class="btn dashboardCheckoutBtn" type="button" data-plan="assisted_setup" data-project-id="${esc(project.id)}">Add assisted setup £99</button>`}
+              ` : `<button class="btn dashboardCheckoutBtn" type="button" data-plan="assisted_setup" data-project-id="${esc(project.id)}">Add assisted setup</button>`}
             </div>
             <div class="dashboard-upgrade-card">
               <p class="eyebrow">Custom build deposit</p>
               <h4>${customDepositPaid ? 'Deposit paid' : 'Secure a custom build slot'}</h4>
-              <p class="muted">${customDepositPaid ? 'Your custom build deposit has been marked as paid.' : 'Pay the £500 custom build deposit from your dashboard when you are ready to secure a build slot.'}</p>
-              ${customDepositPaid ? '<span class="status-pill">Paid</span>' : `<button class="btn-ghost dashboardCheckoutBtn" type="button" data-plan="custom_build_deposit" data-project-id="${esc(project.id)}">Pay £500 deposit</button>`}
+              <p class="muted">${customDepositPaid ? 'Your custom build deposit has been marked as paid.' : 'Pay the <span data-gbp="500">£500</span> custom build deposit from your dashboard when you are ready to secure a build slot.'}</p>
+              ${customDepositPaid ? '<span class="status-pill">Paid</span>' : `<button class="btn-ghost dashboardCheckoutBtn" type="button" data-plan="custom_build_deposit" data-project-id="${esc(project.id)}">Pay deposit</button>`}
             </div>
             <div class="dashboard-upgrade-card">
               <p class="eyebrow">Domain billing</p>
@@ -128,6 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }).join('');
 
     bindProjectActions();
+    window.PBICurrency?.apply(projectList);
   }
 
   function bindProjectActions() {

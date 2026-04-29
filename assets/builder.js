@@ -1,5 +1,7 @@
 (() => {
-  const projectId = new URLSearchParams(window.location.search).get('project');
+  const params = new URLSearchParams(window.location.search);
+  const projectId = params.get('project');
+  const adminMode = params.get('admin') === '1' || params.get('admin') === 'true';
 
   const pageDefaults = {
     home: {
@@ -894,10 +896,11 @@
     setSaveMessage('Saving project...', 'saving');
 
     try {
-      await api('/api/projects/update', {
+      await api(adminMode ? '/api/admin/project' : '/api/projects/update', {
         method: 'POST',
         body: JSON.stringify({
           id: projectId,
+          admin_edit: adminMode,
           name,
           data
         })
@@ -996,7 +999,7 @@
     }
 
     try {
-      const result = await api(`/api/projects/get?id=${encodeURIComponent(projectId)}`);
+      const result = await api(`${adminMode ? '/api/admin/project' : '/api/projects/get'}?id=${encodeURIComponent(projectId)}`);
       const project = result.project || result;
 
       let data = {};
@@ -1174,7 +1177,7 @@
 
     if (els.backBtn) {
       els.backBtn.addEventListener('click', () => {
-        window.location.href = '/dashboard/';
+        window.location.href = adminMode ? `/admin/?project=${encodeURIComponent(projectId || '')}` : '/dashboard/';
       });
     }
 
@@ -1277,6 +1280,11 @@
         els.desktopBtn.classList.remove('active');
       });
     }
+  }
+
+  if (adminMode) {
+    setSaveMessage('Admin mode: you are editing this customer project from the PBI admin panel.', 'info');
+    document.body.classList.add('admin-builder-mode');
   }
 
   bindEvents();
