@@ -5255,3 +5255,155 @@ body:has(.builder-app) .container {
     align-items: flex-start;
   }
 }
+
+/* ==========================================================
+   PBI MOBILE NAV FINAL PATCH
+   Keeps the original PBI theme, but fixes mobile header layout:
+   logo left, action buttons right, across all public/admin pages.
+   ========================================================== */
+
+@media (max-width: 760px) {
+  .nav {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 999 !important;
+  }
+
+  .nav-inner {
+    height: 72px !important;
+    min-height: 72px !important;
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 10px !important;
+  }
+
+  .brand,
+  .brand-logo-only {
+    flex: 0 0 auto !important;
+    max-width: 42% !important;
+    min-width: 0 !important;
+    justify-content: flex-start !important;
+  }
+
+  .header-logo {
+    width: clamp(145px, 38vw, 220px) !important;
+    max-width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+  }
+
+  .nav-inner > .row,
+  .pbi-main-nav {
+    flex: 1 1 auto !important;
+    max-width: 58% !important;
+    width: auto !important;
+    margin-left: auto !important;
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 7px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+  }
+
+  .nav-inner > .row::-webkit-scrollbar,
+  .pbi-main-nav::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .nav .btn,
+  .nav .btn-ghost,
+  .nav .btn-secondary,
+  .nav button.btn,
+  .nav button.btn-ghost,
+  .nav button.btn-secondary {
+    width: auto !important;
+    flex: 0 0 auto !important;
+    padding: 9px 11px !important;
+    min-height: 38px !important;
+    border-radius: 999px !important;
+    font-size: 12.5px !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+    text-align: center !important;
+  }
+
+  .pbi-main-nav a[href="/how-it-works/"],
+  .pbi-main-nav a[href="/examples/"],
+  .pbi-main-nav a[href="/pricing/"],
+  .pbi-main-nav a[href="/help/"] {
+    display: none !important;
+  }
+
+  .pbi-main-nav a[href="/dashboard/"],
+  .pbi-main-nav a[href="/admin/"],
+  .pbi-main-nav a[href="/builder/"],
+  .pbi-main-nav a[href="/seo-agent/"] {
+    display: inline-flex !important;
+  }
+
+  .hero { padding-top: 36px !important; }
+  .hero-grid { gap: 24px !important; }
+  .section-title,
+  h1 {
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+  }
+}
+
+@media (max-width: 520px) {
+  .nav-inner {
+    height: 66px !important;
+    min-height: 66px !important;
+    gap: 8px !important;
+  }
+
+  .brand,
+  .brand-logo-only { max-width: 40% !important; }
+  .header-logo { width: clamp(128px, 36vw, 166px) !important; }
+
+  .nav-inner > .row,
+  .pbi-main-nav {
+    max-width: 60% !important;
+    gap: 6px !important;
+  }
+
+  .nav .btn,
+  .nav .btn-ghost,
+  .nav .btn-secondary,
+  .nav button.btn,
+  .nav button.btn-ghost,
+  .nav button.btn-secondary {
+    padding: 8px 10px !important;
+    min-height: 36px !important;
+    font-size: 12px !important;
+  }
+
+  .nav-inner > .row button,
+  .nav-inner > .row a { max-width: none !important; }
+  .section,
+  .hero { padding-top: 34px !important; }
+}
+
+@media (max-width: 390px) {
+  .header-logo { width: 122px !important; }
+
+  .nav .btn,
+  .nav .btn-ghost,
+  .nav .btn-secondary,
+  .nav button.btn,
+  .nav button.btn-ghost,
+  .nav button.btn-secondary {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+    font-size: 11.5px !important;
+  }
+}
