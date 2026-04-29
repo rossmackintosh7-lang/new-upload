@@ -4811,3 +4811,220 @@ body:has(.builder-app) .container {
     grid-template-columns: 1fr;
   }
 }
+
+/* =========================
+   MARKETING WEBSITE EXPANSION
+   ========================= */
+.pbi-main-nav {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.footer-mega {
+  display: grid;
+  grid-template-columns: 1.4fr repeat(3, minmax(0, 1fr));
+  gap: 26px;
+  padding: 44px 0;
+}
+
+.footer-mega a {
+  display: block;
+  color: var(--pbi-muted);
+  text-decoration: none;
+  margin: 8px 0;
+  font-weight: 750;
+}
+
+.footer-mega h4 {
+  margin: 0 0 10px;
+}
+
+.page-hero {
+  padding: 72px 0 28px;
+}
+
+.marketing-hero {
+  padding-bottom: 60px;
+}
+
+.process-timeline,
+.pricing-comparison-grid,
+.status-grid,
+.onboarding-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.process-timeline article span,
+.onboarding-grid article span {
+  display: inline-grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  background: var(--pbi-orange);
+  color: white;
+  font-weight: 950;
+  margin-bottom: 12px;
+}
+
+.demo-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.demo-screen {
+  min-height: 170px;
+  border-radius: 22px;
+  display: grid;
+  place-items: center;
+  color: white;
+  font-weight: 950;
+  text-align: center;
+  padding: 18px;
+  margin-bottom: 16px;
+  background: linear-gradient(135deg, #b85f32, #173b52);
+}
+
+.demo-cafe { background: linear-gradient(135deg, #b85f32, #f2c27a); }
+.demo-trades { background: linear-gradient(135deg, #1f4e5f, #5fa7b4); }
+.demo-salon { background: linear-gradient(135deg, #a1745e, #ead4c6); }
+.demo-consultant { background: linear-gradient(135deg, #223d70, #9bb7e4); }
+.demo-shop { background: linear-gradient(135deg, #111, #efb321); }
+.demo-holiday-let { background: linear-gradient(135deg, #2f7f8a, #d8eeea); }
+.demo-fitness { background: linear-gradient(135deg, #432c8f, #ff8d4d); }
+.demo-professional { background: linear-gradient(135deg, #182536, #8fa4c2); }
+
+.demo-live-hero {
+  background: radial-gradient(circle at top right, color-mix(in srgb, var(--demo-accent) 30%, transparent), transparent 34%), var(--pbi-cream);
+  padding: 86px 0;
+}
+
+.demo-live-grid {
+  display: grid;
+  grid-template-columns: 1.1fr .9fr;
+  gap: 28px;
+  align-items: center;
+}
+
+.demo-live-grid h1 {
+  font-size: clamp(44px, 7vw, 84px);
+  line-height: .95;
+  margin: 0 0 18px;
+}
+
+.demo-live-card {
+  background: white;
+  border-radius: 34px;
+  padding: 34px;
+  box-shadow: var(--pbi-shadow);
+  border: 1px solid var(--pbi-border);
+}
+
+.price-line {
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 950;
+  color: var(--pbi-orange-dark);
+}
+
+.pricing-card.featured {
+  border: 2px solid rgba(184, 95, 50, .45);
+}
+
+.readable-card {
+  max-width: 920px;
+  margin: 0 auto;
+}
+
+.status-card span {
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  background: #1d8f4f;
+  display: inline-block;
+  box-shadow: 0 0 0 8px rgba(29, 143, 79, .12);
+}
+
+.comparison-table {
+  overflow-x: auto;
+}
+
+.comparison-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.comparison-table th,
+.comparison-table td {
+  padding: 16px;
+  border-bottom: 1px solid var(--pbi-border);
+  text-align: left;
+}
+
+.lead-card {
+  display: grid;
+  gap: 14px;
+}
+
+.dashboard-next-step {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 10px;
+  border: 1px solid var(--pbi-border);
+  border-radius: 18px;
+  padding: 14px;
+  background: rgba(255, 248, 241, .7);
+  margin: 6px 0 12px;
+}
+
+.dashboard-next-step strong,
+.dashboard-next-step span {
+  display: block;
+}
+
+.dashboard-next-step span {
+  color: var(--pbi-muted);
+  font-weight: 750;
+}
+
+.readiness-bar {
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(138, 67, 29, .12);
+  overflow: hidden;
+}
+
+.readiness-bar i {
+  display: block;
+  height: 100%;
+  background: var(--pbi-orange);
+  border-radius: inherit;
+}
+
+@media (max-width: 1040px) {
+  .footer-mega,
+  .process-timeline,
+  .pricing-comparison-grid,
+  .status-grid,
+  .onboarding-grid,
+  .demo-grid,
+  .demo-live-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .footer-mega,
+  .process-timeline,
+  .pricing-comparison-grid,
+  .status-grid,
+  .onboarding-grid,
+  .demo-grid,
+  .demo-live-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pbi-main-nav a:not(.btn):not(:last-child) {
+    display: none;
+  }
+}

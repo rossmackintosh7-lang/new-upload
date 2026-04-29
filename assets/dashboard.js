@@ -51,6 +51,32 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  function readinessInfo(project, data) {
+    const checks = [
+      ['Business name', Boolean(data.business_name)],
+      ['Homepage heading', Boolean(data.page_main_heading || data.pages?.home?.title)],
+      ['Contact page', Array.isArray(data.selected_pages) ? data.selected_pages.includes('contact') : true],
+      ['Logo uploaded', Boolean(data.logo_data_url || data.logoDataUrl)],
+      ['Images uploaded', Array.isArray(data.gallery_images || data.galleryImages) && (data.gallery_images || data.galleryImages).length > 0],
+      ['Domain selected', Boolean(data.domain_registration?.name || data.custom_domain || project.custom_domain || data.subdomain_slug)],
+      ['Published', Number(project.published || 0) === 1]
+    ];
+
+    const done = checks.filter((item) => item[1]).length;
+    const score = Math.round((done / checks.length) * 100);
+    const missing = checks.filter((item) => !item[1]).map((item) => item[0]);
+    let next = 'Open the builder and continue editing your website.';
+
+    if (!data.business_name) next = 'Add your business name.';
+    else if (!data.page_main_heading && !data.pages?.home?.title) next = 'Write your homepage heading.';
+    else if (!data.logo_data_url && !data.logoDataUrl) next = 'Upload your logo.';
+    else if (!data.domain_registration?.name && !data.custom_domain && !project.custom_domain && !data.subdomain_slug) next = 'Choose your domain option.';
+    else if (Number(project.published || 0) !== 1) next = 'Preview your site and publish when ready.';
+    else next = 'Your site is live. Next step: improve SEO or share your link.';
+
+    return { score, missing, next };
+  }
+
   function dateLabel(value) {
     if (!value) return '';
     const date = new Date(value);
@@ -77,6 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const domainFeeLabel = moneyMinor(domainManagement.annual_fee_minor || 1000, domainManagement.currency || 'gbp');
       const nextDomainFeeDate = dateLabel(domainManagement.current_period_end || domainManagement.next_fee_estimate_at);
       const lastDomainFeePaid = dateLabel(domainManagement.last_paid_at);
+      const ready = readinessInfo(project, data);
 
       return `
         <div class="project-row dashboard-project" data-project-id="${esc(project.id)}">
@@ -85,6 +112,10 @@ document.addEventListener('DOMContentLoaded', () => {
             <p class="muted">${esc(statusLabel(project))} • ${esc(planLabel(project.plan))}${project.updated_at ? ` • Updated ${esc(project.updated_at)}` : ''}</p>
             ${Number(project.published || 0) === 1 && live ? `<p class="muted">Live: ${esc(live)}</p>` : ''}
           </a>
+          <div class="dashboard-next-step">
+            <div><strong>Website readiness: ${ready.score}%</strong><span>${esc(ready.next)}</span></div>
+            <div class="readiness-bar"><i style="width:${ready.score}%"></i></div>
+          </div>
           <div class="project-actions">
             ${Number(project.published || 0) === 1 && live ? `<a class="btn-ghost" href="${esc(live)}" target="_blank" rel="noopener">View live</a>` : ''}
             <a class="btn-ghost" href="/builder/?project=${encodeURIComponent(project.id)}">Edit</a>
