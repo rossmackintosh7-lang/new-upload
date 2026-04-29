@@ -1,1 +1,77 @@
-<!doctype html><html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PBI SEO Agent</title><meta name="description" content="PBI SEO Agent dashboard for scanning pages, tracking issues and drafting approval-based SEO suggestions."><link rel="stylesheet" href="/assets/css/pbi-admin.css"></head><body><header class="pbi-admin-top"><div class="pbi-admin-wrap" style="padding:0"><a href="/"><strong>Purbeck Business Innovations</strong></a><div class="muted" style="color:#eadbd3">AI Website Agent + SEO Agent</div></div></header><main class="pbi-admin-wrap"><nav class="pbi-admin-nav"><a href="/admin/">Dashboard</a><a href="/demo/agent-dashboard.html">AI Builder</a><a href="/examples/">Templates</a><a href="/seo-agent/">SEO Agent</a><a href="/docs/PBI-LIVE-SETUP.html">Settings</a></nav><section class="pbi-card"><h1>SEO Agent</h1><p>Monitor PBI pages, find weak SEO areas and create AI suggestions for approval. Nothing is auto-published.</p><input id="adminToken" placeholder="Optional PBI_ADMIN_TOKEN"><button class="pbi-btn" id="saveTokenBtn">Save token</button><button class="pbi-btn primary" id="runScanBtn">Run scan</button><div id="seoStatus" class="status"></div></section><section class="pbi-grid" style="margin-top:16px"><div class="pbi-card"><h3>SEO score</h3><div class="pbi-stat" id="score">0</div></div><div class="pbi-card"><h3>Pages scanned</h3><div class="pbi-stat" id="pagesScanned">0</div></div><div class="pbi-card"><h3>Open issues</h3><div class="pbi-stat" id="openIssues">0</div></div><div class="pbi-card"><h3>High issues</h3><div class="pbi-stat" id="highIssues">0</div></div></section><section class="pbi-layout"><div class="pbi-card"><h2>Page SEO health</h2><table class="pbi-table"><thead><tr><th>Page</th><th>Score</th><th>Words</th><th>Checked</th><th></th></tr></thead><tbody id="pagesTable"></tbody></table></div><div class="pbi-card"><h2>Open issues</h2><div id="issuesList"></div></div></section><section class="pbi-layout"><div class="pbi-card"><h2>AI suggestions</h2><div id="suggestionsList"></div></div><div class="pbi-card"><h2>Keyword tracker</h2><p class="muted">Starter PBI keyword clusters are loaded automatically.</p><input id="keyword" placeholder="Keyword" style="width:100%;box-sizing:border-box;margin:5px 0"><input id="targetUrl" placeholder="Target URL" style="width:100%;box-sizing:border-box;margin:5px 0"><input id="intent" placeholder="Intent" style="width:100%;box-sizing:border-box;margin:5px 0"><select id="priority" style="width:100%;box-sizing:border-box;margin:5px 0"><option>medium</option><option>high</option><option>low</option></select><button class="pbi-btn" id="addKeywordBtn">Add keyword</button><table class="pbi-table" style="margin-top:14px"><thead><tr><th>Keyword</th><th>Target</th><th>Intent</th><th>Priority</th></tr></thead><tbody id="keywordsList"></tbody></table></div></section></main><script src="/assets/js/pbi-seo-agent.js" defer></script></body></html>
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>PBI SEO Agent</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/assets/css/style.css">
+  <link rel="stylesheet" href="/assets/css/main.css">
+  <link rel="stylesheet" href="/assets/css/pbi-admin-theme-safe.css">
+</head>
+<body class="pbi-admin-safe">
+  <div class="pbi-admin-bg"></div>
+  <div class="pbi-admin-shell">
+    <aside class="pbi-admin-sidebar">
+      <a class="pbi-admin-brand" href="/admin/" aria-label="PBI Admin Dashboard">
+        <div class="pbi-admin-logo-wrap" data-pbi-logo-wrap><img alt="PBI logo" data-pbi-logo><span>PBI</span></div>
+        <div><strong>SEO Agent</strong><small>Fix issues, approve changes</small></div>
+      </a>
+      <div class="pbi-admin-nav-label">Control panel</div>
+      <nav class="pbi-admin-nav">
+        <a href="/admin/"><span>🏠</span><span>Dashboard</span></a>
+        <a href="/admin/#projects"><span>📁</span><span>Projects</span></a>
+        <a href="/demo/agent-dashboard.html"><span>✨</span><span>AI Builder</span></a>
+        <a href="/examples/"><span>🧩</span><span>Templates</span></a>
+        <a href="/custom-build/"><span>🛠️</span><span>Custom Build</span></a>
+        <a class="active" href="/seo-agent/"><span>📈</span><span>SEO Agent</span></a>
+        <a href="/docs/PBI-LIVE-SETUP.html"><span>⚙️</span><span>Settings</span></a>
+      </nav>
+      <div class="pbi-sidebar-footer">
+        <span class="pbi-status-pill"><span class="pbi-status-dot"></span> Approval based</span>
+        <a class="pbi-mini-link" href="/admin/">← Dashboard</a>
+        <a class="pbi-mini-link" href="/">Public website</a>
+      </div>
+    </aside>
+    <main class="pbi-admin-main">
+      <header class="pbi-admin-topbar">
+        <div style="display:flex;align-items:center;gap:10px"><button class="pbi-mobile-menu" data-pbi-menu type="button">☰ Menu</button><div class="pbi-top-title">PBI SEO Agent</div></div>
+        <div class="pbi-top-actions"><a class="pbi-dashboard-btn" href="/admin/">🏠 Dashboard</a><button class="pbi-action-btn primary" id="runScanBtn" type="button">Run scan</button><a class="pbi-action-btn hide-mobile" href="/">Public site</a></div>
+      </header>
+      <div class="pbi-admin-content">
+        <section class="pbi-hero">
+          <div class="pbi-hero-card">
+            <div class="pbi-eyebrow">SEO control room</div>
+            <h1>Open issues, Fix buttons, approval-only improvements.</h1>
+            <p>The SEO Agent checks your live PBI pages, lists issues, and lets you press <strong>Fix</strong> to generate a targeted suggestion. Nothing is auto-published.</p>
+            <div class="pbi-actions"><button class="pbi-btn primary" id="runScanBtnHero" type="button" onclick="document.getElementById('runScanBtn')?.click()">Run SEO scan</button><a class="pbi-action-btn" href="#issuesList">Open Issues</a><a class="pbi-dashboard-btn" href="/admin/">Dashboard</a></div>
+            <div class="status" id="seoStatus">Loading SEO Agent...</div>
+          </div>
+          <aside class="pbi-command-card">
+            <div><div class="pbi-eyebrow">Admin token</div><h2 style="margin:8px 0">Secure manual actions.</h2><p>Paste your admin token once. It is stored only in this browser.</p></div>
+            <div class="pbi-actions"><input id="adminToken" type="password" placeholder="PBI_ADMIN_TOKEN"><button class="pbi-action-btn primary" id="saveTokenBtn" type="button">Save token</button></div>
+          </aside>
+        </section>
+        <section class="pbi-grid">
+          <div class="pbi-card"><div class="pbi-stat" id="score">0</div><p>SEO score</p></div>
+          <div class="pbi-card"><div class="pbi-stat" id="pagesScanned">0</div><p>Pages scanned</p></div>
+          <div class="pbi-card"><div class="pbi-stat" id="openIssues">0</div><p>Open issues</p></div>
+          <div class="pbi-card"><div class="pbi-stat" id="highIssues">0</div><p>High priority</p></div>
+        </section>
+        <div class="pbi-layout">
+          <section class="pbi-card"><div class="pbi-section-title" style="margin-top:0"><h2>Page SEO health</h2></div><table class="pbi-table"><thead><tr><th>Page</th><th>Score</th><th>Words</th><th>Checked</th><th>Action</th></tr></thead><tbody id="pagesTable"><tr><td colspan="5">Loading...</td></tr></tbody></table></section>
+          <section class="pbi-card"><div class="pbi-section-title" style="margin-top:0"><h2>Open Issues</h2><span class="muted">Each issue has a Fix button</span></div><div id="issuesList"><p>Loading issues...</p></div></section>
+        </div>
+        <div class="pbi-layout">
+          <section class="pbi-card"><div class="pbi-section-title" style="margin-top:0"><h2>AI suggestions</h2></div><div id="suggestionsList"><p>No suggestions loaded yet.</p></div></section>
+          <section class="pbi-card"><div class="pbi-section-title" style="margin-top:0"><h2>Keyword tracker</h2></div><div class="pbi-actions" style="margin-bottom:12px"><input id="keyword" placeholder="Keyword"><input id="targetUrl" placeholder="Target URL"><input id="intent" placeholder="Intent"><select id="priority"><option>medium</option><option>high</option><option>low</option></select><button class="pbi-btn primary" id="addKeywordBtn" type="button">Add</button></div><table class="pbi-table"><thead><tr><th>Keyword</th><th>Target</th><th>Intent</th><th>Priority</th></tr></thead><tbody id="keywordsList"><tr><td colspan="4">Loading...</td></tr></tbody></table></section>
+        </div>
+      </div>
+    </main>
+  </div>
+  <a class="pbi-fab" href="/admin/">🏠 Dashboard</a>
+  <script src="/assets/js/pbi-admin-theme-safe.js"></script>
+  <script src="/assets/js/pbi-seo-agent.js"></script>
+</body>
+</html>

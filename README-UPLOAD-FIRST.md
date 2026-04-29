@@ -1,46 +1,48 @@
-# PBI Final Integrated Build
+# PBI Theme-Safe Admin + SEO Patch
 
-Upload this folder to the `new-upload` GitHub repo and deploy with Cloudflare Pages.
+This patch fixes the issue where a previous upload changed the whole public website.
 
-Included:
-- AI Website Agent live version
-- SEO Agent dashboard at `/seo-agent/`
-- Admin navigation at `/admin/`
-- Static real-life examples page at `/examples/`
-- SEO APIs under `/api/seo/*`
-- Scheduled/manual scanner at `/scheduled`
-- Combined D1 schema at `/database/pbi-combined-schema.sql`
+## What this patch DOES update
 
-Cloudflare Pages settings:
-- Build command: blank
-- Build output directory: `public`
-- Root directory: `/`
+- `/admin/`
+- `/seo-agent/`
+- `/assets/css/pbi-admin-theme-safe.css`
+- `/assets/js/pbi-admin-theme-safe.js`
+- SEO Agent JS
+- AI/SEO/API Cloudflare Functions
+- combined D1 schema file
 
-Run schema:
-```bash
-npx wrangler d1 execute pbi-db --file=./database/pbi-combined-schema.sql --remote
-```
+## What this patch deliberately DOES NOT include
 
-Required vars/secrets:
-```txt
-OPENAI_API_KEY
-OPENAI_MODEL = gpt-4.1-mini
-PBI_BASE_URL = https://www.purbeckbusinessinnovations.co.uk
-PBI_ADMIN_EMAILS = info@purbeckbusinessinnovations.co.uk,rossmackintosh7@icloud.com
-PBI_ADMIN_TOKEN = create-a-long-random-secret
-PBI_SEO_PAGES = /,/builder/,/custom-build/,/pricing/,/contact/,/about/,/websites-for-cafes/,/websites-for-consultants/,/websites-for-holiday-lets/,/websites-for-salons/,/websites-for-shops/,/websites-for-tradespeople/
-RESEND_API_KEY
-CUSTOM_BUILD_NOTIFY_TO = info@purbeckbusinessinnovations.co.uk
-CUSTOM_BUILD_NOTIFY_FROM = PBI <enquiry@purbeckbusinessinnovations.co.uk>
-```
+- No `/index.html`
+- No homepage replacement
+- No logo replacement
+- No background image replacement
+- No `/examples/` replacement
+- No public marketing pages replacement
+- No `wrangler.toml` replacement
+- No sitemap/robots replacement
+
+## Upload method
+
+Upload/merge the contents of this folder into your existing GitHub repo.
+Do not delete your current site files first.
+
+This is a PATCH, not a full replacement build.
+
+## After upload
 
 Test:
-- `/`
-- `/admin/`
-- `/examples/`
-- `/demo/agent-dashboard.html`
-- `/seo-agent/`
-- `/api/seo/dashboard`
-- `/scheduled?token=YOUR_TOKEN`
 
-The SEO Agent is approval-based. It stores suggestions and lets you approve/save/reject them, but it does not auto-publish page rewrites.
+```txt
+/
+/admin/
+/seo-agent/
+/api/seo/dashboard
+```
+
+Your homepage/logo/background should remain exactly as they were before.
+
+## Important
+
+If your live repo currently contains the replacement `public/index.html` from the previous full build, restore your original homepage from GitHub history first, then apply this patch.

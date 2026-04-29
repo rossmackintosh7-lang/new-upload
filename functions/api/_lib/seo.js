@@ -1,6 +1,6 @@
 import { nowIso } from "./http.js";
 
-export const DEFAULT_SEO_PAGES = ["/", "/builder/", "/custom-build/", "/pricing/", "/contact/", "/about/", "/websites-for-cafes/", "/websites-for-consultants/", "/websites-for-holiday-lets/", "/websites-for-salons/", "/websites-for-shops/", "/websites-for-tradespeople/"];
+export const DEFAULT_SEO_PAGES = ["/", "/builder/", "/custom-build/", "/pricing/", "/contact/", "/about/", "/examples/", "/websites-for-cafes/", "/websites-for-consultants/", "/websites-for-holiday-lets/", "/websites-for-salons/", "/websites-for-shops/", "/websites-for-tradespeople/"];
 
 export function getBaseUrl(env, request) {
   if (env.PBI_BASE_URL) return String(env.PBI_BASE_URL).replace(/\/$/, "");
@@ -32,6 +32,10 @@ export function analyseSeo(pageUrl, html, statusCode) {
   const h1 = extractTag(html, /<h1[^>]*>([\s\S]*?)<\/h1>/i);
   const canonical = extractTag(html, /<link[^>]+rel=["']canonical["'][^>]+href=["']([^"']*)["'][^>]*>/i) || extractTag(html, /<link[^>]+href=["']([^"']*)["'][^>]+rel=["']canonical["'][^>]*>/i);
   const robots = extractTag(html, /<meta[^>]+name=["']robots["'][^>]+content=["']([^"']*)["'][^>]*>/i);
+  const hasStructuredData = /<script[^>]+type=["']application\/ld\+json["'][^>]*>/i.test(html);
+  const imageTags = html.match(/<img\b[^>]*>/gi) || [];
+  const imagesMissingAlt = imageTags.filter(tag => !/\salt=["'][^"']{4,}["']/i.test(tag)).length;
+  const internalLinks = (html.match(/<a\b[^>]+href=["']\//gi) || []).length;
   const words = stripTags(html);
   const word_count = words ? words.split(/\s+/).filter(Boolean).length : 0;
   const issues = [];
@@ -46,6 +50,9 @@ export function analyseSeo(pageUrl, html, statusCode) {
   else if (meta_description.length > 170) add("long_meta_description", "Meta description is long. Aim for 120 to 160 characters.", "medium", 6);
   if (!h1) add("missing_h1", "Missing visible H1 heading.", "high", 12);
   if (!canonical) add("missing_canonical", "Missing canonical link tag.", "medium", 5);
+  if (!hasStructuredData) add("missing_structured_data", "Missing JSON-LD structured data. Add Organization, Service, Breadcrumb or FAQ schema where relevant.", "medium", 5);
+  if (imagesMissingAlt > 0) add("missing_image_alt", `${imagesMissingAlt} image(s) are missing useful alt text.`, "medium", 4);
+  if (internalLinks < 3) add("low_internal_links", "Page has few internal links. Add useful links to related PBI services and examples.", "medium", 4);
   if (word_count < 250) add("thin_content", "Page has thin text content. Add helpful, specific copy for this service or location.", "medium", 8);
   if (/noindex/i.test(robots)) add("noindex", "Robots meta includes noindex. This page may not appear in Google.", "high", 22);
   return { url: pageUrl, title, meta_description, h1, canonical, robots, word_count, status_code: statusCode, seo_score: Math.max(0, Math.min(100, seo_score)), issues };
