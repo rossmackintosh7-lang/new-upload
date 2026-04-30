@@ -40,7 +40,7 @@ async function ensureSignupTables(env) {
 
 export async function onRequestPost({ request, env }) {
   try {
-    if (!env.DB) return error('Database binding missing. Check Cloudflare Pages binding name DB points to pbi-db.', 500);
+    if (!env.DB) return error('Database binding missing. Check Cloudflare Pages binding name DB points to d1-template-database.', 500);
     await ensureSignupTables(env);
 
     const body = await readJson(request);
