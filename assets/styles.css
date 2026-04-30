@@ -398,7 +398,7 @@ a {
    ========================= */
 
 .soft-section {
-  background: rgba(255, 250, 245, 0.34);
+  background: rgba(200, 250, 245, 0.34);
   border-top: 1px solid var(--pbi-border);
   border-bottom: 1px solid var(--pbi-border);
 }
