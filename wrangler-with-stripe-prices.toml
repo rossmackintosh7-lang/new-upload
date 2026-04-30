@@ -1,0 +1,23 @@
+name = "new-upload"
+compatibility_date = "2025-04-01"
+pages_build_output_dir = "."
+
+[vars]
+PBI_REQUIRE_PAYMENT_TO_PUBLISH = "false"
+OPENAI_MODEL = "gpt-4.1-mini"
+PBI_BASE_URL = "https://www.purbeckbusinessinnovations.co.uk"
+PBI_ADMIN_EMAILS = "rossmackintosh7@icloud.com,info@purbeckbusinessinnovations.co.uk"
+CUSTOM_BUILD_NOTIFY_TO = "info@purbeckbusinessinnovations.co.uk"
+CUSTOM_BUILD_NOTIFY_FROM = "PBI <enquiry@purbeckbusinessinnovations.co.uk>"
+PBI_SEO_PAGES = "/,/builder/,/custom-build/,/pricing/,/contact/,/about/,/examples/,/websites-for-cafes/,/websites-for-consultants/,/websites-for-holiday-lets/,/websites-for-salons/,/websites-for-shops/,/websites-for-tradespeople/"
+STRIPE_PRICE_STARTER = "price_1TQkSiS5Wx1jQ43vmL9MywGU"
+STRIPE_PRICE_BUSINESS = "price_1TQkTDS5Wx1jQ43vAAJ2e1eX"
+STRIPE_PRICE_PLUS = "price_1TQkThS5Wx1jQ43vm0p1XAv2"
+STRIPE_PRICE_ASSISTED_SETUP = "price_1TQkU8S5Wx1jQ43vb0stUBnG"
+STRIPE_PRICE_CUSTOM_DEPOSIT = "price_1TQn8b5SWx1jQ43vaEMcza6I"
+STRIPE_PRICE_DOMAIN_MANAGEMENT_YEARLY = "price_1TQkVRS5Wx1jQ43vnq8AP6wN"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "d1-template-database"
+database_id = "f4c649dc-8047-43c3-940a-fa3854d18c21"
