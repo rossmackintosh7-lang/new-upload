@@ -5876,3 +5876,42 @@ body:not(.pbi-app-page) .nav-inner{
     justify-content: center;
   }
 }
+/* Homepage background image restore */
+body.pbi-new-home:not(.pbi-public-examples-page) {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(255, 248, 241, 0.94) 0%,
+      rgba(255, 248, 241, 0.86) 42%,
+      rgba(255, 248, 241, 0.68) 100%
+    ),
+    url("/assets/Website%20background%20image.png");
+  background-size: cover;
+  background-position: center bottom;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+/* Keep homepage sections transparent enough to show the image */
+body.pbi-new-home:not(.pbi-public-examples-page) main,
+body.pbi-new-home:not(.pbi-public-examples-page) .section,
+body.pbi-new-home:not(.pbi-public-examples-page) .page-hero {
+  background: transparent;
+}
+
+/* Mobile background positioning */
+@media (max-width: 760px) {
+  body.pbi-new-home:not(.pbi-public-examples-page) {
+    background:
+      linear-gradient(
+        180deg,
+        rgba(255, 248, 241, 0.96) 0%,
+        rgba(255, 248, 241, 0.9) 48%,
+        rgba(255, 248, 241, 0.78) 100%
+      ),
+      url("/assets/Website%20background%20image.png");
+    background-size: cover;
+    background-position: center bottom;
+    background-attachment: scroll;
+  }
+}
