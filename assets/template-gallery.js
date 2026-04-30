@@ -1,4 +1,3 @@
-
 (() => {
   async function getCurrentUser() {
     try {
@@ -40,6 +39,24 @@
     window.location.href = `/builder/?project=${encodeURIComponent(data.project.id)}&preset=${encodeURIComponent(templateKey)}`;
   }
 
+  function bindFilters() {
+    const filterButtons = document.querySelectorAll('[data-filter]');
+    const cards = document.querySelectorAll('[data-template-category]');
+    if (!filterButtons.length || !cards.length) return;
+
+    filterButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const filter = button.getAttribute('data-filter');
+        filterButtons.forEach((btn) => btn.classList.toggle('active', btn === button));
+        cards.forEach((card) => {
+          const category = card.getAttribute('data-template-category');
+          const show = filter === 'all' || category === filter;
+          card.style.display = show ? '' : 'none';
+        });
+      });
+    });
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('[data-use-template]').forEach((button) => {
       button.addEventListener('click', async (event) => {
@@ -57,5 +74,7 @@
         }
       });
     });
+
+    bindFilters();
   });
 })();
