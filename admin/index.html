@@ -1,11 +1,11 @@
 <!doctype html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PBI Admin Panel</title><link rel="stylesheet" href="/assets/styles.css"></head>
-<body class="pbi-app-page pbi-admin-page">
+<body data-require-admin="true" class="pbi-app-page pbi-admin-page">
 <div class="pbi-app-shell">
   <aside class="pbi-side">
     <a class="pbi-side-brand" href="/"><img src="/assets/PBI%20Logo.png" alt="PBI logo"></a>
     <nav class="pbi-side-nav" aria-label="Dashboard navigation">
-      <a class="pbi-side-link" href="/dashboard/"><span>⌂</span><strong>Dashboard</strong></a><a class="pbi-side-link" href="/dashboard/"><span>□</span><strong>Projects</strong></a><a class="pbi-side-link" href="/builder/"><span>✦</span><strong>AI Builder</strong></a><a class="pbi-side-link" href="/examples/"><span>▦</span><strong>Templates</strong></a><a class="pbi-side-link" href="/seo-agent/"><span>◎</span><strong>SEO Agent</strong></a><a class="pbi-side-link" href="/custom-build/"><span>&lt;/&gt;</span><strong>Custom Builds</strong></a><a class="pbi-side-link active" href="/admin/"><span>⚙</span><strong>Settings</strong></a>
+      <a class="pbi-side-link" href="/dashboard/"><span>⌂</span><strong>Dashboard</strong></a><a class="pbi-side-link" href="/dashboard/"><span>□</span><strong>Projects</strong></a><a class="pbi-side-link" href="/builder/"><span>✦</span><strong>AI Builder</strong></a><a class="pbi-side-link" href="/examples/"><span>▦</span><strong>Templates</strong></a><a class="pbi-side-link pbi-admin-only" data-admin-only href="/seo-agent/"><span>◎</span><strong>SEO Agent</strong></a><a class="pbi-side-link" href="/custom-build/"><span class="code-icon">&lt;/&gt;</span><strong>Custom Builds</strong></a><a class="pbi-side-link active pbi-admin-only" data-admin-only href="/admin/"><span>⚙</span><strong>Settings</strong></a>
     </nav>
     <div class="pbi-side-illustration"></div>
     <a class="pbi-side-collapse" href="/">‹‹ Home</a>
@@ -16,10 +16,16 @@
         <h1>Admin panel</h1>
         <p>Customers, projects, custom build enquiries and support in one place.</p>
       </div>
-      <div class="pbi-app-actions"><a class="btn" href="/dashboard/">Dashboard</a><a class="btn-ghost" href="/seo-agent/">SEO Agent</a><button class="btn-ghost" id="adminRefreshBtn" type="button">Refresh</button></div>
+      <div class="pbi-app-actions"><a class="btn" href="/dashboard/">Dashboard</a><a class="btn-ghost pbi-admin-only" data-admin-only href="/seo-agent/">SEO Agent</a><button class="btn-ghost" id="adminRefreshBtn" type="button">Refresh</button></div>
     </header>
     <main class="pbi-app-content">
   <div id="adminMessage" class="notice" style="display:none;margin-bottom:16px"></div>
+
+  <section class="pbi-admin-tool-grid">
+    <a class="card pbi-admin-only" data-admin-only href="/seo-agent/"><h3>SEO Agent</h3><p class="muted">Run scans, review open issues, use Fix buttons and approve suggestions from inside the admin area.</p></a>
+    <a class="card" href="/custom-build/"><h3>Custom builds</h3><p class="muted">Review enquiries and route customers to the right level of support.</p></a>
+    <a class="card" href="/dashboard/"><h3>Customer dashboard</h3><p class="muted">Open the normal customer-facing project dashboard.</p></a>
+  </section>
   <section class="pbi-dash-kpis admin-stats-grid" id="adminStats"><div class="card">Loading admin data...</div></section>
   <section class="card pbi-admin-create">
     <div><h3>Create project for existing customer</h3><p class="muted">Creates a new draft project in their dashboard.</p></div>
@@ -34,4 +40,5 @@
 </div>
 <script src="/assets/admin.js"></script>
 
+<script src="/assets/pbi-access.js" defer></script>
 </body></html>

@@ -5,7 +5,7 @@
   <aside class="pbi-side">
     <a class="pbi-side-brand" href="/"><img src="/assets/PBI%20Logo.png" alt="PBI logo"></a>
     <nav class="pbi-side-nav" aria-label="Dashboard navigation">
-      <a class="pbi-side-link active" href="/dashboard/"><span>⌂</span><strong>Dashboard</strong></a><a class="pbi-side-link" href="/dashboard/"><span>□</span><strong>Projects</strong></a><a class="pbi-side-link" href="/builder/"><span>✦</span><strong>AI Builder</strong></a><a class="pbi-side-link" href="/examples/"><span>▦</span><strong>Templates</strong></a><a class="pbi-side-link" href="/seo-agent/"><span>◎</span><strong>SEO Agent</strong></a><a class="pbi-side-link" href="/custom-build/"><span>&lt;/&gt;</span><strong>Custom Builds</strong></a><a class="pbi-side-link" href="/admin/"><span>⚙</span><strong>Settings</strong></a>
+      <a class="pbi-side-link active" href="/dashboard/"><span>⌂</span><strong>Dashboard</strong></a><a class="pbi-side-link" href="/dashboard/"><span>□</span><strong>Projects</strong></a><a class="pbi-side-link" href="/builder/"><span>✦</span><strong>AI Builder</strong></a><a class="pbi-side-link" href="/examples/"><span>▦</span><strong>Templates</strong></a><a class="pbi-side-link pbi-admin-only" data-admin-only href="/seo-agent/"><span>◎</span><strong>SEO Agent</strong></a><a class="pbi-side-link" href="/custom-build/"><span class="code-icon">&lt;/&gt;</span><strong>Custom Builds</strong></a><a class="pbi-side-link pbi-admin-only" data-admin-only href="/admin/"><span>⚙</span><strong>Settings</strong></a>
     </nav>
     <div class="pbi-side-illustration"></div>
     <a class="pbi-side-collapse" href="/">‹‹ Home</a>
@@ -29,7 +29,7 @@
     <div class="card pbi-project-panel"><div class="pbi-card-head"><div><h2>Recent Projects</h2><p class="muted">Your saved websites and launch actions.</p></div><a class="btn-ghost" href="/builder/">Open Builder</a></div><div id="projectList" class="project-list"><div class="notice">Loading your projects...</div></div></div>
     <aside class="pbi-next-panel">
       <div class="card"><h3>Next Best Steps</h3><a class="pbi-step-link" href="/examples/"><span>▦</span><b>Choose a template</b><small>Start from a full demo.</small></a><a class="pbi-step-link" href="/seo-agent/"><span>◎</span><b>Improve your SEO</b><small>Run checks and fix open issues.</small></a><a class="pbi-step-link" href="/custom-build/"><span>➤</span><b>Need help?</b><small>Request a custom build.</small></a></div>
-      <div class="card pbi-score-card"><div class="pbi-score-ring">82<span>/100</span></div><h3>Site Performance</h3><p class="muted">Use the SEO Agent to improve and track each website.</p><a class="btn-ghost" href="/seo-agent/">View SEO Agent</a></div>
+      <div class="card pbi-score-card"><div class="pbi-score-ring">82<span>/100</span></div><h3>Site Performance</h3><p class="muted">SEO support and performance checks can be managed by PBI when required.</p><a class="btn-ghost pbi-admin-only" data-admin-only href="/seo-agent/">View SEO Agent</a></div>
     </aside>
   </section>
     </main>
@@ -37,4 +37,5 @@
 </div>
 <script src="/assets/currency.js"></script><script src="/assets/dashboard.js"></script>
 
+<script src="/assets/pbi-access.js" defer></script>
 </body></html>

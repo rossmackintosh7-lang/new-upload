@@ -1,8 +1,42 @@
 -- PBI combined schema: original + AI Agent + SEO Agent
 
-CREATE TABLE IF NOT EXISTS users (id TEXT PRIMARY KEY, email TEXT UNIQUE, password_hash TEXT, password_salt TEXT);
-CREATE TABLE IF NOT EXISTS sessions (id TEXT PRIMARY KEY, user_id TEXT, expires_at TEXT);
-CREATE TABLE IF NOT EXISTS projects (id TEXT PRIMARY KEY, user_id TEXT, name TEXT, status TEXT DEFAULT 'draft', data_json TEXT DEFAULT '{}');
+-- PBI core tables with auth-compatible columns
+
+CREATE TABLE IF NOT EXISTS users (
+  id TEXT PRIMARY KEY,
+  email TEXT UNIQUE,
+  password_hash TEXT,
+  password_salt TEXT,
+  email_verified INTEGER DEFAULT 0,
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS sessions (
+  id TEXT PRIMARY KEY,
+  user_id TEXT,
+  expires_at TEXT,
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+  last_seen_at TEXT
+);
+CREATE TABLE IF NOT EXISTS projects (
+  id TEXT PRIMARY KEY,
+  user_id TEXT,
+  name TEXT,
+  status TEXT DEFAULT 'draft',
+  data_json TEXT DEFAULT '{}',
+  published INTEGER DEFAULT 0,
+  public_slug TEXT,
+  plan TEXT DEFAULT 'free_preview',
+  billing_status TEXT DEFAULT 'draft',
+  domain_option TEXT DEFAULT 'pbi_subdomain',
+  custom_domain TEXT,
+  published_at TEXT,
+  stripe_session_id TEXT,
+  stripe_customer_id TEXT,
+  stripe_subscription_id TEXT,
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
 CREATE TABLE IF NOT EXISTS domains (id TEXT PRIMARY KEY, project_id TEXT, hostname TEXT UNIQUE, status TEXT DEFAULT 'pending', provider_ref TEXT, verification_json TEXT);
 CREATE TABLE IF NOT EXISTS publishes (id TEXT PRIMARY KEY, project_id TEXT, status TEXT DEFAULT 'queued', target_hostname TEXT, details_json TEXT);
 

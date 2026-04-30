@@ -14,8 +14,12 @@ window.PBIAuth = (() => {
       body: JSON.stringify(body),
       credentials: 'same-origin'
     });
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(data.error || 'Request failed.');
+    const text = await response.text();
+    let data = {};
+    try { data = text ? JSON.parse(text) : {}; } catch { data = {}; }
+    if (!response.ok) {
+      throw new Error(data.error || data.message || `Request failed with status ${response.status}.`);
+    }
     return data;
   }
 
@@ -45,7 +49,8 @@ window.PBIAuth = (() => {
           : '/dashboard/';
         setTimeout(() => { location.href = target; }, 500);
       } catch (err) {
-        showMessage(messageId, 'error', err.message);
+        if (window.turnstile) window.turnstile.reset();
+        showMessage(messageId, 'error', err.message || 'Request failed.');
       } finally {
         if (btn) { btn.disabled = false; btn.textContent = 'Create account'; }
       }
@@ -67,7 +72,8 @@ window.PBIAuth = (() => {
         showMessage(messageId, 'success', 'Logged in. Redirecting...');
         setTimeout(() => { location.href = '/dashboard/'; }, 500);
       } catch (err) {
-        showMessage(messageId, 'error', err.message);
+        if (window.turnstile) window.turnstile.reset();
+        showMessage(messageId, 'error', err.message || 'Request failed.');
       }
     });
   }
