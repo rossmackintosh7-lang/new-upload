@@ -1,6 +1,7 @@
 import { jsonResponse, readJson, cleanText, nowIso } from "../_lib/http.js";
 import { callOpenAIJson } from "../_lib/openai.js";
 import { ensureSeoTables } from "../_lib/seo.js";
+import { requireAdmin } from "../_lib/admin-auth.js";
 
 const suggestionSchema = () => ({
   type: "object",
@@ -28,6 +29,8 @@ const suggestionSchema = () => ({
 
 export async function onRequestPost(context) {
   const { request, env } = context;
+  const admin = await requireAdmin(context);
+  if (!admin.ok) return admin.response;
   await ensureSeoTables(env);
   const body = await readJson(request);
   const pageUrl = cleanText(body.page_url || body.url, 500);

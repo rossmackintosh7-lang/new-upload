@@ -2,9 +2,10 @@ import { json, error } from '../../_lib/json.js';
 import { verifyTurnstileDetailed } from '../../_lib/turnstile.js';
 import { verifyPassword } from '../../_lib/crypto.js';
 import { createSession, makeSetCookie } from '../../_lib/session.js';
-import { readJson } from '../../_lib/auth.js';
+import { readJson, ensureCoreTables } from '../../_lib/auth.js';
 
 export async function onRequestPost({ request, env }) {
+  await ensureCoreTables(env);
   const body = await readJson(request);
   if (!body) return error('Invalid request body.');
 

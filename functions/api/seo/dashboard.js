@@ -1,7 +1,11 @@
 import { jsonResponse } from "../_lib/http.js";
 import { ensureSeoTables } from "../_lib/seo.js";
+import { requireAdmin } from "../_lib/admin-auth.js";
 
-export async function onRequestGet({ env }) {
+export async function onRequestGet(context) {
+  const { env } = context;
+  const admin = await requireAdmin(context);
+  if (!admin.ok) return admin.response;
   await ensureSeoTables(env);
   const pages = await env.DB.prepare(`SELECT * FROM seo_pages ORDER BY seo_score ASC, last_checked DESC LIMIT 50`).all();
   const issues = await env.DB.prepare(`SELECT * FROM seo_issues WHERE status='open' ORDER BY CASE severity WHEN 'high' THEN 0 WHEN 'medium' THEN 1 ELSE 2 END, created_at DESC LIMIT 100`).all();

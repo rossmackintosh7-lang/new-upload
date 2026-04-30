@@ -2,10 +2,11 @@ import { json, error } from '../../_lib/json.js';
 import { randomHex, hashPassword } from '../../_lib/crypto.js';
 import { verifyTurnstileDetailed } from '../../_lib/turnstile.js';
 import { createSession, makeSetCookie } from '../../_lib/session.js';
-import { readJson } from '../../_lib/auth.js';
+import { readJson, ensureCoreTables } from '../../_lib/auth.js';
 import { sendEmail, publicBaseUrl, escapeHtml } from '../../_lib/email.js';
 
 export async function onRequestPost({ request, env }) {
+  await ensureCoreTables(env);
   const body = await readJson(request);
   if (!body) return error('Invalid request body.');
 
@@ -23,7 +24,13 @@ export async function onRequestPost({ request, env }) {
   if (!token) return error('Turnstile token missing.');
 
   const turnstile = await verifyTurnstileDetailed(env, token, request.headers.get('CF-Connecting-IP') || '');
-  if (!ok) return error('Turnstile validation failed.', 400);
+  if (!turnstile.success) {
+    return error(turnstile.reason || 'Turnstile validation failed.', 400, {
+      turnstileCode: turnstile.code || 'unknown',
+      turnstileErrors: turnstile.errorCodes || [],
+      turnstileHostname: turnstile.hostname || ''
+    });
+  }
 
   const existing = await env.DB.prepare('SELECT id FROM users WHERE email = ? LIMIT 1').bind(email).first();
   if (existing) return error('An account with that email already exists.', 409);

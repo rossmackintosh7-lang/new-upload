@@ -1,5 +1,6 @@
 import { jsonResponse, readJson, cleanText, nowIso } from "../_lib/http.js";
 import { ensureSeoTables } from "../_lib/seo.js";
+import { requireAdmin } from "../_lib/admin-auth.js";
 
 const starterKeywords = [
   ["AI website builder", "/", "commercial", "high"],
@@ -20,7 +21,10 @@ const starterKeywords = [
   ["assisted website setup", "/pricing/", "commercial", "medium"]
 ];
 
-export async function onRequestGet({ env }) {
+export async function onRequestGet(context) {
+  const { env } = context;
+  const admin = await requireAdmin(context);
+  if (!admin.ok) return admin.response;
   await ensureSeoTables(env);
   const count = await env.DB.prepare(`SELECT COUNT(*) as total FROM seo_keywords`).first();
   if (!count?.total) {
@@ -30,7 +34,10 @@ export async function onRequestGet({ env }) {
   return jsonResponse({ success: true, keywords: keywords.results || [] });
 }
 
-export async function onRequestPost({ request, env }) {
+export async function onRequestPost(context) {
+  const { request, env } = context;
+  const admin = await requireAdmin(context);
+  if (!admin.ok) return admin.response;
   await ensureSeoTables(env);
   const body = await readJson(request);
   const keyword = cleanText(body.keyword, 180);

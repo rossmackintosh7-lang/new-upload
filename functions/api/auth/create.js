@@ -1,5 +1,6 @@
 import { json, error } from '../../_lib/json.js';
 import { randomHex } from '../../_lib/crypto.js';
+import { ensureCoreTables } from '../../_lib/auth.js';
 
 const SESSION_COOKIE_NAME = 'session_id';
 
@@ -77,6 +78,8 @@ export async function onRequestPost({ request, env }) {
     if (!env.DB) {
       return error('Database binding missing.', 500);
     }
+
+    await ensureCoreTables(env);
 
     const user = await getCurrentUser(request, env);
 

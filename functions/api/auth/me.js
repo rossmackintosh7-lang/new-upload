@@ -1,4 +1,5 @@
 import { json, error } from '../../_lib/json.js';
+import { ensureCoreTables } from '../../_lib/auth.js';
 
 const SESSION_COOKIE_NAME = 'session_id';
 
@@ -40,6 +41,8 @@ export async function onRequestGet({ request, env }) {
       return error('Database binding missing.', 500);
     }
 
+    await ensureCoreTables(env);
+
     const session = await env.DB.prepare(
       `
       SELECT
@@ -71,15 +74,17 @@ export async function onRequestGet({ request, env }) {
       return error('Session expired.', 401);
     }
 
-    await env.DB.prepare(
-      `
-      UPDATE sessions
-      SET last_seen_at = CURRENT_TIMESTAMP
-      WHERE id = ?
-      `
-    )
-      .bind(sessionId)
-      .run();
+    try {
+      await env.DB.prepare(
+        `
+        UPDATE sessions
+        SET last_seen_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+        `
+      )
+        .bind(sessionId)
+        .run();
+    } catch {}
 
     return json({
       ok: true,

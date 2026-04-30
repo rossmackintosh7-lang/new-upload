@@ -1,7 +1,11 @@
 import { jsonResponse, readJson, cleanText } from "../_lib/http.js";
 import { ensureSeoTables } from "../_lib/seo.js";
+import { requireAdmin } from "../_lib/admin-auth.js";
 
-export async function onRequestPost({ request, env }) {
+export async function onRequestPost(context) {
+  const { request, env } = context;
+  const admin = await requireAdmin(context);
+  if (!admin.ok) return admin.response;
   await ensureSeoTables(env);
   const body = await readJson(request);
   const id = Number(body.id);

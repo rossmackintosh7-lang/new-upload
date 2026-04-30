@@ -46,7 +46,7 @@ export async function getSessionUser(env, request) {
 
   const row = await env.DB
     .prepare(`
-      SELECT users.id, users.email, users.email_verified, sessions.expires_at
+      SELECT users.id, users.email, COALESCE(users.email_verified, 0) AS email_verified, sessions.expires_at
       FROM sessions
       JOIN users ON users.id = sessions.user_id
       WHERE sessions.id = ?
