@@ -139,6 +139,30 @@ export async function onRequestPost({ request, env }) {
   const projectData = parseProjectData(project);
   const priceId = env[PLAN_PRICE_ENV[plan]];
   const checkoutMode = ONE_TIME_PAYMENT_PLANS.has(plan) ? 'payment' : 'subscription';
+  const paymentRequired = env.PBI_REQUIRE_PAYMENT_TO_PUBLISH === 'true';
+
+  // Early-access / live-testing mode.
+  // When payment is deliberately switched off, the plan buttons should still work:
+  // they record the chosen plan and let the publish flow continue without Stripe.
+  if (!paymentRequired && !ONE_TIME_PAYMENT_PLANS.has(plan)) {
+    if (domainOption === 'register_new') {
+      return error('New domain registration needs Stripe/payment enabled. For launch testing, choose a PBI subdomain or connect an existing domain.', 400);
+    }
+
+    await env.DB
+      .prepare(`UPDATE projects SET plan = ?, domain_option = ?, billing_status = 'not_required', updated_at = datetime('now') WHERE id = ? AND user_id = ?`)
+      .bind(plan, domainOption, projectId, user.id)
+      .run();
+
+    return json({
+      ok: true,
+      checkout_not_required: true,
+      publish_without_payment: true,
+      plan,
+      domain_option: domainOption,
+      message: 'Payment is currently switched off for launch testing. Your selected plan has been saved and the website can now publish without Stripe checkout.'
+    });
+  }
 
   let domainRegistration = null;
   let domainRegistrationLineItem = null;
@@ -175,7 +199,15 @@ export async function onRequestPost({ request, env }) {
         .run();
     }
 
-    return json({ ok: true, setup_required: true, message: `Stripe is not connected yet. Add STRIPE_SECRET_KEY and ${PLAN_PRICE_ENV[plan]} to Cloudflare environment variables to enable ${PLAN_NAMES[plan]} checkout.` });
+    return json({
+      ok: true,
+      setup_required: true,
+      missing: {
+        stripe_secret_key: !env.STRIPE_SECRET_KEY,
+        price_variable: !priceId ? PLAN_PRICE_ENV[plan] : ''
+      },
+      message: `Stripe checkout is not fully connected yet. Add STRIPE_SECRET_KEY as a Cloudflare Secret and add ${PLAN_PRICE_ENV[plan]} as a GitHub/wrangler variable using the correct Stripe price_... ID for ${PLAN_NAMES[plan]}.`
+    });
   }
 
   const origin = getOrigin(request);
