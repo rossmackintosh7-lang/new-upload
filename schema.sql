@@ -65,3 +65,12 @@ CREATE TABLE IF NOT EXISTS support_requests (
   created_at TEXT DEFAULT CURRENT_TIMESTAMP,
   updated_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
+CREATE TABLE IF NOT EXISTS site_enquiries (
+  id TEXT PRIMARY KEY,
+  project_id TEXT,
+  site_slug TEXT,
+  name TEXT,
+  email TEXT,
+  message TEXT,
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP
+);

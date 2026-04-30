@@ -23,6 +23,16 @@
       <div id="message" class="notice" style="display:none;margin:16px 0"></div>
       <div id="templateNotice" class="notice" style="display:none;margin:16px 0"></div>
 
+      <div class="pbi-plain-terms">
+  <h3>Before you start</h3>
+  <p>PBI helps you build, improve and publish a website. It does not guarantee sales, enquiries, Google rankings, third-party uptime or business results.</p>
+  <ul>
+    <li>Check your website wording, prices, images and claims before publishing.</li>
+    <li>Use Assisted Setup if you want help polishing the site before launch.</li>
+    <li>You can test publishing while payments are switched off for launch checks.</li>
+  </ul>
+</div>
+
       <form id="signupForm">
         <div class="field"><label>Email address</label><input class="input" type="email" name="email" required></div>
         <div class="field"><label>Password</label><input class="input" type="password" name="password" required minlength="8"></div>
@@ -48,5 +58,6 @@
   <script>PBIAuth.attachSignup('signupForm', 'message');</script>
   <script src="/assets/template-presets.js"></script>
   <script src="/assets/template-signup.js"></script>
+<script src="/assets/pbi-cookie-banner.js" defer></script>
 </body>
 </html>
