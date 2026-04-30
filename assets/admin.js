@@ -83,7 +83,13 @@
     const items = listItems();
 
     if (!items.length) {
-      els.list.innerHTML = '<div class="notice">No items found.</div>';
+      const labels = {
+        projects: 'No projects found yet. Create a customer project above, or check that your DB binding points to pbi-db.',
+        enquiries: 'No custom build enquiries found yet. New enquiries will appear here after the form is submitted.',
+        support: 'No support requests found yet.',
+        users: 'No users found yet. New signups will appear here once account creation succeeds.'
+      };
+      els.list.innerHTML = `<div class="notice">${esc(labels[state.tab] || 'No items found.')}</div>`;
       return;
     }
 
@@ -603,6 +609,12 @@
       state.overview = await api('/api/admin/overview');
       renderStats();
       renderList();
+
+      const totals = [state.overview?.projects, state.overview?.enquiries, state.overview?.support_requests, state.overview?.users]
+        .reduce((sum, arr) => sum + (Array.isArray(arr) ? arr.length : 0), 0);
+      if (!totals) {
+        showMessage('Admin panel loaded, but no records were found yet. Check DB binding is pbi-db and create/test a user, project or enquiry.', 'info');
+      }
 
       if (shouldRenderDetail && state.selectedProjectId) {
         await loadProject(state.selectedProjectId);

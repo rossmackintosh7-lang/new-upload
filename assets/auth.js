@@ -18,7 +18,8 @@ window.PBIAuth = (() => {
     let data = {};
     try { data = text ? JSON.parse(text) : {}; } catch { data = {}; }
     if (!response.ok) {
-      throw new Error(data.error || data.message || `Request failed with status ${response.status}.`);
+      const fallback = text && text.length < 240 && !text.trim().startsWith('<') ? text.trim() : `Request failed with status ${response.status}.`;
+      throw new Error(data.error || data.message || fallback);
     }
     return data;
   }

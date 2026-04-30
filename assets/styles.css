@@ -5481,3 +5481,144 @@ body.pbi-is-admin .card.pbi-admin-only,body.pbi-is-admin section.pbi-admin-only,
 
 @media(max-width:1180px){.pbi-how-flow{grid-template-columns:repeat(2,minmax(0,1fr))}.pbi-how-support-grid{grid-template-columns:1fr}.pbi-admin-tool-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:780px){.pbi-public-examples-page .pbi-public-brand img{width:150px;max-width:44vw}.pbi-how-flow{grid-template-columns:1fr}.pbi-how-fixed-hero{padding-top:32px!important}.pbi-public-examples-page .pbi-page-intro{padding-top:34px}.pbi-admin-tool-grid{grid-template-columns:1fr}}
+
+
+/* ==========================================================
+   PBI reported issues patch: admin data, images and spacing
+   ========================================================== */
+:root{
+  --pbi-coast-image: url('/assets/Website%20background%20image.png');
+}
+
+/* Keep logo sensible across auth/public pages and stop heading overlap. */
+body:not(.pbi-app-page) .header-logo{
+  width: clamp(170px, 22vw, 300px) !important;
+  max-width: 100% !important;
+}
+body:not(.pbi-app-page) .nav-inner{
+  height: auto !important;
+  min-height: 104px !important;
+  padding-top: 14px !important;
+  padding-bottom: 14px !important;
+}
+.auth-shell{
+  padding-top: 12px !important;
+  min-height: calc(100vh - 110px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+.auth-card{
+  margin: 28px auto 80px !important;
+  position: relative;
+  z-index: 2;
+}
+.auth-card .section-title{
+  font-size: clamp(44px, 6vw, 76px) !important;
+  line-height: .92 !important;
+  margin-top: 0 !important;
+  margin-bottom: 18px !important;
+}
+
+/* Admin/app top bars now carry the PBI coastal image without relying on inline img tags. */
+.pbi-app-topbar{
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.pbi-app-topbar::after{
+  content: '';
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: min(720px, 58%);
+  background-image: linear-gradient(90deg, rgba(255,248,241,0), rgba(255,248,241,.55) 34%, rgba(255,248,241,.16)), var(--pbi-coast-image);
+  background-size: cover;
+  background-position: center right;
+  opacity: .38;
+  z-index: -1;
+  pointer-events: none;
+}
+.pbi-app-topbar > *{ position: relative; z-index: 1; }
+
+/* Sidebar illustration fallback if the image ever fails to load. */
+.pbi-side-illustration{
+  background-color: #e6eee8 !important;
+  background-image: linear-gradient(135deg, rgba(255,255,255,.35), rgba(113,151,143,.22)), var(--pbi-coast-image) !important;
+  background-size: cover !important;
+  background-position: left bottom !important;
+}
+
+/* Custom-build package visuals: no broken img icons, no alt text showing. */
+.pbi-package img{ display:none !important; }
+.pbi-package-visual{
+  width: 92px;
+  height: 72px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  font-weight: 950;
+  letter-spacing: .08em;
+  color: #fff8f1;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.35), 0 12px 24px rgba(98,50,26,.10);
+  background-size: cover;
+  background-position: center;
+}
+.pbi-package-visual.custom{ background: linear-gradient(135deg, #496d4b, #b85f32); }
+.pbi-package-visual.assisted{ background: linear-gradient(135deg, #6e9187, #d88752); }
+.pbi-package-visual.domain{ background: linear-gradient(135deg, #2b4b73, #7fb0a2); }
+
+/* How it works: stronger no-overlap layout on desktop and mobile. */
+.pbi-how-fixed-page main{
+  position: relative;
+  z-index: 1;
+  padding-top: 0 !important;
+}
+.pbi-how-fixed-page .pbi-public-nav{
+  position: relative !important;
+  z-index: 100 !important;
+  margin-bottom: 0 !important;
+}
+.pbi-how-fixed-hero{
+  clear: both;
+  padding-top: clamp(36px, 5vw, 70px) !important;
+  padding-bottom: 30px !important;
+}
+.pbi-how-flow{
+  align-items: stretch !important;
+  margin-top: 4px !important;
+}
+.pbi-how-flow .card{
+  min-width: 0;
+}
+.pbi-how-flow img{
+  background: linear-gradient(135deg, #e8eee9, #fff8f1);
+}
+
+/* Admin list/tabs stay usable even when there is no data yet. */
+.admin-tabs button{
+  opacity: 1 !important;
+  cursor: pointer !important;
+}
+.admin-list .notice{
+  background: #fffdf8;
+  border: 1px solid var(--pbi-line);
+  border-radius: 16px;
+  padding: 16px;
+  color: #5d493d;
+}
+
+@media(max-width:780px){
+  body:not(.pbi-app-page) .nav-inner{
+    min-height: 76px !important;
+  }
+  body:not(.pbi-app-page) .header-logo{
+    width: clamp(136px, 40vw, 170px) !important;
+  }
+  .auth-card .section-title{
+    font-size: clamp(38px, 12vw, 54px) !important;
+  }
+  .pbi-app-topbar::after{ width: 100%; opacity: .16; }
+  .pbi-package{ grid-template-columns: 78px 1fr !important; }
+  .pbi-package strong{ grid-column: 2; }
+  .pbi-package-visual{ width:78px; height:64px; }
+}
