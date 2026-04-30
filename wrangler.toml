@@ -2,6 +2,15 @@ name = "new-upload"
 compatibility_date = "2025-04-01"
 pages_build_output_dir = "."
 
+[vars]
+PBI_REQUIRE_PAYMENT_TO_PUBLISH = "false"
+OPENAI_MODEL = "gpt-4.1-mini"
+PBI_BASE_URL = "https://www.purbeckbusinessinnovations.co.uk"
+PBI_ADMIN_EMAILS = "rossmackintosh7@icloud.com,info@purbeckbusinessinnovations.co.uk"
+CUSTOM_BUILD_NOTIFY_TO = "info@purbeckbusinessinnovations.co.uk"
+CUSTOM_BUILD_NOTIFY_FROM = "PBI <enquiry@purbeckbusinessinnovations.co.uk>"
+PBI_SEO_PAGES = "/,/builder/,/custom-build/,/pricing/,/contact/,/about/,/examples/,/websites-for-cafes/,/websites-for-consultants/,/websites-for-holiday-lets/,/websites-for-salons/,/websites-for-shops/,/websites-for-tradespeople/"
+
 [[d1_databases]]
 binding = "DB"
 database_name = "d1-template-database"
