@@ -21,6 +21,28 @@ document.addEventListener('DOMContentLoaded', () => {
     message.textContent = text;
     message.style.display = 'block';
     message.className = `notice domain-${type}`;
+    message.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function showRichMessage(html, type = 'info') {
+    if (!message) return;
+    message.innerHTML = html;
+    message.style.display = 'block';
+    message.className = `notice domain-${type}`;
+    message.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function setPlanButtons(disabled, activeButton = null, label = 'Working...') {
+    document.querySelectorAll('.planBtn').forEach((button) => {
+      button.disabled = disabled;
+      if (button === activeButton) {
+        button.dataset.oldText = button.dataset.oldText || button.textContent;
+        button.textContent = label;
+      } else if (!disabled && button.dataset.oldText) {
+        button.textContent = button.dataset.oldText;
+        delete button.dataset.oldText;
+      }
+    });
   }
 
   function selectedDomainOption() {
@@ -39,7 +61,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function api(path, options = {}) {
-    const response = await fetch(path, { credentials: 'include', headers: { 'Content-Type': 'application/json', ...(options.headers || {}) }, ...options });
+    const response = await fetch(path, {
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
+      ...options
+    });
     const data = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(data.error || data.message || `Request failed with ${response.status}`);
     return data;
@@ -79,7 +105,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function loadProject() {
-    if (!projectId) return;
+    if (!projectId) {
+      showMessage('No project was passed to this page. Go back to your dashboard, open a project, then publish again.', 'error');
+      return;
+    }
 
     try {
       const data = await api(`/api/projects/get?id=${encodeURIComponent(projectId)}`);
@@ -87,11 +116,46 @@ document.addEventListener('DOMContentLoaded', () => {
       renderDomainSummary();
     } catch (error) {
       console.warn('Could not load project domain data:', error);
+      showMessage(error.message || 'Could not load this project. Try logging in again.', 'error');
     }
   }
 
-  async function createCheckout(plan) {
-    if (!projectId) return showMessage('No project selected. Go back to your dashboard and choose a project to publish.', 'error');
+  async function publishProject(plan = 'starter') {
+    const data = await api('/api/projects/publish', {
+      method: 'POST',
+      body: JSON.stringify({
+        project_id: projectId,
+        plan,
+        domain_option: selectedDomainOption()
+      })
+    });
+
+    if (data.payment_required && data.payment_url) {
+      window.location.href = data.payment_url;
+      return;
+    }
+
+    if (data.published && data.live_url) {
+      const liveUrl = data.live_url;
+      showRichMessage(`
+        <strong>Your website is live.</strong>
+        <p>You can now view the customer-facing website or go back to the dashboard.</p>
+        <div class="row" style="margin-top:12px">
+          <a class="btn" href="${esc(liveUrl)}" target="_blank" rel="noopener">View live website</a>
+          <a class="btn-ghost" href="/dashboard/">Back to dashboard</a>
+        </div>
+      `, 'success');
+      return;
+    }
+
+    showMessage(data.message || 'Publish status is unclear. Check your dashboard.', 'info');
+  }
+
+  async function createCheckout(plan, button = null) {
+    if (!projectId) {
+      showMessage('No project selected. Go back to your dashboard and choose a project to publish.', 'error');
+      return;
+    }
 
     const domainOption = selectedDomainOption();
     const domainRegistration = selectedDomainRegistration();
@@ -101,7 +165,8 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    showMessage('Preparing checkout...', 'info');
+    setPlanButtons(true, button, 'Preparing...');
+    showMessage('Preparing your plan...', 'info');
 
     try {
       const data = await api('/api/billing/create-checkout', {
@@ -114,11 +179,32 @@ document.addEventListener('DOMContentLoaded', () => {
         })
       });
 
-      if (data.url) { window.location.href = data.url; return; }
-      if (data.setup_required) { showMessage(data.message || 'Stripe is not connected yet.', 'info'); return; }
+      if (data.checkout_not_required || data.publish_without_payment) {
+        showMessage(data.message || 'Payment is currently switched off. Publishing your website now...', 'info');
+        setPlanButtons(true, button, 'Publishing...');
+        await publishProject(plan);
+        return;
+      }
+
+      if (data.url) {
+        window.location.href = data.url;
+        return;
+      }
+
+      if (data.setup_required) {
+        showRichMessage(`
+          <strong>Stripe is not fully connected yet.</strong>
+          <p>${esc(data.message || 'Add the missing Stripe settings, then try again.')}</p>
+          <p class="small-note">For live payments, add STRIPE_SECRET_KEY as a Cloudflare Secret and add the relevant STRIPE_PRICE_STARTER / STRIPE_PRICE_BUSINESS / STRIPE_PRICE_PLUS price IDs in GitHub/wrangler.toml.</p>
+        `, 'error');
+        return;
+      }
+
       showMessage('Checkout was created, but no redirect URL was returned.', 'error');
     } catch (error) {
       showMessage(error.message || 'Could not start checkout.', 'error');
+    } finally {
+      setPlanButtons(false);
     }
   }
 
@@ -127,15 +213,19 @@ document.addEventListener('DOMContentLoaded', () => {
     showMessage('Checking payment and publishing your website...', 'info');
 
     try {
-      const data = await api('/api/projects/publish', { method: 'POST', body: JSON.stringify({ project_id: projectId, domain_option: selectedDomainOption() }) });
-      if (data.published) { showMessage(`Your website is live: ${data.live_url}`, 'success'); return; }
-      if (data.payment_required) { showMessage('Payment is not active yet. If you have just paid, wait a few seconds and refresh this page.', 'info'); return; }
-      showMessage(data.message || 'Publish status is unclear.', 'info');
-    } catch (error) { showMessage(error.message || 'Could not publish website.', 'error'); }
+      await publishProject(projectData.plan || 'starter');
+    } catch (error) {
+      showMessage(error.message || 'Could not publish website.', 'error');
+    }
   }
 
-  document.querySelectorAll('.planBtn').forEach((button) => button.addEventListener('click', () => createCheckout(button.dataset.plan)));
-  document.querySelectorAll('input[name="domainOption"]').forEach((input) => input.addEventListener('change', renderDomainSummary));
+  document.querySelectorAll('.planBtn').forEach((button) => {
+    button.addEventListener('click', () => createCheckout(button.dataset.plan, button));
+  });
+
+  document.querySelectorAll('input[name="domainOption"]').forEach((input) => {
+    input.addEventListener('change', renderDomainSummary);
+  });
 
   loadProject().then(() => {
     if (success) publishAfterPayment();
