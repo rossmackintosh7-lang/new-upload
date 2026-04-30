@@ -5915,3 +5915,77 @@ body.pbi-new-home:not(.pbi-public-examples-page) .page-hero {
     background-attachment: scroll;
   }
 }
+/* PBI site-wide public background image restore */
+body:not(.pbi-app-page) {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(255, 248, 241, 0.95) 0%,
+      rgba(255, 248, 241, 0.88) 45%,
+      rgba(255, 248, 241, 0.72) 100%
+    ),
+    url("/assets/Website%20background%20image.png") !important;
+  background-size: cover !important;
+  background-position: center bottom !important;
+  background-repeat: no-repeat !important;
+  background-attachment: fixed !important;
+}
+
+/* Keep public page sections transparent so the image shows through */
+body:not(.pbi-app-page) main,
+body:not(.pbi-app-page) .section,
+body:not(.pbi-app-page) .page-hero,
+body:not(.pbi-app-page) .payment-hero {
+  background: transparent !important;
+}
+
+/* Payment page spacing fix so logo/title stop clashing */
+body:not(.pbi-app-page) .nav {
+  position: relative;
+  z-index: 10;
+  background: rgba(255, 248, 241, 0.84);
+  backdrop-filter: blur(10px);
+}
+
+body:not(.pbi-app-page) .payment-hero,
+body:not(.pbi-app-page) .page-hero {
+  padding-top: 56px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Stop large headings from sitting underneath logo/nav */
+body:not(.pbi-app-page) .payment-hero h1,
+body:not(.pbi-app-page) .page-hero h1,
+body:not(.pbi-app-page) .section-title {
+  max-width: 900px;
+  line-height: 0.95;
+}
+
+/* Mobile background and spacing */
+@media (max-width: 760px) {
+  body:not(.pbi-app-page) {
+    background:
+      linear-gradient(
+        180deg,
+        rgba(255, 248, 241, 0.97) 0%,
+        rgba(255, 248, 241, 0.91) 48%,
+        rgba(255, 248, 241, 0.78) 100%
+      ),
+      url("/assets/Website%20background%20image.png") !important;
+    background-size: cover !important;
+    background-position: center bottom !important;
+    background-attachment: scroll !important;
+  }
+
+  body:not(.pbi-app-page) .payment-hero,
+  body:not(.pbi-app-page) .page-hero {
+    padding-top: 32px;
+  }
+
+  body:not(.pbi-app-page) .payment-hero h1,
+  body:not(.pbi-app-page) .page-hero h1,
+  body:not(.pbi-app-page) .section-title {
+    font-size: clamp(2.4rem, 13vw, 4.4rem);
+  }
+}
