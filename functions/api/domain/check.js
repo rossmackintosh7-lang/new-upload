@@ -173,10 +173,30 @@ export async function onRequestPost({ request, env }) {
     return error('Enter a valid domain, for example yourbusiness.co.uk.', 400);
   }
 
-  if (!env.CLOUDFLARE_ACCOUNT_ID) return error('Missing CLOUDFLARE_ACCOUNT_ID environment variable.', 500);
-  if (!env.CLOUDFLARE_API_TOKEN) return error('Missing CLOUDFLARE_API_TOKEN environment variable.', 500);
-
   const domainsToCheck = buildSuggestions(domain, keyword);
+
+  if (!env.CLOUDFLARE_ACCOUNT_ID || !env.CLOUDFLARE_API_TOKEN) {
+    const checked = domainsToCheck.map((name) => ({
+      name,
+      available: null,
+      registrable: null,
+      reason: 'cloudflare_registrar_not_configured',
+      tier: '',
+      pricing: { currency: 'GBP', registration_cost: '', renewal_cost: '' },
+      display_price: ''
+    }));
+
+    return json({
+      ok: true,
+      mode: 'suggestions_only',
+      setup_required: true,
+      message: 'Domain suggestions shown. Live availability needs CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN in Cloudflare Pages.',
+      query: { domain, keyword },
+      requested: checked.find((item) => item.name === domain) || null,
+      suggestions: checked.slice(0, 8),
+      checked
+    });
+  }
 
   const response = await fetch(
     `https://api.cloudflare.com/client/v4/accounts/${env.CLOUDFLARE_ACCOUNT_ID}/registrar/domain-check`,

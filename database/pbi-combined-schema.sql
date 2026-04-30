@@ -130,3 +130,12 @@ CREATE TABLE IF NOT EXISTS seo_issues (id INTEGER PRIMARY KEY AUTOINCREMENT, pag
 CREATE TABLE IF NOT EXISTS seo_suggestions (id INTEGER PRIMARY KEY AUTOINCREMENT, page_url TEXT NOT NULL, suggestion_type TEXT NOT NULL, current_value TEXT, suggested_value TEXT, reasoning TEXT, status TEXT DEFAULT 'pending', created_at TEXT DEFAULT CURRENT_TIMESTAMP);
 CREATE TABLE IF NOT EXISTS seo_keywords (id INTEGER PRIMARY KEY AUTOINCREMENT, keyword TEXT NOT NULL, target_url TEXT, intent TEXT, priority TEXT DEFAULT 'medium', status TEXT DEFAULT 'active', created_at TEXT DEFAULT CURRENT_TIMESTAMP);
 CREATE TABLE IF NOT EXISTS seo_reports (id INTEGER PRIMARY KEY AUTOINCREMENT, report_date TEXT NOT NULL, total_pages INTEGER DEFAULT 0, total_issues INTEGER DEFAULT 0, average_score INTEGER DEFAULT 0, summary TEXT, created_at TEXT DEFAULT CURRENT_TIMESTAMP);
+CREATE TABLE IF NOT EXISTS site_enquiries (
+  id TEXT PRIMARY KEY,
+  project_id TEXT,
+  site_slug TEXT,
+  name TEXT,
+  email TEXT,
+  message TEXT,
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP
+);

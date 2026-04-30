@@ -1,3 +1,4 @@
+import { sendEmail } from '../../_lib/email.js';
 export async function onRequestGet({ params, env }) {
   const slug = String(params.slug || '').trim();
 
@@ -336,6 +337,35 @@ function renderSite(project, data) {
       color: color-mix(in srgb, var(--text) 68%, transparent);
     }
 
+
+    .published-contact-form {
+      display: grid;
+      gap: 14px;
+      margin-top: 20px;
+      max-width: 760px;
+    }
+
+    .published-contact-form input,
+    .published-contact-form textarea {
+      width: 100%;
+      border: 1px solid rgba(127,127,127,0.22);
+      border-radius: 16px;
+      padding: 14px 16px;
+      font: inherit;
+      background: rgba(255,255,255,0.78);
+      color: var(--text);
+    }
+
+    .published-contact-form textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .published-form-note {
+      font-size: 14px;
+      color: color-mix(in srgb, var(--text) 64%, transparent);
+    }
+
     footer {
       width: min(1180px, calc(100% - 32px));
       margin: 0 auto;
@@ -600,11 +630,13 @@ function renderSite(project, data) {
       accent,
       firstImage,
       bgImage,
-      logo
+      logo,
+      cta
     })}
 
     <main>
       ${sections}
+      ${renderContactForm(businessName)}
     </main>
 
     <footer>
@@ -615,6 +647,23 @@ function renderSite(project, data) {
 </html>`;
 }
 
+
+
+function renderContactForm(businessName) {
+  return `
+    <section id="customer-enquiry" class="published-section">
+      <h2>Send an enquiry</h2>
+      <p>Use this quick form to contact ${escapeHtml(businessName)}. Your message will be saved in PBI records and emailed to the site owner when email is connected.</p>
+      <form class="published-contact-form" method="post">
+        <input name="name" placeholder="Your name" required>
+        <input name="email" type="email" placeholder="Your email" required>
+        <textarea name="message" placeholder="How can we help?" required></textarea>
+        <button class="cta" type="submit">Send enquiry</button>
+        <div class="published-form-note">The business owner should still check that contact details and enquiry routing are correct before sharing this site publicly.</div>
+      </form>
+    </section>
+  `;
+}
 
 function buildCta(data) {
   const label = escapeHtml(data.cta_button_text || 'Get in touch');
@@ -728,6 +777,59 @@ function renderEventHero({ heroTitle, heroBody, cta }) {
   `;
 }
 
-export async function onRequestPost() {
-  return new Response('Method not allowed.', { status: 405 });
+export async function onRequestPost({ params, request, env }) {
+  const slug = String(params.slug || '').trim();
+  if (!slug) return new Response('Site not found.', { status: 404 });
+
+  const project = await env.DB
+    .prepare(`SELECT * FROM projects WHERE public_slug = ? AND published = 1 LIMIT 1`)
+    .bind(slug)
+    .first();
+
+  if (!project) return new Response('This website is not published yet.', { status: 404 });
+
+  const form = await request.formData().catch(() => null);
+  const name = String(form?.get('name') || '').trim();
+  const email = String(form?.get('email') || '').trim();
+  const message = String(form?.get('message') || '').trim();
+
+  if (!name || !email || !message) {
+    return new Response('Please complete your name, email and message.', { status: 400 });
+  }
+
+  try {
+    await env.DB.prepare(`
+      CREATE TABLE IF NOT EXISTS site_enquiries (
+        id TEXT PRIMARY KEY,
+        project_id TEXT,
+        site_slug TEXT,
+        name TEXT,
+        email TEXT,
+        message TEXT,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP
+      )
+    `).run();
+
+    await env.DB.prepare(`
+      INSERT INTO site_enquiries (id, project_id, site_slug, name, email, message, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+    `).bind(crypto.randomUUID(), project.id, slug, name, email, message).run();
+  } catch (err) {
+    console.error('Could not save site enquiry:', err);
+  }
+
+  try {
+    const notifyTo = env.CUSTOM_BUILD_NOTIFY_TO || env.PBI_SITE_ENQUIRY_TO || 'info@purbeckbusinessinnovations.co.uk';
+    await sendEmail(env, {
+      to: notifyTo,
+      replyTo: email,
+      subject: `New website enquiry from ${name} via ${project.name || slug}`,
+      html: `<div style="font-family:Arial,sans-serif;line-height:1.6;color:#111"><h2>New website enquiry</h2><p><strong>Site:</strong> ${escapeHtml(project.name || slug)}</p><p><strong>Name:</strong> ${escapeHtml(name)}</p><p><strong>Email:</strong> ${escapeHtml(email)}</p><p><strong>Message:</strong><br>${escapeHtml(message).replace(/\n/g, '<br>')}</p></div>`,
+      text: `New website enquiry\nSite: ${project.name || slug}\nName: ${name}\nEmail: ${email}\nMessage: ${message}`
+    });
+  } catch (err) {
+    console.error('Could not email site enquiry:', err);
+  }
+
+  return new Response(`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Enquiry sent</title><style>body{font-family:Arial,sans-serif;background:#fff8f1;color:#2d160d;padding:40px}main{max-width:720px;margin:auto;background:#fff;padding:34px;border-radius:24px}a{display:inline-block;margin-top:16px;color:#fff;background:#b85f32;padding:12px 18px;border-radius:999px;text-decoration:none;font-weight:800}</style></head><body><main><h1>Thanks, your enquiry has been sent.</h1><p>The business owner will be able to review the enquiry from their PBI records.</p><a href="/site/${encodeURIComponent(slug)}/">Back to website</a></main></body></html>`, { headers: { 'Content-Type': 'text/html; charset=utf-8' } });
 }
