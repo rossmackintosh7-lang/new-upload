@@ -96,6 +96,7 @@
 
   const els = {
     saveBtn: $('saveBtn'),
+    publishBtn: $('publishBtn'),
     backBtn: $('backBtn'),
     logoutBtn: $('logoutBtn'),
     saveStatus: $('builderSaveStatus'),
@@ -975,13 +976,82 @@
       });
 
       setSaveMessage('Project saved successfully.', 'success');
+      return true;
     } catch (error) {
       console.error(error);
       setSaveMessage(error.message || 'Could not save project.', 'error');
+      return false;
     } finally {
       if (els.saveBtn) {
         els.saveBtn.disabled = false;
         els.saveBtn.textContent = 'Save project';
+      }
+    }
+  }
+
+  async function publishProject() {
+    if (!projectId) {
+      setSaveMessage('No project ID found in the URL.', 'error');
+      return;
+    }
+
+    const oldText = els.publishBtn?.textContent || 'Publish website';
+    if (els.publishBtn) {
+      els.publishBtn.disabled = true;
+      els.publishBtn.textContent = 'Publishing...';
+    }
+
+    try {
+      const saved = await saveProject();
+      if (!saved) return;
+
+      setSaveMessage('Publishing website...', 'saving');
+      const result = await api('/api/projects/publish', {
+        method: 'POST',
+        body: JSON.stringify({
+          project_id: projectId,
+          domain_option: state.domainOption || 'pbi_subdomain'
+        })
+      });
+
+      if (result.payment_required && result.payment_url) {
+        setSaveMessage('Payment is needed before publishing. Opening checkout...', 'info');
+        window.location.href = result.payment_url;
+        return;
+      }
+
+      if (result.published && result.live_url) {
+        setSaveMessage(`Website published successfully. Your live customer link is ready: ${result.live_url}`, 'success');
+        const wrap = document.createElement('span');
+        wrap.className = 'builder-live-link-wrap';
+
+        const liveButton = document.createElement('a');
+        liveButton.href = result.live_url;
+        liveButton.target = '_blank';
+        liveButton.rel = 'noopener';
+        liveButton.className = 'btn-ghost builder-live-link';
+        liveButton.textContent = 'View live website';
+
+        const dashboardButton = document.createElement('a');
+        dashboardButton.href = '/dashboard/';
+        dashboardButton.className = 'btn-ghost builder-live-link';
+        dashboardButton.textContent = 'Back to dashboard';
+
+        wrap.appendChild(liveButton);
+        wrap.appendChild(dashboardButton);
+        els.saveStatus?.appendChild(document.createTextNode(' '));
+        els.saveStatus?.appendChild(wrap);
+        return;
+      }
+
+      setSaveMessage(result.message || 'Publish status is unclear. Check your dashboard.', 'info');
+    } catch (error) {
+      console.error(error);
+      setSaveMessage(error.message || 'Could not publish website.', 'error');
+    } finally {
+      if (els.publishBtn) {
+        els.publishBtn.disabled = false;
+        els.publishBtn.textContent = oldText;
       }
     }
   }
@@ -1200,7 +1270,7 @@
       renderDomainResults(result);
     } catch (error) {
       console.error(error);
-      setDomainMessage(error.message || 'Could not check domain.', 'error');
+      setDomainMessage(error.message || 'Could not check domain. You can still publish on a PBI subdomain and add a custom domain later.', 'error');
     }
   }
 
@@ -1244,6 +1314,10 @@
 
     if (els.saveBtn) {
       els.saveBtn.addEventListener('click', saveProject);
+    }
+
+    if (els.publishBtn) {
+      els.publishBtn.addEventListener('click', publishProject);
     }
 
     if (els.aiGenerateBtn) {

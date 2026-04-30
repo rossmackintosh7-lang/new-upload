@@ -27,6 +27,18 @@
     <a class="card" href="/dashboard/"><h3>Customer dashboard</h3><p class="muted">Open the normal customer-facing project dashboard.</p></a>
   </section>
   <section class="pbi-dash-kpis admin-stats-grid" id="adminStats"><div class="card">Loading admin data...</div></section>
+  <section class="pbi-launch-monitor-card">
+  <h3>Launch monitoring</h3>
+  <p class="muted">During early access, check these daily after every test/customer session.</p>
+  <ul class="pbi-launch-monitor-list">
+    <li>New accounts and failed signups</li>
+    <li>Projects created from templates</li>
+    <li>Publish attempts and live site links</li>
+    <li>Custom build enquiries and support requests</li>
+    <li>SEO issues after publishing</li>
+  </ul>
+</section>
+
   <section class="card pbi-admin-create">
     <div><h3>Create project for existing customer</h3><p class="muted">Creates a new draft project in their dashboard.</p></div>
     <form id="adminCreateProjectForm" class="admin-create-form"><input class="input" name="email" type="email" placeholder="Customer email"><input class="input" name="name" placeholder="Project name"><button class="btn-ghost" type="submit">Create project</button></form>
@@ -41,4 +53,5 @@
 <script src="/assets/admin.js"></script>
 
 <script src="/assets/pbi-access.js" defer></script>
+<script src="/assets/pbi-cookie-banner.js" defer></script>
 </body></html>

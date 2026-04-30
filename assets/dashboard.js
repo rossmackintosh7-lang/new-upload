@@ -119,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="project-actions">
             ${Number(project.published || 0) === 1 && live ? `<a class="btn-ghost" href="${esc(live)}" target="_blank" rel="noopener">View live</a>` : ''}
             <a class="btn-ghost" href="/builder/?project=${encodeURIComponent(project.id)}">Edit</a>
-            <a class="btn" href="/payment/?project=${encodeURIComponent(project.id)}">${Number(project.published || 0) === 1 ? 'Manage plan' : 'Publish'}</a>
+            ${Number(project.published || 0) === 1 ? `<a class="btn" href="/payment/?project=${encodeURIComponent(project.id)}">Manage plan</a>` : `<button class="btn dashboardPublishBtn" type="button" data-project-id="${esc(project.id)}">Publish</button>`}
             <button class="btn-danger projectDeleteBtn" type="button" data-project-id="${esc(project.id)}" data-project-name="${esc(project.name || 'Untitled website')}">Delete</button>
           </div>
           <div class="dashboard-upgrade-grid">
@@ -163,6 +163,23 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function bindProjectActions() {
+
+    document.querySelectorAll('.dashboardPublishBtn').forEach((button) => {
+      button.addEventListener('click', async () => {
+        const projectId = button.dataset.projectId;
+        const oldText = button.textContent;
+        button.disabled = true;
+        button.textContent = 'Publishing...';
+        try {
+          const data = await api('/api/projects/publish', { method: 'POST', body: JSON.stringify({ project_id: projectId, domain_option: 'pbi_subdomain' }) });
+          if (data.payment_required && data.payment_url) { window.location.href = data.payment_url; return; }
+          if (data.live_url) { showMessage(`Website published: ${data.live_url}`, 'success'); await load(); return; }
+          showMessage(data.message || 'Publish status unclear.', 'info');
+        } catch (error) { showMessage(error.message || 'Could not publish website.', 'error'); }
+        finally { button.disabled = false; button.textContent = oldText; }
+      });
+    });
+
     document.querySelectorAll('.dashboardCheckoutBtn').forEach((button) => {
       button.addEventListener('click', async () => {
         button.disabled = true;
