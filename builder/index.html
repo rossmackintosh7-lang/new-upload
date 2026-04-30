@@ -1,33 +1,25 @@
-<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Builder • PBI</title>
-  <link rel="stylesheet" href="/assets/styles.css">
-</head>
-<body>
-  <nav class="nav">
-    <div class="container nav-inner">
-      <a class="brand brand-logo-only" href="/">
-        <img src="/assets/PBI%20Logo.png" alt="Purbeck Business Innovations logo" class="header-logo">
-      </a>
-      <div class="row">
-        <button class="btn-ghost" id="backBtn" type="button">Dashboard</button>
-        <button class="btn-ghost" id="logoutBtn" type="button">Logout</button>
-        <button class="btn" id="saveBtn" type="button">Save project</button>
-      </div>
-    </div>
-  </nav>
-
-  <main class="container section">
-    <div class="row-between" style="margin-bottom:18px">
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AI Builder • PBI</title><link rel="stylesheet" href="/assets/styles.css"></head>
+<body class="pbi-app-page pbi-builder-page">
+<div class="pbi-app-shell">
+  <aside class="pbi-side">
+    <a class="pbi-side-brand" href="/"><img src="/assets/PBI%20Logo.png" alt="PBI logo"></a>
+    <nav class="pbi-side-nav" aria-label="Dashboard navigation">
+      <a class="pbi-side-link" href="/dashboard/"><span>⌂</span><strong>Dashboard</strong></a><a class="pbi-side-link" href="/dashboard/"><span>□</span><strong>Projects</strong></a><a class="pbi-side-link active" href="/builder/"><span>✦</span><strong>AI Builder</strong></a><a class="pbi-side-link" href="/examples/"><span>▦</span><strong>Templates</strong></a><a class="pbi-side-link" href="/seo-agent/"><span>◎</span><strong>SEO Agent</strong></a><a class="pbi-side-link" href="/custom-build/"><span>&lt;/&gt;</span><strong>Custom Builds</strong></a><a class="pbi-side-link" href="/admin/"><span>⚙</span><strong>Settings</strong></a>
+    </nav>
+    <div class="pbi-side-illustration"></div>
+    <a class="pbi-side-collapse" href="/">‹‹ Home</a>
+  </aside>
+  <div class="pbi-app-main">
+    <header class="pbi-app-topbar">
       <div>
-        <h1 class="section-title">Website builder</h1>
-        <p class="muted">Build for free. Choose how to publish when your website is ready.</p>
+        <h1>AI Builder</h1>
+        <p>Create a beautiful website for your Purbeck business in minutes.</p>
       </div>
-    </div>
-
+      <div class="pbi-app-actions"><button class="btn-ghost" id="backBtn" type="button">Dashboard</button><button class="btn-ghost" id="logoutBtn" type="button">Logout</button><button class="btn" id="saveBtn" type="button">Save project</button></div>
+    </header>
+    <main class="pbi-app-content">
+  <section class="pbi-template-ribbon"><div><h3>Choose a template to get started</h3><p class="muted">Selected demos from Examples flow straight into this builder.</p></div><a class="pbi-ribbon-card" href="/examples/cafe/"><img src="/assets/demo-media/cafe-hero.svg" alt="Cafe template"><strong>Café / Restaurant</strong></a><a class="pbi-ribbon-card" href="/examples/trades/"><img src="/assets/demo-media/trades-hero.svg" alt="Trades template"><strong>Tradesperson</strong></a><a class="pbi-ribbon-card" href="/examples/consultant/"><img src="/assets/demo-media/consultant-hero.svg" alt="Consultant template"><strong>Consultant</strong></a></section>
+  
     <section class="builder-launch-guide card">
       <div>
         <p class="eyebrow">Publishing options</p>
@@ -170,8 +162,10 @@
         </aside>
       </div>
     </div>
-  </main>
-  <script src="/assets/template-presets.js"></script>
-  <script src="/assets/builder.js"></script>
-</body>
-</html>
+  
+    </main>
+  </div>
+</div>
+<script src="/assets/template-presets.js"></script><script src="/assets/builder.js"></script>
+
+</body></html>
