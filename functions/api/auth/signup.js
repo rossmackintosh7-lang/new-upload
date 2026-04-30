@@ -1,6 +1,6 @@
 import { json, error } from '../../_lib/json.js';
 import { randomHex, hashPassword } from '../../_lib/crypto.js';
-import { verifyTurnstile } from '../../_lib/turnstile.js';
+import { verifyTurnstileDetailed } from '../../_lib/turnstile.js';
 import { createSession, makeSetCookie } from '../../_lib/session.js';
 import { readJson } from '../../_lib/auth.js';
 import { sendEmail, publicBaseUrl, escapeHtml } from '../../_lib/email.js';
@@ -22,7 +22,7 @@ export async function onRequestPost({ request, env }) {
   if (!termsAccepted) return error('You must accept the Terms and Conditions before creating an account.', 400);
   if (!token) return error('Turnstile token missing.');
 
-  const ok = await verifyTurnstile(env, token, request.headers.get('CF-Connecting-IP') || '');
+  const turnstile = await verifyTurnstileDetailed(env, token, request.headers.get('CF-Connecting-IP') || '');
   if (!ok) return error('Turnstile validation failed.', 400);
 
   const existing = await env.DB.prepare('SELECT id FROM users WHERE email = ? LIMIT 1').bind(email).first();

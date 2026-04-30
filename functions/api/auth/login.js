@@ -1,5 +1,5 @@
 import { json, error } from '../../_lib/json.js';
-import { verifyTurnstile } from '../../_lib/turnstile.js';
+import { verifyTurnstileDetailed } from '../../_lib/turnstile.js';
 import { verifyPassword } from '../../_lib/crypto.js';
 import { createSession, makeSetCookie } from '../../_lib/session.js';
 import { readJson } from '../../_lib/auth.js';
@@ -17,17 +17,21 @@ export async function onRequestPost({ request, env }) {
   }
 
   if (!token) {
-    return error('Turnstile token missing.');
+    return error('Turnstile token missing. Refresh the page and complete the security check again.');
   }
 
-  const ok = await verifyTurnstile(
+  const turnstile = await verifyTurnstileDetailed(
     env,
     token,
     request.headers.get('CF-Connecting-IP') || ''
   );
 
-  if (!ok) {
-    return error('Turnstile validation failed.', 400);
+  if (!turnstile.success) {
+    return error(turnstile.reason || 'Turnstile validation failed.', 400, {
+      turnstileCode: turnstile.code || 'unknown',
+      turnstileErrors: turnstile.errorCodes || [],
+      turnstileHostname: turnstile.hostname || ''
+    });
   }
 
   const user = await env.DB
