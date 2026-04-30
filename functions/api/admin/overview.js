@@ -4,6 +4,16 @@ function safeCount(rows) {
   return Array.isArray(rows) ? rows.length : 0;
 }
 
+async function allOrEmpty(env, sql) {
+  try {
+    const result = await env.DB.prepare(sql).all();
+    return result.results || [];
+  } catch (err) {
+    console.warn('Admin overview query skipped:', err?.message || err);
+    return [];
+  }
+}
+
 function enrichProject(project) {
   const data = parseProjectData(project);
   return {
@@ -20,6 +30,27 @@ function enrichProject(project) {
   };
 }
 
+function normaliseAgentEnquiry(row) {
+  return {
+    id: row.id,
+    project_id: row.project_id || row.projectId || '',
+    contact_name: row.name || row.contact_name || '',
+    email: row.email || '',
+    phone: row.phone || '',
+    business_name: row.business_name || row.businessName || '',
+    main_promotion_goal: row.needs || row.main_promotion_goal || '',
+    status: row.status || 'new',
+    body_json: JSON.stringify({
+      source: row.source || 'pbi_agent',
+      budget: row.budget || '',
+      timeframe: row.timeframe || '',
+      needs: row.needs || ''
+    }),
+    created_at: row.created_at || row.createdAt || '',
+    updated_at: row.updated_at || row.created_at || row.createdAt || ''
+  };
+}
+
 export async function onRequestGet({ request, env }) {
   const { admin, response } = await requireAdmin(env, request);
   if (response) return response;
@@ -27,41 +58,50 @@ export async function onRequestGet({ request, env }) {
 
   await ensureAdminTables(env);
 
-  const usersResult = await env.DB.prepare(`
-    SELECT id, email, email_verified, created_at, updated_at
+  const users = await allOrEmpty(env, `
+    SELECT id, email, COALESCE(email_verified, 0) AS email_verified, created_at, updated_at
     FROM users
-    ORDER BY datetime(created_at) DESC
+    ORDER BY datetime(COALESCE(created_at, updated_at, '1970-01-01')) DESC
     LIMIT 250
-  `).all();
+  `);
 
-  const projectsResult = await env.DB.prepare(`
+  const projectRows = await allOrEmpty(env, `
     SELECT
       projects.*,
       users.email AS user_email
     FROM projects
     LEFT JOIN users ON users.id = projects.user_id
-    ORDER BY datetime(COALESCE(projects.updated_at, projects.created_at)) DESC
+    ORDER BY datetime(COALESCE(projects.updated_at, projects.created_at, '1970-01-01')) DESC
     LIMIT 500
-  `).all();
+  `);
 
-  const enquiriesResult = await env.DB.prepare(`
+  const customEnquiries = await allOrEmpty(env, `
     SELECT *
     FROM custom_build_enquiries
-    ORDER BY datetime(created_at) DESC
-    LIMIT 100
-  `).all();
+    ORDER BY datetime(COALESCE(created_at, updated_at, '1970-01-01')) DESC
+    LIMIT 150
+  `);
 
-  const supportResult = await env.DB.prepare(`
+  const agentEnquiries = (await allOrEmpty(env, `
+    SELECT *
+    FROM pbi_custom_build_enquiries
+    ORDER BY datetime(COALESCE(created_at, '1970-01-01')) DESC
+    LIMIT 150
+  `)).map(normaliseAgentEnquiry);
+
+  const support_requests = await allOrEmpty(env, `
     SELECT *
     FROM support_requests
-    ORDER BY datetime(created_at) DESC
-    LIMIT 100
-  `).all();
+    ORDER BY datetime(COALESCE(created_at, updated_at, '1970-01-01')) DESC
+    LIMIT 150
+  `);
 
-  const projects = (projectsResult.results || []).map(enrichProject);
-  const users = usersResult.results || [];
-  const enquiries = enquiriesResult.results || [];
-  const support_requests = supportResult.results || [];
+  const projects = projectRows.map(enrichProject);
+  const enquiryMap = new Map();
+  [...customEnquiries, ...agentEnquiries].forEach((row) => {
+    if (row?.id) enquiryMap.set(row.id, row);
+  });
+  const enquiries = [...enquiryMap.values()].sort((a, b) => String(b.created_at || '').localeCompare(String(a.created_at || '')));
 
   const stats = {
     users: safeCount(users),

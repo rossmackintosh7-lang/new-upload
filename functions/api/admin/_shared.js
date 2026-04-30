@@ -6,14 +6,11 @@ export async function getAdminUser(env, request) {
   const user = await getUserFromSession(env, request);
   if (!user) return null;
 
-  const allowed = String(env.PBI_ADMIN_EMAILS || '')
+  const fallbackAdmins = 'rossmackintosh7@icloud.com,info@purbeckbusinessinnovations.co.uk';
+  const allowed = String(env.PBI_ADMIN_EMAILS || fallbackAdmins)
     .split(',')
     .map((email) => email.trim().toLowerCase())
     .filter(Boolean);
-
-  if (!allowed.length) {
-    return { ...user, admin_error: 'PBI_ADMIN_EMAILS is not set.' };
-  }
 
   if (!allowed.includes(String(user.email || '').toLowerCase())) {
     return null;
