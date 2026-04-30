@@ -17,6 +17,6 @@ Manual routes to test after deploy:
 - /how-it-works/ should not overlap on desktop/mobile.
 
 Important Cloudflare reminder:
-- DB binding must be named DB and point to pbi-db.
+- DB binding must be named DB and point to d1-template-database.
 - TURNSTILE_SECRET_KEY must be set in Variables and Secrets.
 - If you test .pages.dev preview deploys, set variables in Preview too.

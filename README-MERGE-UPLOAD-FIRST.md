@@ -25,7 +25,7 @@ Build output directory: `.`
 Run once after upload:
 
 ```bash
-npx wrangler d1 execute pbi-db --file=./database/pbi-combined-schema.sql --remote
+npx wrangler d1 execute d1-template-database --file=./database/pbi-combined-schema.sql --remote
 ```
 
 Test:
