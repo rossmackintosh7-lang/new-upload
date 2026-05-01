@@ -3,7 +3,7 @@ compatibility_date = "2025-04-01"
 pages_build_output_dir = "."
 
 [vars]
-PBI_REQUIRE_PAYMENT_TO_PUBLISH = "true"
+PBI_REQUIRE_PAYMENT_TO_PUBLISH = "false"
 OPENAI_MODEL = "gpt-4.1-mini"
 PBI_BASE_URL = "https://www.purbeckbusinessinnovations.co.uk"
 PBI_ADMIN_EMAILS = "rossmackintosh7@icloud.com,info@purbeckbusinessinnovations.co.uk"
