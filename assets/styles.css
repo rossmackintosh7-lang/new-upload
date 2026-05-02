@@ -6152,3 +6152,255 @@ html.retail-orders-visible .retail-orders-nav-item,
 html.retail-orders-visible [data-retail-orders-nav] {
   display: flex;
 }
+
+
+
+/* Competitive positioning upgrade */
+.pbi-competitive-hero {
+  padding: 84px 0 58px;
+}
+
+.pbi-hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(340px, .95fr);
+  gap: 38px;
+  align-items: center;
+}
+
+.pbi-hero-copy h1 {
+  font-size: clamp(2.7rem, 6vw, 5.8rem);
+  line-height: .92;
+  letter-spacing: -.06em;
+  margin: 0 0 24px;
+}
+
+.pbi-proof-strip {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 26px;
+}
+
+.pbi-proof-strip span,
+.pbi-add-on-strip span {
+  border: 1px solid rgba(95,62,47,.15);
+  background: rgba(255,248,241,.72);
+  border-radius: 999px;
+  padding: 10px 14px;
+  font-weight: 850;
+  font-size: .92rem;
+}
+
+.pbi-hero-product-card {
+  border-radius: 34px;
+  background: rgba(255,248,241,.64);
+  border: 1px solid rgba(95,62,47,.14);
+  padding: 18px;
+  box-shadow: 0 30px 70px rgba(55,34,20,.16);
+}
+
+.pbi-mini-browser {
+  border-radius: 26px;
+  overflow: hidden;
+  background: #fff8f1;
+  border: 1px solid rgba(95,62,47,.12);
+}
+
+.pbi-browser-dots {
+  display: flex;
+  gap: 8px;
+  padding: 14px 16px;
+  background: rgba(55,34,20,.08);
+}
+
+.pbi-browser-dots span {
+  width: 10px;
+  height: 10px;
+  border-radius: 99px;
+  background: rgba(95,62,47,.34);
+}
+
+.pbi-browser-hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  padding: 18px;
+  align-items: center;
+}
+
+.pbi-browser-hero img {
+  width: 100%;
+  height: 260px;
+  object-fit: cover;
+  border-radius: 22px;
+}
+
+.pbi-browser-hero h2 {
+  font-size: 2.1rem;
+  line-height: 1;
+  margin: 0 0 10px;
+}
+
+.pbi-browser-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  padding: 0 18px 18px;
+}
+
+.pbi-browser-cards span {
+  background: rgba(191,92,41,.12);
+  border-radius: 16px;
+  padding: 12px;
+  font-size: .85rem;
+  font-weight: 900;
+  text-align: center;
+}
+
+.pbi-product-steps,
+.pbi-public-template-wrap,
+.pbi-feature-showcase,
+.pbi-final-cta {
+  padding-top: 54px;
+  padding-bottom: 54px;
+}
+
+.pbi-step-number {
+  display: inline-flex;
+  width: 36px;
+  height: 36px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 99px;
+  background: var(--accent, #bf5c29);
+  color: #fff;
+  font-weight: 900;
+  margin-bottom: 12px;
+}
+
+.pbi-comparison-panel,
+.pbi-pricing-teaser {
+  display: grid;
+  grid-template-columns: .9fr 1.1fr;
+  gap: 32px;
+  align-items: center;
+}
+
+.pbi-compare-list {
+  display: grid;
+  gap: 14px;
+}
+
+.pbi-compare-list div {
+  display: grid;
+  gap: 4px;
+  background: rgba(255,248,241,.72);
+  border: 1px solid rgba(95,62,47,.14);
+  border-radius: 22px;
+  padding: 20px;
+}
+
+.pbi-compare-list strong {
+  font-size: 1.05rem;
+}
+
+.pbi-home-template-strip {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.pbi-price-mini-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.pbi-price-mini-grid a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.pbi-price-mini-grid strong {
+  display: block;
+  font-size: 1.1rem;
+  margin-bottom: 6px;
+}
+
+.pbi-final-cta {
+  text-align: center;
+  max-width: 860px;
+}
+
+.pbi-final-cta h2 {
+  font-size: clamp(2.2rem, 5vw, 4.6rem);
+  line-height: .95;
+  margin: 0 0 16px;
+}
+
+.pbi-final-cta .hero-actions {
+  justify-content: center;
+}
+
+.pbi-pricing-upgrade {
+  padding-top: 54px;
+  padding-bottom: 54px;
+}
+
+.pbi-pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0,1fr));
+  gap: 18px;
+}
+
+.pbi-price-card.featured {
+  border: 2px solid rgba(191,92,41,.45);
+  box-shadow: 0 24px 55px rgba(191,92,41,.13);
+}
+
+.pbi-add-on-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.pbi-comparison-table {
+  display: grid;
+  gap: 10px;
+  margin: 24px 0;
+}
+
+.pbi-comparison-table > div {
+  display: grid;
+  grid-template-columns: .65fr 1fr 1fr;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(255,248,241,.72);
+  border: 1px solid rgba(95,62,47,.14);
+}
+
+.pbi-comparison-table > div:first-child {
+  background: rgba(191,92,41,.12);
+  font-weight: 900;
+}
+
+@media (max-width: 920px) {
+  .pbi-hero-grid,
+  .pbi-comparison-panel,
+  .pbi-pricing-teaser,
+  .pbi-browser-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .pbi-browser-cards,
+  .pbi-home-template-strip,
+  .pbi-pricing-grid,
+  .pbi-price-mini-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pbi-comparison-table > div {
+    grid-template-columns: 1fr;
+  }
+}
+
