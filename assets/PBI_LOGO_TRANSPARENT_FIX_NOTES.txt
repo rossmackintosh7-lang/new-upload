@@ -1,0 +1,36 @@
+PBI LOGO TRANSPARENT FIX
+
+What this fixes:
+- Removed the white/off-white square background from the logo image.
+- Added a transparent logo file:
+  /assets/pbi-logo-transparent.png
+- Replaced logo references with:
+  /assets/pbi-logo-transparent.png?v=20260502b
+- The version tag forces the custom domain to fetch the new logo instead of using cached old logo files.
+- Added CSS to remove background, border, radius and shadow from the header logo container.
+
+Files updated:
+- assets/pbi-logo-transparent.png
+- assets/pbi-logo-final.png
+- assets/PBI Logo.png
+- assets/pbi-logo.png
+- assets/pbi-logo-new.png
+- HTML logo references
+- assets/styles.css
+
+Checks:
+- Broken local function imports: 0
+- JavaScript syntax errors: 0
+
+After deploying:
+1. Purge Cloudflare cache for:
+   https://purbeckbusinessinnovations.co.uk/
+   https://purbeckbusinessinnovations.co.uk/assets/pbi-logo-transparent.png?v=20260502b
+   https://www.purbeckbusinessinnovations.co.uk/
+   https://www.purbeckbusinessinnovations.co.uk/assets/pbi-logo-transparent.png?v=20260502b
+
+2. Hard refresh Chrome:
+   Mac: Cmd + Shift + R
+
+Important:
+- If GitHub still has functions/api/analytics/track 2.js, delete it.
