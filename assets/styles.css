@@ -7289,4 +7289,18 @@ html.retail-orders-visible [data-retail-orders-nav] {
     justify-content: center;
   }
 }
+.header-logo {
+  max-height: 88px;
+  width: auto;
+  object-fit: contain;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+}
 
+.brand-logo-only {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  padding: 0;
+}
