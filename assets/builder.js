@@ -493,9 +493,16 @@
     state.logoStyle = els.logoStyle?.value || state.logoStyle || 'clean';
     state.logoColours = els.logoColours?.value || state.logoColours || '';
 
-    state.template = normaliseTemplate(
-      document.querySelector('input[name="templateStyle"]:checked')?.value || state.template
-    );
+    const selectedTemplateChoice = document.querySelector('input[name="templateStyle"]:checked')?.value || '';
+    const selectedPreset = getTemplatePreset(selectedTemplateChoice);
+
+    if (selectedPreset) {
+      state.templatePreset = selectedPreset.id;
+      state.template = normaliseTemplate(selectedPreset.template || state.template);
+    } else {
+      state.templatePreset = '';
+      state.template = normaliseTemplate(selectedTemplateChoice || state.template);
+    }
 
     const currentPage = getPage(state.activePage);
     currentPage.title = els.pageTitle?.value || '';
@@ -553,8 +560,9 @@
     if (els.logoStyle) els.logoStyle.value = state.logoStyle || 'clean';
     if (els.logoColours) els.logoColours.value = state.logoColours || '';
 
+    const templateChoiceValue = state.templatePreset || state.template;
     const templateInput = document.querySelector(
-      `input[name="templateStyle"][value="${state.template}"]`
+      `input[name="templateStyle"][value="${templateChoiceValue}"]`
     );
 
     if (templateInput) {
@@ -1670,6 +1678,7 @@ async function startRetailConnect() {
 
     if (!template) return;
 
+    state.templatePreset = '';
     state.template = normalisedKey;
     state.accentColor = template.accent;
     state.backgroundColor = template.background;
@@ -1680,6 +1689,18 @@ async function startRetailConnect() {
 
     syncStateToInputs();
     renderAll();
+  }
+
+  function applyTemplateChoice(templateKey) {
+    const preset = getTemplatePreset(templateKey);
+    if (preset) {
+      applyTemplatePreset(templateKey, { keepProjectName: true });
+      syncStateToInputs();
+      renderAll();
+      return;
+    }
+
+    applyTemplateDefaults(templateKey);
   }
 
   function updateTemplateChoiceLabels() {
@@ -1801,7 +1822,7 @@ async function startRetailConnect() {
 
     document.querySelectorAll('input[name="templateStyle"]').forEach((input) => {
       input.addEventListener('change', () => {
-        applyTemplateDefaults(input.value);
+        applyTemplateChoice(input.value);
       });
     });
 
