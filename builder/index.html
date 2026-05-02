@@ -73,6 +73,22 @@
       <div class="builder-layout">
         <section class="builder-left">
           <div class="builder-stack">
+
+            <div class="card" id="pbiLaunchReadinessCard">
+              <h3>Launch readiness</h3>
+              <p class="small-note muted">A quick pre-publish check so customers know what still needs attention before going live.</p>
+              <div class="pbi-readiness-meter"><span id="pbiReadinessScore">0%</span><div><i id="pbiReadinessBar"></i></div></div>
+              <ul class="pbi-launch-checklist" id="pbiLaunchChecklist">
+                <li data-check="business">Business name added</li>
+                <li data-check="heading">Homepage heading added</li>
+                <li data-check="content">Page content has been edited</li>
+                <li data-check="contact">Contact page selected</li>
+                <li data-check="images">Logo or images uploaded</li>
+                <li data-check="domain">Domain/subdomain route selected</li>
+                <li data-check="retail">Retail checked if shop is enabled</li>
+              </ul>
+            </div>
+
             <div class="card">
               <h3>Project</h3>
               <div class="field"><label for="projectName">Project name</label><input id="projectName" class="input" placeholder="My business website"></div>
@@ -270,4 +286,5 @@
 <script src="/assets/pbi-access.js" defer></script>
 <script src="/assets/pbi-cookie-banner.js" defer></script>
   <script src="/assets/pbi-retail-orders-visibility.js" defer></script>
+  <script src="/assets/pbi-launch-readiness.js" defer></script>
 </body></html>

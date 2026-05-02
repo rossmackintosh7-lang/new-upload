@@ -6404,3 +6404,151 @@ html.retail-orders-visible [data-retail-orders-nav] {
   }
 }
 
+
+
+
+/* PBI platform upgrade */
+.pbi-wizard-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(280px, .65fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.pbi-wizard-card fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.pbi-wizard-step {
+  display: none;
+}
+
+.pbi-wizard-step.active {
+  display: block;
+}
+
+.pbi-wizard-progress {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.pbi-wizard-progress span {
+  height: 8px;
+  flex: 1;
+  border-radius: 999px;
+  background: rgba(95,62,47,.15);
+}
+
+.pbi-wizard-progress span.active {
+  background: var(--accent, #bf5c29);
+}
+
+.pbi-choice-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 18px 0;
+}
+
+.pbi-choice-grid label {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  border: 1px solid rgba(95,62,47,.15);
+  border-radius: 18px;
+  padding: 14px;
+  background: rgba(255,248,241,.74);
+  font-weight: 800;
+}
+
+.pbi-wizard-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 24px;
+}
+
+.pbi-wizard-summary {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.pbi-wizard-summary div {
+  display: grid;
+  grid-template-columns: .35fr 1fr;
+  gap: 12px;
+  border-bottom: 1px solid rgba(95,62,47,.12);
+  padding: 10px 0;
+}
+
+.pbi-readiness-meter {
+  display: grid;
+  grid-template-columns: 58px 1fr;
+  gap: 12px;
+  align-items: center;
+  margin: 16px 0;
+  font-weight: 900;
+}
+
+.pbi-readiness-meter div {
+  height: 12px;
+  border-radius: 999px;
+  background: rgba(95,62,47,.12);
+  overflow: hidden;
+}
+
+.pbi-readiness-meter i {
+  display: block;
+  width: 0%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent, #bf5c29);
+  transition: width .25s ease;
+}
+
+.pbi-launch-checklist {
+  display: grid;
+  gap: 8px;
+  list-style: none;
+  padding: 0;
+}
+
+.pbi-launch-checklist li {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.pbi-launch-checklist li::before {
+  content: "○";
+  color: rgba(95,62,47,.55);
+  font-weight: 900;
+}
+
+.pbi-launch-checklist li.done::before {
+  content: "✓";
+  color: #256b5b;
+}
+
+.pbi-analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+}
+
+@media (max-width: 860px) {
+  .pbi-wizard-shell,
+  .pbi-choice-grid,
+  .pbi-analytics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pbi-wizard-summary div {
+    grid-template-columns: 1fr;
+  }
+}
+
