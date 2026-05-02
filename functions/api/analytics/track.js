@@ -1,5 +1,5 @@
 
-import { json } from "../_lib/json.js";
+import { json } from "../../_lib/json.js";
 
 function clean(value, max = 1000) {
   return String(value ?? "").trim().slice(0, max);
