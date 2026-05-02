@@ -223,3 +223,21 @@ CREATE TABLE IF NOT EXISTS retail_connect_accounts (
 
 CREATE INDEX IF NOT EXISTS idx_retail_connect_accounts_user_id ON retail_connect_accounts(user_id);
 CREATE INDEX IF NOT EXISTS idx_retail_connect_accounts_stripe_account_id ON retail_connect_accounts(stripe_account_id);
+
+
+-- Paid logo creation requests
+
+CREATE TABLE IF NOT EXISTS logo_creation_requests (
+  id TEXT PRIMARY KEY,
+  project_id TEXT,
+  user_id TEXT,
+  business_name TEXT,
+  logo_brief TEXT,
+  logo_style TEXT,
+  logo_colours TEXT,
+  status TEXT DEFAULT 'draft',
+  stripe_session_id TEXT,
+  body_json TEXT,
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+);

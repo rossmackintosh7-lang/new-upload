@@ -183,6 +183,43 @@
               <div class="retail-toolbar"><button class="btn-ghost" id="addRetailProductBtn" type="button">Add product</button><span id="retailProductCount" class="small-note muted">0 / 10 products</span></div>
               <div id="retailProductsList" class="retail-products-editor"></div>
             </div>
+
+            <div class="card" id="builderAdvancedDesignCard">
+              <h3>Advanced design controls</h3>
+              <p class="small-note muted">Give the website a stronger custom feel by adjusting layout shape, section style, image behaviour and background treatment.</p>
+              <div class="grid-2">
+                <div class="field"><label for="siteLayoutStyle">Layout style</label><select id="siteLayoutStyle" class="select"><option value="classic">Classic sections</option><option value="split">Split hero</option><option value="editorial">Editorial flow</option><option value="cards">Card-led layout</option></select></div>
+                <div class="field"><label for="sectionShape">Section shape</label><select id="sectionShape" class="select"><option value="soft">Soft rounded</option><option value="square">Clean square</option><option value="pill">Pill and bubble</option></select></div>
+              </div>
+              <div class="grid-2">
+                <div class="field"><label for="imageStyle">Image style</label><select id="imageStyle" class="select"><option value="rounded">Rounded images</option><option value="circle">Circular details</option><option value="polaroid">Layered card images</option><option value="edge">Full-bleed edge images</option></select></div>
+                <div class="field"><label for="backgroundMode">Background mode</label><select id="backgroundMode" class="select"><option value="plain">Plain colour</option><option value="gradient">Soft gradient</option><option value="image">Uploaded background image</option><option value="pattern">Subtle pattern</option></select></div>
+              </div>
+              <div class="grid-2">
+                <div class="field"><label for="headingFontStyle">Heading style</label><select id="headingFontStyle" class="select"><option value="bold">Bold modern</option><option value="friendly">Friendly rounded</option><option value="editorial">Editorial serif feel</option></select></div>
+                <div class="field"><label for="contentDensity">Content spacing</label><select id="contentDensity" class="select"><option value="comfortable">Comfortable</option><option value="compact">Compact</option><option value="spacious">Spacious</option></select></div>
+              </div>
+              <div class="grid-2">
+                <div class="field"><label for="secondaryColor">Secondary colour</label><input id="secondaryColor" class="input" type="color" value="#f2b66d"></div>
+                <div class="field"><label for="cardColor">Card/background panel colour</label><input id="cardColor" class="input" type="color" value="#fff8f1"></div>
+              </div>
+            </div>
+
+            <div class="card" id="builderLogoCreationCard">
+              <h3>Paid logo creation</h3>
+              <p class="small-note muted">Customers can request a paid PBI logo concept after payment. They describe the style they want, and the request is saved for PBI to generate and return.</p>
+              <div class="field">
+                <label for="logoBrief">Describe the logo you want</label>
+                <textarea id="logoBrief" class="textarea" placeholder="Example: coastal, simple, warm colours, hand-drawn cow, clean business lettering, no background"></textarea>
+              </div>
+              <div class="grid-2">
+                <div class="field"><label for="logoStyle">Logo style</label><select id="logoStyle" class="select"><option value="clean">Clean and modern</option><option value="sketched">Sketched / hand-drawn</option><option value="premium">Premium and minimal</option><option value="playful">Friendly and playful</option><option value="heritage">Traditional / heritage</option></select></div>
+                <div class="field"><label for="logoColours">Preferred colours</label><input id="logoColours" class="input" placeholder="Example: orange, cream, dark green"></div>
+              </div>
+              <button class="btn" id="requestLogoBtn" type="button">Request paid logo creation</button>
+              <div id="logoRequestStatus" class="notice" style="margin-top:16px;display:none"></div>
+            </div>
+
             <div class="card">
               <h3>Domain</h3>
               <div class="grid-2">

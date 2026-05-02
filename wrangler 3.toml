@@ -3,7 +3,7 @@ compatibility_date = "2025-04-01"
 pages_build_output_dir = "."
 
 [vars]
-PBI_REQUIRE_PAYMENT_TO_PUBLISH = "true"
+PBI_REQUIRE_PAYMENT_TO_PUBLISH = "false"
 OPENAI_MODEL = "gpt-4.1-mini"
 PBI_BASE_URL = "https://www.purbeckbusinessinnovations.co.uk"
 PBI_ADMIN_EMAILS = "rossmackintosh7@icloud.com,info@purbeckbusinessinnovations.co.uk"
@@ -23,9 +23,6 @@ PBI_RETAIL_ALLOW_PLATFORM_PAYMENTS = "false"
 PBI_RETAIL_APPLICATION_FEE_PERCENT = "0"
 PBI_RETAIL_CONNECT_ACCOUNT_TYPE = "express"
 RETAIL_ALLOWED_COUNTRY_1 = "GB"
-PBI_LOGO_CREATION_ENABLED = "true"
-PBI_LOGO_CREATION_PRICE_REQUIRED = "true"
-STRIPE_PRICE_LOGO_CREATION = "ADD_PRICE_ID_IN_GITHUB"
 
 [[d1_databases]]
 binding = "DB"

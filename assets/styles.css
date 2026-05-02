@@ -6028,3 +6028,115 @@ body:not(.pbi-app-page) .payment-hero, body:not(.pbi-app-page) .page-hero { padd
     justify-content: center;
   }
 }
+
+
+
+/* SEO landing pages and advanced builder polish */
+.pbi-seo-landing-hero .hero-text {
+  max-width: 940px;
+}
+
+.pbi-seo-layout {
+  align-items: start;
+}
+
+.pbi-seo-content-block {
+  margin-bottom: 34px;
+}
+
+.pbi-seo-content-block h2 {
+  margin-bottom: 10px;
+}
+
+.pbi-seo-side-card {
+  position: sticky;
+  top: 22px;
+}
+
+.pbi-related-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.pbi-related-links a {
+  border: 1px solid rgba(95,62,47,.16);
+  border-radius: 999px;
+  padding: 10px 14px;
+  text-decoration: none;
+  background: rgba(255,248,241,.72);
+  font-weight: 800;
+}
+
+.pbi-faq-list details {
+  border: 1px solid rgba(95,62,47,.16);
+  background: rgba(255,248,241,.72);
+  border-radius: 18px;
+  padding: 16px 18px;
+  margin: 12px 0;
+}
+
+.pbi-faq-list summary {
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.preview-scroll.bg-gradient {
+  background: linear-gradient(135deg, var(--pbi-card, #fff8f1), var(--pbi-secondary, #f2b66d)) !important;
+}
+
+.preview-scroll.bg-pattern {
+  background-image: radial-gradient(rgba(0,0,0,.07) 1px, transparent 1px) !important;
+  background-size: 20px 20px !important;
+}
+
+.preview-scroll.shape-square * {
+  border-radius: 4px !important;
+}
+
+.preview-scroll.shape-pill .card,
+.preview-scroll.shape-pill section,
+.preview-scroll.shape-pill .retail-product {
+  border-radius: 32px !important;
+}
+
+.preview-scroll.image-circle img {
+  border-radius: 999px !important;
+}
+
+.preview-scroll.image-polaroid img {
+  transform: rotate(-1deg);
+  box-shadow: 0 14px 32px rgba(0,0,0,.16);
+  border: 8px solid #fff;
+}
+
+.preview-scroll.image-edge img {
+  border-radius: 0 !important;
+}
+
+.preview-scroll.density-compact section {
+  padding-top: 28px !important;
+  padding-bottom: 28px !important;
+}
+
+.preview-scroll.density-spacious section {
+  padding-top: 72px !important;
+  padding-bottom: 72px !important;
+}
+
+#builderLogoCreationCard .textarea {
+  min-height: 140px;
+}
+
+.pbi-seo-entry-links .mini-card {
+  text-decoration: none;
+  color: inherit;
+}
+
+@media (max-width: 900px) {
+  .pbi-seo-side-card {
+    position: static;
+  }
+}
+

@@ -163,6 +163,20 @@
     retailProductsList: $('retailProductsList'),
     retailProductCount: $('retailProductCount'),
 
+    siteLayoutStyle: $('siteLayoutStyle'),
+    sectionShape: $('sectionShape'),
+    imageStyle: $('imageStyle'),
+    backgroundMode: $('backgroundMode'),
+    headingFontStyle: $('headingFontStyle'),
+    contentDensity: $('contentDensity'),
+    secondaryColor: $('secondaryColor'),
+    cardColor: $('cardColor'),
+    logoBrief: $('logoBrief'),
+    logoStyle: $('logoStyle'),
+    logoColours: $('logoColours'),
+    requestLogoBtn: $('requestLogoBtn'),
+    logoRequestStatus: $('logoRequestStatus'),
+
     desktopBtn: $('desktopBtn'),
     mobileBtn: $('mobileBtn'),
     previewFrame: $('previewFrame'),
@@ -215,7 +229,19 @@
     retailTaxEnabled: false,
     retailShippingLabel: 'UK standard delivery',
     retailShippingAmount: '3.99',
-    retailProducts: []
+    retailProducts: [],
+
+    siteLayoutStyle: 'classic',
+    sectionShape: 'soft',
+    imageStyle: 'rounded',
+    backgroundMode: 'plain',
+    headingFontStyle: 'bold',
+    contentDensity: 'comfortable',
+    secondaryColor: '#f2b66d',
+    cardColor: '#fff8f1',
+    logoBrief: '',
+    logoStyle: 'clean',
+    logoColours: ''
   };
 
   function escapeHtml(value) {
@@ -452,6 +478,18 @@
 
     syncRetailInputsToState();
 
+    state.siteLayoutStyle = els.siteLayoutStyle?.value || state.siteLayoutStyle || 'classic';
+    state.sectionShape = els.sectionShape?.value || state.sectionShape || 'soft';
+    state.imageStyle = els.imageStyle?.value || state.imageStyle || 'rounded';
+    state.backgroundMode = els.backgroundMode?.value || state.backgroundMode || 'plain';
+    state.headingFontStyle = els.headingFontStyle?.value || state.headingFontStyle || 'bold';
+    state.contentDensity = els.contentDensity?.value || state.contentDensity || 'comfortable';
+    state.secondaryColor = els.secondaryColor?.value || state.secondaryColor || '#f2b66d';
+    state.cardColor = els.cardColor?.value || state.cardColor || '#fff8f1';
+    state.logoBrief = els.logoBrief?.value || state.logoBrief || '';
+    state.logoStyle = els.logoStyle?.value || state.logoStyle || 'clean';
+    state.logoColours = els.logoColours?.value || state.logoColours || '';
+
     state.template = normaliseTemplate(
       document.querySelector('input[name="templateStyle"]:checked')?.value || state.template
     );
@@ -498,6 +536,18 @@
     if (els.httpsEnabled) els.httpsEnabled.value = String(state.httpsEnabled !== false);
 
     syncRetailStateToInputs();
+
+    if (els.siteLayoutStyle) els.siteLayoutStyle.value = state.siteLayoutStyle || 'classic';
+    if (els.sectionShape) els.sectionShape.value = state.sectionShape || 'soft';
+    if (els.imageStyle) els.imageStyle.value = state.imageStyle || 'rounded';
+    if (els.backgroundMode) els.backgroundMode.value = state.backgroundMode || 'plain';
+    if (els.headingFontStyle) els.headingFontStyle.value = state.headingFontStyle || 'bold';
+    if (els.contentDensity) els.contentDensity.value = state.contentDensity || 'comfortable';
+    if (els.secondaryColor) els.secondaryColor.value = state.secondaryColor || '#f2b66d';
+    if (els.cardColor) els.cardColor.value = state.cardColor || '#fff8f1';
+    if (els.logoBrief) els.logoBrief.value = state.logoBrief || '';
+    if (els.logoStyle) els.logoStyle.value = state.logoStyle || 'clean';
+    if (els.logoColours) els.logoColours.value = state.logoColours || '';
 
     const templateInput = document.querySelector(
       `input[name="templateStyle"][value="${state.template}"]`
@@ -1091,8 +1141,33 @@ async function startRetailConnect() {
       </div>`).join('')}</div>`;
   }
 
+
+  function applyAdvancedPreviewClasses() {
+    if (!els.previewScroll) return;
+    const classes = [
+      `layout-${state.siteLayoutStyle || 'classic'}`,
+      `shape-${state.sectionShape || 'soft'}`,
+      `image-${state.imageStyle || 'rounded'}`,
+      `bg-${state.backgroundMode || 'plain'}`,
+      `heading-${state.headingFontStyle || 'bold'}`,
+      `density-${state.contentDensity || 'comfortable'}`
+    ];
+    els.previewScroll.classList.remove(
+      'layout-classic','layout-split','layout-editorial','layout-cards',
+      'shape-soft','shape-square','shape-pill',
+      'image-rounded','image-circle','image-polaroid','image-edge',
+      'bg-plain','bg-gradient','bg-image','bg-pattern',
+      'heading-bold','heading-friendly','heading-editorial',
+      'density-comfortable','density-compact','density-spacious'
+    );
+    els.previewScroll.classList.add(...classes);
+    els.previewScroll.style.setProperty('--pbi-secondary', state.secondaryColor || '#f2b66d');
+    els.previewScroll.style.setProperty('--pbi-card', state.cardColor || '#fff8f1');
+  }
+
   function renderPreview() {
     if (!els.previewScroll) return;
+    applyAdvancedPreviewClasses();
 
     if (els.previewAddress) {
       els.previewAddress.textContent = `https://${getPreviewDomain()}`;
@@ -1188,7 +1263,18 @@ async function startRetailConnect() {
       retail_tax_enabled: state.retailTaxEnabled,
       retail_shipping_label: state.retailShippingLabel || 'UK standard delivery',
       retail_shipping_amount: state.retailShippingAmount || '0',
-      retail_products: (state.retailProducts || []).slice(0, 10)
+      retail_products: (state.retailProducts || []).slice(0, 10),
+      site_layout_style: state.siteLayoutStyle,
+      section_shape: state.sectionShape,
+      image_style: state.imageStyle,
+      background_mode: state.backgroundMode,
+      heading_font_style: state.headingFontStyle,
+      content_density: state.contentDensity,
+      secondary_color: state.secondaryColor,
+      card_color: state.cardColor,
+      logo_brief: state.logoBrief,
+      logo_style: state.logoStyle,
+      logo_colours: state.logoColours
     };
   }
 
@@ -1451,6 +1537,18 @@ async function startRetailConnect() {
       state.retailShippingAmount = data.retail_shipping_amount || '3.99';
       state.retailProducts = Array.isArray(data.retail_products) ? data.retail_products.slice(0, 10) : [];
 
+      state.siteLayoutStyle = data.site_layout_style || 'classic';
+      state.sectionShape = data.section_shape || 'soft';
+      state.imageStyle = data.image_style || 'rounded';
+      state.backgroundMode = data.background_mode || 'plain';
+      state.headingFontStyle = data.heading_font_style || 'bold';
+      state.contentDensity = data.content_density || 'comfortable';
+      state.secondaryColor = data.secondary_color || '#f2b66d';
+      state.cardColor = data.card_color || '#fff8f1';
+      state.logoBrief = data.logo_brief || '';
+      state.logoStyle = data.logo_style || 'clean';
+      state.logoColours = data.logo_colours || '';
+
       const urlPreset = params.get('preset') || '';
       const presetToApply = urlPreset || state.templatePreset;
       if (presetToApply && (projectLooksBlank(data) || urlPreset)) {
@@ -1559,6 +1657,56 @@ async function startRetailConnect() {
       if (strong) strong.textContent = template.label;
       if (small) small.textContent = template.description;
     });
+  }
+
+
+  function setLogoRequestMessage(message, type = 'info') {
+    if (!els.logoRequestStatus) return;
+    els.logoRequestStatus.style.display = 'block';
+    els.logoRequestStatus.className = `notice ${type}`;
+    els.logoRequestStatus.textContent = message || '';
+  }
+
+  async function requestPaidLogoCreation() {
+    syncInputsToState();
+
+    if (!state.logoBrief || state.logoBrief.trim().length < 12) {
+      setLogoRequestMessage('Please describe the logo you want before requesting paid logo creation.', 'error');
+      return;
+    }
+
+    if (els.requestLogoBtn) {
+      els.requestLogoBtn.disabled = true;
+      els.requestLogoBtn.textContent = 'Preparing logo request...';
+    }
+
+    try {
+      await saveProject();
+      const result = await api('/api/logo/create-checkout', {
+        method: 'POST',
+        body: JSON.stringify({
+          project_id: projectId,
+          business_name: state.businessName,
+          logo_brief: state.logoBrief,
+          logo_style: state.logoStyle,
+          logo_colours: state.logoColours
+        })
+      });
+
+      if (result.url) {
+        window.location.href = result.url;
+        return;
+      }
+
+      setLogoRequestMessage(result.message || 'Logo request saved. PBI will contact you.', 'success');
+    } catch (error) {
+      setLogoRequestMessage(error.message || 'Could not start logo creation request.', 'error');
+    } finally {
+      if (els.requestLogoBtn) {
+        els.requestLogoBtn.disabled = false;
+        els.requestLogoBtn.textContent = 'Request paid logo creation';
+      }
+    }
   }
 
   function bindEvents() {
@@ -1679,6 +1827,15 @@ async function startRetailConnect() {
 
     if (els.retailConnectBtn) els.retailConnectBtn.addEventListener('click', startRetailConnect);
     if (els.retailRefreshConnectBtn) els.retailRefreshConnectBtn.addEventListener('click', () => loadRetailConnectStatus({ quiet: false }));
+
+    if (els.requestLogoBtn) els.requestLogoBtn.addEventListener('click', requestPaidLogoCreation);
+
+    [els.siteLayoutStyle, els.sectionShape, els.imageStyle, els.backgroundMode, els.headingFontStyle, els.contentDensity, els.secondaryColor, els.cardColor, els.logoBrief, els.logoStyle, els.logoColours]
+      .filter(Boolean)
+      .forEach((input) => {
+        input.addEventListener('input', () => { syncInputsToState(); renderPreview(); });
+        input.addEventListener('change', () => { syncInputsToState(); renderPreview(); });
+      });
 
     document
       .querySelectorAll('input[name="launchDomainOption"], .pageToggle')

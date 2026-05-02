@@ -232,6 +232,38 @@ async function handleRetailCheckoutCompleted(env, session) {
   return true;
 }
 
+
+async function ensureLogoTables(env) {
+  await env.DB.prepare(`
+    CREATE TABLE IF NOT EXISTS logo_creation_requests (
+      id TEXT PRIMARY KEY,
+      project_id TEXT,
+      user_id TEXT,
+      business_name TEXT,
+      logo_brief TEXT,
+      logo_style TEXT,
+      logo_colours TEXT,
+      status TEXT DEFAULT 'draft',
+      stripe_session_id TEXT,
+      body_json TEXT,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+    )
+  `).run();
+}
+
+async function handleLogoCreationPaid(env, session) {
+  if (session.metadata?.type !== 'logo_creation') return false;
+  const requestId = session.metadata?.logo_request_id || session.client_reference_id || '';
+  if (!requestId) return false;
+  await ensureLogoTables(env);
+  await env.DB.prepare(`UPDATE logo_creation_requests SET status='paid', stripe_session_id=?, body_json=?, updated_at=CURRENT_TIMESTAMP WHERE id=?`)
+    .bind(session.id || '', JSON.stringify(session), requestId)
+    .run();
+  return true;
+}
+
+
 async function findProjectBySubscription(env, subscriptionId) {
   if (!subscriptionId) return null;
   return env.DB
