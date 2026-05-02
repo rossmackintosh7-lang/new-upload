@@ -12,6 +12,7 @@ export async function onRequestGet(context) {
   const suggestions = await env.DB.prepare(`SELECT * FROM seo_suggestions ORDER BY created_at DESC LIMIT 50`).all();
   const keywords = await env.DB.prepare(`SELECT * FROM seo_keywords ORDER BY created_at DESC LIMIT 100`).all();
   const latestReport = await env.DB.prepare(`SELECT * FROM seo_reports ORDER BY created_at DESC LIMIT 1`).first();
+  const overrides = await env.DB.prepare(`SELECT * FROM seo_page_overrides WHERE status='active' ORDER BY updated_at DESC LIMIT 100`).all();
   const pageRows = pages.results || [];
   const issueRows = issues.results || [];
   const avg = pageRows.length ? Math.round(pageRows.reduce((sum, p) => sum + Number(p.seo_score || 0), 0) / pageRows.length) : 0;
@@ -28,6 +29,7 @@ export async function onRequestGet(context) {
     pages: pageRows,
     issues: issueRows,
     suggestions: suggestions.results || [],
-    keywords: keywords.results || []
+    keywords: keywords.results || [],
+    overrides: overrides.results || []
   });
 }

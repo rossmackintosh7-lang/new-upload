@@ -4,7 +4,7 @@
   <aside class="pbi-side">
     <a class="pbi-side-brand" href="/"><img src="/assets/PBI%20Logo.png" alt="PBI logo"></a>
     <nav class="pbi-side-nav" aria-label="Dashboard navigation">
-      <a class="pbi-side-link" href="/dashboard/"><span>⌂</span><strong>Dashboard</strong></a><a class="pbi-side-link" href="/dashboard/"><span>□</span><strong>Projects</strong></a><a class="pbi-side-link active" href="/builder/"><span>✦</span><strong>AI Builder</strong></a><a class="pbi-side-link" href="/examples/"><span>▦</span><strong>Templates</strong></a><a class="pbi-side-link pbi-admin-only" data-admin-only href="/seo-agent/"><span>◎</span><strong>SEO Agent</strong></a><a class="pbi-side-link" href="/custom-build/"><span class="code-icon">&lt;/&gt;</span><strong>Custom Builds</strong></a><a class="pbi-side-link pbi-admin-only" data-admin-only href="/admin/"><span>⚙</span><strong>Settings</strong></a>
+      <a class="pbi-side-link" href="/dashboard/"><span>⌂</span><strong>Dashboard</strong></a><a class="pbi-side-link" href="/dashboard/"><span>□</span><strong>Projects</strong></a><a class="pbi-side-link active" href="/builder/"><span>✦</span><strong>AI Builder</strong></a><a class="pbi-side-link" href="/examples/"><span>▦</span><strong>Templates</strong></a><a class="pbi-side-link pbi-admin-only" data-admin-only href="/seo-agent/"><span>◎</span><strong>SEO Agent</strong></a><a class="pbi-side-link" href="/custom-build/"><span class="code-icon">&lt;/&gt;</span><strong>Custom Builds</strong></a><a class="pbi-side-link" href="/retail-orders/"><span>🛒</span><strong>Retail Orders</strong></a><a class="pbi-side-link pbi-admin-only" data-admin-only href="/admin/"><span>⚙</span><strong>Settings</strong></a>
     </nav>
     <div class="pbi-side-illustration"></div>
     <a class="pbi-side-collapse" href="/">‹‹ Home</a>
@@ -129,6 +129,7 @@
                     <label class="page-choice"><input type="checkbox" class="pageToggle" value="about" checked><span>About</span></label>
                     <label class="page-choice"><input type="checkbox" class="pageToggle" value="services" checked><span>Services</span></label>
                     <label class="page-choice"><input type="checkbox" class="pageToggle" value="gallery"><span>Gallery</span></label>
+                    <label class="page-choice"><input type="checkbox" class="pageToggle" value="shop"><span>Shop</span></label>
                     <label class="page-choice"><input type="checkbox" class="pageToggle" value="contact" checked><span>Contact</span></label>
                   </div>
                 </div>
@@ -148,6 +149,86 @@
               <div id="galleryThumbs" class="thumb-grid"></div>
               <div class="field" style="margin-top:18px"><label for="backgroundUpload">Upload background image</label><input id="backgroundUpload" class="input" type="file" accept="image/*"></div>
               <div class="field"><label for="backgroundTransparency">Background image transparency</label><input id="backgroundTransparency" class="range" type="range" min="0" max="20" value="20"><div id="backgroundTransparencyNote" class="range-note">20% transparent, maximum 20%</div></div>
+            </div>
+
+
+
+            <div class="card pbi-retail-card">
+              <h3>Retail shop</h3>
+              <p class="small-note muted">Retail V5 starter: add up to 10 products, enable a customer cart, collect shipping/tax details through Stripe Checkout, track orders and reduce stock after paid webhooks.</p>
+              <div class="grid-2">
+                <div class="field"><label for="retailEnabled">Enable retail shop</label><select id="retailEnabled" class="select"><option value="false">No</option><option value="true">Yes</option></select></div>
+                <div class="field"><label for="retailCurrency">Currency</label><select id="retailCurrency" class="select"><option value="gbp">GBP</option><option value="eur">EUR</option><option value="usd">USD</option></select></div>
+              </div>
+              <div class="retail-connect-panel notice domain-info">
+                <div>
+                  <strong>Stripe payments</strong>
+                  <p id="retailConnectStatus" class="small-note muted">Stripe is not connected yet. Click Connect Stripe and Stripe will handle the secure onboarding.</p>
+                </div>
+                <div class="row">
+                  <button class="btn" id="retailConnectBtn" type="button">Connect Stripe</button>
+                  <button class="btn-ghost" id="retailRefreshConnectBtn" type="button">Check status</button>
+                </div>
+                <input id="retailStripeAccountId" type="hidden">
+              </div>
+              <div class="grid-2">
+                <div class="field"><label for="retailTaxEnabled">Stripe Tax</label><select id="retailTaxEnabled" class="select"><option value="false">Off</option><option value="true">On</option></select></div>
+                <div class="field"><label>Connected account</label><input id="retailConnectedAccountView" class="input" value="Not connected yet" readonly></div>
+              </div>
+              <div class="grid-2">
+                <div class="field"><label for="retailShippingLabel">Shipping label</label><input id="retailShippingLabel" class="input" placeholder="UK standard delivery"></div>
+                <div class="field"><label for="retailShippingAmount">Shipping amount</label><input id="retailShippingAmount" class="input" type="number" min="0" step="0.01" placeholder="3.99"></div>
+              </div>
+              <div class="notice domain-info"><strong>Stripe setup:</strong> the customer does not need to copy account IDs. Click <strong>Connect Stripe</strong>, complete the Stripe-hosted form, then return to PBI. <a href="/help/retail-stripe-setup/" target="_blank" rel="noopener">Open setup guide</a>.</div>
+              <div class="retail-toolbar"><button class="btn-ghost" id="addRetailProductBtn" type="button">Add product</button><span id="retailProductCount" class="small-note muted">0 / 10 products</span></div>
+              <div id="retailProductsList" class="retail-products-editor"></div>
+            </div>
+
+            <div class="card" id="builderAdvancedDesignCard">
+              <h3>Advanced design controls</h3>
+              <p class="small-note muted">Give the website a stronger custom feel by adjusting layout shape, section style, image behaviour and background treatment.</p>
+              <div class="grid-2">
+                <div class="field"><label for="siteLayoutStyle">Layout style</label><select id="siteLayoutStyle" class="select"><option value="classic">Classic sections</option><option value="split">Split hero</option><option value="editorial">Editorial flow</option><option value="cards">Card-led layout</option></select></div>
+                <div class="field"><label for="sectionShape">Section shape</label><select id="sectionShape" class="select"><option value="soft">Soft rounded</option><option value="square">Clean square</option><option value="pill">Pill and bubble</option></select></div>
+              </div>
+              <div class="grid-2">
+                <div class="field"><label for="imageStyle">Image style</label><select id="imageStyle" class="select"><option value="rounded">Rounded images</option><option value="circle">Circular details</option><option value="polaroid">Layered card images</option><option value="edge">Full-bleed edge images</option></select></div>
+                <div class="field"><label for="backgroundMode">Background mode</label><select id="backgroundMode" class="select"><option value="plain">Plain colour</option><option value="gradient">Soft gradient</option><option value="image">Uploaded background image</option><option value="pattern">Subtle pattern</option></select></div>
+              </div>
+              <div class="grid-2">
+                <div class="field"><label for="headingFontStyle">Heading style</label><select id="headingFontStyle" class="select"><option value="bold">Bold modern</option><option value="friendly">Friendly rounded</option><option value="editorial">Editorial serif feel</option></select></div>
+                <div class="field"><label for="contentDensity">Content spacing</label><select id="contentDensity" class="select"><option value="comfortable">Comfortable</option><option value="compact">Compact</option><option value="spacious">Spacious</option></select></div>
+              </div>
+              <div class="grid-2">
+                <div class="field"><label for="secondaryColor">Secondary colour</label><input id="secondaryColor" class="input" type="color" value="#f2b66d"></div>
+                <div class="field"><label for="cardColor">Card/background panel colour</label><input id="cardColor" class="input" type="color" value="#fff8f1"></div>
+              </div>
+            </div>
+
+            <div class="card" id="builderLogoCreationCard">
+              <h3>Paid logo creation</h3>
+              <p class="small-note muted">Customers can request a paid PBI logo concept after payment. They describe the style they want, and the request is saved for PBI to generate and return.</p>
+              
+<div class="field">
+  <label for="logoPackage">Logo package</label>
+  <select id="logoPackage" class="select">
+    <option value="standard">Custom Logo Creation — £99</option>
+    <option value="brand_kit">Complex Logo Creation & Brand Kit — £249</option>
+  </select>
+  <p class="small-note muted">
+    Standard is best for a simple website-ready logo. Brand Kit is best when the customer wants a fuller identity pack with colour direction, font suggestions and social/header versions.
+  </p>
+</div>
+              <div class="field">
+                <label for="logoBrief">Describe the logo you want</label>
+                <textarea id="logoBrief" class="textarea" placeholder="Example: coastal, simple, warm colours, hand-drawn cow, clean business lettering, no background"></textarea>
+              </div>
+              <div class="grid-2">
+                <div class="field"><label for="logoStyle">Logo style</label><select id="logoStyle" class="select"><option value="clean">Clean and modern</option><option value="sketched">Sketched / hand-drawn</option><option value="premium">Premium and minimal</option><option value="playful">Friendly and playful</option><option value="heritage">Traditional / heritage</option></select></div>
+                <div class="field"><label for="logoColours">Preferred colours</label><input id="logoColours" class="input" placeholder="Example: orange, cream, dark green"></div>
+              </div>
+              <button class="btn" id="requestLogoBtn" type="button">Request paid logo creation</button>
+              <div id="logoRequestStatus" class="notice" style="margin-top:16px;display:none"></div>
             </div>
 
             <div class="card">
