@@ -24,7 +24,7 @@ Payments:
 - Customers should now be sent through the payment page before publishing.
 - Retail Connect remains enabled.
 - Platform retail payments remain disabled, so shop money should require connected Stripe accounts.
-- Paid logo creation is added, but STRIPE_PRICE_LOGO_CREATION still needs a real Stripe price_... ID before paid logo checkout can work.
+- Paid logo creation is added, but STRIPE_PRICE_LOGO_CREATION is set to price_1TSaZIS5Wx1jQ43vIDEO3hcJ.
 
 SEO added:
 - 12 SEO landing pages.
@@ -68,7 +68,7 @@ Before publishing live, staging checks needed:
    CLOUDFLARE_API_TOKEN
    PBI_ADMIN_TOKEN
 
-2. Add STRIPE_PRICE_LOGO_CREATION in wrangler.toml/GitHub once you create the logo product in Stripe.
+2. STRIPE_PRICE_LOGO_CREATION has been added as price_1TSaZIS5Wx1jQ43vIDEO3hcJ.
 
 3. Run D1 schema:
    npx wrangler d1 execute d1-template-database --file=./database/pbi-combined-schema.sql --remote

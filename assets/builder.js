@@ -171,6 +171,7 @@
     contentDensity: $('contentDensity'),
     secondaryColor: $('secondaryColor'),
     cardColor: $('cardColor'),
+    logoPackage: $('logoPackage'),
     logoBrief: $('logoBrief'),
     logoStyle: $('logoStyle'),
     logoColours: $('logoColours'),
@@ -239,6 +240,7 @@
     contentDensity: 'comfortable',
     secondaryColor: '#f2b66d',
     cardColor: '#fff8f1',
+    logoPackage: 'standard',
     logoBrief: '',
     logoStyle: 'clean',
     logoColours: ''
@@ -486,6 +488,7 @@
     state.contentDensity = els.contentDensity?.value || state.contentDensity || 'comfortable';
     state.secondaryColor = els.secondaryColor?.value || state.secondaryColor || '#f2b66d';
     state.cardColor = els.cardColor?.value || state.cardColor || '#fff8f1';
+    state.logoPackage = els.logoPackage?.value || state.logoPackage || 'standard';
     state.logoBrief = els.logoBrief?.value || state.logoBrief || '';
     state.logoStyle = els.logoStyle?.value || state.logoStyle || 'clean';
     state.logoColours = els.logoColours?.value || state.logoColours || '';
@@ -545,6 +548,7 @@
     if (els.contentDensity) els.contentDensity.value = state.contentDensity || 'comfortable';
     if (els.secondaryColor) els.secondaryColor.value = state.secondaryColor || '#f2b66d';
     if (els.cardColor) els.cardColor.value = state.cardColor || '#fff8f1';
+    if (els.logoPackage) els.logoPackage.value = state.logoPackage || 'standard';
     if (els.logoBrief) els.logoBrief.value = state.logoBrief || '';
     if (els.logoStyle) els.logoStyle.value = state.logoStyle || 'clean';
     if (els.logoColours) els.logoColours.value = state.logoColours || '';
@@ -1272,7 +1276,9 @@ async function startRetailConnect() {
       content_density: state.contentDensity,
       secondary_color: state.secondaryColor,
       card_color: state.cardColor,
-      logo_brief: state.logoBrief,
+      logo_package: state.logoPackage,
+      logo_package: state.logoPackage,
+          logo_brief: state.logoBrief,
       logo_style: state.logoStyle,
       logo_colours: state.logoColours
     };
@@ -1545,6 +1551,7 @@ async function startRetailConnect() {
       state.contentDensity = data.content_density || 'comfortable';
       state.secondaryColor = data.secondary_color || '#f2b66d';
       state.cardColor = data.card_color || '#fff8f1';
+      state.logoPackage = data.logo_package || 'standard';
       state.logoBrief = data.logo_brief || '';
       state.logoStyle = data.logo_style || 'clean';
       state.logoColours = data.logo_colours || '';
@@ -1830,7 +1837,7 @@ async function startRetailConnect() {
 
     if (els.requestLogoBtn) els.requestLogoBtn.addEventListener('click', requestPaidLogoCreation);
 
-    [els.siteLayoutStyle, els.sectionShape, els.imageStyle, els.backgroundMode, els.headingFontStyle, els.contentDensity, els.secondaryColor, els.cardColor, els.logoBrief, els.logoStyle, els.logoColours]
+    [els.siteLayoutStyle, els.sectionShape, els.imageStyle, els.backgroundMode, els.headingFontStyle, els.contentDensity, els.secondaryColor, els.cardColor, els.logoPackage, els.logoBrief, els.logoStyle, els.logoColours]
       .filter(Boolean)
       .forEach((input) => {
         input.addEventListener('input', () => { syncInputsToState(); renderPreview(); });

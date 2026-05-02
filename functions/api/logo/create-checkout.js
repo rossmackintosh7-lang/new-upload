@@ -44,6 +44,7 @@ export async function onRequestPost({ request, env }) {
   const body = await readBody(request);
   const projectId = clean(body.project_id, 120);
   const businessName = clean(body.business_name, 180);
+  const logoPackage = clean(body.logo_package || 'standard', 80);
   const logoBrief = clean(body.logo_brief, 3000);
   const logoStyle = clean(body.logo_style, 100);
   const logoColours = clean(body.logo_colours, 300);
@@ -58,14 +59,18 @@ export async function onRequestPost({ request, env }) {
 
   await env.DB.prepare(`
     INSERT INTO logo_creation_requests
-    (id, project_id, user_id, business_name, logo_brief, logo_style, logo_colours, status, body_json, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, 'draft', ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+    (id, project_id, user_id, business_name, logo_package, logo_brief, logo_style, logo_colours, status, body_json, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'draft', ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
   `).bind(
-    requestId, projectId, user.id, businessName || project.name || "", logoBrief, logoStyle, logoColours,
-    JSON.stringify({ user_email: user.email || "" })
+    requestId, projectId, user.id, businessName || project.name || "", logoPackage, logoBrief, logoStyle, logoColours,
+    JSON.stringify({ user_email: user.email || "",
+      logo_package: logoPackage,
+      package_label: packageLabel })
   ).run();
 
-  const priceId = String(env.STRIPE_PRICE_LOGO_CREATION || "").trim();
+  const isBrandKit = logoPackage === "brand_kit" || logoPackage === "complex";
+const packageLabel = isBrandKit ? "Complex Logo Creation & Brand Kit" : "Custom Logo Creation";
+const priceId = String(isBrandKit ? env.STRIPE_PRICE_LOGO_BRAND_KIT : env.STRIPE_PRICE_LOGO_CREATION || "").trim();
 
   if (!env.STRIPE_SECRET_KEY) {
     return json({
@@ -81,7 +86,7 @@ export async function onRequestPost({ request, env }) {
       ok: true,
       setup_required: true,
       request_id: requestId,
-      message: "Logo request saved. Add STRIPE_PRICE_LOGO_CREATION with the real Stripe price_... ID to enable paid logo checkout."
+      message: "Logo request saved. Add the relevant Stripe logo price ID in wrangler.toml/GitHub to enable paid logo checkout."
     });
   }
 
@@ -95,6 +100,8 @@ export async function onRequestPost({ request, env }) {
     client_reference_id: requestId,
     customer_email: user.email || "",
     "metadata[type]": "logo_creation",
+    "metadata[logo_package]": logoPackage,
+    "metadata[package_label]": packageLabel,
     "metadata[logo_request_id]": requestId,
     "metadata[project_id]": projectId,
     "metadata[user_id]": user.id,

@@ -232,6 +232,7 @@ CREATE TABLE IF NOT EXISTS logo_creation_requests (
   project_id TEXT,
   user_id TEXT,
   business_name TEXT,
+  logo_package TEXT DEFAULT 'standard',
   logo_brief TEXT,
   logo_style TEXT,
   logo_colours TEXT,
