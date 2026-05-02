@@ -732,7 +732,19 @@
   }
 
   function activePage() {
-    return getPage(state.activePage);
+    const page = { ...getPage(state.activePage) };
+
+    // The main heading/subheading controls are the customer's obvious homepage controls.
+    // Keep them wired into the live preview so typing there immediately changes the hero.
+    if (state.activePage === 'home') {
+      const mainHeading = (state.pageMainHeading || '').trim();
+      const subHeading = (state.subHeading || '').trim();
+
+      if (mainHeading) page.title = mainHeading;
+      if (subHeading) page.body = subHeading;
+    }
+
+    return page;
   }
 
   function renderLocalServiceTemplate() {
@@ -1221,6 +1233,20 @@ async function startRetailConnect() {
     showTemplatePresetBanner();
   }
 
+  let previewUpdateFrame = null;
+
+  function schedulePreviewUpdate() {
+    if (previewUpdateFrame) cancelAnimationFrame(previewUpdateFrame);
+
+    previewUpdateFrame = requestAnimationFrame(() => {
+      previewUpdateFrame = null;
+      syncInputsToState();
+      updateRangeNotes();
+      renderPreview();
+    });
+  }
+
+
   function collectProjectData() {
     syncInputsToState();
 
@@ -1568,6 +1594,13 @@ async function startRetailConnect() {
 
     syncStateToInputs();
     renderAll();
+
+    // Cloudflare preview pages can finish image/layout work just after data load.
+    // Trigger a second lightweight preview pass so loaded template data is reflected.
+    setTimeout(() => {
+      syncInputsToState();
+      renderPreview();
+    }, 0);
   }
 
   async function handleLogoUpload(event) {
@@ -1576,7 +1609,7 @@ async function startRetailConnect() {
     if (!file) return;
 
     state.logoDataUrl = await readFileAsDataUrl(file);
-    renderPreview();
+    renderAll();
   }
 
   async function handleGalleryUpload(event) {
@@ -1828,8 +1861,8 @@ async function startRetailConnect() {
     [els.retailEnabled, els.retailCurrency, els.retailStripeAccountId, els.retailTaxEnabled, els.retailShippingLabel, els.retailShippingAmount]
       .filter(Boolean)
       .forEach((input) => {
-        input.addEventListener('input', () => { syncRetailInputsToState(); renderPreview(); });
-        input.addEventListener('change', () => { syncRetailInputsToState(); renderPreview(); });
+        input.addEventListener('input', () => { syncRetailInputsToState(); schedulePreviewUpdate(); });
+        input.addEventListener('change', () => { syncRetailInputsToState(); schedulePreviewUpdate(); });
       });
 
     if (els.retailConnectBtn) els.retailConnectBtn.addEventListener('click', startRetailConnect);
@@ -1840,8 +1873,8 @@ async function startRetailConnect() {
     [els.siteLayoutStyle, els.sectionShape, els.imageStyle, els.backgroundMode, els.headingFontStyle, els.contentDensity, els.secondaryColor, els.cardColor, els.logoPackage, els.logoBrief, els.logoStyle, els.logoColours]
       .filter(Boolean)
       .forEach((input) => {
-        input.addEventListener('input', () => { syncInputsToState(); renderPreview(); });
-        input.addEventListener('change', () => { syncInputsToState(); renderPreview(); });
+        input.addEventListener('input', schedulePreviewUpdate);
+        input.addEventListener('change', schedulePreviewUpdate);
       });
 
     document
@@ -1880,16 +1913,31 @@ async function startRetailConnect() {
     ]
       .filter(Boolean)
       .forEach((input) => {
-        input.addEventListener('input', () => {
-          syncInputsToState();
-          renderAll();
-        });
-
-        input.addEventListener('change', () => {
-          syncInputsToState();
-          renderAll();
-        });
+        input.addEventListener('input', schedulePreviewUpdate);
+        input.addEventListener('change', schedulePreviewUpdate);
       });
+
+    const builderLeft = document.querySelector('.builder-left');
+    if (builderLeft && !builderLeft.dataset.livePreviewBound) {
+      builderLeft.dataset.livePreviewBound = 'true';
+
+      builderLeft.addEventListener('input', (event) => {
+        const target = event.target;
+        if (!target || target.type === 'file') return;
+        schedulePreviewUpdate();
+      });
+
+      builderLeft.addEventListener('change', (event) => {
+        const target = event.target;
+        if (!target || target.type === 'file') return;
+
+        if (target.matches('input[name="templateStyle"], input[name="launchDomainOption"], .pageToggle')) {
+          return;
+        }
+
+        schedulePreviewUpdate();
+      });
+    }
 
     if (els.desktopBtn && els.mobileBtn && els.previewFrame) {
       els.desktopBtn.addEventListener('click', () => {

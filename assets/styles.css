@@ -6140,3 +6140,15 @@ body:not(.pbi-app-page) .payment-hero, body:not(.pbi-app-page) .page-hero { padd
   }
 }
 
+
+
+/* Retail orders visibility guard */
+.retail-orders-nav-item,
+[data-retail-orders-nav] {
+  display: none;
+}
+
+html.retail-orders-visible .retail-orders-nav-item,
+html.retail-orders-visible [data-retail-orders-nav] {
+  display: flex;
+}
