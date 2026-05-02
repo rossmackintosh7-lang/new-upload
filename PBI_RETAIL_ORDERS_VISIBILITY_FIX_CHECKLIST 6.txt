@@ -1,0 +1,38 @@
+PBI RETAIL ORDERS VISIBILITY FIX
+
+Issue:
+- Retail Orders was showing as a normal dashboard/sidebar tab.
+- It should only show for retail/shop projects, or for admin checking.
+
+Fix:
+- Retail Orders is hidden by default.
+- It appears only when:
+  1. logged-in user is an admin email,
+  2. current URL/template/preset is retail/shop/boutique,
+  3. saved/fetched projects include retail/shop/product/basket/ecommerce markers.
+
+Admin emails:
+- rossmackintosh7@icloud.com
+- info@purbeckbusinessinnovations.co.uk
+
+Files changed:
+- Added conditional Retail Orders visibility script
+- Loaded visibility script on dashboard/index.html
+- Loaded visibility script on builder/index.html
+- Loaded visibility script on admin/index.html
+- Loaded visibility script on retail-orders/index.html
+- Marked Retail Orders nav in admin/index.html
+- Marked Retail Orders nav in builder/index.html
+- Marked Retail Orders nav in dashboard/index.html
+- Marked Retail Orders nav in retail-orders/index.html
+- Added CSS guard for Retail Orders nav
+
+Testing:
+1. Normal customer + non-retail template: Retail Orders hidden.
+2. Customer + retail/shop template: Retail Orders visible.
+3. Ross/admin login: Retail Orders visible.
+4. Direct /retail-orders/ access still needs server-side protection if you want to fully block URL guessing.
+
+
+Static checks:
+- JavaScript syntax errors: 0
