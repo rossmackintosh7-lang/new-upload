@@ -5992,3 +5992,39 @@ body:not(.pbi-app-page) .payment-hero, body:not(.pbi-app-page) .page-hero { padd
   }
 }
 
+
+
+/* PBI enquiry/contact form polish */
+.pbi-enquiry-form {
+  display: grid;
+  gap: 18px;
+}
+
+.pbi-enquiry-form .textarea {
+  min-height: 170px;
+}
+
+.pbi-form-actions {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.pbi-support-form-card {
+  max-width: 920px;
+  margin: 0 auto;
+}
+
+.small-note {
+  font-size: .92rem;
+}
+
+@media (max-width: 760px) {
+  .pbi-form-actions .btn,
+  .pbi-form-actions .btn-ghost {
+    width: 100%;
+    justify-content: center;
+  }
+}
