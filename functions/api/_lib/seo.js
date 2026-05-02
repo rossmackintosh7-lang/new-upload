@@ -65,7 +65,32 @@ export async function ensureSeoTables(env) {
     `CREATE TABLE IF NOT EXISTS seo_issues (id INTEGER PRIMARY KEY AUTOINCREMENT, page_url TEXT NOT NULL, issue_type TEXT NOT NULL, issue_text TEXT NOT NULL, severity TEXT DEFAULT 'medium', status TEXT DEFAULT 'open', created_at TEXT DEFAULT CURRENT_TIMESTAMP)`,
     `CREATE TABLE IF NOT EXISTS seo_suggestions (id INTEGER PRIMARY KEY AUTOINCREMENT, page_url TEXT NOT NULL, suggestion_type TEXT NOT NULL, current_value TEXT, suggested_value TEXT, reasoning TEXT, status TEXT DEFAULT 'pending', created_at TEXT DEFAULT CURRENT_TIMESTAMP)`,
     `CREATE TABLE IF NOT EXISTS seo_keywords (id INTEGER PRIMARY KEY AUTOINCREMENT, keyword TEXT NOT NULL, target_url TEXT, intent TEXT, priority TEXT DEFAULT 'medium', status TEXT DEFAULT 'active', created_at TEXT DEFAULT CURRENT_TIMESTAMP)`,
-    `CREATE TABLE IF NOT EXISTS seo_reports (id INTEGER PRIMARY KEY AUTOINCREMENT, report_date TEXT NOT NULL, total_pages INTEGER DEFAULT 0, total_issues INTEGER DEFAULT 0, average_score INTEGER DEFAULT 0, summary TEXT, created_at TEXT DEFAULT CURRENT_TIMESTAMP)`
+    `CREATE TABLE IF NOT EXISTS seo_reports (id INTEGER PRIMARY KEY AUTOINCREMENT, report_date TEXT NOT NULL, total_pages INTEGER DEFAULT 0, total_issues INTEGER DEFAULT 0, average_score INTEGER DEFAULT 0, summary TEXT, created_at TEXT DEFAULT CURRENT_TIMESTAMP)`,
+    `CREATE TABLE IF NOT EXISTS seo_page_overrides (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      page_url TEXT NOT NULL UNIQUE,
+      title TEXT,
+      meta_description TEXT,
+      h1 TEXT,
+      canonical TEXT,
+      robots TEXT,
+      schema_jsonld TEXT,
+      content_block_html TEXT,
+      internal_links_html TEXT,
+      image_alt_text TEXT,
+      source_suggestion_id INTEGER,
+      status TEXT DEFAULT 'active',
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+    )`,
+    `CREATE TABLE IF NOT EXISTS seo_apply_log (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      suggestion_id INTEGER,
+      page_url TEXT,
+      action TEXT,
+      details_json TEXT,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    )`
   ];
   for (const sql of statements) await env.DB.prepare(sql).run();
 }

@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Retail Stripe setup • PBI</title>
+  <meta name="description" content="Step-by-step guide for setting up Stripe for PBI retail templates.">
+  <link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+  <nav class="nav"><div class="container nav-inner"><a class="brand brand-logo-only" href="/"><img src="/assets/PBI%20Logo.png" alt="PBI logo" class="header-logo"></a><div class="row pbi-main-nav"><a class="btn-ghost" href="/help/">Help</a><a class="btn-ghost" href="/builder/">Builder</a><a class="btn" href="/signup/">Start Building</a></div></div></nav>
+  <main>
+    <section class="page-hero"><div class="container"><p class="eyebrow">Retail setup</p><h1 class="section-title">How to connect Stripe for a retail website</h1><p class="hero-text">Use this guide before taking live product payments through a PBI retail template.</p></div></section>
+    <section class="section"><div class="container two-column">
+      <div class="card"><h2>Customer steps</h2><ol><li>Open your PBI project in the builder.</li><li>Go to <strong>Retail shop</strong> and click <strong>Connect Stripe</strong>.</li><li>Stripe opens a secure hosted onboarding form.</li><li>Create or log in to Stripe and complete the requested business verification.</li><li>Return to PBI. PBI automatically stores the connected account, so you do not need to copy an <code>acct_...</code> ID.</li><li>Add up to 10 products in PBI with names, prices, stock and images.</li><li>Choose whether Stripe Tax should be on.</li><li>Add your shipping label and amount.</li><li>Save, publish, and run a small test order.</li></ol></div>
+      <div class="card"><h2>Important payment note</h2><p>For live retail websites where the business receives the money directly, PBI uses Stripe Connect. The connected account must be properly onboarded and connected to the platform before customer payments are taken.</p><p>If Stripe is not connected, PBI blocks retail checkout and asks the business to complete Stripe onboarding.</p><p>For a very simple shop, Stripe Payment Links can still be used as a fallback, but Payment Links are not a full stock/cart/order system inside PBI.</p></div>
+    </div></section>
+    <section class="section soft-section"><div class="container"><h2>Admin checklist</h2><ul><li>Set <code>STRIPE_SECRET_KEY</code> as a Cloudflare Secret.</li><li>Set <code>STRIPE_WEBHOOK_SECRET</code> as a Cloudflare Secret.</li><li><code>PBI_RETAIL_CONNECT_ENABLED=true</code> is now enabled by default in the launch build. Keep <code>STRIPE_SECRET_KEY</code> and <code>STRIPE_WEBHOOK_SECRET</code> as Cloudflare Secrets.</li><li>For testing only, set <code>PBI_RETAIL_ALLOW_PLATFORM_PAYMENTS=true</code> if payments should go into the platform Stripe account.</li><li>Run the D1 schema after upload.</li><li>Test checkout, webhook, order dashboard and stock reduction before public selling.</li></ul></div></section>
+  </main>
+  <footer class="site-footer"><div class="container footer-mega"><div><strong>PBI</strong><p>Purbeck Business Innovations</p></div><div><h4>Help</h4><a href="/help/">Help centre</a><a href="/support/">Support</a></div></div></footer>
+</body>
+</html>

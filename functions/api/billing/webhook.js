@@ -147,6 +147,91 @@ function invoiceIncludesPrice(invoice, priceId) {
   return lines.some((line) => line?.price?.id === priceId || line?.pricing?.price_details?.price === priceId);
 }
 
+async function ensureRetailTables(env) {
+  await env.DB.prepare(`CREATE TABLE IF NOT EXISTS retail_orders (
+    id TEXT PRIMARY KEY,
+    project_id TEXT,
+    user_id TEXT,
+    site_slug TEXT,
+    customer_email TEXT,
+    customer_name TEXT,
+    status TEXT DEFAULT 'pending',
+    currency TEXT DEFAULT 'gbp',
+    subtotal_minor INTEGER DEFAULT 0,
+    shipping_minor INTEGER DEFAULT 0,
+    tax_minor INTEGER DEFAULT 0,
+    total_minor INTEGER DEFAULT 0,
+    stripe_session_id TEXT,
+    stripe_payment_intent_id TEXT,
+    body_json TEXT,
+    items_json TEXT,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+  )`).run();
+
+  await env.DB.prepare(`CREATE TABLE IF NOT EXISTS retail_order_events (
+    id TEXT PRIMARY KEY,
+    order_id TEXT,
+    event_type TEXT,
+    body_json TEXT,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+  )`).run();
+}
+
+async function handleRetailCheckoutCompleted(env, session) {
+  const orderId = session.metadata?.retail_order_id || session.client_reference_id || '';
+  if (!orderId) return false;
+
+  await ensureRetailTables(env);
+
+  const order = await env.DB.prepare(`SELECT * FROM retail_orders WHERE id = ? LIMIT 1`).bind(orderId).first();
+  if (!order) return false;
+
+  const items = parseJson(order.items_json, []);
+
+  await env.DB.prepare(`UPDATE retail_orders SET status='paid', customer_email=?, customer_name=?, total_minor=?, tax_minor=?, stripe_session_id=?, stripe_payment_intent_id=?, body_json=?, updated_at=CURRENT_TIMESTAMP WHERE id=?`)
+    .bind(
+      session.customer_details?.email || session.customer_email || '',
+      session.customer_details?.name || '',
+      Number(session.amount_total || order.total_minor || 0),
+      Number(session.total_details?.amount_tax || 0),
+      session.id || '',
+      session.payment_intent || '',
+      JSON.stringify(session),
+      orderId
+    )
+    .run();
+
+  await env.DB.prepare(`INSERT INTO retail_order_events (id, order_id, event_type, body_json, created_at) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)`)
+    .bind(crypto.randomUUID(), orderId, 'checkout.session.completed', JSON.stringify(session))
+    .run();
+
+  const project = await env.DB.prepare(`SELECT id, data_json FROM projects WHERE id = ? LIMIT 1`).bind(order.project_id).first();
+  if (!project) return true;
+
+  const data = parseJson(project.data_json, {});
+  const products = Array.isArray(data.retail_products) ? data.retail_products : [];
+  const itemMap = new Map(items.map((item) => [String(item.id), Number(item.quantity || 0)]));
+  let changed = false;
+
+  const nextProducts = products.map((product) => {
+    const id = String(product.id || '');
+    const qty = itemMap.get(id) || 0;
+    if (!qty || product.track_stock === false) return product;
+    const current = Number(product.stock || 0);
+    changed = true;
+    return { ...product, stock: Math.max(0, current - qty) };
+  });
+
+  if (changed) {
+    await env.DB.prepare(`UPDATE projects SET data_json=?, updated_at=datetime('now') WHERE id=?`)
+      .bind(JSON.stringify({ ...data, retail_products: nextProducts }), project.id)
+      .run();
+  }
+
+  return true;
+}
+
 async function findProjectBySubscription(env, subscriptionId) {
   if (!subscriptionId) return null;
   return env.DB
@@ -362,6 +447,12 @@ export async function onRequestPost({ request, env }) {
 
   if (event.type === 'checkout.session.completed') {
     const session = event.data?.object || {};
+
+    if (session.metadata?.retail === 'true' || session.metadata?.retail_order_id) {
+      await handleRetailCheckoutCompleted(env, session);
+      return json({ received: true, retail: true });
+    }
+
     const projectId = session.metadata?.project_id || session.client_reference_id;
     const userId = session.metadata?.user_id || '';
     const plan = session.metadata?.plan || 'business';

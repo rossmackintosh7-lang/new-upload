@@ -10,13 +10,19 @@ PBI_ADMIN_EMAILS = "rossmackintosh7@icloud.com,info@purbeckbusinessinnovations.c
 CUSTOM_BUILD_NOTIFY_TO = "info@purbeckbusinessinnovations.co.uk"
 CUSTOM_BUILD_NOTIFY_FROM = "PBI <enquiry@purbeckbusinessinnovations.co.uk>"
 PBI_SEO_PAGES = "/,/builder/,/custom-build/,/pricing/,/contact/,/about/,/examples/,/websites-for-cafes/,/websites-for-consultants/,/websites-for-holiday-lets/,/websites-for-salons/,/websites-for-shops/,/websites-for-tradespeople/"
-
 STRIPE_PRICE_STARTER = "price_1TQkSiS5Wx1jQ43vmL9MywGU"
 STRIPE_PRICE_BUSINESS = "price_1TQkTDS5Wx1jQ43vAAJ2e1eX"
 STRIPE_PRICE_PLUS = "price_1TQkThS5Wx1jQ43vm0p1XAv2"
 STRIPE_PRICE_ASSISTED_SETUP = "price_1TQkU8S5Wx1jQ43vb0stUBnG"
 STRIPE_PRICE_CUSTOM_DEPOSIT = "price_1TQn8b5SWx1jQ43vaEMcza6I"
 STRIPE_PRICE_DOMAIN_MANAGEMENT_YEARLY = "price_1TQkVRS5Wx1jQ43vnq8AP6wN"
+
+# Retail V5 starter switches
+PBI_RETAIL_CONNECT_ENABLED = "true"
+PBI_RETAIL_ALLOW_PLATFORM_PAYMENTS = "false"
+PBI_RETAIL_APPLICATION_FEE_PERCENT = "0"
+PBI_RETAIL_CONNECT_ACCOUNT_TYPE = "express"
+RETAIL_ALLOWED_COUNTRY_1 = "GB"
 
 [[d1_databases]]
 binding = "DB"
