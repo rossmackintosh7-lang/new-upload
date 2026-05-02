@@ -89,6 +89,67 @@
               </ul>
             </div>
 
+
+
+            <div class="card" id="pbiCanvasLaunchCard">
+              <h3>Full drag & drop canvas</h3>
+              <p class="small-note muted">Open the full PBI canvas builder to drag sections, edit inline, reorder blocks, use undo/redo and export the layout back into this project.</p>
+              <div class="pbi-pro-actions">
+                <a class="btn" id="openCanvasBuilderBtn" href="/canvas-builder/">Open canvas builder</a>
+                <button class="btn-ghost" id="importCanvasExportBtn" type="button">Import latest canvas export</button>
+              </div>
+              <div id="canvasImportStatus" class="notice" style="display:none;margin-top:14px"></div>
+            </div>
+
+            <div class="card" id="pbiBuilderProCard">
+              <div class="pbi-pro-head">
+                <div>
+                  <h3>Page sections</h3>
+                  <p class="small-note muted">Add, remove, reorder and rewrite sections without rebuilding the whole page.</p>
+                </div>
+                <span class="pbi-pro-pill">Pro controls</span>
+              </div>
+
+              <div class="pbi-section-toolbar">
+                <button class="btn-ghost" type="button" data-add-section="hero">Hero</button>
+                <button class="btn-ghost" type="button" data-add-section="services">Services</button>
+                <button class="btn-ghost" type="button" data-add-section="trust">Trust</button>
+                <button class="btn-ghost" type="button" data-add-section="testimonial">Testimonial</button>
+                <button class="btn-ghost" type="button" data-add-section="faq">FAQ</button>
+                <button class="btn-ghost" type="button" data-add-section="cta">CTA</button>
+              </div>
+
+              <div id="pbiSectionList" class="pbi-section-list"></div>
+
+              <div class="pbi-pro-actions">
+                <button class="btn" id="pbiApplySectionsBtn" type="button">Apply sections to page</button>
+                <button class="btn-ghost" id="pbiSaveVersionBtn" type="button">Save version</button>
+                <button class="btn-ghost" id="pbiRestoreVersionBtn" type="button">Restore latest version</button>
+              </div>
+
+              <div id="pbiProStatus" class="notice" style="display:none;margin-top:14px"></div>
+            </div>
+
+            <div class="card" id="pbiAiSectionCard">
+              <h3>AI section helper</h3>
+              <p class="small-note muted">Use this to quickly improve the selected page wording before saving or publishing.</p>
+              <div class="grid-2">
+                <button class="btn-ghost" type="button" data-ai-rewrite="clearer">Make clearer</button>
+                <button class="btn-ghost" type="button" data-ai-rewrite="friendly">Make friendlier</button>
+                <button class="btn-ghost" type="button" data-ai-rewrite="seo">Add local SEO focus</button>
+                <button class="btn-ghost" type="button" data-ai-rewrite="shorter">Shorten</button>
+              </div>
+            </div>
+
+            <div class="card" id="pbiAutosaveCard">
+              <h3>Autosave & versions</h3>
+              <p class="small-note muted">PBI now keeps a local safety copy while the customer edits. Full cloud version history can be added next.</p>
+              <div class="pbi-autosave-row">
+                <span id="pbiAutosaveStatus">Autosave ready</span>
+                <button class="btn-ghost" id="pbiRestoreAutosaveBtn" type="button">Restore autosave</button>
+              </div>
+            </div>
+
             <div class="card">
               <h3>Project</h3>
               <div class="field"><label for="projectName">Project name</label><input id="projectName" class="input" placeholder="My business website"></div>
@@ -287,4 +348,6 @@
 <script src="/assets/pbi-cookie-banner.js" defer></script>
   <script src="/assets/pbi-retail-orders-visibility.js" defer></script>
   <script src="/assets/pbi-launch-readiness.js" defer></script>
+  <script src="/assets/pbi-builder-pro.js" defer></script>
+  <script src="/assets/pbi-canvas-import.js" defer></script>
 </body></html>

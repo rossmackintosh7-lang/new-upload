@@ -9,7 +9,7 @@ export async function callOpenAIJson(env, { system, prompt, schema, schemaName =
     method: "POST",
     headers: { "Authorization": `Bearer ${env.OPENAI_API_KEY}`, "Content-Type": "application/json" },
     body: JSON.stringify({
-      model: env.OPENAI_MODEL || "gpt-4.1-mini",
+      model: env.OPENAI_MODEL || "gpt-5.5",
       input: [{ role: "system", content: system }, { role: "user", content: prompt }],
       text: { format: { type: "json_schema", name: schemaName, strict: true, schema } },
       temperature
