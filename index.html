@@ -1,342 +1,135 @@
 <!doctype html>
 <html lang="en-GB">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>PBI | AI Website Builder for Small Businesses</title>
-  <meta name="description" content="Purbeck Business Innovations helps small businesses create polished, editable websites with AI-assisted setup, live previews, image uploads and simple pricing." />
-  <meta name="theme-color" content="#f97316" />
-  <link rel="icon" href="assets/pbi-logo.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="assets/styles.css" />
+<script>
+(function(){
+  if (location.hostname.toLowerCase() === "admin.purbeckbusinessinnovations.co.uk" && location.pathname === "/") {
+    location.replace("/admin/");
+  }
+})();
+</script>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Purbeck Business Innovations • AI Website Builder for Small Businesses</title>
+  <meta name="description" content="Build a clear small-business website with PBI. Choose a template, use AI setup, edit your pages, preview your site and publish with help available when needed.">
+  <link rel="canonical" href="https://www.purbeckbusinessinnovations.co.uk/">
+  <link rel="stylesheet" href="/assets/styles.css">
 </head>
 <body>
-  <header class="site-header" id="top">
-    <a class="brand" href="#home" aria-label="PBI home">
-      <img src="assets/pbi-logo.svg" alt="" class="brand-mark" />
-      <span>
-        <strong>PBI</strong>
-        <small>Purbeck Business Innovations</small>
-      </span>
-    </a>
-
-    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">
-      <span></span><span></span><span></span>
-      <span class="sr-only">Open menu</span>
-    </button>
-
-    <nav class="site-nav" id="site-nav">
-      <a href="#home">Home</a>
-      <a href="#builder">Build</a>
-      <a href="#examples">Examples</a>
-      <a href="#pricing">Pricing</a>
-      <a href="#contact">Contact</a>
-      <a class="nav-cta" href="#builder">Start preview</a>
-    </nav>
-  </header>
+  <nav class="nav">
+    <div class="container nav-inner">
+      <a class="brand brand-logo-only" href="/"><img src="/assets/pbi-header-logo-no-bg-20260502c.png?v=20260502c?v=20260502b" alt="Purbeck Business Innovations logo" class="header-logo pbi-header-logo-on-light"></a>
+      <div class="row pbi-main-nav">
+        <a class="btn-ghost" href="/how-it-works/">How it works</a>
+        <a class="btn-ghost" href="/examples/">Examples</a>
+        <a class="btn-ghost" href="/pricing/">Pricing</a>
+        <a class="btn-ghost" href="/help/">Help</a>
+        <a class="btn-ghost" href="/login/">Login</a>
+        <a class="btn" href="/onboarding/">Start Building</a>
+      </div>
+    </div>
+  </nav>
 
   <main>
-    <section class="hero" id="home">
-      <div class="hero-copy">
-        <p class="eyebrow">AI website building, without the chunky robot-block look.</p>
-        <h1>Build a proper business website from one joined-up workspace.</h1>
-        <p class="lead">Choose a style, upload your logo and images, edit your pages, preview the result and pick the right package without bouncing between three different tools.</p>
+    <section class="hero page-hero">
+      <div class="container">
+        <p class="eyebrow">AI-assisted website builder</p>
+        <h1 class="section-title">Build a small-business website that feels clear from the first click.</h1>
+        <p class="hero-text">PBI helps cafés, trades, salons, shops, consultants and holiday lets create useful websites with guided setup, editable templates, launch checks and optional help from a real person.</p>
         <div class="hero-actions">
-          <a class="button primary" href="#builder">Build my preview</a>
-          <a class="button ghost" href="#pricing">View packages</a>
-        </div>
-        <div class="trust-row" aria-label="Highlights">
-          <span>Live preview</span>
-          <span>Logo upload</span>
-          <span>Page editor</span>
-          <span>SEO starter checks</span>
-        </div>
-      </div>
-
-      <div class="hero-card" aria-label="Preview of the PBI setup journey">
-        <div class="browser-dots"><span></span><span></span><span></span></div>
-        <div class="mini-flow">
-          <div class="mini-flow-item active">1. Style</div>
-          <div class="mini-flow-item">2. Details</div>
-          <div class="mini-flow-item">3. Images</div>
-          <div class="mini-flow-item">4. Edit</div>
-          <div class="mini-flow-item">5. Price</div>
-        </div>
-        <div class="mini-site">
-          <div class="mini-site-header"></div>
-          <div class="mini-site-hero"></div>
-          <div class="mini-site-grid"><span></span><span></span><span></span></div>
+          <a class="btn" href="/onboarding/">Start Building</a>
+          <a class="btn-ghost" href="/examples/">View Examples</a>
         </div>
       </div>
     </section>
 
-    <section class="section intro-strip">
-      <div>
-        <p class="eyebrow">What changed in this update</p>
-        <h2>One clean build journey instead of scattered editing doors.</h2>
-      </div>
-      <p>The old template selection, preview and editor areas are now folded into one section. The customer picks a template once, then edits the same site preview all the way through.</p>
-    </section>
-
-    <section class="builder-shell section" id="builder">
-      <div class="section-heading">
-        <p class="eyebrow">Build your website</p>
-        <h2>Choose, upload, edit and preview in one place.</h2>
-        <p>This section is designed to replace the duplicated template/editor areas. Everything flows into the same live preview.</p>
-      </div>
-
-      <div class="builder-layout">
-        <aside class="builder-controls" aria-label="Website builder controls">
-          <div class="progress-rail" aria-label="Builder steps">
-            <button class="step-pill active" data-step-target="templates" type="button">1 Style</button>
-            <button class="step-pill" data-step-target="details" type="button">2 Details</button>
-            <button class="step-pill" data-step-target="images" type="button">3 Images</button>
-            <button class="step-pill" data-step-target="editor" type="button">4 Editor</button>
-            <button class="step-pill" data-step-target="package" type="button">5 Package</button>
-          </div>
-
-          <article class="builder-panel open" id="panel-templates">
-            <button class="panel-toggle" type="button">1. Choose a starting style <span>Open</span></button>
-            <div class="panel-body">
-              <p class="panel-help">Pick the closest starting point. This now controls the live preview, recommended pages and sample wording.</p>
-              <div class="template-grid" id="templateGrid"></div>
-            </div>
-          </article>
-
-          <article class="builder-panel" id="panel-details">
-            <button class="panel-toggle" type="button">2. Business details <span>Open</span></button>
-            <div class="panel-body">
-              <label>Business name
-                <input id="businessName" value="Purbeck Pantry Co." />
-              </label>
-              <label>Short tagline
-                <input id="businessTagline" value="Local food, fresh ideas and friendly service." />
-              </label>
-              <label>Town or service area
-                <input id="businessTown" value="Swanage & Dorset" />
-              </label>
-              <label>Email address
-                <input id="businessEmail" value="hello@example.co.uk" />
-              </label>
-              <label>Phone number
-                <input id="businessPhone" value="01929 000000" />
-              </label>
-              <label>Brand colour
-                <input id="brandColour" type="color" value="#f97316" />
-              </label>
-            </div>
-          </article>
-
-          <article class="builder-panel" id="panel-images">
-            <button class="panel-toggle" type="button">3. Upload logo and images <span>Open</span></button>
-            <div class="panel-body">
-              <p class="panel-help">Uploads update the preview instantly. No separate image step hiding down a rabbit hole.</p>
-
-              <label class="upload-card">Logo upload
-                <input id="logoUpload" type="file" accept="image/*" />
-                <span>Use PNG, JPG or SVG.</span>
-              </label>
-
-              <label class="upload-card">Hero image upload
-                <input id="heroUpload" type="file" accept="image/*" />
-                <span>This fills the main preview image.</span>
-              </label>
-
-              <label class="upload-card">Gallery images
-                <input id="galleryUpload" type="file" accept="image/*" multiple />
-                <span>Add up to six images for the gallery section.</span>
-              </label>
-            </div>
-          </article>
-
-          <article class="builder-panel" id="panel-editor">
-            <button class="panel-toggle" type="button">4. Page and advanced editor <span>Open</span></button>
-            <div class="panel-body">
-              <div class="tabs" role="tablist" aria-label="Page editor tabs">
-                <button class="tab active" type="button" data-page="home">Home</button>
-                <button class="tab" type="button" data-page="services">Services</button>
-                <button class="tab" type="button" data-page="about">About</button>
-                <button class="tab" type="button" data-page="contact">Contact</button>
-              </div>
-
-              <label>Page title
-                <input id="pageTitle" />
-              </label>
-              <label>Page wording
-                <textarea id="pageBody" rows="7"></textarea>
-              </label>
-
-              <details class="advanced-box">
-                <summary>Advanced editor</summary>
-                <label>Hero headline
-                  <input id="heroHeadline" value="A better website for a better local business." />
-                </label>
-                <label>Primary button text
-                  <input id="ctaText" value="Ask for a quote" />
-                </label>
-                <label>SEO title
-                  <input id="seoTitle" value="Local Business Website | Dorset" />
-                </label>
-                <label>SEO description
-                  <textarea id="seoDescription" rows="3">A friendly, professional website for a growing local business.</textarea>
-                </label>
-                <label>Services, one per line
-                  <textarea id="serviceList" rows="5">Fresh website design
-Local SEO setup
-Business systems support</textarea>
-                </label>
-              </details>
-            </div>
-          </article>
-
-          <article class="builder-panel" id="panel-package">
-            <button class="panel-toggle" type="button">5. Pick the right package <span>Open</span></button>
-            <div class="panel-body">
-              <p class="panel-help">Packages are also shown properly on the pricing page. This shortcut keeps the build journey connected.</p>
-              <select id="packageSelect" aria-label="Choose a package">
-                <option value="starter">Starter Site</option>
-                <option value="business" selected>Business Site</option>
-                <option value="growth">Growth Site</option>
-                <option value="assisted">Assisted Setup Launch Offer</option>
-                <option value="domain">Domain Management Yearly</option>
-              </select>
-              <div class="package-mini" id="packageMini"></div>
-              <a class="button primary full" href="#pricing">Compare all packages</a>
-            </div>
-          </article>
-        </aside>
-
-        <section class="live-preview-wrap" aria-label="Live website preview">
-          <div class="preview-toolbar">
-            <div>
-              <strong>Live preview</strong>
-              <small id="previewStatus">Business Site selected</small>
-            </div>
-            <div class="device-switcher" aria-label="Preview size">
-              <button type="button" class="device active" data-device="desktop">Desktop</button>
-              <button type="button" class="device" data-device="mobile">Mobile</button>
-            </div>
-          </div>
-
-          <div class="live-preview desktop" id="livePreview">
-            <div class="preview-site">
-              <header class="preview-header">
-                <div class="preview-brand">
-                  <img id="previewLogo" src="assets/pbi-logo.svg" alt="" />
-                  <span id="previewName">Purbeck Pantry Co.</span>
-                </div>
-                <nav>
-                  <a href="#previewPageContent" data-preview-nav="home">Home</a>
-                  <a href="#previewPageContent" data-preview-nav="services">Services</a>
-                  <a href="#previewPageContent" data-preview-nav="about">About</a>
-                  <a href="#previewContact">Contact</a>
-                </nav>
-              </header>
-
-              <section class="preview-hero">
-                <div>
-                  <p class="preview-location" id="previewTown">Swanage & Dorset</p>
-                  <h3 id="previewHeadline">A better website for a better local business.</h3>
-                  <p id="previewTagline">Local food, fresh ideas and friendly service.</p>
-                  <a href="#previewContact" class="preview-button" id="previewCta">Ask for a quote</a>
-                </div>
-                <div class="preview-image" id="previewHeroImage">
-                  <span>Hero image</span>
-                </div>
-              </section>
-
-              <section class="preview-content" id="previewPageContent">
-                <p class="eyebrow">Current page</p>
-                <h4 id="previewPageTitle">Welcome</h4>
-                <p id="previewPageBody">We help local customers understand what you do, why it matters and how to get in touch.</p>
-              </section>
-
-              <section class="preview-services">
-                <h4>Services</h4>
-                <div class="preview-service-grid" id="previewServices"></div>
-              </section>
-
-              <section class="preview-gallery" id="previewGallerySection">
-                <h4>Gallery</h4>
-                <div class="preview-gallery-grid" id="previewGallery">
-                  <div></div><div></div><div></div>
-                </div>
-              </section>
-
-              <section class="preview-contact" id="previewContact">
-                <h4>Contact</h4>
-                <p><span id="previewEmail">hello@example.co.uk</span> • <span id="previewPhone">01929 000000</span></p>
-              </section>
-            </div>
-          </div>
-
-          <div class="readiness-card">
-            <div>
-              <strong>Readiness score</strong>
-              <small id="readinessText">78% ready to launch</small>
-            </div>
-            <div class="readiness-bar" aria-hidden="true"><span id="readinessBar"></span></div>
-          </div>
-        </section>
+    <section class="section soft-section">
+      <div class="container">
+        <p class="eyebrow">Simple flow</p>
+        <h2 class="section-title">From idea to live website without the dashboard fog.</h2>
+        <ol class="pbi-guided-flow">
+          <li>Tell PBI about your business</li>
+          <li>Choose a starting template</li>
+          <li>Edit words and images</li>
+          <li>Preview desktop and mobile</li>
+          <li>Check launch readiness</li>
+          <li>Publish when ready</li>
+        </ol>
       </div>
     </section>
 
-    <section class="section examples" id="examples">
-      <div class="section-heading">
-        <p class="eyebrow">Example starting points</p>
-        <h2>Real-world layouts customers can actually understand.</h2>
-        <p>These cards now link back into the same builder instead of creating another disconnected template area.</p>
-      </div>
-      <div class="example-grid">
-        <article>
-          <div class="example-image food"></div>
-          <h3>Food & hospitality</h3>
-          <p>Menus, local produce, booking prompts, gallery sections and simple contact routes.</p>
-          <a href="#builder" data-template-shortcut="food">Use this style</a>
+    <section class="section">
+      <div class="container feature-grid">
+        <article class="card mini-card">
+          <h3>AI setup wizard</h3>
+          <p>Answer a few plain-English questions and PBI recommends the best starting route for your business.</p>
+          <a href="/onboarding/">Start setup</a>
         </article>
-        <article>
-          <div class="example-image trade"></div>
-          <h3>Trades & services</h3>
-          <p>Clear service areas, trust markers, quote requests and mobile-first contact buttons.</p>
-          <a href="#builder" data-template-shortcut="trade">Use this style</a>
+        <article class="card mini-card">
+          <h3>Real business templates</h3>
+          <p>Start from layouts built around cafés, trades, salons, shops, consultants and holiday lets.</p>
+          <a href="/examples/">View examples</a>
         </article>
-        <article>
-          <div class="example-image pro"></div>
-          <h3>Professional support</h3>
-          <p>Consulting, admin, operations, coaching and clean credibility-led pages.</p>
-          <a href="#builder" data-template-shortcut="professional">Use this style</a>
+        <article class="card mini-card">
+          <h3>Visual editing</h3>
+          <p>Edit pages, colours, images and layouts, with an advanced canvas editor available when you need more control.</p>
+          <a href="/features/drag-drop-canvas/">See canvas</a>
+        </article>
+        <article class="card mini-card">
+          <h3>Launch checklist</h3>
+          <p>Check wording, mobile view, contact forms, payments, domains and SEO before publishing.</p>
+          <a href="/launch-command-centre/">Launch guide</a>
         </article>
       </div>
     </section>
 
-    <section class="section pricing" id="pricing">
-      <div class="section-heading">
-        <p class="eyebrow">Pricing</p>
-        <h2>All packages shown clearly, with the offer kept in its proper place.</h2>
-        <p>Descriptions are tailored so customers understand what they get as they move up the ladder.</p>
-      </div>
-
-      <div class="pricing-grid" id="pricingGrid"></div>
-
-      <p class="pricing-note">Prices are editable in <code>assets/app.js</code>. Connect Stripe price IDs using the Cloudflare environment variables listed in the README.</p>
-    </section>
-
-    <section class="section contact" id="contact">
-      <div class="contact-card">
-        <div>
-          <p class="eyebrow">Ready for launch support?</p>
-          <h2>Let’s get the first customer journey clean, simple and sellable.</h2>
-          <p>Use the pricing buttons once Stripe is connected, or replace the email below with your preferred inbox.</p>
+    <section class="section soft-section">
+      <div class="container two-column">
+        <div class="card readable-card">
+          <p class="eyebrow">For small businesses</p>
+          <h2>Built for people who need a website to do a job.</h2>
+          <p>PBI is designed around practical outcomes: explain your offer, build trust, collect enquiries, show products, connect payments and keep improving your site after launch.</p>
+          <a class="btn" href="/pricing/">View pricing</a>
         </div>
-        <a class="button primary" href="mailto:info@purbeckbusinessinnovations.co.uk?subject=PBI%20website%20builder%20enquiry">Email PBI</a>
+        <div class="card readable-card">
+          <p class="eyebrow">Support available</p>
+          <h2>You are not abandoned after choosing a template.</h2>
+          <p>Use the builder yourself, request assisted setup, ask for custom work or add paid logo creation when a business needs a stronger brand start.</p>
+          <a class="btn-ghost" href="/contact/">Contact PBI</a>
+        </div>
       </div>
     </section>
   </main>
 
   <footer class="site-footer">
-    <p>© <span id="year"></span> Purbeck Business Innovations. Built for small businesses that need a website without a maze.</p>
-    <a href="#top">Back to top</a>
+    <div class="container footer-mega">
+      <div>
+        <strong>PBI</strong>
+        <p>Purbeck Business Innovations</p>
+        <p class="muted">AI-assisted website building with guided setup, optional support and done-for-you custom builds.</p>
+      </div>
+      <div>
+        <h4>Build</h4>
+        <a href="/onboarding/">Start Building</a>
+        <a href="/examples/">Examples</a>
+        <a href="/pricing/">Pricing</a>
+      </div>
+      <div>
+        <h4>Help</h4>
+        <a href="/help/">Help centre</a>
+        <a href="/contact/">Contact</a>
+        <a href="/compare-website-builders/">Compare builders</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/terms/">Terms</a>
+        <a href="/privacy/">Privacy</a>
+        <a href="/cookies/">Cookies</a>
+      </div>
+    </div>
   </footer>
-
-  <script src="assets/app.js"></script>
+  <script src="/assets/pbi-cookie-banner.js" defer></script>
+  <script src="/assets/pbi-analytics.js" defer></script>
 </body>
 </html>
