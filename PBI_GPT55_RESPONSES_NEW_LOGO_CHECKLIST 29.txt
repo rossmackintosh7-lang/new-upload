@@ -1,0 +1,50 @@
+PBI GPT-5.5 + RESPONSES API + NEW LOGO BUILD
+
+What changed:
+- Replaced the main PBI logo with the new uploaded PBI mark.
+- Added web-friendly logo aliases:
+  - /assets/PBI Logo.png
+  - /assets/pbi-logo.png
+  - /assets/pbi-logo-new.png
+- Set PBI AI defaults to gpt-5.5.
+- Rebuilt /api/ai/generate-site to use OpenAI Responses API.
+- Rebuilt /api/ai/rewrite to use OpenAI Responses API.
+- AI site generation now requests strict canvas JSON using a schema.
+- AI rewrite now uses Responses API with reasoning controls.
+- Safe fallback generator still remains if OpenAI returns an error, so the builder does not hard-crash.
+
+Cloudflare settings required:
+- OPENAI_API_KEY = Secret
+- OPENAI_MODEL = Plaintext value: gpt-5.5
+
+After upload:
+1. Confirm OPENAI_MODEL is gpt-5.5 in Cloudflare Pages variables.
+2. Redeploy.
+3. Open /canvas-builder/?project=YOUR_PROJECT_ID
+4. Type a business brief into AI build from brief.
+5. Click AI build from brief.
+6. Confirm it returns a full canvas layout.
+7. Try a rewrite helper in the canvas inspector.
+8. Confirm the new PBI logo appears in the header/sidebar/canvas.
+
+Notes:
+- GPT-5.5 works best through the Responses API, which this build now uses.
+- If AI still falls back, check Cloudflare Function logs. Common causes:
+  - OPENAI_API_KEY not available to the deployment environment you are testing.
+  - OPENAI_MODEL typo.
+  - OpenAI billing/access issue.
+  - Model temporarily unavailable.
+
+
+Changes applied:
+- Replaced PBI logo asset with the new uploaded logo and added web-friendly aliases
+- Added CSS guardrails so the new logo displays cleanly across header/sidebar/canvas
+- Rebuilt AI site generation endpoint to use OpenAI Responses API with gpt-5.5 and strict canvas JSON schema
+- Rebuilt AI rewrite endpoint to use OpenAI Responses API with gpt-5.5
+- Updated model defaults/references from older mini models to gpt-5.5
+- Set OPENAI_MODEL to gpt-5.5 in wrangler.toml
+
+Static checks:
+- Missing internal page links: 0
+- Missing local assets/images: 0
+- JavaScript syntax errors: 0

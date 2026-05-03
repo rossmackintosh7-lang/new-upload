@@ -1,0 +1,2 @@
+This build makes the browser tab icon and the mobile home-screen icon use the same matched PBI logo style.
+All favicon, apple-touch-icon, android-chrome icons, and manifest references have been aligned to the same generated source style.
