@@ -1,7 +1,7 @@
 This build swaps in the black-background PBI logo across the main logo asset files:
-- assets/PBI Logo.png
-- assets/pbi-logo.png
-- assets/pbi-logo-new.png
+- assets/pbi-header-logo-no-bg-20260502c.png?v=20260502c
+- assets/pbi-header-logo-no-bg-20260502c.png?v=20260502c
+- assets/pbi-header-logo-no-bg-20260502c.png?v=20260502c
 - assets/PBI Logo previous.png
 
 Important if deployment is still failing:

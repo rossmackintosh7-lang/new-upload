@@ -7289,18 +7289,91 @@ html.retail-orders-visible [data-retail-orders-nav] {
     justify-content: center;
   }
 }
-.header-logo {
-  max-height: 88px;
-  width: auto;
-  object-fit: contain;
-  background: transparent;
-  border-radius: 0;
-  box-shadow: none;
+
+
+
+
+/* Final logo transparency/header fix */
+.brand-logo-only,
+.nav .brand,
+.nav-inner .brand {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
 }
 
-.brand-logo-only {
-  background: transparent;
-  border: 0;
-  box-shadow: none;
-  padding: 0;
+.header-logo,
+.brand-logo-only img,
+.nav .brand img {
+  display: block;
+  width: auto !important;
+  max-width: 132px;
+  max-height: 82px;
+  object-fit: contain;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
 }
+
+.nav-inner {
+  align-items: center;
+}
+
+
+
+
+/* HARD FIX: no white logo tile anywhere */
+.brand,
+.brand-logo-only,
+.nav .brand,
+.nav-inner .brand,
+a.brand,
+a.brand-logo-only,
+.pbi-canvas-brand,
+.app-logo,
+.dashboard-logo,
+.sidebar-logo {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+  padding: 0 !important;
+}
+
+.header-logo,
+.brand img,
+.brand-logo-only img,
+.nav .brand img,
+.nav-inner .brand img,
+.pbi-canvas-brand img,
+.app-logo img,
+.dashboard-logo img,
+.sidebar-logo img {
+  display: block !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+  border-radius: 0 !important;
+  object-fit: contain !important;
+  width: auto !important;
+  height: auto !important;
+  max-width: 122px !important;
+  max-height: 78px !important;
+  mix-blend-mode: multiply;
+}
+
+/* Main nav should not reserve a square tile around the logo */
+.nav-inner > .brand,
+.nav-inner > .brand-logo-only {
+  min-width: 0 !important;
+  min-height: 0 !important;
+}
+
+
+
+/* PBI real template section editor */.pbi-template-section-editor,.pbi-integrated-live-preview{margin:18px 0}.pbi-section-editor-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start}.pbi-section-editor-grid{display:grid;grid-template-columns:minmax(260px,.8fr) minmax(320px,1fr);gap:18px}.pbi-section-list{display:grid;gap:10px}.pbi-section-row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;border:1px solid rgba(95,62,47,.14);border-radius:18px;background:#fffaf5;padding:10px}.pbi-section-row.active{border-color:rgba(191,92,41,.55);box-shadow:0 12px 30px rgba(191,92,41,.12)}.pbi-section-row button{border:0;background:transparent;cursor:pointer;text-align:left;font-weight:850}.pbi-section-row span{display:block;color:rgba(38,22,15,.62);font-size:.84rem}.pbi-section-inspector{display:grid;gap:10px}.pbi-section-inspector input,.pbi-section-inspector textarea,.pbi-section-inspector select,.pbi-add-section-row select{width:100%;border:1px solid rgba(95,62,47,.16);border-radius:16px;padding:11px 12px;background:#fffaf5}.pbi-add-section-row{display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:12px}.pbi-live-sec{background:var(--pbi-sec-bg,#fff8f1);padding:46px;border-bottom:1px solid rgba(95,62,47,.11)}.pbi-live-sec h1,.pbi-live-sec h2{font-size:clamp(2rem,4vw,4.4rem);line-height:.94;letter-spacing:-.045em;margin:0 0 14px}.pbi-live-sec p{max-width:720px;line-height:1.6}.pbi-live-sec a{display:inline-flex;margin-top:14px;padding:12px 18px;border-radius:999px;background:var(--pbi-sec-accent,#bf5c29);color:#fff;font-weight:950}.pbi-live-split{display:grid;grid-template-columns:1fr minmax(220px,.75fr);gap:24px;align-items:center}.pbi-live-split figure{margin:0;min-height:220px;display:grid;place-items:center;border-radius:22px;background:rgba(95,62,47,.09);overflow:hidden}.pbi-live-split img{width:100%;height:260px;object-fit:cover}.pbi-live-cards>div{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.pbi-live-cards article{background:rgba(255,255,255,.62);border:1px solid rgba(95,62,47,.12);border-radius:20px;padding:18px}@media(max-width:880px){.pbi-section-editor-grid,.pbi-live-split,.pbi-live-cards>div{grid-template-columns:1fr}}

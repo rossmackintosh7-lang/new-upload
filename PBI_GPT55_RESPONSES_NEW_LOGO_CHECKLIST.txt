@@ -3,9 +3,9 @@ PBI GPT-5.5 + RESPONSES API + NEW LOGO BUILD
 What changed:
 - Replaced the main PBI logo with the new uploaded PBI mark.
 - Added web-friendly logo aliases:
-  - /assets/PBI Logo.png
-  - /assets/pbi-logo.png
-  - /assets/pbi-logo-new.png
+  - /assets/pbi-header-logo-no-bg-20260502c.png?v=20260502c
+  - /assets/pbi-header-logo-no-bg-20260502c.png?v=20260502c
+  - /assets/pbi-header-logo-no-bg-20260502c.png?v=20260502c
 - Set PBI AI defaults to gpt-5.5.
 - Rebuilt /api/ai/generate-site to use OpenAI Responses API.
 - Rebuilt /api/ai/rewrite to use OpenAI Responses API.

@@ -375,6 +375,7 @@
 
     scheduleSave();
     render();
+    loadProjectTemplateSectionsForCanvas();
   }
 
   function bindCanvasEvents() {
@@ -742,6 +743,10 @@
     return false;
   }
 
+
+
+  // project template sections bridge: load chosen template sections into canvas when available.
+  async function loadProjectTemplateSectionsForCanvas(){try{const r=await fetch(`/api/admin/project-sections?project_id=${encodeURIComponent(projectId)}`,{credentials:'include'});const d=await r.json();if(d?.sections?.length){state.blocks=d.sections.map(s=>({id:s.id,type:s.section_type||s.type||'section',title:s.title||'',text:s.text||'',button:s.button||'',image:s.image||'',layout:s.layout||'standard',background:s.background||'#fff8f1',accent:s.accent||'#bf5c29',padding:s.padding||'comfortable',align:s.align||'left'}));selectedId=state.blocks[0]?.id||null;saveState();render();}}catch{}}
 
   function bind() {
     render();
