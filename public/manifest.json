@@ -5,5 +5,25 @@
   "display": "standalone",
   "background_color": "#fbf7f1",
   "theme_color": "#9d4d3f",
-  "description": "AI-assisted website builder and SEO Agent for small businesses."
+  "description": "AI-assisted website builder and SEO Agent for small businesses.",
+  "icons": [
+    {
+      "src": "/assets/favicon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/favicon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
 }

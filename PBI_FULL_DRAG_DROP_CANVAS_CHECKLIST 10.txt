@@ -1,0 +1,79 @@
+PBI FULL DRAG & DROP CANVAS BUILD
+
+Source:
+- PBI_ENGINE_ROOM_UPGRADE_BUILD.zip
+
+Major additions:
+- Added dedicated full drag-and-drop canvas builder route
+- Added full canvas builder JavaScript: palette, canvas, inspector, drag/drop, inline editing, undo/redo, versions, autosave, AI brief build and export
+- Added full canvas builder launch/import card to existing builder
+- Loaded canvas import script in builder
+- Added canvas export/import bridge back into the existing builder
+- Added CSS for full drag-and-drop canvas builder
+- Added public feature page for drag-and-drop canvas
+- Added canvas builder routes to sitemap
+- Added drag-and-drop canvas mention to homepage feature area
+
+New routes:
+- /canvas-builder/
+- /features/drag-drop-canvas/
+
+What the canvas now does:
+- Component palette with draggable blocks.
+- Drag blocks into the canvas.
+- Click blocks into the canvas.
+- Drag blocks to reorder.
+- Move blocks up/down.
+- Duplicate blocks.
+- Delete blocks.
+- Inline edit titles and text directly on the canvas.
+- Inspector edit panel for:
+  - title
+  - text
+  - button text
+  - image URL
+  - layout
+  - background colour
+  - accent colour
+  - padding
+  - alignment
+- Responsive preview modes:
+  - desktop
+  - tablet
+  - mobile
+- Undo and redo.
+- Autosave to local storage.
+- Local versions.
+- Restore local versions.
+- AI build from brief.
+- Safe local AI rewrite helpers:
+  - clearer
+  - SEO focus
+  - shorter
+- Export/apply the canvas back into the normal PBI builder.
+
+Important honesty:
+- This is a real browser-based drag-and-drop canvas.
+- It is not yet a full commercial Framer/Webflow-grade layout engine with absolute positioning, nested containers, breakpoints per element and collaborative editing.
+- It is designed to work safely with PBI's existing builder/save/publish flow by exporting the canvas into current project content.
+- The next upgrade after this would be true nested containers, section-specific save format in D1, cloud canvas sync and published-site rendering directly from canvas JSON.
+
+Test after upload:
+1. Open /canvas-builder/?project=YOUR_PROJECT_ID
+2. Drag a block from left into the canvas.
+3. Drag blocks around to reorder.
+4. Click a block and edit it in inspector.
+5. Edit a headline directly on the canvas.
+6. Test Desktop/Tablet/Mobile buttons.
+7. Use Undo and Redo.
+8. Save version.
+9. Restore version.
+10. Use AI build from brief.
+11. Click Apply to project.
+12. Confirm builder imports the exported canvas content.
+
+
+Static checks:
+- Missing internal page links: 0
+- Missing local assets/images: 0
+- JavaScript syntax errors: 0

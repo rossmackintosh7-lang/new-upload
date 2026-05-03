@@ -1,0 +1,80 @@
+PBI PLATFORM UPGRADE BUILD
+
+Source:
+- PBI_COMPETITIVE_POSITIONING_UPGRADE_BUILD.zip
+
+Major additions:
+- Added AI setup/onboarding wizard with template recommendation and signup/builder handoff
+- Added launch readiness checklist card to builder
+- Added live launch readiness score/checklist script
+- Added analytics_events table to combined D1 schema
+- Added analytics starter endpoint, D1 table, tracking script and analytics dashboard page
+- Added lightweight analytics tracking script to public pages
+- Added 9 public feature pages for SEO, trust and product depth
+- Added case studies/proof starter page
+- Routed homepage primary CTAs to AI setup wizard
+- Added onboarding, analytics, case studies and feature pages to sitemap
+- Added CSS for onboarding wizard, launch readiness and analytics dashboard
+
+New public routes:
+- /onboarding/
+- /features/ai-website-builder/
+- /features/templates/
+- /features/seo-agent/
+- /features/retail-starter/
+- /features/domain-publishing/
+- /features/logo-creation/
+- /features/assisted-setup/
+- /features/enquiry-forms/
+- /features/analytics/
+- /analytics/
+- /case-studies/
+
+Product upgrades:
+- Guided AI setup wizard.
+- Template recommendation based on business type.
+- Signup/builder handoff with onboarding data.
+- Builder launch readiness score.
+- Builder launch checklist.
+- Analytics event table and tracking endpoint.
+- Public feature library for trust/SEO.
+- Case studies/proof structure.
+
+Still not fully Hostinger-level yet:
+- This does not add full drag-and-drop page sections.
+- This does not add true undo/redo/version history yet.
+- This does not add full live analytics aggregation charts yet.
+- This does not add full AI site generation from scratch yet unless your existing AI endpoints/OpenAI secret are wired and extended.
+- This does not add full ecommerce beyond the existing retail starter.
+
+Next build after this should focus on:
+1. Section add/remove/reorder in the builder.
+2. Autosave and version history.
+3. AI section/page rewriting inside the builder.
+4. Analytics aggregation in admin/customer dashboard.
+5. Better screenshot/video proof blocks.
+
+Static checks:
+- Missing internal page links: 0
+  - None found.
+
+- Missing local assets/images: 0
+  - None found.
+
+- JavaScript syntax errors: 0
+  - None found.
+
+After upload:
+1. Run D1 schema:
+   npx wrangler d1 execute d1-template-database --file=./database/pbi-combined-schema.sql --remote
+
+2. Test:
+   /onboarding/
+   Signup handoff
+   Builder readiness checklist
+   Contact form
+   Publish payment
+   Logo checkout
+   Retail template
+   Analytics endpoint
+   Feature pages
