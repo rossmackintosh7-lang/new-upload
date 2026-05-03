@@ -1,0 +1,93 @@
+PBI STAGING BUILD: SEO, PAYMENTS, BUILDER CONTROLS, LOGO CREATION
+
+Build source:
+PBI_ENQUIRY_FORM_ADDED_POLISHED_BUILD.zip
+
+Main changes:
+- Source build: PBI_ENQUIRY_FORM_ADDED_POLISHED_BUILD.zip
+- Added 12 SEO landing pages with FAQ/schema/internal links
+- Removed early access from homepage and strengthened homepage SEO wording
+- Removed early access wording across public HTML
+- Updated pricing wording for buyer-intent SEO
+- Turned publish payments back on and added logo creation vars in wrangler.toml
+- Added advanced design controls and paid logo creation panel to builder
+- Patched builder JS for advanced design controls and paid logo request
+- Added paid logo creation checkout endpoint
+- Patched webhook to mark paid logo requests
+- Added logo_creation_requests schema/migration
+- Updated sitemap.xml and robots.txt
+- Added CSS for SEO landing pages and advanced builder preview controls
+- Added SEO internal links to Examples page
+
+Payments:
+- PBI_REQUIRE_PAYMENT_TO_PUBLISH is now true in wrangler.toml.
+- Customers should now be sent through the payment page before publishing.
+- Retail Connect remains enabled.
+- Platform retail payments remain disabled, so shop money should require connected Stripe accounts.
+- Paid logo creation is added, but STRIPE_PRICE_LOGO_CREATION still needs a real Stripe price_... ID before paid logo checkout can work.
+
+SEO added:
+- 12 SEO landing pages.
+- FAQ sections and JSON-LD schema.
+- Sitemap and robots.txt updated.
+- Homepage early access wording removed.
+- Pricing wording made more buyer-intent focused.
+- Examples page now links to relevant SEO business-type guides.
+
+Builder controls added:
+- Layout style.
+- Section shape.
+- Image style.
+- Background mode.
+- Heading style.
+- Content spacing.
+- Secondary colour.
+- Card/panel colour.
+- Paid logo creation request panel.
+
+Static crash test results:
+- Missing internal page links: 0
+  - None found.
+
+- Missing local asset references: 0
+  - None found.
+
+- JavaScript syntax errors/warnings: 0
+  - None found.
+
+- Missing required DB table definitions in schema: 0
+  - None found.
+
+Before publishing live, staging checks needed:
+1. Add/confirm Cloudflare Preview + Production secrets:
+   TURNSTILE_SECRET_KEY
+   STRIPE_SECRET_KEY
+   STRIPE_WEBHOOK_SECRET
+   RESEND_API_KEY
+   OPENAI_API_KEY
+   CLOUDFLARE_API_TOKEN
+   PBI_ADMIN_TOKEN
+
+2. Add STRIPE_PRICE_LOGO_CREATION in wrangler.toml/GitHub once you create the logo product in Stripe.
+
+3. Run D1 schema:
+   npx wrangler d1 execute d1-template-database --file=./database/pbi-combined-schema.sql --remote
+
+4. Test staging:
+   Homepage
+   SEO landing pages
+   Help/contact form
+   Signup/login with Turnstile
+   Examples → Use template
+   Builder save
+   Advanced design controls
+   Publish payment gate
+   Stripe checkout
+   Logo creation checkout setup message or checkout
+   Retail Connect
+   Retail basket checkout
+   SEO Agent scan/fix/apply
+   Admin support/enquiries
+
+Honest note:
+This package has been statically crash-tested. I cannot verify the actual staging URL until you push this build to staging and Cloudflare deploys it with the correct Preview secrets.

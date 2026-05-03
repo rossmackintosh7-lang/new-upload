@@ -1,0 +1,40 @@
+PBI LIVE PREVIEW UPDATE FIX
+
+Issue:
+- The builder live preview was not reliably changing while the customer edited fields.
+- Main heading/subheading edits were especially confusing because those fields did not directly drive the homepage hero preview.
+- Some edits were triggering a heavy full render, which could reset editor fields/cursor position instead of feeling live.
+
+Fixes added:
+- Linked Page main heading/Sub heading fields to the homepage hero preview
+- Added a requestAnimationFrame live-preview updater
+- Changed normal text/colour/button edits to update preview without resetting the editor
+- Made advanced design controls update the preview through the shared updater
+- Made retail settings update the preview through the shared updater
+- Added delegated fallback so newly added/changed builder fields still refresh the preview
+- Logo upload now refreshes thumbnails/layout and preview together
+- Added a second preview refresh after project/template data loads
+
+Expected behaviour after upload:
+1. Editing Business name updates the preview header/footer.
+2. Editing Page main heading updates the homepage hero title immediately.
+3. Editing Sub heading updates the homepage hero text immediately.
+4. Editing Page title/Page content updates the selected page preview immediately.
+5. Colour changes update the preview immediately.
+6. CTA button wording/action updates the preview immediately.
+7. Advanced design controls update the preview immediately.
+8. Logo/background/gallery uploads refresh the preview.
+9. Template project data gets one extra preview refresh after loading.
+
+Testing:
+- Open builder.
+- Type slowly into Page main heading.
+- Type into Sub heading.
+- Change colours.
+- Change layout style.
+- Upload a logo/image.
+- Confirm the preview changes without needing Save or refresh.
+
+
+Static checks:
+- JavaScript syntax errors: 0

@@ -1,0 +1,1 @@
+document.addEventListener('click',e=>{if(e.target.closest('[data-menu]'))document.querySelector('.admin-sidebar')?.classList.toggle('open');if(e.target.closest('.admin-nav a'))document.querySelector('.admin-sidebar')?.classList.remove('open')});
