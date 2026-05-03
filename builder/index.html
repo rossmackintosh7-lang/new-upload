@@ -29,6 +29,20 @@
     </header>
     <main class="pbi-app-content">
 
+      <section class="card pbi-plan-current-card" id="pbiCurrentPlanCard">
+        <div>
+          <p class="eyebrow">Your package</p>
+          <h2 id="pbiPlanTitle">Starter Site</h2>
+          <p id="pbiPlanDescription" class="small-note muted">Starter tools are active. Upgrade to unlock more builder controls.</p>
+        </div>
+        <div class="pbi-plan-chip-row">
+          <span class="pbi-plan-chip" data-plan-chip="starter">Starter</span>
+          <span class="pbi-plan-chip" data-plan-chip="business">Business</span>
+          <span class="pbi-plan-chip" data-plan-chip="plus">Plus</span>
+          <a class="btn-ghost" id="pbiPlanUpgradeLink" href="/pricing/#packages">Compare packages</a>
+        </div>
+      </section>
+
       <section id="pbiTemplateSectionEditor" class="card pbi-template-section-editor pbi-unified-builder" aria-labelledby="pbiUnifiedBuilderTitle">
         <div class="pbi-section-editor-head pbi-unified-head">
           <div>
@@ -63,7 +77,7 @@
             <label class="template-choice"><input type="radio" name="templateStyle" value="trades"><span><strong>Tradesperson</strong><small>Services, trust, quote requests and local search.</small></span></label>
             <label class="template-choice"><input type="radio" name="templateStyle" value="salon"><span><strong>Salon / Beauty</strong><small>Treatments, gallery, booking and calm presentation.</small></span></label>
             <label class="template-choice"><input type="radio" name="templateStyle" value="consultant"><span><strong>Consultant / Service Business</strong><small>Expertise, services, proof and calls.</small></span></label>
-            <label class="template-choice"><input type="radio" name="templateStyle" value="shop"><span><strong>Shop / Retail</strong><small>Product-led layout with retail support when enabled.</small></span></label>
+            <label class="template-choice" data-plan-min="plus"><input type="radio" name="templateStyle" value="shop"><span><strong>Shop / Retail</strong><small>Product-led layout with retail support when enabled.</small></span></label>
             <label class="template-choice"><input type="radio" name="templateStyle" value="holiday-let"><span><strong>Holiday Let / Glamping</strong><small>Image-led stays, amenities and enquiry route.</small></span></label>
           </div>
         </div>
@@ -81,13 +95,13 @@
               <select id="pbiAddSectionType" class="select" aria-label="Add section type">
                 <option value="hero">Hero</option>
                 <option value="services">Services</option>
-                <option value="featureGrid">Feature grid</option>
-                <option value="gallery">Gallery</option>
-                <option value="testimonial">Testimonial</option>
-                <option value="faq">FAQ</option>
+                <option value="featureGrid" data-plan-min="business">Feature grid</option>
+                <option value="gallery" data-plan-min="business">Gallery</option>
+                <option value="testimonial" data-plan-min="plus">Testimonial</option>
+                <option value="faq" data-plan-min="plus">FAQ</option>
                 <option value="contact">Contact</option>
-                <option value="retail">Retail</option>
-                <option value="cta">CTA</option>
+                <option value="retail" data-plan-min="plus">Retail</option>
+                <option value="cta" data-plan-min="business">CTA</option>
               </select>
               <button class="btn-ghost" id="pbiAddSectionBtn" type="button">Add section</button>
             </div>
@@ -171,7 +185,7 @@
 
 
 
-            <div class="card" id="pbiCanvasLaunchCard" class="pbi-canvas-launch-note">
+            <div class="card" id="pbiCanvasLaunchCard" class="pbi-canvas-launch-note" data-plan-min="plus">
               <h3>Advanced layout editor</h3>
               <p class="small-note muted">Use the advanced visual canvas only when you want deeper layout control. Most customers can edit the normal builder first, then use this if needed.</p>
               <div class="pbi-pro-actions">
@@ -180,7 +194,7 @@
               </div>
               <div id="canvasImportStatus" class="notice" style="display:none;margin-top:14px"></div>
             </div>
-            <div class="card" id="pbiAiSectionCard">
+            <div class="card" id="pbiAiSectionCard" data-plan-min="plus">
               <h3>AI section helper</h3>
               <p class="small-note muted">Use this to quickly improve the selected page wording before saving or publishing.</p>
               <div class="grid-2">
@@ -229,7 +243,7 @@
                 <div class="field"><label for="ctaButtonAction">Button action</label><select id="ctaButtonAction" class="select"><option value="contact">Scroll to contact section</option><option value="page">Go to another page</option><option value="external">Go to external website</option><option value="email">Open email</option><option value="phone">Open phone call</option><option value="none">No action</option></select></div>
               </div>
               <div class="grid-2">
-                <div class="field"><label for="ctaButtonPage">Page destination</label><select id="ctaButtonPage" class="select"><option value="contact">Contact</option><option value="services">Services</option><option value="about">About</option><option value="gallery">Gallery</option><option value="home">Home</option></select></div>
+                <div class="field"><label for="ctaButtonPage">Page destination</label><select id="ctaButtonPage" class="select"><option value="contact">Contact</option><option value="services">Services</option><option value="about">About</option><option value="gallery" data-plan-min="business">Gallery</option><option value="home">Home</option></select></div>
                 <div class="field"><label for="ctaButtonDestination">External URL, email or phone</label><input id="ctaButtonDestination" class="input" placeholder="https://example.co.uk or hello@example.co.uk"></div>
               </div>
             </div>
@@ -243,8 +257,8 @@
                     <label class="page-choice"><input type="checkbox" class="pageToggle" value="home" checked disabled><span>Home</span></label>
                     <label class="page-choice"><input type="checkbox" class="pageToggle" value="about" checked><span>About</span></label>
                     <label class="page-choice"><input type="checkbox" class="pageToggle" value="services" checked><span>Services</span></label>
-                    <label class="page-choice"><input type="checkbox" class="pageToggle" value="gallery"><span>Gallery</span></label>
-                    <label class="page-choice"><input type="checkbox" class="pageToggle" value="shop"><span>Shop</span></label>
+                    <label class="page-choice" data-plan-min="business"><input type="checkbox" class="pageToggle" value="gallery"><span>Gallery</span></label>
+                    <label class="page-choice" data-plan-min="plus"><input type="checkbox" class="pageToggle" value="shop"><span>Shop</span></label>
                     <label class="page-choice"><input type="checkbox" class="pageToggle" value="contact" checked><span>Contact</span></label>
                   </div>
                 </div>
@@ -257,7 +271,7 @@
               </div>
             </div>
 
-            <div class="card">
+            <div class="card" data-plan-min="business">
               <h3>Brand design</h3>
               <div class="field"><label for="logoUpload">Upload logo</label><input id="logoUpload" class="input" type="file" accept="image/*"></div>
               <div class="field"><label for="galleryUpload">Upload pictures</label><input id="galleryUpload" class="input" type="file" accept="image/*" multiple><p class="small-note muted">Uploaded pictures appear in the gallery preview.</p></div>
@@ -268,7 +282,7 @@
 
 
 
-            <div class="card pbi-retail-card">
+            <div class="card pbi-retail-card" data-plan-min="plus">
               <h3>Retail shop</h3>
               <p class="small-note muted">Retail V5 starter: add up to 10 products, enable a customer cart, collect shipping/tax details through Stripe Checkout, track orders and reduce stock after paid webhooks.</p>
               <div class="grid-2">
@@ -299,7 +313,7 @@
               <div id="retailProductsList" class="retail-products-editor"></div>
             </div>
 
-            <div class="card" id="builderAdvancedDesignCard">
+            <div class="card" id="builderAdvancedDesignCard" data-plan-min="plus">
               <h3>Advanced design controls</h3>
               <p class="small-note muted">Give the website a stronger custom feel by adjusting layout shape, section style, image behaviour and background treatment.</p>
               <div class="grid-2">
@@ -388,4 +402,5 @@
   <script src="/assets/pbi-canvas-import.js" defer></script>
 <script src="/assets/pbi-request-capture.js" defer></script>
 <script src="/assets/pbi-builder-sections.js" defer></script>
+<script src="/assets/pbi-plan-gating.js" defer></script>
 </body></html>

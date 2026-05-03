@@ -2,6 +2,17 @@
   const params = new URLSearchParams(location.search);
   const projectId = params.get('project') || params.get('project_id') || 'draft';
   const storageKey = `pbi_sections_${projectId}`;
+  const planRank = { starter: 1, business: 2, plus: 3 };
+  function cleanPlan(value) { value = String(value || '').toLowerCase(); return planRank[value] ? value : 'starter'; }
+  function activePlan() { return cleanPlan(params.get('plan') || localStorage.getItem('pbiSelectedPlan') || window.PBISelectedPlan || document.body.dataset.plan || 'starter'); }
+  function sectionMinPlan(type) { return ({ gallery: 'business', featureGrid: 'business', cta: 'business', testimonial: 'plus', faq: 'plus', retail: 'plus' })[type] || 'starter'; }
+  function planAllows(min) { return planRank[activePlan()] >= planRank[cleanPlan(min)]; }
+  function filterSectionsForPlan(input) {
+    const plan = activePlan();
+    const filtered = (input || []).filter((section) => planAllows(sectionMinPlan(section.section_type || section.type)));
+    if (plan === 'starter') filtered.forEach((section) => { section.image = ''; });
+    return filtered;
+  }
   let sections = [];
   let selected = null;
   let dragId = null;
@@ -141,13 +152,13 @@
   async function load(force = false) {
     ensure();
     const key = templateKey();
-    setLinkedStatus(`Linked project: ${projectId} · Template: ${key}`);
+    setLinkedStatus(`Linked project: ${projectId} · Template: ${key} · Package: ${activePlan()}`);
     if (!force) {
       try {
         const cached = JSON.parse(localStorage.getItem(storageKey) || 'null');
         if (Array.isArray(cached) && cached.length) {
-          sections = cached;
-          selected = sections[0].id;
+          sections = filterSectionsForPlan(cached.map(normaliseSection));
+          selected = sections[0]?.id || null;
           render();
           preview();
           return;
@@ -158,18 +169,18 @@
     try {
       const response = await fetch('/api/builder/template-sections', {
         method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ project_id: projectId, template_key: key, force })
+        body: JSON.stringify({ project_id: projectId, template_key: key, force, plan: activePlan() })
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok || !Array.isArray(data.sections)) throw new Error(data.message || data.error || 'Template sections could not load.');
-      sections = data.sections.map(normaliseSection);
+      sections = filterSectionsForPlan(data.sections.map(normaliseSection));
       selected = sections[0]?.id || null;
       saveLocal();
       render();
       preview();
       status(force ? 'Template reloaded into the connected editor.' : 'Template loaded into the connected editor.');
     } catch (error) {
-      sections = fallbackSections(key);
+      sections = filterSectionsForPlan(fallbackSections(key).map(normaliseSection));
       selected = sections[0]?.id || null;
       saveLocal();
       render();
@@ -200,11 +211,12 @@
   }
 
   async function saveCloud(quiet = false) {
+    sections = filterSectionsForPlan(sections);
     saveLocal();
     try {
       const response = await fetch('/api/builder/project-sections', {
         method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ project_id: projectId, sections: sections.map((s, i) => ({ ...s, section_order: i })) })
+        body: JSON.stringify({ project_id: projectId, plan: activePlan(), sections: filterSectionsForPlan(sections).map((s, i) => ({ ...s, section_order: i })) })
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok || data.ok === false) throw new Error(data.message || data.error || 'Sections could not save.');
@@ -222,7 +234,7 @@
     try {
       const response = await fetch('/api/builder/publish-sections', {
         method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ project_id: projectId })
+        body: JSON.stringify({ project_id: projectId, plan: activePlan() })
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok || data.ok === false) throw new Error(data.message || data.error || 'Publish snapshot failed.');
@@ -250,8 +262,34 @@
     }
   }
 
+
+  function updatePackageOptions() {
+    document.body.dataset.plan = activePlan();
+    const select = $('pbiAddSectionType');
+    if (select) {
+      [...select.options].forEach((option) => {
+        const min = option.dataset.planMin || sectionMinPlan(option.value);
+        const allowed = planAllows(min);
+        option.disabled = !allowed;
+        option.hidden = !allowed;
+      });
+      if (select.selectedOptions[0]?.disabled) select.value = 'hero';
+    }
+    document.querySelectorAll('input[name="templateStyle"][value="shop"]').forEach((input) => {
+      const label = input.closest('label');
+      const allowed = planAllows('plus');
+      input.disabled = !allowed;
+      if (label) label.classList.toggle('pbi-plan-locked', !allowed);
+      if (!allowed && input.checked) {
+        const fallback = document.querySelector('input[name="templateStyle"][value="consultant"],input[name="templateStyle"][value="cafe"]');
+        if (fallback) fallback.checked = true;
+      }
+    });
+  }
+
   function render() {
     ensure();
+    updatePackageOptions();
     const list = $('pbiSectionList');
     if (!list) return;
     list.innerHTML = sections.map((section) => `
@@ -292,12 +330,12 @@
       <label>Title</label><input id="sTitle" class="input" value="${esc(section.title)}">
       <label>Text</label><textarea id="sText" class="textarea" rows="5">${esc(section.text)}</textarea>
       <label>Button</label><input id="sButton" class="input" value="${esc(section.button)}">
-      <label>Image URL</label><input id="sImage" class="input" value="${esc(section.image)}">
-      <label>Upload image</label><input id="sUpload" class="input" type="file" accept="image/*"><div id="sUploadStatus" class="small-note muted"></div>
-      <div class="grid-2"><div><label>Layout</label><select id="sLayout" class="select">${['standard', 'split', 'centered', 'cards', 'fullBleed'].map((value) => `<option value="${value}" ${section.layout === value ? 'selected' : ''}>${value}</option>`).join('')}</select></div><div><label>Padding</label><select id="sPadding" class="select">${['compact', 'comfortable', 'spacious'].map((value) => `<option value="${value}" ${section.padding === value ? 'selected' : ''}>${value}</option>`).join('')}</select></div></div>
+      ${planAllows('business') ? `<label>Image URL</label><input id="sImage" class="input" value="${esc(section.image)}">
+      <label>Upload image</label><input id="sUpload" class="input" type="file" accept="image/*"><div id="sUploadStatus" class="small-note muted"></div>` : `<div class="notice domain-info">Image controls unlock on the Business package.</div>`}
+      ${planAllows('plus') ? `<div class="grid-2"><div><label>Layout</label><select id="sLayout" class="select">${['standard', 'split', 'centered', 'cards', 'fullBleed'].map((value) => `<option value="${value}" ${section.layout === value ? 'selected' : ''}>${value}</option>`).join('')}</select></div><div><label>Padding</label><select id="sPadding" class="select">${['compact', 'comfortable', 'spacious'].map((value) => `<option value="${value}" ${section.padding === value ? 'selected' : ''}>${value}</option>`).join('')}</select></div></div>
       <div class="grid-2"><div><label>Background</label><input id="sBg" class="input" type="color" value="${esc(section.background || '#fff8f1')}"></div><div><label>Accent</label><input id="sAccent" class="input" type="color" value="${esc(section.accent || '#bf5c29')}"></div></div>
       <label>Alignment</label><select id="sAlign" class="select">${['left', 'center', 'right'].map((value) => `<option value="${value}" ${section.align === value ? 'selected' : ''}>${value}</option>`).join('')}</select>
-      <button class="btn" id="sApply" type="button">Apply to preview</button>
+      <button class="btn" id="sApply" type="button">Apply to preview</button>` : `<div class="notice domain-info">Advanced layout, colour and alignment controls unlock on the Plus package.</div><button class="btn" id="sApply" type="button">Apply to preview</button>`}
     `;
     const fields = [['sTitle', 'title'], ['sText', 'text'], ['sButton', 'button'], ['sImage', 'image'], ['sLayout', 'layout'], ['sPadding', 'padding'], ['sBg', 'background'], ['sAccent', 'accent'], ['sAlign', 'align']];
     fields.forEach(([id, key]) => {
@@ -316,11 +354,14 @@
 
   async function uploadImage(file, section) {
     if (!file) return;
+    if (!planAllows('business')) { status('Image uploads unlock on the Business package.', 'error'); return; }
     const st = $('sUploadStatus');
     if (st) st.textContent = 'Uploading image...';
     try {
       const form = new FormData();
       form.append('image', file);
+      form.append('project_id', projectId);
+      form.append('plan', activePlan());
       const response = await fetch('/api/builder/upload-image', { method: 'POST', credentials: 'include', body: form });
       const data = await response.json().catch(() => ({}));
       if (!response.ok || data.ok === false) throw new Error(data.message || data.error || 'Upload failed.');
@@ -337,6 +378,8 @@
 
   function addSection() {
     const type = $('pbiAddSectionType')?.value || 'featureGrid';
+    const min = sectionMinPlan(type);
+    if (!planAllows(min)) { status(`${type} sections unlock on the ${min === 'plus' ? 'Plus' : 'Business'} package.`, 'error'); return; }
     const section = normaliseSection({
       id: `s_${Date.now()}`, section_type: type, type,
       title: type === 'cta' ? 'Ready to take the next step?' : `New ${type} section`,
@@ -449,7 +492,7 @@
       pageBody.value = sections.map((section) => `${section.title}\n${section.text}\n${section.button || ''}`).join('\n\n---\n\n');
       pageBody.dispatchEvent(new Event('input', { bubbles: true }));
     }
-    document.dispatchEvent(new CustomEvent('pbi:sections-updated', { detail: { projectId, sections } }));
+    document.dispatchEvent(new CustomEvent('pbi:sections-updated', { detail: { projectId, sections, plan: activePlan() } }));
   }
 
   function bindTemplateChanges() {

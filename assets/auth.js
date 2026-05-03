@@ -35,19 +35,22 @@ window.PBIAuth = (() => {
       try {
         const params = new URLSearchParams(window.location.search);
         const templatePreset = params.get('template_preset') || '';
+        const selectedPlan = ['starter','business','plus'].includes((params.get('plan') || '').toLowerCase()) ? (params.get('plan') || '').toLowerCase() : (localStorage.getItem('pbiSelectedPlan') || 'starter');
+        localStorage.setItem('pbiSelectedPlan', selectedPlan);
         const data = await requestJson('/api/auth/signup', {
           email: fd.get('email'),
           password: fd.get('password'),
           project_name: fd.get('project_name'),
           template_preset: templatePreset,
+          plan: selectedPlan,
           terms_accepted: fd.get('terms_accepted') === 'on',
           terms_version: fd.get('terms_version') || '2026-04-28',
           turnstileToken: fd.get('cf-turnstile-response')
         });
         showMessage(messageId, 'success', 'Account created. Redirecting...');
         const target = templatePreset && data.project?.id
-          ? `/builder/?project=${encodeURIComponent(data.project.id)}&preset=${encodeURIComponent(templatePreset)}`
-          : '/dashboard/';
+          ? `/builder/?project=${encodeURIComponent(data.project.id)}&preset=${encodeURIComponent(templatePreset)}&plan=${encodeURIComponent(selectedPlan)}`
+          : (data.project?.id ? `/builder/?project=${encodeURIComponent(data.project.id)}&plan=${encodeURIComponent(selectedPlan)}` : '/dashboard/');
         setTimeout(() => { location.href = target; }, 500);
       } catch (err) {
         if (window.turnstile) window.turnstile.reset();
