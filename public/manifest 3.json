@@ -1,0 +1,9 @@
+{
+  "name": "Purbeck Business Innovations",
+  "short_name": "PBI",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fbf7f1",
+  "theme_color": "#9d4d3f",
+  "description": "AI-assisted website builder and SEO Agent for small businesses."
+}
