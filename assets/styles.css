@@ -7380,3 +7380,33 @@ a.brand-logo-only,
 
 /* PBI linked builder upload/save fix */
 .pbi-section-inspector input[type="file"]{background:#fffaf5;border:1px dashed rgba(191,92,41,.45);padding:14px;border-radius:16px}.pbi-section-row.is-hidden{opacity:.55}#pbiLinkedStatus{color:#17725d;font-weight:850}.pbi-integrated-live-preview img,.pbi-live-sec img{max-width:100%;display:block}.pbi-live-sec figure img{width:100%;height:100%;object-fit:cover}.notice.error{border-color:rgba(164,41,41,.35);background:#fff1ee;color:#8f2118}.notice.success{border-color:rgba(28,122,91,.35);background:#eaf8f2;color:#17725d}.pbi-live-sec{background:var(--pbi-sec-bg,#fff8f1);border-bottom:1px solid rgba(95,62,47,.11)}
+
+
+/* PBI unified builder and pricing polish, 2026-05-03 */
+.pbi-unified-builder{margin-bottom:24px;overflow:hidden;border:1px solid rgba(90,46,20,.12)}
+.pbi-unified-head{align-items:flex-start;gap:18px}
+.pbi-unified-actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end;align-items:center;min-width:min(100%,360px)}
+.pbi-builder-flow-tabs{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 20px}
+.pbi-builder-flow-tabs span{display:inline-flex;align-items:center;border-radius:999px;padding:8px 12px;background:#fff8f1;border:1px solid rgba(191,92,41,.18);font-weight:800;font-size:12px;color:#6d3318}
+.pbi-unified-template-panel{display:grid;grid-template-columns:minmax(220px,.75fr) minmax(280px,1.8fr);gap:18px;align-items:start;padding:18px;border-radius:24px;background:linear-gradient(135deg,rgba(255,248,241,.96),rgba(246,239,231,.86));border:1px solid rgba(191,92,41,.12);margin-bottom:20px}
+.pbi-template-choice-grid-compact{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.pbi-template-choice-grid-compact .template-choice{height:100%}
+.pbi-template-choice-grid-compact .template-choice span{padding:12px}
+.pbi-template-choice-grid-compact small{display:block;margin-top:4px;line-height:1.35}
+.pbi-unified-editor-grid{align-items:stretch}
+.pbi-section-panel{min-width:0}
+.pbi-panel-title-row{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;margin-bottom:12px}
+.pbi-section-row-actions{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
+.pbi-section-row.is-hidden{opacity:.58}
+.pbi-section-inspector label{display:block;margin:10px 0 6px;font-weight:800;font-size:13px;color:#4b2616}
+.pbi-section-inspector .btn{margin-top:14px}
+.pbi-pricing-page .page-hero{padding-bottom:28px}
+.pbi-pricing-grid-main{align-items:stretch}
+.pbi-pricing-grid-main .pbi-price-card,.pbi-addon-grid .pbi-addon-card{display:flex;flex-direction:column;gap:10px}
+.pbi-pricing-grid-main .pbi-price-card ul,.pbi-addon-grid .pbi-addon-card ul{margin-bottom:18px}
+.pbi-pricing-grid-main .pbi-price-card .btn,.pbi-addon-grid .pbi-addon-card .btn-ghost,.pbi-addon-grid .pbi-addon-card .btn{margin-top:auto;align-self:flex-start}
+.pbi-addon-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.pbi-addon-card h3{margin-bottom:4px}
+.pbi-pricing-note{margin-top:20px}
+@media (max-width: 980px){.pbi-unified-template-panel{grid-template-columns:1fr}.pbi-template-choice-grid-compact,.pbi-addon-grid{grid-template-columns:1fr 1fr}.pbi-unified-actions{justify-content:flex-start}}
+@media (max-width: 640px){.pbi-template-choice-grid-compact,.pbi-addon-grid{grid-template-columns:1fr}.pbi-unified-actions .btn,.pbi-unified-actions .btn-ghost{width:100%;justify-content:center}.pbi-builder-flow-tabs span{flex:1 1 145px;justify-content:center}.pbi-section-row-actions{justify-content:flex-start}.pbi-unified-template-panel{padding:14px}}

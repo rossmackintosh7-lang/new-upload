@@ -87,8 +87,9 @@
   }
 
   function renderSections() {
-    const list = $("pbiSectionList");
-    if (!list) return;
+    const card = $("pbiBuilderProCard");
+    const list = card?.querySelector("#pbiSectionList");
+    if (!card || !list) return;
 
     list.innerHTML = sections.map((section, index) => `
       <article class="pbi-section-editor" data-section-index="${index}">
@@ -327,7 +328,8 @@
       button.addEventListener("click", () => rewriteText(button.dataset.aiRewrite));
     });
 
-    $("pbiSectionList")?.addEventListener("input", (event) => {
+    const proList = $("pbiBuilderProCard")?.querySelector("#pbiSectionList");
+    proList?.addEventListener("input", (event) => {
       const input = event.target.closest("[data-section-field]");
       if (!input) return;
       const index = Number(input.dataset.sectionIndex);
@@ -337,7 +339,7 @@
       applySectionsToPage();
     });
 
-    $("pbiSectionList")?.addEventListener("click", (event) => {
+    proList?.addEventListener("click", (event) => {
       const move = event.target.closest("[data-move-section]");
       const duplicate = event.target.closest("[data-duplicate-section]");
       const remove = event.target.closest("[data-remove-section]");

@@ -18,8 +18,78 @@
       <div class="pbi-app-actions"><button class="btn-ghost" id="backBtn" type="button">Dashboard</button><button class="btn-ghost" id="logoutBtn" type="button">Logout</button><button class="btn-ghost" id="saveBtn" type="button">Save project</button><button class="btn" id="publishBtn" type="button">Publish website</button></div>
     </header>
     <main class="pbi-app-content">
-  <section class="pbi-template-ribbon"><div><h3>Choose a template to get started</h3><p class="muted">Selected demos from Examples flow straight into this builder.</p></div><a class="pbi-ribbon-card" href="/examples/cafe/"><img src="/assets/demo-media/cafe-hero.jpg" alt="Café / Restaurant template"><strong>Café / Restaurant</strong></a><a class="pbi-ribbon-card" href="/examples/trades/"><img src="/assets/demo-media/trades-hero.jpg" alt="Tradesperson template"><strong>Tradesperson</strong></a><a class="pbi-ribbon-card" href="/examples/salon/"><img src="/assets/demo-media/salon-hero.jpg" alt="Salon / Beauty template"><strong>Salon / Beauty</strong></a><a class="pbi-ribbon-card" href="/examples/consultant/"><img src="/assets/demo-media/consultant-hero.jpg" alt="Consultant / Service Business template"><strong>Consultant / Service Business</strong></a><a class="pbi-ribbon-card" href="/examples/shop/"><img src="/assets/demo-media/shop-hero.jpg" alt="Shop / Retail template"><strong>Shop / Retail</strong></a><a class="pbi-ribbon-card" href="/examples/holiday-let/"><img src="/assets/demo-media/holiday-let-hero.jpg" alt="Holiday Let / Glamping template"><strong>Holiday Let / Glamping</strong></a></section>
-  
+
+      <section id="pbiTemplateSectionEditor" class="card pbi-template-section-editor pbi-unified-builder" aria-labelledby="pbiUnifiedBuilderTitle">
+        <div class="pbi-section-editor-head pbi-unified-head">
+          <div>
+            <p class="eyebrow">Website setup</p>
+            <h2 id="pbiUnifiedBuilderTitle">Build from one connected workspace</h2>
+            <p class="small-note muted">Choose a template, edit the same live sections, upload images, adjust design and publish without jumping between duplicate editors.</p>
+            <p id="pbiLinkedStatus" class="small-note">Linked project: loading...</p>
+          </div>
+          <div class="pbi-section-editor-actions pbi-unified-actions" role="group" aria-label="Builder actions">
+            <button class="btn-ghost" id="pbiReloadSections" type="button">Reload template</button>
+            <button class="btn-ghost" id="pbiSaveSections" type="button">Save sections</button>
+            <button class="btn" id="pbiPublishSections" type="button">Apply & publish sections</button>
+          </div>
+        </div>
+
+        <div class="pbi-builder-flow-tabs" aria-label="Website builder workflow">
+          <span>1. Template</span>
+          <span>2. Edit content</span>
+          <span>3. Design</span>
+          <span>4. Images</span>
+          <span>5. SEO & launch</span>
+          <span>6. Add-ons</span>
+        </div>
+
+        <div class="pbi-unified-template-panel">
+          <div>
+            <h3>Choose your starting template</h3>
+            <p class="small-note muted">These match the public Examples styles and load into this same editor and preview window.</p>
+          </div>
+          <div class="template-choice-grid pbi-template-choice-grid-compact">
+            <label class="template-choice"><input type="radio" name="templateStyle" value="cafe" checked><span><strong>Café / Restaurant</strong><small>Menus, bookings, location and atmosphere.</small></span></label>
+            <label class="template-choice"><input type="radio" name="templateStyle" value="trades"><span><strong>Tradesperson</strong><small>Services, trust, quote requests and local search.</small></span></label>
+            <label class="template-choice"><input type="radio" name="templateStyle" value="salon"><span><strong>Salon / Beauty</strong><small>Treatments, gallery, booking and calm presentation.</small></span></label>
+            <label class="template-choice"><input type="radio" name="templateStyle" value="consultant"><span><strong>Consultant / Service Business</strong><small>Expertise, services, proof and calls.</small></span></label>
+            <label class="template-choice"><input type="radio" name="templateStyle" value="shop"><span><strong>Shop / Retail</strong><small>Product-led layout with retail support when enabled.</small></span></label>
+            <label class="template-choice"><input type="radio" name="templateStyle" value="holiday-let"><span><strong>Holiday Let / Glamping</strong><small>Image-led stays, amenities and enquiry route.</small></span></label>
+          </div>
+        </div>
+
+        <div class="pbi-section-editor-grid pbi-unified-editor-grid">
+          <div class="pbi-section-panel">
+            <div class="pbi-panel-title-row">
+              <div>
+                <h3>Content sections</h3>
+                <p class="small-note muted">Reorder, hide, copy or remove the sections used in the live preview.</p>
+              </div>
+            </div>
+            <div id="pbiSectionList" class="pbi-section-list"></div>
+            <div class="pbi-add-section-row">
+              <select id="pbiAddSectionType" class="select" aria-label="Add section type">
+                <option value="hero">Hero</option>
+                <option value="services">Services</option>
+                <option value="featureGrid">Feature grid</option>
+                <option value="gallery">Gallery</option>
+                <option value="testimonial">Testimonial</option>
+                <option value="faq">FAQ</option>
+                <option value="contact">Contact</option>
+                <option value="retail">Retail</option>
+                <option value="cta">CTA</option>
+              </select>
+              <button class="btn-ghost" id="pbiAddSectionBtn" type="button">Add section</button>
+            </div>
+          </div>
+          <div class="pbi-section-panel">
+            <h3>Selected section</h3>
+            <div id="pbiSectionInspector" class="pbi-section-inspector"></div>
+          </div>
+        </div>
+        <div id="pbiSectionEditorStatus" class="notice" style="display:none;margin-top:16px"></div>
+      </section>
+
     <section class="builder-launch-guide card">
       <div>
         <p class="eyebrow">Publishing options</p>
@@ -100,36 +170,6 @@
               </div>
               <div id="canvasImportStatus" class="notice" style="display:none;margin-top:14px"></div>
             </div>
-
-            <div class="card" id="pbiBuilderProCard">
-              <div class="pbi-pro-head">
-                <div>
-                  <h3>Page sections</h3>
-                  <p class="small-note muted">Add, remove, reorder and rewrite sections without rebuilding the whole page.</p>
-                </div>
-                <span class="pbi-pro-pill">Pro controls</span>
-              </div>
-
-              <div class="pbi-section-toolbar">
-                <button class="btn-ghost" type="button" data-add-section="hero">Hero</button>
-                <button class="btn-ghost" type="button" data-add-section="services">Services</button>
-                <button class="btn-ghost" type="button" data-add-section="trust">Trust</button>
-                <button class="btn-ghost" type="button" data-add-section="testimonial">Testimonial</button>
-                <button class="btn-ghost" type="button" data-add-section="faq">FAQ</button>
-                <button class="btn-ghost" type="button" data-add-section="cta">CTA</button>
-              </div>
-
-              <div id="pbiSectionList" class="pbi-section-list"></div>
-
-              <div class="pbi-pro-actions">
-                <button class="btn" id="pbiApplySectionsBtn" type="button">Apply sections to page</button>
-                <button class="btn-ghost" id="pbiSaveVersionBtn" type="button">Save version</button>
-                <button class="btn-ghost" id="pbiRestoreVersionBtn" type="button">Restore latest version</button>
-              </div>
-
-              <div id="pbiProStatus" class="notice" style="display:none;margin-top:14px"></div>
-            </div>
-
             <div class="card" id="pbiAiSectionCard">
               <h3>AI section helper</h3>
               <p class="small-note muted">Use this to quickly improve the selected page wording before saving or publishing.</p>
@@ -157,20 +197,6 @@
               <div class="field"><label for="pageMainHeading">Page main heading</label><input id="pageMainHeading" class="input" placeholder="Your Business in your local area"></div>
               <div class="field"><label for="subHeading">Sub heading</label><textarea id="subHeading" class="textarea" placeholder="Tell customers what you do in one clear paragraph."></textarea></div>
             </div>
-
-            <div class="card">
-              <h3>Choose your starting template</h3>
-              <p class="small-note muted">These are the same templates shown on the public Examples page. Choosing one here loads the exact same wording, colours, structure and images into the builder.</p>
-              <div class="template-choice-grid">
-                <label class="template-choice"><input type="radio" name="templateStyle" value="cafe" checked><span><strong>Café / Restaurant</strong><small>A warm, inviting design to showcase your menu, location and atmosphere.</small></span></label>
-                <label class="template-choice"><input type="radio" name="templateStyle" value="trades"><span><strong>Tradesperson</strong><small>A clean, trustworthy layout to highlight your services and build customer confidence.</small></span></label>
-                <label class="template-choice"><input type="radio" name="templateStyle" value="salon"><span><strong>Salon / Beauty</strong><small>Elegant, calming design to showcase treatments and create a relaxing vibe.</small></span></label>
-                <label class="template-choice"><input type="radio" name="templateStyle" value="consultant"><span><strong>Consultant / Service Business</strong><small>Professional and focused layout to position your expertise and attract ideal clients.</small></span></label>
-                <label class="template-choice"><input type="radio" name="templateStyle" value="shop"><span><strong>Shop / Retail</strong><small>A stylish, product-focused template to help you sell beautifully online.</small></span></label>
-                <label class="template-choice"><input type="radio" name="templateStyle" value="holiday-let"><span><strong>Holiday Let / Glamping</strong><small>Show off your property and location to attract bookings all year round.</small></span></label>
-              </div>
-            </div>
-
             <div class="card">
               <h3>Website colours</h3>
               <div class="colour-grid">
