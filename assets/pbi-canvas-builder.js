@@ -198,6 +198,35 @@
     window.__pbiCanvasCloudTimer = setTimeout(() => cloudSaveCanvas(), 900);
   }
 
+
+
+  async function pbiSaveCanvasSectionsToBuilder() {
+    if (!projectId || projectId === "draft" || !state?.blocks?.length) return;
+    try {
+      const sections = state.blocks.map((b, i) => ({
+        id: b.id,
+        section_order: i,
+        section_type: b.type || b.section_type || "section",
+        type: b.type || b.section_type || "section",
+        title: b.title || "",
+        text: b.text || "",
+        button: b.button || "",
+        image: b.image || "",
+        layout: b.layout || "standard",
+        background: b.background || "#fff8f1",
+        accent: b.accent || "#bf5c29",
+        padding: b.padding || "comfortable",
+        align: b.align || "left"
+      }));
+      await fetch("/api/builder/project-sections", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ project_id: projectId, sections })
+      });
+    } catch (_) {}
+  }
+
   function pushHistory() {
     history.push(clone(state));
     if (history.length > 60) history.shift();
@@ -610,6 +639,7 @@
   async function exportToProject() {
     saveVersion("Before export to project");
     saveState();
+    await pbiSaveCanvasSectionsToBuilder();
     const publishResult = await cloudPublishCanvas();
     if (publishResult?.ok) localStorage.setItem(`pbi_canvas_site_url_${projectId}`, `/site/canvas/${projectId}`);
 
@@ -705,6 +735,7 @@
         saveVersion(result.mode === "openai" ? "OpenAI generated canvas" : "Fallback AI generated canvas");
         saveState();
         cloudSaveCanvas();
+    pbiSaveCanvasSectionsToBuilder();
         render();
         return true;
       }
@@ -746,7 +777,7 @@
 
 
   // project template sections bridge: load chosen template sections into canvas when available.
-  async function loadProjectTemplateSectionsForCanvas(){try{const r=await fetch(`/api/admin/project-sections?project_id=${encodeURIComponent(projectId)}`,{credentials:'include'});const d=await r.json();if(d?.sections?.length){state.blocks=d.sections.map(s=>({id:s.id,type:s.section_type||s.type||'section',title:s.title||'',text:s.text||'',button:s.button||'',image:s.image||'',layout:s.layout||'standard',background:s.background||'#fff8f1',accent:s.accent||'#bf5c29',padding:s.padding||'comfortable',align:s.align||'left'}));selectedId=state.blocks[0]?.id||null;saveState();render();}}catch{}}
+  async function loadProjectTemplateSectionsForCanvas(){try{const r=await fetch(`/api/builder/project-sections?project_id=${encodeURIComponent(projectId)}`,{credentials:'include'});const d=await r.json();if(d?.sections?.length){state.blocks=d.sections.map(s=>({id:s.id,type:s.section_type||s.type||'section',title:s.title||'',text:s.text||'',button:s.button||'',image:s.image||'',layout:s.layout||'standard',background:s.background||'#fff8f1',accent:s.accent||'#bf5c29',padding:s.padding||'comfortable',align:s.align||'left'}));selectedId=state.blocks[0]?.id||null;saveState();render();}}catch{}}
 
   function bind() {
     render();
