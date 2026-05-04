@@ -1,10 +1,26 @@
 window.PBIAuth = (() => {
-  function showMessage(id, kind, text) {
+  function showMessage(id, kind, text, html = false) {
     const el = document.getElementById(id);
     if (!el) return;
     el.style.display = 'block';
     el.className = `notice ${kind}`;
-    el.textContent = text;
+    if (html) el.innerHTML = text;
+    else el.textContent = text;
+  }
+
+  function escapeHtml(value) {
+    return String(value ?? '')
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#039;');
+  }
+
+  function signupLoginLink() {
+    const next = `${location.pathname}${location.search}`;
+    const safeNext = next.startsWith('/') && !next.startsWith('//') ? next : '/dashboard/';
+    return `/login/?next=${encodeURIComponent(safeNext)}`;
   }
 
   async function requestJson(path, body) {
@@ -56,7 +72,17 @@ window.PBIAuth = (() => {
         setTimeout(() => { location.href = target; }, 500);
       } catch (err) {
         if (window.turnstile) window.turnstile.reset();
-        showMessage(messageId, 'error', err.message || 'Request failed.');
+        const message = err.message || 'Request failed.';
+        if (message.toLowerCase().includes('account') && message.toLowerCase().includes('exists')) {
+          showMessage(
+            messageId,
+            'error',
+            `<strong>That email already has a PBI account.</strong><br>Log in and PBI will continue with the package you selected. <a href="${signupLoginLink()}">Login to continue</a>.`,
+            true
+          );
+        } else {
+          showMessage(messageId, 'error', escapeHtml(message));
+        }
       } finally {
         if (btn) { btn.disabled = false; btn.textContent = 'Create account'; }
       }

@@ -1,7 +1,6 @@
 <!doctype html>
 <html lang="en-GB">
 <head>
-  
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -11,163 +10,193 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="PBI">
-<meta charset="utf-8">
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Drag & Drop Canvas Builder • PBI</title>
-  <meta name="description" content="PBI drag and drop canvas builder with component palette, live editing, responsive preview, undo/redo, autosave and export back to the website builder.">
+  <title>Framer-Level Visual Studio • PBI</title>
+  <meta name="description" content="PBI visual website studio with fluid canvas editing, rich premium sections, responsive controls, interactions, CMS content blocks, AI generation and build-free pay-at-publish export.">
   <link rel="stylesheet" href="/assets/styles.css">
 </head>
-<body class="pbi-canvas-page">
-  <header class="pbi-canvas-topbar">
-    <a href="/dashboard/" class="pbi-canvas-brand"><img src="/assets/pbi-header-logo-no-bg-20260502c.png?v=20260502c?v=20260502b" alt="PBI logo"><span>Canvas Builder</span></a>
+<body class="pbi-canvas-page pbi-framer-studio-page">
+  <header class="pbi-canvas-topbar pbi-studio-topbar">
+    <a href="/dashboard/" class="pbi-canvas-brand"><img src="/assets/pbi-header-logo-no-bg-20260502c.png?v=20260502c" alt="PBI logo"><span>Visual Studio</span></a>
     <div class="pbi-canvas-top-actions">
       <button class="btn-ghost" id="canvasUndoBtn" type="button">Undo</button>
       <button class="btn-ghost" id="canvasRedoBtn" type="button">Redo</button>
       <button class="btn-ghost" id="canvasSaveVersionBtn" type="button">Save version</button>
+      <button class="btn-ghost" id="canvasPreviewBtn" type="button">Preview mode</button>
       <button class="btn" id="canvasExportBtn" type="button">Apply to project</button>
       <a class="btn-ghost" id="canvasBackToBuilder" href="/builder/">Back to builder</a>
     </div>
   </header>
 
-  <main class="pbi-canvas-app">
-    <aside class="pbi-canvas-palette">
+  <main class="pbi-canvas-app pbi-framer-studio">
+    <aside class="pbi-canvas-palette pbi-studio-panel pbi-studio-left">
       <div class="pbi-canvas-panel-head">
-        <p class="eyebrow">Blocks</p>
-        <h2>Drag into the canvas</h2>
+        <p class="eyebrow">Components</p>
+        <h2>Build visually</h2>
+        <p class="small-note muted">Drag blocks, click to edit, tune layout and publish only when the site is ready.</p>
       </div>
 
-      <div class="pbi-canvas-blocks">
-        <button draggable="true" data-block-type="hero"><strong>Hero</strong><span>Main headline, intro and CTA</span></button>
-        <button draggable="true" data-block-type="splitHero"><strong>Split Hero</strong><span>Image and copy side by side</span></button>
-        <button draggable="true" data-block-type="trustBand"><strong>Trust Band</strong><span>Proof points near the top</span></button>
-        <button draggable="true" data-block-type="services"><strong>Services</strong><span>Rich service cards</span></button>
-        <button draggable="true" data-block-type="process"><strong>Process</strong><span>Step-by-step customer journey</span></button>
-        <button draggable="true" data-block-type="stats"><strong>Stats Strip</strong><span>Fast confidence signals</span></button>
-        <button draggable="true" data-block-type="featureGrid"><strong>Feature Grid</strong><span>Benefits and proof points</span></button>
-        <button draggable="true" data-block-type="gallery"><strong>Gallery</strong><span>Image grid / portfolio</span></button>
-        <button draggable="true" data-block-type="testimonial"><strong>Testimonial</strong><span>Customer quote</span></button>
-        <button draggable="true" data-block-type="faq"><strong>FAQ</strong><span>Questions and answers</span></button>
-        <button draggable="true" data-block-type="contact"><strong>Contact</strong><span>Enquiry and details</span></button>
-        <button draggable="true" data-block-type="retail"><strong>Retail Strip</strong><span>Products and checkout CTA</span></button>
-        <button draggable="true" data-block-type="cta"><strong>CTA</strong><span>Final conversion section</span></button>
-        <button draggable="true" data-block-type="spacer"><strong>Spacer</strong><span>Breathing room</span></button>
+      <div class="pbi-studio-tabs" role="tablist" aria-label="Studio panels">
+        <button class="active" type="button" data-studio-tab="blocks">Blocks</button>
+        <button type="button" data-studio-tab="templates">Templates</button>
+        <button type="button" data-studio-tab="layers">Layers</button>
+        <button type="button" data-studio-tab="cms">CMS</button>
       </div>
 
-      <div class="pbi-canvas-panel-foot">
+      <section class="pbi-studio-tab-panel active" data-studio-panel="blocks">
+        <div class="pbi-canvas-blocks pbi-studio-blocks">
+          <button draggable="true" data-block-type="navBar"><strong>Navigation</strong><span>Logo, links and CTA</span></button>
+          <button draggable="true" data-block-type="hero"><strong>Hero</strong><span>Headline, intro and CTA</span></button>
+          <button draggable="true" data-block-type="splitHero"><strong>Split Hero</strong><span>Image and copy side by side</span></button>
+          <button draggable="true" data-block-type="trustBand"><strong>Trust Band</strong><span>Proof points near the top</span></button>
+          <button draggable="true" data-block-type="logoCloud"><strong>Logo Cloud</strong><span>Featured partners / proof</span></button>
+          <button draggable="true" data-block-type="services"><strong>Services</strong><span>Rich service cards</span></button>
+          <button draggable="true" data-block-type="process"><strong>Process</strong><span>Customer journey</span></button>
+          <button draggable="true" data-block-type="stats"><strong>Stats Strip</strong><span>Fast confidence signals</span></button>
+          <button draggable="true" data-block-type="featureGrid"><strong>Feature Grid</strong><span>Benefits and proof</span></button>
+          <button draggable="true" data-block-type="gallery"><strong>Gallery</strong><span>Masonry portfolio</span></button>
+          <button draggable="true" data-block-type="testimonial"><strong>Testimonial</strong><span>Quote section</span></button>
+          <button draggable="true" data-block-type="pricing"><strong>Pricing</strong><span>Package cards</span></button>
+          <button draggable="true" data-block-type="productGrid"><strong>Product Grid</strong><span>Shop-ready product cards</span></button>
+          <button draggable="true" data-block-type="cmsList"><strong>CMS List</strong><span>Blog, news, case studies</span></button>
+          <button draggable="true" data-block-type="faq"><strong>FAQ</strong><span>Questions and answers</span></button>
+          <button draggable="true" data-block-type="map"><strong>Map / Area</strong><span>Location and service area</span></button>
+          <button draggable="true" data-block-type="booking"><strong>Booking</strong><span>Appointment CTA</span></button>
+          <button draggable="true" data-block-type="contact"><strong>Contact</strong><span>Enquiry and details</span></button>
+          <button draggable="true" data-block-type="retail"><strong>Retail Strip</strong><span>Products and checkout CTA</span></button>
+          <button draggable="true" data-block-type="cta"><strong>CTA</strong><span>Final conversion block</span></button>
+          <button draggable="true" data-block-type="spacer"><strong>Spacer</strong><span>Breathing room</span></button>
+        </div>
+      </section>
+
+      <section class="pbi-studio-tab-panel" data-studio-panel="templates">
+        <div class="pbi-studio-template-grid">
+          <button type="button" data-template-pack="local-service"><strong>Local Service Pro</strong><span>Hero, trust, services, process, FAQ and CTA.</span></button>
+          <button type="button" data-template-pack="premium-cafe"><strong>Premium Café</strong><span>Image-led food layout with gallery and bookings.</span></button>
+          <button type="button" data-template-pack="retail-launch"><strong>Retail Launch</strong><span>Products, trust, shop flow and checkout CTA.</span></button>
+          <button type="button" data-template-pack="consultant-authority"><strong>Consultant Authority</strong><span>Proof, services, case-study rhythm and booking CTA.</span></button>
+          <button type="button" data-template-pack="holiday-stay"><strong>Holiday Stay</strong><span>Visual stay layout with amenities, map and enquiry.</span></button>
+        </div>
+      </section>
+
+      <section class="pbi-studio-tab-panel" data-studio-panel="layers">
+        <div id="canvasLayersList" class="pbi-studio-layers"></div>
+      </section>
+
+      <section class="pbi-studio-tab-panel" data-studio-panel="cms">
+        <div class="pbi-canvas-panel-foot pbi-studio-cms-panel">
+          <h3>Local content collections</h3>
+          <p class="small-note muted">Add example CMS entries now. These export with the canvas and can become blog, case study or service collections later.</p>
+          <div class="grid-2">
+            <input id="cmsItemTitle" class="input" placeholder="Entry title">
+            <select id="cmsItemType" class="select">
+              <option value="case-study">Case study</option>
+              <option value="blog">Blog post</option>
+              <option value="service">Service</option>
+              <option value="product">Product</option>
+            </select>
+          </div>
+          <textarea id="cmsItemText" class="textarea" placeholder="Short summary"></textarea>
+          <button class="btn-ghost" id="cmsAddItemBtn" type="button">Add CMS entry</button>
+          <div id="cmsItemsList" class="pbi-studio-cms-list"></div>
+        </div>
+      </section>
+
+      <div class="pbi-canvas-panel-foot pbi-studio-ai-panel">
         <label class="small-note muted" for="canvasStyleDirection">AI style direction</label>
         <select id="canvasStyleDirection" class="select">
-          <option value="premium, warm, flowing, not blocky">Premium flowing</option>
-          <option value="bold, modern, high contrast, conversion-led">Bold modern</option>
-          <option value="soft, calm, editorial, image-led">Soft editorial</option>
-          <option value="practical, local, trustworthy, service-led">Local service</option>
+          <option value="premium, warm, flowing, not blocky, Framer-like visual rhythm">Premium flowing</option>
+          <option value="bold, modern, high contrast, animated, conversion-led">Bold modern</option>
+          <option value="soft, calm, editorial, image-led, spacious">Soft editorial</option>
+          <option value="practical, local, trustworthy, service-led, mobile-first">Local service</option>
         </select>
-        <button class="btn" id="canvasAiBuildBtn" type="button">AI build from brief</button>
-        <textarea id="canvasAiBrief" class="textarea" placeholder="Describe the business and the site you want. Example: Local plumber in Dorset, needs quotes, services, reviews, emergency callout info."></textarea>
+        <button class="btn" id="canvasAiBuildBtn" type="button">AI generate full site</button>
+        <textarea id="canvasAiBrief" class="textarea" placeholder="Describe the business, audience, goal, area, tone and sections needed. Example: local plumber in Dorset, emergency callouts, quote requests, trust and reviews."></textarea>
       </div>
     </aside>
 
-    <section class="pbi-canvas-stage-wrap">
-      <div class="pbi-canvas-toolbar">
+    <section class="pbi-canvas-stage-wrap pbi-studio-stage-wrap">
+      <div class="pbi-canvas-toolbar pbi-studio-toolbar">
         <div>
           <strong id="canvasProjectTitle">Untitled PBI page</strong>
           <span id="canvasAutosaveStatus">Autosave ready</span>
-          <small class="pbi-canvas-help-text">Click directly on headings, buttons and cards to edit them in the preview.</small>
+          <small class="pbi-canvas-help-text">Click text directly, drag sections to reorder, then use Inspector for spacing, colours, motion and breakpoints.</small>
         </div>
-        <div class="pbi-device-switcher" role="group" aria-label="Preview size">
-          <button class="active" data-device="desktop" type="button">Desktop</button>
-          <button data-device="tablet" type="button">Tablet</button>
-          <button data-device="mobile" type="button">Mobile</button>
+        <div class="pbi-studio-toolbar-actions">
+          <button class="btn-ghost" id="canvasThemeBtn" type="button">Apply brand theme</button>
+          <div class="pbi-device-switcher" role="group" aria-label="Preview size">
+            <button class="active" data-device="desktop" type="button">Desktop</button>
+            <button data-device="tablet" type="button">Tablet</button>
+            <button data-device="mobile" type="button">Mobile</button>
+          </div>
         </div>
       </div>
 
       <div class="pbi-canvas-device desktop" id="canvasDevice">
         <div class="pbi-canvas-dropzone" id="canvasDropzone" aria-label="Website canvas">
           <div class="pbi-canvas-empty" id="canvasEmpty">
-            <h2>Drag a block here to start</h2>
-            <p>Or use “AI build from brief” to create a full starting page.</p>
+            <h2>Use a template or generate with AI</h2>
+            <p>Then refine the page visually, section by section.</p>
           </div>
         </div>
       </div>
     </section>
 
-    <aside class="pbi-canvas-inspector">
+    <aside class="pbi-canvas-inspector pbi-studio-panel pbi-studio-inspector">
       <div class="pbi-canvas-panel-head">
         <p class="eyebrow">Inspector</p>
         <h2>Edit selected block</h2>
       </div>
 
-      <div id="canvasInspectorEmpty" class="notice">Select a block on the canvas to edit its content, layout, colours and spacing.</div>
+      <div id="canvasInspectorEmpty" class="notice">Select a block to edit text, layout, design, motion and responsive behaviour.</div>
 
       <form id="canvasInspectorForm" class="pbi-inspector-form" style="display:none">
-        <div class="field">
-          <label for="inspectorTitle">Title</label>
-          <input id="inspectorTitle" class="input" name="title">
-        </div>
-        <div class="field">
-          <label for="inspectorText">Text</label>
-          <textarea id="inspectorText" class="textarea" name="text"></textarea>
-        </div>
-        <div class="field">
-          <label for="inspectorButton">Button text</label>
-          <input id="inspectorButton" class="input" name="button">
-        </div>
-        <div class="field">
-          <label for="inspectorImage">Image URL</label>
-          <input id="inspectorImage" class="input" name="image">
-        </div>
-        <div class="field">
-          <label for="inspectorLayout">Layout</label>
-          <select id="inspectorLayout" class="select" name="layout">
-            <option value="standard">Standard</option>
-            <option value="split">Split</option>
-            <option value="centered">Centered</option>
-            <option value="cards">Cards</option>
-            <option value="fullBleed">Full bleed</option>
-          </select>
+        <div class="field"><label for="inspectorTitle">Title</label><input id="inspectorTitle" class="input" name="title"></div>
+        <div class="field"><label for="inspectorText">Text / items</label><textarea id="inspectorText" class="textarea" name="text"></textarea><p class="small-note muted">Use | between cards and :: between title and description.</p></div>
+        <div class="field"><label for="inspectorButton">Button text</label><input id="inspectorButton" class="input" name="button"></div>
+        <div class="field"><label for="inspectorImage">Image URL</label><input id="inspectorImage" class="input" name="image"></div>
+        <div class="grid-2">
+          <div class="field"><label for="inspectorLayout">Layout</label><select id="inspectorLayout" class="select" name="layout"><option value="standard">Standard</option><option value="split">Split</option><option value="centered">Centered</option><option value="cards">Cards</option><option value="fullBleed">Full bleed</option><option value="masonry">Masonry</option><option value="spotlight">Spotlight</option><option value="bento">Bento</option></select></div>
+          <div class="field"><label for="inspectorAnimation">Motion</label><select id="inspectorAnimation" class="select" name="animation"><option value="none">None</option><option value="fade">Fade in</option><option value="rise">Rise</option><option value="scale">Scale</option><option value="slide">Slide</option></select></div>
         </div>
         <div class="grid-2">
-          <div class="field">
-            <label for="inspectorBg">Background</label>
-            <input id="inspectorBg" class="input" type="color" name="background">
-          </div>
-          <div class="field">
-            <label for="inspectorAccent">Accent</label>
-            <input id="inspectorAccent" class="input" type="color" name="accent">
-          </div>
+          <div class="field"><label for="inspectorBg">Background</label><input id="inspectorBg" class="input" type="color" name="background"></div>
+          <div class="field"><label for="inspectorAccent">Accent</label><input id="inspectorAccent" class="input" type="color" name="accent"></div>
         </div>
         <div class="grid-2">
-          <div class="field">
-            <label for="inspectorPadding">Padding</label>
-            <select id="inspectorPadding" class="select" name="padding">
-              <option value="compact">Compact</option>
-              <option value="comfortable">Comfortable</option>
-              <option value="spacious">Spacious</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="inspectorAlign">Text align</label>
-            <select id="inspectorAlign" class="select" name="align">
-              <option value="left">Left</option>
-              <option value="center">Centre</option>
-              <option value="right">Right</option>
-            </select>
-          </div>
+          <div class="field"><label for="inspectorPadding">Padding</label><select id="inspectorPadding" class="select" name="padding"><option value="compact">Compact</option><option value="comfortable">Comfortable</option><option value="spacious">Spacious</option></select></div>
+          <div class="field"><label for="inspectorAlign">Text align</label><select id="inspectorAlign" class="select" name="align"><option value="left">Left</option><option value="center">Centre</option><option value="right">Right</option></select></div>
         </div>
-
+        <div class="grid-2">
+          <div class="field"><label for="inspectorRadius">Corner radius</label><select id="inspectorRadius" class="select"><option value="soft">Soft</option><option value="square">Square</option><option value="pill">Pill</option></select></div>
+          <div class="field"><label for="inspectorVisibility">Visibility</label><select id="inspectorVisibility" class="select"><option value="all">All devices</option><option value="desktop">Desktop only</option><option value="mobile">Mobile only</option></select></div>
+        </div>
         <div class="pbi-inspector-actions">
           <button class="btn" id="canvasApplyInspectorBtn" type="button">Apply changes</button>
           <button class="btn-ghost" id="canvasDuplicateBtn" type="button">Duplicate</button>
           <button class="btn-ghost danger" id="canvasDeleteBtn" type="button">Delete</button>
         </div>
-
         <hr>
-
         <div class="pbi-inspector-actions">
           <button class="btn-ghost" data-canvas-ai="clearer" type="button">Make clearer</button>
           <button class="btn-ghost" data-canvas-ai="seo" type="button">SEO focus</button>
+          <button class="btn-ghost" data-canvas-ai="premium" type="button">Premium polish</button>
           <button class="btn-ghost" data-canvas-ai="shorter" type="button">Shorten</button>
         </div>
       </form>
+
+      <div class="pbi-studio-theme-card">
+        <h3>Global style</h3>
+        <div class="grid-2">
+          <div class="field"><label for="themeBg">Page background</label><input id="themeBg" class="input" type="color" value="#fff8f1"></div>
+          <div class="field"><label for="themeAccent">Main accent</label><input id="themeAccent" class="input" type="color" value="#bf5c29"></div>
+        </div>
+        <div class="grid-2">
+          <div class="field"><label for="themeFont">Font mood</label><select id="themeFont" class="select"><option value="warm">Warm serif</option><option value="modern">Modern clean</option><option value="editorial">Editorial</option></select></div>
+          <div class="field"><label for="themeDensity">Density</label><select id="themeDensity" class="select"><option value="airy">Airy</option><option value="balanced">Balanced</option><option value="tight">Tight</option></select></div>
+        </div>
+      </div>
 
       <div class="pbi-canvas-versions">
         <h3>Local versions</h3>
@@ -177,6 +206,6 @@
   </main>
 
   <script src="/assets/pbi-canvas-builder.js" defer></script>
-<script src="/assets/pbi-request-capture.js" defer></script>
+  <script src="/assets/pbi-request-capture.js" defer></script>
 </body>
 </html>

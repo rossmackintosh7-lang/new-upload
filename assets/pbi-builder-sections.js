@@ -327,7 +327,7 @@
     if (!actions || actions.dataset.pbiPremiumBound) return;
     actions.dataset.pbiPremiumBound = '1';
     actions.insertAdjacentHTML('afterbegin', `
-      <a class="btn-ghost pbi-canvas-studio-link" href="/canvas-builder/?project=${encodeURIComponent(projectId)}">Open Canvas Studio</a>
+      <a class="btn-ghost pbi-canvas-studio-link" href="/canvas-builder/?project=${encodeURIComponent(projectId)}">Open Visual Studio</a>
       <button class="btn-ghost" id="pbiSmartPolishBtn" type="button">Smart polish</button>
       <button class="btn-ghost" id="pbiPremiumPackBtn" type="button">Add premium flow</button>
     `);
