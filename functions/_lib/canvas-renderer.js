@@ -12,7 +12,8 @@ function blockLabel(type) {
     navBar: "Navigation",
     hero: "Hero",
     splitHero: "Split Hero",
-    trustBand: "Trust Band",
+    floatingCard: "Floating Card",
+    trustBand: "Trust",
     logoCloud: "Proof",
     services: "Services",
     process: "Process",
@@ -33,12 +34,20 @@ function blockLabel(type) {
   }[type] || "Section";
 }
 
+function slugify(value) {
+  return String(value || "page").toLowerCase().trim().replace(/&/g, " and ").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "page";
+}
+
 function pad(value) { return `published-pad-${value || "comfortable"}`; }
+function freeVars(block = {}) {
+  if (block.positionMode !== "free") return "";
+  return `--free-x:${Number(block.x || 0)}px;--free-y:${Number(block.y || 0)}px;--free-width:${Math.max(180, Number(block.width || 420))}px;--free-z:${Number(block.z || 10)};--free-rotate:${Number(block.rotate || 0)}deg;`;
+}
 function cls(block = {}) {
-  return `published-block published-${escapeHtml(block.type || "section")} ${pad(block.padding)} layout-${escapeHtml(block.layout || "standard")} radius-${escapeHtml(block.radius || "soft")} motion-${escapeHtml(block.animation || "none")}`;
+  return `published-block published-${escapeHtml(block.type || "section")} ${block.positionMode === "free" ? "is-freeform" : ""} ${pad(block.padding)} layout-${escapeHtml(block.layout || "standard")} radius-${escapeHtml(block.radius || "soft")} motion-${escapeHtml(block.animation || "none")}`;
 }
 function attrs(block = {}) {
-  return `style="--block-bg:${escapeHtml(block.background || "#fff8f1")};--block-accent:${escapeHtml(block.accent || "#bf5c29")};--block-align:${escapeHtml(block.align || "left")}"`;
+  return `style="--block-bg:${escapeHtml(block.background || "#fff8f1")};--block-accent:${escapeHtml(block.accent || "#bf5c29")};--block-align:${escapeHtml(block.align || "left")};--motion-duration:${Number(block.duration || 650)}ms;--motion-delay:${Number(block.delay || 0)}ms;--motion-easing:${escapeHtml(block.easing || "ease")};${freeVars(block)}"`;
 }
 function parseCards(value = "") {
   return String(value || "").split("|").map((row) => row.trim()).filter(Boolean).map((row, index) => {
@@ -68,11 +77,15 @@ export function renderCanvasBlock(block = {}) {
 
   if (block.type === "spacer") return `<section class="${cls(block)} published-spacer" ${attrs(block)} aria-hidden="true"></section>`;
 
+  if (block.type === "floatingCard") {
+    return `<section class="${cls(block)}" ${attrs(block)}><div class="published-inner"><p class="published-kicker">Floating layer</p><h3>${title}</h3><p>${text}</p>${buttonHtml(block.button)}</div></section>`;
+  }
+
   if (block.type === "navBar") {
     const links = String(block.text || "Home|Services|About|Contact").split("|").filter(Boolean).slice(0, 6);
     return `<header class="published-nav-block" ${attrs(block)}>
       <a class="published-nav-brand" href="#top">${image || ""}<strong>${title}</strong></a>
-      <nav>${links.map((link) => `<a href="#${escapeHtml(link.toLowerCase().replace(/[^a-z0-9]+/g, "-"))}">${escapeHtml(link)}</a>`).join("")}</nav>
+      <nav>${links.map((link) => `<a href="#${escapeHtml(slugify(link))}">${escapeHtml(link)}</a>`).join("")}</nav>
       ${button ? `<a class="published-btn" href="#contact">${button}</a>` : ""}
     </header>`;
   }
@@ -161,10 +174,26 @@ export function renderCanvasBlock(block = {}) {
   </section>`;
 }
 
+function pageNav(pages, activeSlug) {
+  if (!Array.isArray(pages) || pages.length <= 1) return "";
+  return `<nav class="published-page-tabs" aria-label="Website pages">${pages.map((page) => `<a class="${page.slug === activeSlug ? "active" : ""}" href="?page=${encodeURIComponent(page.slug)}">${escapeHtml(page.title)}</a>`).join("")}</nav>`;
+}
+
+function renderBlocksWithFreeformLayer(blocks = []) {
+  const flow = blocks.filter((block) => block.positionMode !== "free");
+  const free = blocks.filter((block) => block.positionMode === "free");
+  const freeLayer = free.length ? `<section class="published-freeform-layer">${free.map(renderCanvasBlock).join("\n")}</section>` : "";
+  return `${flow.map(renderCanvasBlock).join("\n")}${freeLayer}`;
+}
+
 export function renderCanvasPage(canvas = {}, options = {}) {
   const title = escapeHtml(canvas.title || options.title || "PBI Website");
-  const blocks = Array.isArray(canvas.blocks) ? canvas.blocks : [];
   const theme = canvas.theme || {};
+  const pages = Array.isArray(canvas.pages) && canvas.pages.length ? canvas.pages : [{ id: "home", title: "Home", slug: "home", blocks: Array.isArray(canvas.blocks) ? canvas.blocks : [] }];
+  const url = new URL(options.url || "https://example.com");
+  const requested = url.searchParams.get("page");
+  const activePage = pages.find((page) => page.slug === requested) || pages.find((page) => page.id === canvas.activePageId) || pages[0];
+  const blocks = Array.isArray(activePage.blocks) ? activePage.blocks : [];
   const firstNav = blocks.find((b) => b.type === "navBar");
 
   return `<!doctype html>
@@ -172,15 +201,16 @@ export function renderCanvasPage(canvas = {}, options = {}) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>${title}</title>
+  <title>${title} • ${escapeHtml(activePage.title || "Home")}</title>
   <meta name="description" content="${escapeHtml(options.description || "A premium website created with Purbeck Business Innovations.")}">
   <link rel="stylesheet" href="/assets/pbi-published-canvas.css">
   <style>:root{--site-bg:${escapeHtml(theme.background || "#fff8f1")};--site-accent:${escapeHtml(theme.accent || "#bf5c29")};--site-text:${escapeHtml(theme.text || "#24140d")};}</style>
 </head>
 <body id="top">
   ${firstNav ? "" : `<header class="published-site-header"><a href="#top">${title}</a><nav><a href="#contact">Contact</a></nav></header>`}
+  ${pageNav(pages, activePage.slug)}
   <main>
-    ${blocks.map(renderCanvasBlock).join("\n")}
+    ${renderBlocksWithFreeformLayer(blocks)}
   </main>
   <footer class="published-site-footer" id="contact">
     <strong>${title}</strong>

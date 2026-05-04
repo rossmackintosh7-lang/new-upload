@@ -13,7 +13,7 @@ export async function onRequestGet({ request, env, params }) {
     if (!row) return new Response("Canvas site not found", { status: 404 });
 
     const canvas = JSON.parse(row.published_json || row.canvas_json || "{}");
-    const html = renderCanvasPage(canvas, { title: canvas.title || "PBI Website" });
+    const html = renderCanvasPage(canvas, { title: canvas.title || "PBI Website", url: request.url });
 
     return new Response(html, {
       headers: {

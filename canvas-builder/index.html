@@ -13,7 +13,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Framer-Level Visual Studio • PBI</title>
-  <meta name="description" content="PBI visual website studio with fluid canvas editing, rich premium sections, responsive controls, interactions, CMS content blocks, AI generation and build-free pay-at-publish export.">
+  <meta name="description" content="PBI visual website studio with freeform positioning, multi-page editing, advanced animations, CMS database tools, collaborative editing, AI generation and build-free pay-at-publish export.">
   <link rel="stylesheet" href="/assets/styles.css">
 </head>
 <body class="pbi-canvas-page pbi-framer-studio-page">
@@ -34,14 +34,16 @@
       <div class="pbi-canvas-panel-head">
         <p class="eyebrow">Components</p>
         <h2>Build visually</h2>
-        <p class="small-note muted">Drag blocks, click to edit, tune layout and publish only when the site is ready.</p>
+        <p class="small-note muted">Drag blocks, switch pages, place elements freely, tune animations and publish only when the site is ready.</p>
       </div>
 
-      <div class="pbi-studio-tabs" role="tablist" aria-label="Studio panels">
+      <div class="pbi-studio-tabs pbi-studio-tabs-six" role="tablist" aria-label="Studio panels">
         <button class="active" type="button" data-studio-tab="blocks">Blocks</button>
+        <button type="button" data-studio-tab="pages">Pages</button>
         <button type="button" data-studio-tab="templates">Templates</button>
         <button type="button" data-studio-tab="layers">Layers</button>
         <button type="button" data-studio-tab="cms">CMS</button>
+        <button type="button" data-studio-tab="collab">Collab</button>
       </div>
 
       <section class="pbi-studio-tab-panel active" data-studio-panel="blocks">
@@ -49,6 +51,7 @@
           <button draggable="true" data-block-type="navBar"><strong>Navigation</strong><span>Logo, links and CTA</span></button>
           <button draggable="true" data-block-type="hero"><strong>Hero</strong><span>Headline, intro and CTA</span></button>
           <button draggable="true" data-block-type="splitHero"><strong>Split Hero</strong><span>Image and copy side by side</span></button>
+          <button draggable="true" data-block-type="floatingCard"><strong>Floating Card</strong><span>Freeform highlight element</span></button>
           <button draggable="true" data-block-type="trustBand"><strong>Trust Band</strong><span>Proof points near the top</span></button>
           <button draggable="true" data-block-type="logoCloud"><strong>Logo Cloud</strong><span>Featured partners / proof</span></button>
           <button draggable="true" data-block-type="services"><strong>Services</strong><span>Rich service cards</span></button>
@@ -70,6 +73,20 @@
         </div>
       </section>
 
+      <section class="pbi-studio-tab-panel" data-studio-panel="pages">
+        <div class="pbi-studio-pages-panel">
+          <h3>Pages</h3>
+          <p class="small-note muted">Create and switch between multiple pages inside the same project canvas.</p>
+          <div id="canvasPagesList" class="pbi-studio-pages-list"></div>
+          <div class="grid-2">
+            <input id="canvasNewPageTitle" class="input" placeholder="New page name">
+            <button class="btn-ghost" id="canvasAddPageBtn" type="button">Add page</button>
+          </div>
+          <button class="btn-ghost" id="canvasDuplicatePageBtn" type="button">Duplicate current page</button>
+          <button class="btn-ghost danger" id="canvasDeletePageBtn" type="button">Delete current page</button>
+        </div>
+      </section>
+
       <section class="pbi-studio-tab-panel" data-studio-panel="templates">
         <div class="pbi-studio-template-grid">
           <button type="button" data-template-pack="local-service"><strong>Local Service Pro</strong><span>Hero, trust, services, process, FAQ and CTA.</span></button>
@@ -86,8 +103,8 @@
 
       <section class="pbi-studio-tab-panel" data-studio-panel="cms">
         <div class="pbi-canvas-panel-foot pbi-studio-cms-panel">
-          <h3>Local content collections</h3>
-          <p class="small-note muted">Add example CMS entries now. These export with the canvas and can become blog, case study or service collections later.</p>
+          <h3>CMS database</h3>
+          <p class="small-note muted">Create structured content collections for blog posts, case studies, services and products. Entries save locally and to PBI DB when logged in.</p>
           <div class="grid-2">
             <input id="cmsItemTitle" class="input" placeholder="Entry title">
             <select id="cmsItemType" class="select">
@@ -95,11 +112,40 @@
               <option value="blog">Blog post</option>
               <option value="service">Service</option>
               <option value="product">Product</option>
+              <option value="team">Team member</option>
+              <option value="faq">FAQ</option>
             </select>
           </div>
-          <textarea id="cmsItemText" class="textarea" placeholder="Short summary"></textarea>
-          <button class="btn-ghost" id="cmsAddItemBtn" type="button">Add CMS entry</button>
+          <div class="grid-2">
+            <input id="cmsItemSlug" class="input" placeholder="entry-slug">
+            <select id="cmsItemStatus" class="select">
+              <option value="draft">Draft</option>
+              <option value="published">Published</option>
+            </select>
+          </div>
+          <textarea id="cmsItemText" class="textarea" placeholder="Short summary or body content"></textarea>
+          <div class="pbi-inspector-actions">
+            <button class="btn-ghost" id="cmsAddItemBtn" type="button">Add CMS entry</button>
+            <button class="btn-ghost" id="cmsCloudSaveBtn" type="button">Save CMS to cloud</button>
+            <button class="btn-ghost" id="cmsCloudLoadBtn" type="button">Load CMS</button>
+          </div>
           <div id="cmsItemsList" class="pbi-studio-cms-list"></div>
+        </div>
+      </section>
+
+      <section class="pbi-studio-tab-panel" data-studio-panel="collab">
+        <div class="pbi-studio-collab-panel">
+          <h3>Collaborative editing</h3>
+          <p class="small-note muted">Invite collaborators, leave build notes and see editing presence. Same-device tabs sync instantly; cloud presence syncs when logged in.</p>
+          <div class="grid-2">
+            <input id="collabInviteEmail" class="input" type="email" placeholder="person@email.com">
+            <select id="collabInviteRole" class="select"><option value="editor">Editor</option><option value="viewer">Viewer</option><option value="owner">Owner</option></select>
+          </div>
+          <button class="btn-ghost" id="collabInviteBtn" type="button">Invite collaborator</button>
+          <textarea id="collabNote" class="textarea" placeholder="Leave a note for other editors"></textarea>
+          <button class="btn-ghost" id="collabCommentBtn" type="button">Add note</button>
+          <div class="pbi-collab-presence" id="collabPresenceList"></div>
+          <div class="pbi-collab-feed" id="collabFeed"></div>
         </div>
       </section>
 
@@ -121,10 +167,11 @@
         <div>
           <strong id="canvasProjectTitle">Untitled PBI page</strong>
           <span id="canvasAutosaveStatus">Autosave ready</span>
-          <small class="pbi-canvas-help-text">Click text directly, drag sections to reorder, then use Inspector for spacing, colours, motion and breakpoints.</small>
+          <small class="pbi-canvas-help-text">Click text directly, drag sections to reorder, switch pages, or set blocks to Freeform and drag them around the canvas.</small>
         </div>
         <div class="pbi-studio-toolbar-actions">
           <button class="btn-ghost" id="canvasThemeBtn" type="button">Apply brand theme</button>
+          <button class="btn-ghost" id="canvasFreeformGuideBtn" type="button">Freeform guide</button>
           <div class="pbi-device-switcher" role="group" aria-label="Preview size">
             <button class="active" data-device="desktop" type="button">Desktop</button>
             <button data-device="tablet" type="button">Tablet</button>
@@ -137,7 +184,7 @@
         <div class="pbi-canvas-dropzone" id="canvasDropzone" aria-label="Website canvas">
           <div class="pbi-canvas-empty" id="canvasEmpty">
             <h2>Use a template or generate with AI</h2>
-            <p>Then refine the page visually, section by section.</p>
+            <p>Then refine the site visually, page by page.</p>
           </div>
         </div>
       </div>
@@ -149,7 +196,7 @@
         <h2>Edit selected block</h2>
       </div>
 
-      <div id="canvasInspectorEmpty" class="notice">Select a block to edit text, layout, design, motion and responsive behaviour.</div>
+      <div id="canvasInspectorEmpty" class="notice">Select a block to edit text, layout, freeform position, motion and responsive behaviour.</div>
 
       <form id="canvasInspectorForm" class="pbi-inspector-form" style="display:none">
         <div class="field"><label for="inspectorTitle">Title</label><input id="inspectorTitle" class="input" name="title"></div>
@@ -158,7 +205,7 @@
         <div class="field"><label for="inspectorImage">Image URL</label><input id="inspectorImage" class="input" name="image"></div>
         <div class="grid-2">
           <div class="field"><label for="inspectorLayout">Layout</label><select id="inspectorLayout" class="select" name="layout"><option value="standard">Standard</option><option value="split">Split</option><option value="centered">Centered</option><option value="cards">Cards</option><option value="fullBleed">Full bleed</option><option value="masonry">Masonry</option><option value="spotlight">Spotlight</option><option value="bento">Bento</option></select></div>
-          <div class="field"><label for="inspectorAnimation">Motion</label><select id="inspectorAnimation" class="select" name="animation"><option value="none">None</option><option value="fade">Fade in</option><option value="rise">Rise</option><option value="scale">Scale</option><option value="slide">Slide</option></select></div>
+          <div class="field"><label for="inspectorAnimation">Motion</label><select id="inspectorAnimation" class="select" name="animation"><option value="none">None</option><option value="fade">Fade in</option><option value="rise">Rise</option><option value="scale">Scale</option><option value="slide">Slide</option><option value="float">Float</option><option value="reveal">Reveal mask</option><option value="parallax">Parallax feel</option><option value="stagger">Stagger cards</option><option value="marquee">Marquee drift</option></select></div>
         </div>
         <div class="grid-2">
           <div class="field"><label for="inspectorBg">Background</label><input id="inspectorBg" class="input" type="color" name="background"></div>
@@ -171,6 +218,30 @@
         <div class="grid-2">
           <div class="field"><label for="inspectorRadius">Corner radius</label><select id="inspectorRadius" class="select"><option value="soft">Soft</option><option value="square">Square</option><option value="pill">Pill</option></select></div>
           <div class="field"><label for="inspectorVisibility">Visibility</label><select id="inspectorVisibility" class="select"><option value="all">All devices</option><option value="desktop">Desktop only</option><option value="mobile">Mobile only</option></select></div>
+        </div>
+        <div class="pbi-freeform-inspector">
+          <h3>Freeform position</h3>
+          <div class="grid-2">
+            <div class="field"><label for="inspectorPositionMode">Mode</label><select id="inspectorPositionMode" class="select"><option value="flow">Flow section</option><option value="free">Freeform layer</option></select></div>
+            <div class="field"><label for="inspectorWidth">Width px</label><input id="inspectorWidth" class="input" type="number" min="180" max="1400" step="10"></div>
+          </div>
+          <div class="grid-2">
+            <div class="field"><label for="inspectorX">X</label><input id="inspectorX" class="input" type="number" step="5"></div>
+            <div class="field"><label for="inspectorY">Y</label><input id="inspectorY" class="input" type="number" step="5"></div>
+          </div>
+          <div class="grid-2">
+            <div class="field"><label for="inspectorRotate">Rotate °</label><input id="inspectorRotate" class="input" type="number" min="-25" max="25" step="1"></div>
+            <div class="field"><label for="inspectorZ">Layer z-index</label><input id="inspectorZ" class="input" type="number" min="1" max="99" step="1"></div>
+          </div>
+          <p class="small-note muted">Freeform blocks can be dragged directly on the desktop canvas. Use Flow for normal responsive sections.</p>
+        </div>
+        <div class="pbi-motion-inspector">
+          <h3>Motion timing</h3>
+          <div class="grid-2">
+            <div class="field"><label for="inspectorDuration">Duration ms</label><input id="inspectorDuration" class="input" type="number" min="100" max="4000" step="50"></div>
+            <div class="field"><label for="inspectorDelay">Delay ms</label><input id="inspectorDelay" class="input" type="number" min="0" max="4000" step="50"></div>
+          </div>
+          <div class="field"><label for="inspectorEasing">Easing</label><select id="inspectorEasing" class="select"><option value="ease">Ease</option><option value="ease-out">Ease out</option><option value="cubic-bezier(.2,.9,.2,1)">Premium snap</option><option value="cubic-bezier(.16,1,.3,1)">Soft glide</option></select></div>
         </div>
         <div class="pbi-inspector-actions">
           <button class="btn" id="canvasApplyInspectorBtn" type="button">Apply changes</button>
