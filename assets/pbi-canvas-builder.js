@@ -1202,6 +1202,7 @@
   async function cloudPublishCanvas() {
     if (!projectId || projectId === "draft") return { ok: false, skipped: true };
     await cloudSaveCanvas();
+    await cloudSaveCms();
     try {
       const response = await fetch("/api/canvas/publish", {
         method: "POST",
@@ -1209,30 +1210,53 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ project_id: projectId })
       });
-      return await response.json().catch(() => ({ ok: false }));
-    } catch (_) {
-      return { ok: false };
+      const result = await response.json().catch(() => ({ ok: false }));
+      if (!response.ok && !result.error) result.error = "Publish could not be completed.";
+      return result;
+    } catch (err) {
+      return { ok: false, error: err?.message || "Publish could not be completed." };
     }
   }
 
   async function exportToProject() {
-    saveVersion("Before export to project");
+    saveVersion("Saved from Visual Studio");
     saveState();
     saveCms();
+    await cloudSaveCanvas();
     await cloudSaveCms();
     await saveCanvasSectionsToBuilder();
-    const publishResult = await cloudPublishCanvas();
-    if (publishResult?.ok) localStorage.setItem(`pbi_canvas_site_url_${projectId}`, `/site/canvas/${projectId}`);
     localStorage.setItem(`pbi_canvas_export_${projectId}`, JSON.stringify({ projectId, exportedAt: new Date().toISOString(), canvas: state, cmsItems, collab, pageBody: exportText() }));
     try {
       await fetch("/api/versions", {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ project_id: projectId, label: "Visual Studio export", snapshot: { canvas: state, cmsItems, collab } })
+        body: JSON.stringify({ project_id: projectId, label: "Visual Studio save", snapshot: { canvas: state, cmsItems, collab } })
       });
     } catch (_) {}
-    window.location.href = `/builder/?project=${encodeURIComponent(projectId)}&canvas_export=1`;
+    window.location.href = `/builder/?project=${encodeURIComponent(projectId)}&canvas_saved=1`;
+  }
+
+  async function publishLive() {
+    saveVersion("Before live publish");
+    saveState();
+    saveCms();
+    const result = await cloudPublishCanvas();
+
+    if (result?.payment_required && result.payment_url) {
+      localStorage.setItem(`pbi_canvas_publish_pending_${projectId}`, JSON.stringify({ projectId, requestedAt: new Date().toISOString() }));
+      window.location.href = result.payment_url;
+      return;
+    }
+
+    if (result?.published) {
+      const liveUrl = result.live_url || `/site/canvas/${encodeURIComponent(result.public_slug || projectId)}/`;
+      localStorage.setItem(`pbi_canvas_site_url_${projectId}`, liveUrl);
+      window.location.href = liveUrl;
+      return;
+    }
+
+    alert(result?.error || result?.message || "Publish could not be completed. Check payment, ownership and project setup.");
   }
 
   async function loadProjectTemplateSectionsForCanvas() {
@@ -1332,6 +1356,7 @@
     $("canvasSaveVersionBtn")?.addEventListener("click", () => saveVersion("Manual visual studio version"));
     $("canvasPreviewBtn")?.addEventListener("click", () => { previewMode = !previewMode; render(); });
     $("canvasExportBtn")?.addEventListener("click", exportToProject);
+    $("canvasPublishBtn")?.addEventListener("click", publishLive);
     $("canvasAiBuildBtn")?.addEventListener("click", aiBuildFromBrief);
     $("canvasThemeBtn")?.addEventListener("click", applyThemeToBlocks);
     $("canvasFreeformGuideBtn")?.addEventListener("click", () => alert("Freeform mode: select any block, set Mode to Freeform in the Inspector, then drag the block on the desktop canvas. Use X/Y/Width/Rotate/Z for precise control. Use Flow mode for normal responsive sections."));
