@@ -1,0 +1,44 @@
+PBI Framer-Level Visual Studio Build
+====================================
+
+This full build upgrades the builder direction from a form-led website creator into a more visual, design-led product experience.
+
+Included in this build:
+- New Visual Studio canvas replacing the older Canvas Builder interface.
+- Drag/drop component palette with richer block types.
+- Template packs for local service, cafe, retail, consultant and holiday stay sites.
+- Layers panel for selecting and navigating sections.
+- CMS starter panel for blog/case-study/service/product entries.
+- Global theme controls for background, accent, font mood and density.
+- Inspector controls for layout, motion, padding, alignment, radius and responsive visibility.
+- Inline editing directly inside the live preview.
+- Preview mode for cleaner customer-facing review.
+- AI full-site generation with richer page structure and a no-key local fallback.
+- Upgraded AI generation endpoint supporting premium Framer-like section types.
+- Upgraded template-sections endpoint with richer premium layouts.
+- Upgraded published canvas renderer so new blocks render publicly after export.
+- Existing-account payment flow fix included from the previous patch.
+
+New/expanded visual blocks:
+- Navigation
+- Split Hero
+- Trust Band
+- Logo Cloud
+- Services
+- Process
+- Stats
+- Feature Grid / Bento
+- Gallery / Masonry
+- Testimonial
+- Pricing
+- Product Grid
+- CMS List
+- FAQ
+- Map / Area
+- Booking
+- Contact
+- Retail
+- CTA
+
+Important reality check:
+This is now a much stronger Framer-level direction for PBI, but it is not a pixel-perfect clone of Framer. The remaining gap is advanced freeform object positioning, multi-page design canvas, full CMS database UI, live collaborative editing and production-grade animations/interactions.
