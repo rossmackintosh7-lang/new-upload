@@ -92,3 +92,73 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', observe);
   else observe();
 })();
+
+
+(() => {
+  const $ = (sel, root = document) => root.querySelector(sel);
+  const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
+
+  function normaliseFreeformVars() {
+    $$('.canvas-block.is-freeform').forEach(block => {
+      const left = block.style.left || '40px';
+      const top = block.style.top || '40px';
+      block.style.setProperty('--pbi-free-x', left);
+      block.style.setProperty('--pbi-free-y', top);
+      if (!block.style.width) block.style.width = '520px';
+      if (!block.querySelector('.canvas-freeform-handle')) {
+        const handle = document.createElement('span');
+        handle.className = 'canvas-freeform-handle';
+        handle.textContent = 'Move';
+        block.prepend(handle);
+      }
+    });
+  }
+
+  function addFreeformToolbar() {
+    const toolbar = $('.pbi-studio-toolbar-actions') || $('.pbi-canvas-top-actions');
+    if (!toolbar || $('#pbiFreeformToggleBtn')) return;
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.id = 'pbiFreeformToggleBtn';
+    button.className = 'pbi-freeform-toolbar-btn';
+    button.textContent = 'Freeform selected';
+    button.title = 'Turn the selected block into a draggable freeform layer';
+    button.addEventListener('click', () => {
+      const selected = $('.canvas-block.selected') || $('.canvas-block[data-block-id]');
+      if (!selected) return alert('Select a block first, then press Freeform selected.');
+      const action = selected.querySelector('[data-action="free"]');
+      if (action) action.click();
+      setTimeout(() => {
+        const again = document.querySelector(`[data-block-id="${selected.dataset.blockId}"]`);
+        const mode = document.getElementById('inspectorPositionMode');
+        if (again?.classList.contains('is-freeform')) {
+          button.classList.add('active');
+          if (mode) mode.value = 'free';
+        } else {
+          button.classList.remove('active');
+          if (mode) mode.value = 'flow';
+        }
+        normaliseFreeformVars();
+      }, 60);
+    });
+    toolbar.prepend(button);
+  }
+
+  function addHelpStrip() {
+    const stage = $('.pbi-studio-stage-wrap');
+    if (!stage || $('.pbi-freeform-help-strip')) return;
+    const strip = document.createElement('div');
+    strip.className = 'pbi-freeform-help-strip';
+    strip.innerHTML = '<div><strong>Freeform is now active.</strong><small>Select a block, press “Freeform selected”, then drag the Move pill or the block background. Resize from the corner handle.</small></div><a class="btn-ghost" href="/templates/">View templates</a>';
+    stage.prepend(strip);
+  }
+
+  function observe() {
+    addFreeformToolbar();
+    addHelpStrip();
+    normaliseFreeformVars();
+    const observer = new MutationObserver(() => { addFreeformToolbar(); addHelpStrip(); normaliseFreeformVars(); });
+    observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'style'] });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', observe); else observe();
+})();
