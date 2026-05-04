@@ -1,0 +1,25 @@
+PBI_READY QA REPORT
+Generated fresh in the new chat.
+
+Build target:
+- Full website build ZIP, not patch-only files.
+- Intended repo: rossmackintosh7-lang/new-upload
+- Main Cloudflare config: wrangler.toml
+- Pages build output: .
+
+Included direction checked:
+- Premium customer dashboard / command centre: OK
+- Package-first builder flow: OK
+- Builder package upgrade flow: OK
+- AI site generation panel and endpoint: OK
+- SEO agent panel and endpoint: OK
+- Analytics panel and project-safe summary endpoint: OK
+- Live preview quick-edit polish: OK
+- Build free, pay only at publish: OK
+- Logo corrected back inside the banner and smaller: OK
+
+Validation completed before ZIP creation:
+- Critical JS syntax checked with node --check across 135 JS files: PASS
+- Missing local JS imports checked: PASS, 0 missing
+- Static asset references checked across HTML/CSS: PASS, 0 missing
+- ZIP integrity checked after creation: see final response

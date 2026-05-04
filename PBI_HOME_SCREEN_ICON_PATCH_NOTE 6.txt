@@ -1,0 +1,2 @@
+This build patches the mobile home-screen icon so when the site is added to a phone home screen it uses the PBI logo.
+Added/updated: apple-touch-icon.png, favicon.ico, android-chrome icons, manifest.json, public/manifest.json, and icon/meta tags in active index.html files.
