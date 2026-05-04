@@ -242,3 +242,161 @@ CREATE TABLE IF NOT EXISTS logo_creation_requests (
   created_at TEXT DEFAULT CURRENT_TIMESTAMP,
   updated_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
+
+
+-- PBI analytics starter
+
+CREATE TABLE IF NOT EXISTS analytics_events (
+  id TEXT PRIMARY KEY,
+  project_id TEXT,
+  site_slug TEXT,
+  event_type TEXT,
+  page_path TEXT,
+  referrer TEXT,
+  user_agent TEXT,
+  body_json TEXT,
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_analytics_events_project_id ON analytics_events(project_id);
+CREATE INDEX IF NOT EXISTS idx_analytics_events_site_slug ON analytics_events(site_slug);
+CREATE INDEX IF NOT EXISTS idx_analytics_events_created_at ON analytics_events(created_at);
+
+
+-- PBI project version history
+
+CREATE TABLE IF NOT EXISTS project_versions (
+  id TEXT PRIMARY KEY,
+  project_id TEXT NOT NULL,
+  user_id TEXT,
+  label TEXT,
+  body_json TEXT,
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_project_versions_project_id ON project_versions(project_id);
+CREATE INDEX IF NOT EXISTS idx_project_versions_user_id ON project_versions(user_id);
+
+
+
+-- PBI Core Platform V2 tables
+
+CREATE TABLE IF NOT EXISTS project_canvas (
+  project_id TEXT PRIMARY KEY,
+  user_id TEXT,
+  canvas_json TEXT NOT NULL,
+  published_json TEXT,
+  status TEXT DEFAULT 'draft',
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+  published_at TEXT
+);
+
+CREATE INDEX IF NOT EXISTS idx_project_canvas_user_id ON project_canvas(user_id);
+CREATE INDEX IF NOT EXISTS idx_project_canvas_status ON project_canvas(status);
+
+CREATE TABLE IF NOT EXISTS project_versions (
+  id TEXT PRIMARY KEY,
+  project_id TEXT NOT NULL,
+  user_id TEXT,
+  label TEXT,
+  source TEXT DEFAULT 'builder',
+  body_json TEXT,
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_project_versions_project_id ON project_versions(project_id);
+CREATE INDEX IF NOT EXISTS idx_project_versions_user_id ON project_versions(user_id);
+
+CREATE TABLE IF NOT EXISTS ai_generation_logs (
+  id TEXT PRIMARY KEY,
+  project_id TEXT,
+  user_id TEXT,
+  generation_type TEXT,
+  prompt TEXT,
+  response_json TEXT,
+  status TEXT DEFAULT 'complete',
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_ai_generation_logs_project_id ON ai_generation_logs(project_id);
+CREATE INDEX IF NOT EXISTS idx_ai_generation_logs_user_id ON ai_generation_logs(user_id);
+
+CREATE TABLE IF NOT EXISTS domain_tasks (
+  id TEXT PRIMARY KEY,
+  project_id TEXT,
+  user_id TEXT,
+  domain TEXT,
+  task_type TEXT,
+  status TEXT DEFAULT 'open',
+  notes TEXT,
+  body_json TEXT,
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_domain_tasks_project_id ON domain_tasks(project_id);
+CREATE INDEX IF NOT EXISTS idx_domain_tasks_status ON domain_tasks(status);
+
+CREATE TABLE IF NOT EXISTS retail_product_categories (
+  id TEXT PRIMARY KEY,
+  project_id TEXT NOT NULL,
+  name TEXT NOT NULL,
+  slug TEXT,
+  sort_order INTEGER DEFAULT 0,
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_retail_product_categories_project_id ON retail_product_categories(project_id);
+
+CREATE TABLE IF NOT EXISTS retail_product_variants (
+  id TEXT PRIMARY KEY,
+  product_id TEXT NOT NULL,
+  project_id TEXT NOT NULL,
+  name TEXT,
+  sku TEXT,
+  price_pence INTEGER,
+  stock INTEGER DEFAULT 0,
+  body_json TEXT,
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_retail_product_variants_project_id ON retail_product_variants(project_id);
+CREATE INDEX IF NOT EXISTS idx_retail_product_variants_product_id ON retail_product_variants(product_id);
+
+
+
+-- PBI Admin + Builder Freedom Upgrade
+CREATE TABLE IF NOT EXISTS admin_notifications (id TEXT PRIMARY KEY,type TEXT NOT NULL,title TEXT NOT NULL,message TEXT,status TEXT DEFAULT 'new',priority TEXT DEFAULT 'normal',customer_email TEXT,project_id TEXT,request_id TEXT,body_json TEXT,created_at TEXT DEFAULT CURRENT_TIMESTAMP,updated_at TEXT DEFAULT CURRENT_TIMESTAMP,read_at TEXT);
+CREATE INDEX IF NOT EXISTS idx_admin_notifications_status ON admin_notifications(status);
+CREATE TABLE IF NOT EXISTS admin_requests (id TEXT PRIMARY KEY,request_type TEXT NOT NULL,status TEXT DEFAULT 'new',priority TEXT DEFAULT 'normal',customer_name TEXT,customer_email TEXT,customer_phone TEXT,business_name TEXT,business_type TEXT,project_id TEXT,package_name TEXT,payment_status TEXT DEFAULT 'unknown',brief TEXT,requested_pages TEXT,uploaded_assets_json TEXT,internal_notes TEXT,customer_message TEXT,body_json TEXT,created_at TEXT DEFAULT CURRENT_TIMESTAMP,updated_at TEXT DEFAULT CURRENT_TIMESTAMP);
+CREATE INDEX IF NOT EXISTS idx_admin_requests_status ON admin_requests(status);
+CREATE INDEX IF NOT EXISTS idx_admin_requests_project_id ON admin_requests(project_id);
+CREATE TABLE IF NOT EXISTS admin_project_notes (id TEXT PRIMARY KEY,project_id TEXT NOT NULL,request_id TEXT,note TEXT NOT NULL,created_by TEXT,created_at TEXT DEFAULT CURRENT_TIMESTAMP);
+CREATE INDEX IF NOT EXISTS idx_admin_project_notes_project_id ON admin_project_notes(project_id);
+CREATE TABLE IF NOT EXISTS project_sections (id TEXT PRIMARY KEY,project_id TEXT NOT NULL,section_order INTEGER DEFAULT 0,section_type TEXT NOT NULL,title TEXT,text TEXT,button TEXT,image TEXT,layout TEXT DEFAULT 'standard',background TEXT DEFAULT '#fff8f1',accent TEXT DEFAULT '#bf5c29',padding TEXT DEFAULT 'comfortable',align TEXT DEFAULT 'left',hidden INTEGER DEFAULT 0,body_json TEXT,created_at TEXT DEFAULT CURRENT_TIMESTAMP,updated_at TEXT DEFAULT CURRENT_TIMESTAMP);
+CREATE INDEX IF NOT EXISTS idx_project_sections_project_id ON project_sections(project_id);
+CREATE TABLE IF NOT EXISTS admin_audit_log (id TEXT PRIMARY KEY,admin_email TEXT,action TEXT NOT NULL,project_id TEXT,request_id TEXT,body_json TEXT,created_at TEXT DEFAULT CURRENT_TIMESTAMP);
+
+
+
+CREATE TABLE IF NOT EXISTS published_project_sections (
+  id TEXT PRIMARY KEY,
+  project_id TEXT NOT NULL,
+  section_order INTEGER DEFAULT 0,
+  section_type TEXT NOT NULL,
+  title TEXT,
+  text TEXT,
+  button TEXT,
+  image TEXT,
+  layout TEXT DEFAULT 'standard',
+  background TEXT DEFAULT '#fff8f1',
+  accent TEXT DEFAULT '#bf5c29',
+  padding TEXT DEFAULT 'comfortable',
+  align TEXT DEFAULT 'left',
+  hidden INTEGER DEFAULT 0,
+  body_json TEXT,
+  published_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_published_project_sections_project_id ON published_project_sections(project_id);

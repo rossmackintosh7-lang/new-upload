@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (project.billing_status === 'setup_required') return 'Stripe setup required';
     if (project.billing_status === 'past_due') return 'Payment issue';
     if (project.billing_status === 'cancelled') return 'Cancelled';
-    return 'Draft';
+    return 'Draft - build free';
   }
 
   function moneyMinor(amount, currency = 'gbp') {
@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
     else if (!data.page_main_heading && !data.pages?.home?.title) next = 'Write your homepage heading.';
     else if (!data.logo_data_url && !data.logoDataUrl) next = 'Upload your logo.';
     else if (!data.domain_registration?.name && !data.custom_domain && !project.custom_domain && !data.subdomain_slug) next = 'Choose your domain option.';
-    else if (Number(project.published || 0) !== 1) next = 'Preview your site and publish when ready.';
+    else if (Number(project.published || 0) !== 1) next = 'Preview your site. Payment is only needed when you publish.';
     else next = 'Your site is live. Next step: improve SEO or share your link.';
 
     return { score, missing, next };

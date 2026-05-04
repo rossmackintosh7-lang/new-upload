@@ -1,5 +1,5 @@
--- Paste this into Cloudflare D1 Console.
--- Do not paste the npx wrangler command into the SQL Console.
+-- PBI logo creation table/index helper for Cloudflare D1 Console.
+-- Paste SQL only into the D1 Console. Do not paste npx/wrangler commands here.
 
 CREATE TABLE IF NOT EXISTS logo_creation_requests (
   id TEXT PRIMARY KEY,
@@ -17,11 +17,6 @@ CREATE TABLE IF NOT EXISTS logo_creation_requests (
   updated_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
 
--- Run this next ONLY if PRAGMA table_info(logo_creation_requests);
--- does not show a logo_package column.
--- If it says duplicate column name, it is already done.
-ALTER TABLE logo_creation_requests ADD COLUMN logo_package TEXT DEFAULT 'standard';
-
 CREATE INDEX IF NOT EXISTS idx_logo_creation_requests_project_id
 ON logo_creation_requests(project_id);
 
@@ -30,3 +25,9 @@ ON logo_creation_requests(user_id);
 
 CREATE INDEX IF NOT EXISTS idx_logo_creation_requests_status
 ON logo_creation_requests(status);
+
+-- Optional only:
+-- If the table existed before the logo-package upgrade and does NOT show logo_package
+-- in PRAGMA table_info(logo_creation_requests), run this line separately.
+-- If it says "duplicate column name", that is fine and means it already exists.
+-- ALTER TABLE logo_creation_requests ADD COLUMN logo_package TEXT DEFAULT 'standard';

@@ -1,14 +1,24 @@
 <!doctype html>
 <html lang="en-GB">
 <head>
-  <meta charset="utf-8">
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#b95624">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="PBI">
+<meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Retail Orders • PBI</title>
   <link rel="stylesheet" href="/assets/styles.css">
 </head>
 <body class="pbi-app-page">
   <div class="pbi-app-shell">
-    <aside class="pbi-side"><a class="pbi-side-brand" href="/"><img src="/assets/PBI%20Logo.png" alt="PBI logo"></a><nav class="pbi-side-nav"><a class="pbi-side-link" href="/dashboard/"><span>⌂</span><strong>Dashboard</strong></a><a class="pbi-side-link" href="/builder/"><span>✦</span><strong>AI Builder</strong></a><a class="pbi-side-link active" href="/retail-orders/"><span>🛒</span><strong>Retail Orders</strong></a></nav><a class="pbi-side-collapse" href="/">‹‹ Home</a></aside>
+    <aside class="pbi-side"><a class="pbi-side-brand" href="/"><img src="/assets/pbi-header-logo-no-bg-20260502c.png?v=20260502c?v=20260502b" alt="PBI logo"></a><nav class="pbi-side-nav"><a class="pbi-side-link" href="/dashboard/"><span>⌂</span><strong>Dashboard</strong></a><a class="pbi-side-link" href="/builder/"><span>✦</span><strong>AI Builder</strong></a><a data-retail-orders-nav class="pbi-side-link active retail-orders-nav-item" href="/retail-orders/"><span>🛒</span><strong>Retail Orders</strong></a></nav><a class="pbi-side-collapse" href="/">‹‹ Home</a></aside>
     <main class="pbi-app-main"><header class="pbi-app-topbar"><div><h1>Retail Orders</h1><p>Paid product orders from your published retail templates.</p></div><a class="btn-ghost" href="/help/retail-stripe-setup/">Stripe setup guide</a></header><section class="pbi-app-content"><div class="card"><h2>Latest orders</h2><div id="ordersStatus" class="notice">Loading orders...</div><div id="ordersList"></div></div></section></main>
   </div>
 <script>
@@ -18,5 +28,7 @@ async function loadOrders(){const status=document.getElementById('ordersStatus')
 loadOrders();
 </script>
 <script src="/assets/pbi-access.js" defer></script>
+  <script src="/assets/pbi-retail-orders-visibility.js" defer></script>
+  <script src="/assets/pbi-analytics.js" defer></script>
 </body>
 </html>

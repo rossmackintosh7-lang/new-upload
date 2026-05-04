@@ -1,10 +1,20 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AI Builder • PBI</title><link rel="stylesheet" href="/assets/styles.css"></head>
+<!doctype html><html><head>
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#b95624">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="PBI">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AI Builder • PBI</title><link rel="stylesheet" href="/assets/styles.css"></head>
 <body class="pbi-app-page pbi-builder-page">
 <div class="pbi-app-shell">
   <aside class="pbi-side">
-    <a class="pbi-side-brand" href="/"><img src="/assets/PBI%20Logo.png" alt="PBI logo"></a>
+    <a class="pbi-side-brand" href="/"><img src="/assets/pbi-header-logo-no-bg-20260502c.png?v=20260502c?v=20260502b" alt="PBI logo"></a>
     <nav class="pbi-side-nav" aria-label="Dashboard navigation">
-      <a class="pbi-side-link" href="/dashboard/"><span>⌂</span><strong>Dashboard</strong></a><a class="pbi-side-link" href="/dashboard/"><span>□</span><strong>Projects</strong></a><a class="pbi-side-link active" href="/builder/"><span>✦</span><strong>AI Builder</strong></a><a class="pbi-side-link" href="/examples/"><span>▦</span><strong>Templates</strong></a><a class="pbi-side-link pbi-admin-only" data-admin-only href="/seo-agent/"><span>◎</span><strong>SEO Agent</strong></a><a class="pbi-side-link" href="/custom-build/"><span class="code-icon">&lt;/&gt;</span><strong>Custom Builds</strong></a><a class="pbi-side-link" href="/retail-orders/"><span>🛒</span><strong>Retail Orders</strong></a><a class="pbi-side-link pbi-admin-only" data-admin-only href="/admin/"><span>⚙</span><strong>Settings</strong></a>
+      <a class="pbi-side-link" href="/dashboard/"><span>⌂</span><strong>Dashboard</strong></a><a class="pbi-side-link" href="/dashboard/"><span>□</span><strong>Projects</strong></a><a class="pbi-side-link active" href="/builder/"><span>✦</span><strong>AI Builder</strong></a><a class="pbi-side-link" href="/examples/"><span>▦</span><strong>Templates</strong></a><a class="pbi-side-link pbi-admin-only" data-admin-only href="/seo-agent/"><span>◎</span><strong>SEO Agent</strong></a><a class="pbi-side-link" href="/custom-build/"><span class="code-icon">&lt;/&gt;</span><strong>Custom Builds</strong></a><a data-retail-orders-nav class="pbi-side-link retail-orders-nav-item" href="/retail-orders/"><span>🛒</span><strong>Retail Orders</strong></a><a class="pbi-side-link pbi-admin-only" data-admin-only href="/admin/"><span>⚙</span><strong>Settings</strong></a>
     </nav>
     <div class="pbi-side-illustration"></div>
     <a class="pbi-side-collapse" href="/">‹‹ Home</a>
@@ -18,8 +28,92 @@
       <div class="pbi-app-actions"><button class="btn-ghost" id="backBtn" type="button">Dashboard</button><button class="btn-ghost" id="logoutBtn" type="button">Logout</button><button class="btn-ghost" id="saveBtn" type="button">Save project</button><button class="btn" id="publishBtn" type="button">Publish website</button></div>
     </header>
     <main class="pbi-app-content">
-  <section class="pbi-template-ribbon"><div><h3>Choose a template to get started</h3><p class="muted">Selected demos from Examples flow straight into this builder.</p></div><a class="pbi-ribbon-card" href="/examples/cafe/"><img src="/assets/demo-media/cafe-hero.jpg" alt="Café / Restaurant template"><strong>Café / Restaurant</strong></a><a class="pbi-ribbon-card" href="/examples/trades/"><img src="/assets/demo-media/trades-hero.jpg" alt="Tradesperson template"><strong>Tradesperson</strong></a><a class="pbi-ribbon-card" href="/examples/salon/"><img src="/assets/demo-media/salon-hero.jpg" alt="Salon / Beauty template"><strong>Salon / Beauty</strong></a><a class="pbi-ribbon-card" href="/examples/consultant/"><img src="/assets/demo-media/consultant-hero.jpg" alt="Consultant / Service Business template"><strong>Consultant / Service Business</strong></a><a class="pbi-ribbon-card" href="/examples/shop/"><img src="/assets/demo-media/shop-hero.jpg" alt="Shop / Retail template"><strong>Shop / Retail</strong></a><a class="pbi-ribbon-card" href="/examples/holiday-let/"><img src="/assets/demo-media/holiday-let-hero.jpg" alt="Holiday Let / Glamping template"><strong>Holiday Let / Glamping</strong></a></section>
-  
+
+      <section class="card pbi-plan-current-card" id="pbiCurrentPlanCard">
+        <div>
+          <p class="eyebrow">Your package</p>
+          <h2 id="pbiPlanTitle">Starter Site</h2>
+          <p id="pbiPlanDescription" class="small-note muted">Starter tools are active. Upgrade to unlock more builder controls.</p>
+        </div>
+        <div class="pbi-plan-chip-row">
+          <span class="pbi-plan-chip" data-plan-chip="starter">Starter</span>
+          <span class="pbi-plan-chip" data-plan-chip="business">Business</span>
+          <span class="pbi-plan-chip" data-plan-chip="plus">Plus</span>
+          <a class="btn-ghost" id="pbiPlanUpgradeLink" href="/pricing/#packages">Compare packages</a>
+        </div>
+      </section>
+
+      <section id="pbiTemplateSectionEditor" class="card pbi-template-section-editor pbi-unified-builder" aria-labelledby="pbiUnifiedBuilderTitle">
+        <div class="pbi-section-editor-head pbi-unified-head">
+          <div>
+            <p class="eyebrow">Website setup</p>
+            <h2 id="pbiUnifiedBuilderTitle">Build from one connected workspace</h2>
+            <p class="small-note muted">Choose a template, edit the same live sections, upload images, adjust design and publish without jumping between duplicate editors.</p>
+            <p id="pbiLinkedStatus" class="small-note">Linked project: loading...</p>
+          </div>
+          <div class="pbi-section-editor-actions pbi-unified-actions" role="group" aria-label="Builder actions">
+            <button class="btn-ghost" id="pbiReloadSections" type="button">Reload template</button>
+            <button class="btn-ghost" id="pbiSaveSections" type="button">Save sections</button>
+            <button class="btn" id="pbiPublishSections" type="button">Apply & publish sections</button>
+          </div>
+        </div>
+
+        <div class="pbi-builder-flow-tabs" aria-label="Website builder workflow">
+          <span>1. Template</span>
+          <span>2. Edit content</span>
+          <span>3. Design</span>
+          <span>4. Images</span>
+          <span>5. SEO & launch</span>
+          <span>6. Add-ons</span>
+        </div>
+
+        <div class="pbi-unified-template-panel">
+          <div>
+            <h3>Choose your starting template</h3>
+            <p class="small-note muted">These match the public Examples styles and load into this same editor and preview window.</p>
+          </div>
+          <div class="template-choice-grid pbi-template-choice-grid-compact">
+            <label class="template-choice"><input type="radio" name="templateStyle" value="cafe" checked><span><strong>Café / Restaurant</strong><small>Menus, bookings, location and atmosphere.</small></span></label>
+            <label class="template-choice"><input type="radio" name="templateStyle" value="trades"><span><strong>Tradesperson</strong><small>Services, trust, quote requests and local search.</small></span></label>
+            <label class="template-choice"><input type="radio" name="templateStyle" value="salon"><span><strong>Salon / Beauty</strong><small>Treatments, gallery, booking and calm presentation.</small></span></label>
+            <label class="template-choice"><input type="radio" name="templateStyle" value="consultant"><span><strong>Consultant / Service Business</strong><small>Expertise, services, proof and calls.</small></span></label>
+            <label class="template-choice" data-plan-min="plus"><input type="radio" name="templateStyle" value="shop"><span><strong>Shop / Retail</strong><small>Product-led layout with retail support when enabled.</small></span></label>
+            <label class="template-choice"><input type="radio" name="templateStyle" value="holiday-let"><span><strong>Holiday Let / Glamping</strong><small>Image-led stays, amenities and enquiry route.</small></span></label>
+          </div>
+        </div>
+
+        <div class="pbi-section-editor-grid pbi-unified-editor-grid">
+          <div class="pbi-section-panel">
+            <div class="pbi-panel-title-row">
+              <div>
+                <h3>Content sections</h3>
+                <p class="small-note muted">Reorder, hide, copy or remove the sections used in the live preview.</p>
+              </div>
+            </div>
+            <div id="pbiSectionList" class="pbi-section-list"></div>
+            <div class="pbi-add-section-row">
+              <select id="pbiAddSectionType" class="select" aria-label="Add section type">
+                <option value="hero">Hero</option>
+                <option value="services">Services</option>
+                <option value="featureGrid" data-plan-min="business">Feature grid</option>
+                <option value="gallery" data-plan-min="business">Gallery</option>
+                <option value="testimonial" data-plan-min="plus">Testimonial</option>
+                <option value="faq" data-plan-min="plus">FAQ</option>
+                <option value="contact">Contact</option>
+                <option value="retail" data-plan-min="plus">Retail</option>
+                <option value="cta" data-plan-min="business">CTA</option>
+              </select>
+              <button class="btn-ghost" id="pbiAddSectionBtn" type="button">Add section</button>
+            </div>
+          </div>
+          <div class="pbi-section-panel">
+            <h3>Selected section</h3>
+            <div id="pbiSectionInspector" class="pbi-section-inspector"></div>
+          </div>
+        </div>
+        <div id="pbiSectionEditorStatus" class="notice" style="display:none;margin-top:16px"></div>
+      </section>
+
     <section class="builder-launch-guide card">
       <div>
         <p class="eyebrow">Publishing options</p>
@@ -73,6 +167,53 @@
       <div class="builder-layout">
         <section class="builder-left">
           <div class="builder-stack">
+
+            <div class="card" id="pbiLaunchReadinessCard">
+              <h3>Launch readiness</h3>
+              <p class="small-note muted">A quick pre-publish check so customers know what still needs attention before going live.</p>
+              <div class="pbi-readiness-meter"><span id="pbiReadinessScore">0%</span><div><i id="pbiReadinessBar"></i></div></div>
+              <ul class="pbi-launch-checklist" id="pbiLaunchChecklist">
+                <li data-check="business">Business name added</li>
+                <li data-check="heading">Homepage heading added</li>
+                <li data-check="content">Page content has been edited</li>
+                <li data-check="contact">Contact page selected</li>
+                <li data-check="images">Logo or images uploaded</li>
+                <li data-check="domain">Domain/subdomain route selected</li>
+                <li data-check="retail">Retail checked if shop is enabled</li>
+              </ul>
+            </div>
+
+
+
+            <div class="card" id="pbiCanvasLaunchCard" class="pbi-canvas-launch-note" data-plan-min="plus">
+              <h3>Advanced layout editor</h3>
+              <p class="small-note muted">Use the advanced visual canvas only when you want deeper layout control. Most customers can edit the normal builder first, then use this if needed.</p>
+              <div class="pbi-pro-actions">
+                <a class="btn" id="openCanvasBuilderBtn" href="/canvas-builder/">Open advanced editor</a>
+                <button class="btn-ghost" id="importCanvasExportBtn" type="button">Import advanced layout</button>
+              </div>
+              <div id="canvasImportStatus" class="notice" style="display:none;margin-top:14px"></div>
+            </div>
+            <div class="card" id="pbiAiSectionCard" data-plan-min="plus">
+              <h3>AI section helper</h3>
+              <p class="small-note muted">Use this to quickly improve the selected page wording before saving or publishing.</p>
+              <div class="grid-2">
+                <button class="btn-ghost" type="button" data-ai-rewrite="clearer">Make clearer</button>
+                <button class="btn-ghost" type="button" data-ai-rewrite="friendly">Make friendlier</button>
+                <button class="btn-ghost" type="button" data-ai-rewrite="seo">Add local SEO focus</button>
+                <button class="btn-ghost" type="button" data-ai-rewrite="shorter">Shorten</button>
+              </div>
+            </div>
+
+            <div class="card" id="pbiAutosaveCard">
+              <h3>Autosave & versions</h3>
+              <p class="small-note muted">PBI now keeps a local safety copy while the customer edits. Full cloud version history can be added next.</p>
+              <div class="pbi-autosave-row">
+                <span id="pbiAutosaveStatus">Autosave ready</span>
+                <button class="btn-ghost" id="pbiRestoreAutosaveBtn" type="button">Restore autosave</button>
+              </div>
+            </div>
+
             <div class="card">
               <h3>Project</h3>
               <div class="field"><label for="projectName">Project name</label><input id="projectName" class="input" placeholder="My business website"></div>
@@ -80,18 +221,6 @@
               <div class="field"><label for="pageMainHeading">Page main heading</label><input id="pageMainHeading" class="input" placeholder="Your Business in your local area"></div>
               <div class="field"><label for="subHeading">Sub heading</label><textarea id="subHeading" class="textarea" placeholder="Tell customers what you do in one clear paragraph."></textarea></div>
             </div>
-
-            <div class="card">
-              <h3>Template style</h3>
-              <div class="template-choice-grid">
-                <label class="template-choice"><input type="radio" name="templateStyle" value="fashion" checked><span><strong>Fresh Retail</strong><small>Bright, bold and product-led.</small></span></label>
-                <label class="template-choice"><input type="radio" name="templateStyle" value="restaurant"><span><strong>Premium Dining</strong><small>Dark, refined and atmospheric.</small></span></label>
-                <label class="template-choice"><input type="radio" name="templateStyle" value="calm"><span><strong>Calm Craft</strong><small>Soft, editorial and image-led.</small></span></label>
-                <label class="template-choice"><input type="radio" name="templateStyle" value="tech"><span><strong>Future Event</strong><small>High-energy, dark neon and modern.</small></span></label>
-                <label class="template-choice"><input type="radio" name="templateStyle" value="studio"><span><strong>Minimal Studio</strong><small>Elegant, spacious and premium.</small></span></label>
-              </div>
-            </div>
-
             <div class="card">
               <h3>Website colours</h3>
               <div class="colour-grid">
@@ -114,7 +243,7 @@
                 <div class="field"><label for="ctaButtonAction">Button action</label><select id="ctaButtonAction" class="select"><option value="contact">Scroll to contact section</option><option value="page">Go to another page</option><option value="external">Go to external website</option><option value="email">Open email</option><option value="phone">Open phone call</option><option value="none">No action</option></select></div>
               </div>
               <div class="grid-2">
-                <div class="field"><label for="ctaButtonPage">Page destination</label><select id="ctaButtonPage" class="select"><option value="contact">Contact</option><option value="services">Services</option><option value="about">About</option><option value="gallery">Gallery</option><option value="home">Home</option></select></div>
+                <div class="field"><label for="ctaButtonPage">Page destination</label><select id="ctaButtonPage" class="select"><option value="contact">Contact</option><option value="services">Services</option><option value="about">About</option><option value="gallery" data-plan-min="business">Gallery</option><option value="home">Home</option></select></div>
                 <div class="field"><label for="ctaButtonDestination">External URL, email or phone</label><input id="ctaButtonDestination" class="input" placeholder="https://example.co.uk or hello@example.co.uk"></div>
               </div>
             </div>
@@ -128,8 +257,8 @@
                     <label class="page-choice"><input type="checkbox" class="pageToggle" value="home" checked disabled><span>Home</span></label>
                     <label class="page-choice"><input type="checkbox" class="pageToggle" value="about" checked><span>About</span></label>
                     <label class="page-choice"><input type="checkbox" class="pageToggle" value="services" checked><span>Services</span></label>
-                    <label class="page-choice"><input type="checkbox" class="pageToggle" value="gallery"><span>Gallery</span></label>
-                    <label class="page-choice"><input type="checkbox" class="pageToggle" value="shop"><span>Shop</span></label>
+                    <label class="page-choice" data-plan-min="business"><input type="checkbox" class="pageToggle" value="gallery"><span>Gallery</span></label>
+                    <label class="page-choice" data-plan-min="plus"><input type="checkbox" class="pageToggle" value="shop"><span>Shop</span></label>
                     <label class="page-choice"><input type="checkbox" class="pageToggle" value="contact" checked><span>Contact</span></label>
                   </div>
                 </div>
@@ -142,7 +271,7 @@
               </div>
             </div>
 
-            <div class="card">
+            <div class="card" data-plan-min="business">
               <h3>Brand design</h3>
               <div class="field"><label for="logoUpload">Upload logo</label><input id="logoUpload" class="input" type="file" accept="image/*"></div>
               <div class="field"><label for="galleryUpload">Upload pictures</label><input id="galleryUpload" class="input" type="file" accept="image/*" multiple><p class="small-note muted">Uploaded pictures appear in the gallery preview.</p></div>
@@ -153,7 +282,7 @@
 
 
 
-            <div class="card pbi-retail-card">
+            <div class="card pbi-retail-card" data-plan-min="plus">
               <h3>Retail shop</h3>
               <p class="small-note muted">Retail V5 starter: add up to 10 products, enable a customer cart, collect shipping/tax details through Stripe Checkout, track orders and reduce stock after paid webhooks.</p>
               <div class="grid-2">
@@ -184,7 +313,7 @@
               <div id="retailProductsList" class="retail-products-editor"></div>
             </div>
 
-            <div class="card" id="builderAdvancedDesignCard">
+            <div class="card" id="builderAdvancedDesignCard" data-plan-min="plus">
               <h3>Advanced design controls</h3>
               <p class="small-note muted">Give the website a stronger custom feel by adjusting layout shape, section style, image behaviour and background treatment.</p>
               <div class="grid-2">
@@ -267,4 +396,11 @@
 
 <script src="/assets/pbi-access.js" defer></script>
 <script src="/assets/pbi-cookie-banner.js" defer></script>
+  <script src="/assets/pbi-retail-orders-visibility.js" defer></script>
+  <script src="/assets/pbi-launch-readiness.js" defer></script>
+  <script src="/assets/pbi-builder-pro.js" defer></script>
+  <script src="/assets/pbi-canvas-import.js" defer></script>
+<script src="/assets/pbi-request-capture.js" defer></script>
+<script src="/assets/pbi-builder-sections.js" defer></script>
+<script src="/assets/pbi-plan-gating.js" defer></script>
 </body></html>

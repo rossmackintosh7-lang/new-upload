@@ -1,57 +1,11 @@
-<!doctype html>
-<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PBI Admin Panel</title><link rel="stylesheet" href="/assets/styles.css"></head>
-<body data-require-admin="true" class="pbi-app-page pbi-admin-page">
-<div class="pbi-app-shell">
-  <aside class="pbi-side">
-    <a class="pbi-side-brand" href="/"><img src="/assets/PBI%20Logo.png" alt="PBI logo"></a>
-    <nav class="pbi-side-nav" aria-label="Dashboard navigation">
-      <a class="pbi-side-link" href="/dashboard/"><span>⌂</span><strong>Dashboard</strong></a><a class="pbi-side-link" href="/dashboard/"><span>□</span><strong>Projects</strong></a><a class="pbi-side-link" href="/builder/"><span>✦</span><strong>AI Builder</strong></a><a class="pbi-side-link" href="/examples/"><span>▦</span><strong>Templates</strong></a><a class="pbi-side-link pbi-admin-only" data-admin-only href="/seo-agent/"><span>◎</span><strong>SEO Agent</strong></a><a class="pbi-side-link" href="/custom-build/"><span class="code-icon">&lt;/&gt;</span><strong>Custom Builds</strong></a><a class="pbi-side-link" href="/retail-orders/"><span>🛒</span><strong>Retail Orders</strong></a><a class="pbi-side-link active pbi-admin-only" data-admin-only href="/admin/"><span>⚙</span><strong>Settings</strong></a>
-    </nav>
-    <div class="pbi-side-illustration"></div>
-    <a class="pbi-side-collapse" href="/">‹‹ Home</a>
-  </aside>
-  <div class="pbi-app-main">
-    <header class="pbi-app-topbar">
-      <div>
-        <h1>Admin panel</h1>
-        <p>Customers, projects, custom build enquiries and support in one place.</p>
-      </div>
-      <div class="pbi-app-actions"><a class="btn" href="/dashboard/">Dashboard</a><a class="btn-ghost pbi-admin-only" data-admin-only href="/seo-agent/">SEO Agent</a><button class="btn-ghost" id="adminRefreshBtn" type="button">Refresh</button></div>
-    </header>
-    <main class="pbi-app-content">
-  <div id="adminMessage" class="notice" style="display:none;margin-bottom:16px"></div>
-
-  <section class="pbi-admin-tool-grid">
-    <a class="card pbi-admin-only" data-admin-only href="/seo-agent/"><h3>SEO Agent</h3><p class="muted">Run scans, review open issues, use Fix buttons and approve suggestions from inside the admin area.</p></a>
-    <a class="card" href="/custom-build/"><h3>Custom builds</h3><p class="muted">Review enquiries and route customers to the right level of support.</p></a>
-    <a class="card" href="/dashboard/"><h3>Customer dashboard</h3><p class="muted">Open the normal customer-facing project dashboard.</p></a>
-  </section>
-  <section class="pbi-dash-kpis admin-stats-grid" id="adminStats"><div class="card">Loading admin data...</div></section>
-  <section class="pbi-launch-monitor-card">
-  <h3>Launch monitoring</h3>
-  <p class="muted">During launch, check these daily after every test/customer session.</p>
-  <ul class="pbi-launch-monitor-list">
-    <li>New accounts and failed signups</li>
-    <li>Projects created from templates</li>
-    <li>Publish attempts and live site links</li>
-    <li>Custom build enquiries and support requests</li>
-    <li>SEO issues after publishing</li>
-  </ul>
-</section>
-
-  <section class="card pbi-admin-create">
-    <div><h3>Create project for existing customer</h3><p class="muted">Creates a new draft project in their dashboard.</p></div>
-    <form id="adminCreateProjectForm" class="admin-create-form"><input class="input" name="email" type="email" placeholder="Customer email"><input class="input" name="name" placeholder="Project name"><button class="btn-ghost" type="submit">Create project</button></form>
-  </section>
-  <section class="admin-layout pbi-admin-layout">
-    <aside class="card admin-sidebar"><div class="admin-search-wrap"><label class="label" for="adminSearch">Search</label><input class="input" id="adminSearch" placeholder="Customer, project, domain, email..."></div><div class="admin-tabs"><button class="active" data-admin-tab="projects" type="button">Projects</button><button data-admin-tab="enquiries" type="button">Custom enquiries</button><button data-admin-tab="support" type="button">Support</button><button data-admin-tab="users" type="button">Users</button></div><div id="adminList" class="admin-list"></div></aside>
-    <section class="card admin-detail" id="adminDetail"><h2>Select an item</h2><p class="muted">Choose a customer project, enquiry or support request from the left. You can open the builder in admin mode and edit the same content the customer sees.</p></section>
-  </section>
-    </main>
-  </div>
-</div>
-<script src="/assets/admin.js"></script>
-
-<script src="/assets/pbi-access.js" defer></script>
-<script src="/assets/pbi-cookie-banner.js" defer></script>
-</body></html>
+<!doctype html><html lang="en-GB"><head>
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#b95624">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="PBI">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PBI Admin Command Centre • Operations Dashboard</title><meta name="robots" content="noindex,nofollow"><link rel="stylesheet" href="/assets/styles.css"><link rel="stylesheet" href="/assets/pbi-admin-v2.css"></head><body class="pbi-admin-body"><aside class="pbi-admin-sidebar"><a class="pbi-admin-logo" href="/admin/"><img src="/assets/pbi-header-logo-no-bg-20260502c.png?v=20260502c" alt="PBI"><span>Admin</span></a><nav><a href="/admin/" class="active">Command Centre</a><a href="/admin/requests/" class="">Requests</a><a href="/admin/projects/" class="">Projects</a><a href="/admin/notifications/" class="">Notifications</a><a href="/admin/custom-builds/" class="">Custom Builds</a><a href="/admin/assisted-builds/" class="">Assisted Builds</a><a href="/admin/logo-orders/" class="">Logo Orders</a><a href="/admin/domain-desk/" class="">Domain Desk</a></nav></aside><main class="pbi-admin-main"><header class="pbi-admin-header"><div><p class="eyebrow">PBI Admin</p><h1>Admin Command Centre</h1><p>Your operations cockpit for requests, customers, projects, launch checks and support work.</p></div><a class="btn" href="/admin/requests/">Open requests</a></header><section class="pbi-admin-kpi-grid" id="adminKpiGrid"></section><section class="pbi-admin-grid"><div class="pbi-admin-panel"><h2>Latest notifications</h2><div id="adminLatestNotifications" class="pbi-admin-list"></div></div><div class="pbi-admin-panel"><h2>Latest requests</h2><div id="adminLatestRequests" class="pbi-admin-list"></div></div></section><section class="pbi-admin-panel"><h2>Quick actions</h2><div class="pbi-admin-quick-grid"><a href="/admin/requests/?type=custom_build">Custom builds</a><a href="/admin/requests/?type=assisted_build">Assisted setup</a><a href="/admin/projects/">Open project</a><a href="/admin/domain-desk/">Domain desk</a><a href="/analytics/">Analytics</a><a href="/canvas-builder/">Advanced editor</a></div></section></main><script src="/assets/pbi-admin-v2.js" defer></script></body></html>

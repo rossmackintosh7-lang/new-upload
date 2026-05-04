@@ -1,54 +1,93 @@
 <!doctype html>
-<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Dashboard • PBI</title><link rel="stylesheet" href="/assets/styles.css"></head>
-<body class="pbi-app-page pbi-dashboard-page">
-<div class="pbi-app-shell">
-  <aside class="pbi-side">
-    <a class="pbi-side-brand" href="/"><img src="/assets/PBI%20Logo.png" alt="PBI logo"></a>
-    <nav class="pbi-side-nav" aria-label="Dashboard navigation">
-      <a class="pbi-side-link active" href="/dashboard/"><span>⌂</span><strong>Dashboard</strong></a><a class="pbi-side-link" href="/dashboard/"><span>□</span><strong>Projects</strong></a><a class="pbi-side-link" href="/builder/"><span>✦</span><strong>AI Builder</strong></a><a class="pbi-side-link" href="/examples/"><span>▦</span><strong>Templates</strong></a><a class="pbi-side-link pbi-admin-only" data-admin-only href="/seo-agent/"><span>◎</span><strong>SEO Agent</strong></a><a class="pbi-side-link" href="/custom-build/"><span class="code-icon">&lt;/&gt;</span><strong>Custom Builds</strong></a><a class="pbi-side-link" href="/retail-orders/"><span>🛒</span><strong>Retail Orders</strong></a><a class="pbi-side-link pbi-admin-only" data-admin-only href="/admin/"><span>⚙</span><strong>Settings</strong></a>
-    </nav>
-    <div class="pbi-side-illustration"></div>
-    <a class="pbi-side-collapse" href="/">‹‹ Home</a>
-  </aside>
-  <div class="pbi-app-main">
-    <header class="pbi-app-topbar">
-      <div>
-        <h1>Dashboard</h1>
-        <p>Manage your websites, activity and next steps in one place.</p>
+<html lang="en-GB">
+<head>
+  
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#b95624">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="PBI">
+<meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Dashboard • PBI</title>
+  <meta name="description" content="PBI customer dashboard for editing, previewing, publishing and getting help with your website.">
+  <link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body class="pbi-app-page">
+  <nav class="nav">
+    <div class="container nav-inner">
+      <a class="brand brand-logo-only" href="/"><img src="/assets/pbi-header-logo-no-bg-20260502c.png?v=20260502c?v=20260502b" alt="PBI logo" class="header-logo"></a>
+      <div class="row pbi-main-nav">
+        <a class="btn-ghost" href="/">Home</a>
+        <a class="btn-ghost" href="/examples/">Examples</a>
+        <a class="btn-ghost" href="/help/">Help</a>
+        <a class="btn" href="/builder/">Continue Editing</a>
       </div>
-      <div class="pbi-app-actions"><span id="userEmail" class="muted"></span><button class="btn-ghost" id="logoutBtn" type="button">Logout</button><button class="btn" id="newProjectBtn" type="button">Create new project</button></div>
-    </header>
-    <main class="pbi-app-content">
-  <div id="dashboardMessage" class="notice" style="display:none;margin-bottom:20px"></div>
-  <section class="pbi-support-strip">
-  <div>
-    <h3>Need help finishing your site?</h3>
-    <p>Ask for Assisted Setup if you want support with wording, layout, images, publishing or your domain before showing the site publicly.</p>
-  </div>
-  <div class="pbi-support-actions">
-    <a class="btn" href="/support/">Get support</a>
-    <a class="btn-ghost" href="/custom-build/">Request custom help</a>
-    <a class="btn-ghost" href="/contact/?type=support&subject=PBI%20support%20request">Contact PBI</a>
-  </div>
-</section>
+    </div>
+  </nav>
 
-  <section class="pbi-dash-kpis">
-    <article><span>▣</span><p>Active Projects</p><strong>Loaded live</strong></article>
-    <article><span>◎</span><p>Published Sites</p><strong>Project based</strong></article>
-    <article><span>➤</span><p>Next Best Step</p><strong>Keep building</strong></article>
-  </section>
-  <section class="pbi-dashboard-grid">
-    <div class="card pbi-project-panel"><div class="pbi-card-head"><div><h2>Recent Projects</h2><p class="muted">Your saved websites and launch actions.</p></div><a class="btn-ghost" href="/builder/">Open Builder</a></div><div id="projectList" class="project-list"><div class="notice">Loading your projects...</div></div></div>
-    <aside class="pbi-next-panel">
-      <div class="card"><h3>Next Best Steps</h3><a class="pbi-step-link" href="/examples/"><span>▦</span><b>Choose a template</b><small>Start from a full demo.</small></a><a class="pbi-step-link" href="/custom-build/"><span>◎</span><b>Improve your SEO</b><small>Ask PBI to review your SEO and suggest improvements.</small></a><a class="pbi-step-link" href="/custom-build/"><span>➤</span><b>Need help?</b><small>Request a custom build.</small></a></div>
-      <div class="card pbi-score-card"><div class="pbi-score-ring">82<span>/100</span></div><h3>Site Performance</h3><p class="muted">SEO support and performance checks can be managed by PBI when required.</p><a class="btn-ghost pbi-admin-only" data-admin-only href="/seo-agent/">View SEO Agent</a></div>
-    </aside>
-  </section>
-    </main>
-  </div>
-</div>
-<script src="/assets/currency.js"></script><script src="/assets/dashboard.js"></script>
+  <main>
+    <section class="page-hero">
+      <div class="container">
+        <p class="eyebrow">Your website dashboard</p>
+        <h1 class="section-title">Pick up where you left off.</h1>
+        <p class="hero-text">Build, edit and preview your website for free. You only pay when you choose to publish it live.</p>
+      </div>
+    </section>
 
-<script src="/assets/pbi-access.js" defer></script>
-<script src="/assets/pbi-cookie-banner.js" defer></script>
-</body></html>
+    <section class="section">
+      <div class="container pbi-customer-dashboard-grid">
+        <article class="card pbi-customer-action-card">
+          <div>
+            <h3>Continue editing</h3>
+            <p>Update your wording, images, pages, colours and layout for free before publishing.</p>
+          </div>
+          <a class="btn" href="/builder/">Open builder</a>
+        </article>
+        <article class="card pbi-customer-action-card">
+          <div>
+            <h3>Preview website</h3>
+            <p>Check how your site looks before publishing.</p>
+          </div>
+          <a class="btn-ghost" href="/builder/">Open preview</a>
+        </article>
+        <article class="card pbi-customer-action-card">
+          <div>
+            <h3>Publish website</h3>
+            <p>Run the launch checklist, then pay only when the website is ready to go live.</p>
+          </div>
+          <a class="btn" href="/pricing/">Publish / pay when live</a>
+        </article>
+        <article class="card pbi-customer-action-card">
+          <div>
+            <h3>Get help from PBI</h3>
+            <p>Ask for support, assisted setup, logo help or a custom build.</p>
+          </div>
+          <a class="btn-ghost" href="/contact/">Get help</a>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <details class="card pbi-advanced-panel">
+          <summary>Advanced tools</summary>
+          <div class="advanced-grid">
+            <a class="mini-card card" href="/canvas-builder/"><strong>Advanced layout editor</strong><span>Use the drag-and-drop canvas for deeper layout work.</span></a>
+            <a class="mini-card card" href="/analytics/"><strong>Analytics</strong><span>Review visits and useful next actions.</span></a>
+            <a class="mini-card card" href="/domain-command-centre/"><strong>Domain & email</strong><span>Connect a domain and prepare email settings.</span></a>
+            <a class="mini-card card" href="/launch-command-centre/"><strong>Launch checks</strong><span>Check content, SEO, forms, mobile and payment readiness.</span></a>
+            <a class="mini-card card" href="/platform-command-centre/"><strong>Platform tools</strong><span>Admin-style overview for PBI systems.</span></a>
+            <a class="mini-card card" href="/features/retail-starter/"><strong>Retail setup</strong><span>Products, Stripe and order foundations.</span></a>
+          </div>
+        </details>
+      </div>
+    </section>
+  </main>
+  <script src="/assets/pbi-cookie-banner.js" defer></script>
+</body>
+</html>
