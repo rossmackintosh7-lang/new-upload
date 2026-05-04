@@ -50,6 +50,12 @@ export async function onRequestPost({ request, env }) {
     const password = String(body.password || '');
     const projectName = String(body.project_name || 'Untitled website').trim();
     const templatePreset = String(body.template_preset || '').trim();
+<<<<<<< Updated upstream
+=======
+    const rawPlan = String(body.plan || '').trim().toLowerCase();
+    if (!['starter', 'business', 'plus'].includes(rawPlan)) return error('Choose a website package before creating an account.', 400);
+    const plan = rawPlan;
+>>>>>>> Stashed changes
     const token = String(body.turnstileToken || '');
     const termsAccepted = body.terms_accepted === true;
     const termsVersion = String(body.terms_version || '2026-04-28').trim();
@@ -85,14 +91,28 @@ export async function onRequestPost({ request, env }) {
     const projectData = {
       template_preset: templatePreset || '',
       project_name: projectName || 'Untitled website',
+<<<<<<< Updated upstream
       created_from_signup: true
+=======
+      created_from_signup: true,
+      selected_plan: plan,
+      plan,
+      build_is_free: true,
+      payment_due: 'publish'
+>>>>>>> Stashed changes
     };
 
     await env.DB.prepare(`
       INSERT INTO projects
+<<<<<<< Updated upstream
       (id, user_id, name, status, data_json, created_at, updated_at)
       VALUES (?, ?, ?, 'draft', ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
     `).bind(projectId, userId, projectName || 'Untitled website', JSON.stringify(projectData)).run();
+=======
+      (id, user_id, name, status, data_json, plan, created_at, updated_at)
+      VALUES (?, ?, ?, 'draft', ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+    `).bind(projectId, userId, projectName || 'Untitled website', JSON.stringify(projectData), plan).run();
+>>>>>>> Stashed changes
 
     try {
       await env.DB.prepare(`
@@ -131,7 +151,11 @@ export async function onRequestPost({ request, env }) {
     }
 
     const session = await createSession(env, userId);
+<<<<<<< Updated upstream
     return json({ ok: true, user: { id: userId, email }, project: { id: projectId, name: projectName } }, 200, {
+=======
+    return json({ ok: true, user: { id: userId, email }, project: { id: projectId, name: projectName, plan } }, 200, {
+>>>>>>> Stashed changes
       'Set-Cookie': makeSetCookie('session_id', session.id, 60 * 60 * 24 * 30, true)
     });
   } catch (err) {

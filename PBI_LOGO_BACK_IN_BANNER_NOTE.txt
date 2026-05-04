@@ -1,0 +1,1 @@
+Patched the public header logo so it sits back inside the top banner at a smaller size. No dashboard redesign has been applied in this build; dashboard review is in the chat response.

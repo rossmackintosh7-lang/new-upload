@@ -1,0 +1,2 @@
+Removed the visible Launch testing mode notice from /payment/.
+PBI_REQUIRE_PAYMENT_TO_PUBLISH remains false in wrangler.toml unless you manually change it.

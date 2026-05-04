@@ -1,0 +1,28 @@
+PBI STRIPE PRICE IDS ADDED
+
+Added the Stripe Price IDs supplied from your Stripe screenshots into wrangler.toml [vars]:
+
+STRIPE_PRICE_STARTER = price_1TQkSiS5Wx1jQ43vmL9MywGU
+STRIPE_PRICE_BUSINESS = price_1TQkTDS5Wx1jQ43vAAJ2e1eX
+STRIPE_PRICE_PLUS = price_1TQkThS5Wx1jQ43vm0p1XAv2
+STRIPE_PRICE_ASSISTED_SETUP = price_1TQkU8S5Wx1jQ43vb0stUBnG
+STRIPE_PRICE_CUSTOM_DEPOSIT = price_1TQn8b5SWx1jQ43vaEMcza6I
+STRIPE_PRICE_DOMAIN_MANAGEMENT_YEARLY = price_1TQkVRS5Wx1jQ43vnq8AP6wN
+
+Launch testing remains:
+PBI_REQUIRE_PAYMENT_TO_PUBLISH = false
+
+That means:
+- The plan buttons can complete the test publish flow without Stripe blocking.
+- When you later set PBI_REQUIRE_PAYMENT_TO_PUBLISH = true, the same buttons will use these Stripe prices for checkout.
+
+Still keep these as Cloudflare Secrets:
+- STRIPE_SECRET_KEY
+- STRIPE_WEBHOOK_SECRET
+- OPENAI_API_KEY
+- RESEND_API_KEY
+- TURNSTILE_SECRET_KEY
+- CLOUDFLARE_API_TOKEN
+- PBI_ADMIN_TOKEN
+
+Do not commit secret keys to GitHub.

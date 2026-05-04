@@ -1,0 +1,1 @@
+This build makes the package selection happen before signup/builder access. Pricing plan buttons carry plan into signup; signup requires a plan; auth/signup stores plan on the project; dashboard edit links carry project plan; builder refuses to open without a selected or project-stored package. All previous final build updates remain included.

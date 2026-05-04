@@ -5622,3 +5622,84 @@ body:not(.pbi-app-page) .nav-inner{
   .pbi-package strong{ grid-column: 2; }
   .pbi-package-visual{ width:78px; height:64px; }
 }
+<<<<<<< Updated upstream
+=======
+
+
+/* ==========================================================
+   FINAL PATCH: lower public header logo slightly so the top
+   of the PBI logo is fully visible without changing banner size.
+   ========================================================== */
+body:not(.pbi-app-page) .brand-logo-only{
+  align-items: flex-start !important;
+}
+body:not(.pbi-app-page) .header-logo{
+  margin-top: 10px !important;
+  margin-bottom: 0 !important;
+}
+@media(max-width:780px){
+  body:not(.pbi-app-page) .header-logo{
+    margin-top: 6px !important;
+  }
+}
+
+
+/* ==========================================================
+   FINAL LOGO RESET: keep the PBI logo inside the top banner
+   and reduce its public header size.
+   ========================================================== */
+body:not(.pbi-app-page) .nav{
+  overflow: visible !important;
+}
+
+body:not(.pbi-app-page) .nav-inner{
+  min-height: 92px !important;
+  height: 92px !important;
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+  align-items: center !important;
+  overflow: visible !important;
+}
+
+body:not(.pbi-app-page) .brand-logo-only{
+  height: 76px !important;
+  max-width: 190px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  overflow: visible !important;
+}
+
+body:not(.pbi-app-page) .header-logo,
+body:not(.pbi-app-page) .brand-logo-only img{
+  width: clamp(118px, 12vw, 165px) !important;
+  max-width: 165px !important;
+  height: auto !important;
+  max-height: 76px !important;
+  object-fit: contain !important;
+  margin: 0 !important;
+  transform: none !important;
+}
+
+@media(max-width: 780px){
+  body:not(.pbi-app-page) .nav-inner{
+    min-height: 76px !important;
+    height: 76px !important;
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
+  }
+
+  body:not(.pbi-app-page) .brand-logo-only{
+    height: 62px !important;
+    max-width: 132px !important;
+  }
+
+  body:not(.pbi-app-page) .header-logo,
+  body:not(.pbi-app-page) .brand-logo-only img{
+    width: 118px !important;
+    max-width: 118px !important;
+    max-height: 62px !important;
+  }
+}
+
+>>>>>>> Stashed changes

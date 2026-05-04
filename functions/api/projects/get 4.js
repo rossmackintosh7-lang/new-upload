@@ -92,7 +92,11 @@ export async function onRequestGet({ request, env }) {
 
     const project = await env.DB.prepare(
       `
+<<<<<<< Updated upstream
       SELECT id, user_id, name, status, data_json, created_at, updated_at
+=======
+      SELECT id, user_id, name, status, data_json, plan, billing_status, created_at, updated_at
+>>>>>>> Stashed changes
       FROM projects
       WHERE id = ? AND user_id = ?
       LIMIT 1
