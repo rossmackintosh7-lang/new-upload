@@ -1,0 +1,22 @@
+PBI Leading Builder Patch
+
+Changed-files-only patch for the PBI build.
+
+Adds:
+- More fluid visual editing in the builder preview.
+- Direct editable preview text for headings, buttons and card content.
+- Richer premium template section flow: split hero, trust band, services, process, feature grid, gallery, testimonial, FAQ, contact and CTA.
+- Smart Polish button to tighten layout rhythm, spacing and colours.
+- Add Premium Flow button to add a stronger conversion section sequence.
+- Canvas Studio link from the main builder.
+- Canvas Builder block upgrades: trust band, process, stats, comparison and richer card editing.
+- AI generation endpoint now requests and returns richer premium section layouts, not just plain content blocks.
+- Local AI fallback now creates a fuller premium page when OpenAI keys are not configured.
+
+Files changed:
+- assets/pbi-builder-sections.js
+- assets/pbi-canvas-builder.js
+- assets/styles.css
+- canvas-builder/index.html
+- functions/api/builder/template-sections.js
+- functions/api/ai/generate-site.js

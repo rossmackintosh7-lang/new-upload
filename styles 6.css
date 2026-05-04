@@ -5622,3 +5622,21 @@ body:not(.pbi-app-page) .nav-inner{
   .pbi-package strong{ grid-column: 2; }
   .pbi-package-visual{ width:78px; height:64px; }
 }
+
+
+/* ==========================================================
+   FINAL PATCH: lower public header logo slightly so the top
+   of the PBI logo is fully visible without changing banner size.
+   ========================================================== */
+body:not(.pbi-app-page) .brand-logo-only{
+  align-items: flex-start !important;
+}
+body:not(.pbi-app-page) .header-logo{
+  margin-top: 10px !important;
+  margin-bottom: 0 !important;
+}
+@media(max-width:780px){
+  body:not(.pbi-app-page) .header-logo{
+    margin-top: 6px !important;
+  }
+}

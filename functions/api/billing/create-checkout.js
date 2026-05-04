@@ -18,6 +18,27 @@ const PLAN_NAMES = {
 
 const ONE_TIME_PAYMENT_PLANS = new Set(['assisted_setup', 'custom_build_deposit']);
 
+function envValue(env, name) {
+  return String(env?.[name] || '').trim();
+}
+
+function usableEnv(env, name) {
+  const value = envValue(env, name);
+  if (!value || /^your_|^add_|^todo|placeholder/i.test(value)) return '';
+  return value;
+}
+
+function getPriceId(env, plan) {
+  const primary = PLAN_PRICE_ENV[plan];
+  const alias = `STRIPE_PRICE_${String(plan || '').toUpperCase().replace(/[^A-Z0-9]+/g, '_')}`;
+  return usableEnv(env, primary) || usableEnv(env, alias);
+}
+
+function getStripeSecret(env) {
+  const value = usableEnv(env, 'STRIPE_SECRET_KEY');
+  return /^sk_(test|live)_/.test(value) ? value : '';
+}
+
 function getOrigin(request) {
   const url = new URL(request.url);
   return `${url.protocol}//${url.host}`;
@@ -137,7 +158,8 @@ export async function onRequestPost({ request, env }) {
   if (!project) return error('Project not found.', 404);
 
   const projectData = parseProjectData(project);
-  const priceId = env[PLAN_PRICE_ENV[plan]];
+  const priceId = getPriceId(env, plan);
+  const stripeSecret = getStripeSecret(env);
   const checkoutMode = ONE_TIME_PAYMENT_PLANS.has(plan) ? 'payment' : 'subscription';
   const paymentRequired = env.PBI_REQUIRE_PAYMENT_TO_PUBLISH !== 'false';
 
@@ -191,7 +213,7 @@ export async function onRequestPost({ request, env }) {
     domainRegistration = { ...domainRegistration, name: selectedDomain };
   }
 
-  if (!env.STRIPE_SECRET_KEY || !priceId) {
+  if (!stripeSecret || !priceId) {
     if (!ONE_TIME_PAYMENT_PLANS.has(plan)) {
       await env.DB
         .prepare(`UPDATE projects SET plan = ?, domain_option = ?, billing_status = 'setup_required', updated_at = datetime('now') WHERE id = ? AND user_id = ?`)
@@ -203,7 +225,7 @@ export async function onRequestPost({ request, env }) {
       ok: true,
       setup_required: true,
       missing: {
-        stripe_secret_key: !env.STRIPE_SECRET_KEY,
+        stripe_secret_key: !stripeSecret,
         price_variable: !priceId ? PLAN_PRICE_ENV[plan] : ''
       },
       message: `Stripe checkout is not fully connected yet. Add STRIPE_SECRET_KEY as a Cloudflare Secret and add ${PLAN_PRICE_ENV[plan]} as a GitHub/wrangler variable using the correct Stripe price_... ID for ${PLAN_NAMES[plan]}.`
@@ -269,7 +291,7 @@ export async function onRequestPost({ request, env }) {
   const response = await fetch('https://api.stripe.com/v1/checkout/sessions', {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${env.STRIPE_SECRET_KEY}`,
+      Authorization: `Bearer ${stripeSecret}`,
       'Content-Type': 'application/x-www-form-urlencoded'
     },
     body: encodeForm(form)
