@@ -1,7 +1,8 @@
 (() => {
   const params = new URLSearchParams(window.location.search);
   const projectId = params.get("project") || "draft";
-  const preset = params.get("preset") || "";
+  const requestedPreset = params.get("preset") || params.get("template") || localStorage.getItem("pbi_selected_template") || "";
+  const preset = requestedPreset;
   const canvasKey = `pbi_canvas_${projectId}`;
   const versionsKey = `pbi_canvas_versions_${projectId}`;
   const cmsKey = `pbi_cms_${projectId}`;
@@ -210,48 +211,23 @@
   }
 
   function templateBlocks(name = "local-service") {
-    const storyMap = {
-      "premium-cafe": { key: "cafe", business: "Harbour Table", hero: "Seasonal brunch, good coffee and a table worth slowing down for.", intro: "Menus, opening times, bookings and a warm local story all flow from the first screen.", services: "Breakfast & brunch::Seasonal plates, coffee and cakes made easy to browse|House-baked treats::Show favourites, dietary notes and takeaway options|Private bookings::Make table enquiries and small events obvious", process: "Browse::Customers see the menu and atmosphere quickly|Book::The booking route is clear on every page|Visit::Opening times, location and contact details are easy to find", proof: "4.8★ local favourite::Add review proof near the top|Fresh daily::Create confidence around quality|Easy bookings::Make the next step simple", cta: "Book a table" },
-      "trades-pro": { key: "trades", business: "South Coast Plumbing & Heating", hero: "Reliable local plumbing and heating with fast quote requests.", intro: "A trust-first service website with emergency callouts, local coverage and proof before the enquiry button.", services: "Boiler installs::Explain the work, warranty and quote route|Bathroom fitting::Show project photos and service scope|Emergency repairs::Highlight response areas and contact method", process: "Call or enquire::Customers explain the job|Quote clearly::You confirm timings and likely cost|Complete safely::Show insurance, standards and aftercare", proof: "Fully insured::Trust marker for cautious customers|Local callouts::Service area made obvious|Clear pricing route::Quote requests feel low-friction", cta: "Request a quote" },
-      "salon-luxe": { key: "salon", business: "Luna Hair & Beauty Studio", hero: "A calm salon website that turns browsers into booked appointments.", intro: "Treatments, pricing, gallery images and appointment prompts wrapped in a polished beauty layout.", services: "Colour & cut::Show signature services and price starting points|Beauty treatments::Make treatment categories easy to compare|Bridal styling::Create a premium enquiry path for special occasions", process: "Choose treatment::Visitors compare services quickly|Send request::Booking prompts follow the page|Arrive relaxed::Location, hours and notes are easy to find", proof: "Calm studio feel::Visual trust before booking|Treatment menu ready::Clear categories reduce friction|Gallery-led proof::Show real results and space", cta: "Book appointment" },
-      "consultant-authority": { key: "consultant", business: "Northpoint Consulting", hero: "Make your expertise obvious before the first call.", intro: "Authority, outcomes, proof and a discovery-call route for consultants, coaches and advisory businesses.", services: "Discovery workshops::Clarify problems and priorities|Operational strategy::Turn findings into practical plans|Team training::Support implementation and improvement", process: "Diagnose::Understand the business clearly|Plan::Build a practical improvement route|Embed::Train teams and review progress", proof: "Outcome-led copy::The offer is clear|Case-study rhythm::Proof appears naturally|Call-booking ready::Conversion path is tidy", cta: "Book discovery call" },
-      "holiday-stay": { key: "holiday", business: "Cliffside Retreat", hero: "Sell the stay with atmosphere, amenities and easy enquiries.", intro: "Image-led accommodation pages with guest proof, local area storytelling and availability prompts.", services: "Sleeps 6 guests::Summarise the essentials fast|Sea-view stay::Lead with what makes the property memorable|Local guide::Show nearby beaches, walks and food spots", process: "Explore::Guests understand the stay quickly|Check dates::Availability CTA stays visible|Book confidently::FAQs and guest proof reduce doubt", proof: "Image-led layout::The property does the talking|Guest-friendly flow::Important details are easy to scan|Availability CTA::Booking route is never buried", cta: "Check availability" },
-      "retail-launch": { key: "shop", business: "Willow & Pine Home", hero: "A boutique shopfront that makes products easy to browse.", intro: "A product-led retail page with collection cards, promotions, proof and Stripe-ready checkout prompts.", services: "Gift bundles::Highlight curated picks and seasonal bundles|Homeware picks::Show product ranges with strong images|Seasonal launches::Create urgency without clutter", process: "Browse::Collections are clear|Choose::Product cards explain value|Checkout::Payment route is obvious when connected", proof: "Product-led design::The shop feels visual|Stripe-ready path::Checkout can be connected|Offer banners::Promotions have space", cta: "Browse collection" },
-      "mobile-mechanic": { key: "trades", business: "Roadside Ready Mechanics", hero: "Mobile repairs, servicing and diagnostics brought to the customer.", intro: "A fast, confidence-led template for mobile mechanics, roadside support and local vehicle repair.", services: "Mobile servicing::Explain what can be done at home or work|Diagnostics::Make fault-finding feel simple|Emergency callouts::Show response areas and urgent contact options", process: "Tell us the issue::Customer sends vehicle details|We confirm the visit::Clear timing and quote route|Repair on site::Explain aftercare and payment", proof: "Comes to you::Convenience is the hook|Transparent quotes::Trust before callout|Local coverage::Customers know if you serve them", cta: "Book mobile visit" },
-      "dog-groomer": { key: "salon", business: "Wag & Wash Grooming", hero: "Friendly dog grooming with clear treatments and simple booking.", intro: "Packages, calm handling notes, before-and-after proof and appointment requests for pet-service businesses.", services: "Full groom::Bath, dry, trim and tidy in one package|Puppy intro::Make first visits feel safe|Nail trim::Promote simple repeat bookings", process: "Choose package::Owners see the right service|Share dog details::Collect size, breed and behaviour notes|Book calmly::Make the visit feel safe and easy", proof: "Calm handling::Important reassurance|Breed-friendly packages::Service clarity|Easy bookings::Simple appointment route", cta: "Book a groom" },
-      "cleaning-pro": { key: "consultant", business: "Brightside Cleaning Co.", hero: "Reliable home and business cleaning with simple quote requests.", intro: "A clean, practical template for domestic cleaning, commercial cleans and end-of-tenancy work.", services: "Regular cleans::Weekly and fortnightly plans explained clearly|Deep cleans::Show what is included|End-of-tenancy::Create a quote-led page for landlords and tenants", process: "Tell us the space::Collect property and cleaning needs|Receive a quote::Clear scope and availability|Enjoy the result::Aftercare and repeat bookings", proof: "Checklist-led service::Professional and reassuring|Domestic or commercial::Flexible positioning|Quote-focused::No confusing next step", cta: "Get cleaning quote" },
-      "personal-trainer": { key: "cafe", business: "Forge Fitness Coaching", hero: "Personal training that feels clear, focused and achievable.", intro: "Programmes, transformation proof, FAQs and consultation booking for trainers and fitness coaches.", services: "1:1 coaching::Tailored training and accountability|Small group PT::Community-focused sessions|Nutrition support::Practical habit coaching", process: "Assess::Understand goals and starting point|Train::Follow a focused plan|Track::Review progress and adapt", proof: "Goal-led programmes::Clear outcomes|Progress tracking::Visible credibility|First-session CTA::Low-friction start", cta: "Book consultation" },
-      "restaurant": { key: "cafe", business: "The Lantern Room", hero: "A restaurant website built for menus, atmosphere and reservations.", intro: "Food-led storytelling with featured dishes, opening hours, private dining and booking prompts.", services: "Seasonal menu::Lead with current dishes and produce|Private dining::Create a premium enquiry route|Sunday lunch::Promote your strongest weekly offer", process: "Browse menu::Make food the focus|Reserve::Booking CTA stays visible|Visit::Location and hours are easy", proof: "Menu-first layout::Customers find what matters|Booking CTA::Conversion is clear|Food-led storytelling::Atmosphere sells the visit", cta: "Reserve a table" },
-      "local-service": { key: "trades", business: "Local Service Pro", hero: "A trustworthy local business website with clear enquiry flow.", intro: "A complete starting point with services, proof, process, FAQs and contact routes.", services: "Core service::Explain the job clearly|Specialist support::Show where you add value|Aftercare::Build trust beyond the sale", process: "Understand::Visitors see the offer quickly|Trust::Proof and details remove doubt|Act::The next step is obvious", proof: "Clear offer::No guessing|Proof built in::Trust appears early|Easy next step::CTA stays visible", cta: "Get started" }
-    };
-    const story = storyMap[name] || storyMap["local-service"];
-    const p = palettes[story.key] || palettes.trades || palettes.consultant;
-    const base = [
-      block("navBar", { title: story.business, text: "Home|Services|Proof|FAQs|Contact", button: story.cta, background: "#fffdf8", accent: p.accent }),
-      block("splitHero", { title: story.hero, text: story.intro, button: story.cta, image: p.image, background: p.bg, accent: p.accent, padding: "spacious", animation: "rise" }),
-      block("floatingCard", { title: "Launch-ready", text: "Drag this proof badge anywhere on desktop. Use it for awards, reviews or current offers.", button: "View proof", background: "#ffffff", accent: p.accent, x: 72, y: 210, width: 320, rotate: -2 }),
-      block("trustBand", { title: "Why customers trust this business.", text: story.proof, background: "#ffffff", accent: p.accent, animation: "stagger" }),
-      block("services", { title: `${story.business} services`, text: story.services, button: story.cta, background: p.soft, accent: p.accent }),
-      block("process", { title: "A simple route from interest to action.", text: story.process, background: p.bg, accent: p.accent }),
-      block("stats", { title: "Confidence signals at a glance.", text: "Fast::Enquiry path|Mobile::Responsive|SEO::Structured|Trust::Proof-led", background: "#ffffff", accent: p.accent }),
-      block("featureGrid", { title: "Built for trust polish.", text: "Clear first impression::The offer is understood quickly|Human proof::Testimonials, process and FAQs reduce doubt|Mobile rhythm::Sections are easy to scan on phones|Publish-ready::The page ends with a strong next step", background: "#ffffff", accent: p.accent }),
-      block("gallery", { title: "Real images make the page believable.", text: (p.gallery || []).join("|"), background: p.soft, accent: p.accent }),
-      block("testimonial", { title: "What customers should feel here.", text: "“The page made it clear what the business does, why to trust them and how to take the next step.”", background: p.deep, accent: "#ffffff", animation: "fade" }),
-      block("cmsList", { title: "Latest updates, guides and proof.", text: "Blog::Useful advice for customers|Case study::A recent result or project|Service::A deeper page for one offer", background: p.soft, accent: p.accent }),
-      block("faq", { title: "Helpful answers before customers ask.", text: "How quickly can I get started?|Send an enquiry and we will respond with the next step.\nCan I change this website later?|Yes, pages, sections, CMS entries and imagery can be edited.\nIs it mobile-friendly?|Yes, every template is designed to work on phone, tablet and desktop.", button: "Ask a question", background: p.bg, accent: p.accent }),
-      block("contact", { title: story.cta, text: "Add phone, email, location, opening hours and anything customers should include in their message.", button: story.cta, background: "#ffffff", accent: p.accent }),
-      block("cta", { title: "Ready to take the next step?", text: "This final section turns interest into action with one clear customer route.", button: story.cta, background: p.accent, accent: "#ffffff" })
-    ];
-    if (["retail-launch"].includes(name)) base.splice(8, 0, block("productGrid", { title: "Featured products", background: p.bg, accent: p.accent, image: p.image }));
-    if (["premium-cafe", "restaurant", "salon-luxe", "dog-groomer", "personal-trainer"].includes(name)) base.splice(10, 0, block("booking", { title: story.cta, background: p.bg, accent: p.accent }));
-    if (["holiday-stay", "mobile-mechanic", "cleaning-pro", "trades-pro"].includes(name)) base.splice(10, 0, block("map", { title: "Local area and coverage", background: p.bg, accent: p.accent }));
+    const map = {"premium-cafe":"cafe","local-service":"trades","salon-signature":"salon","consultant-authority":"consultant","holiday-stay":"holiday-let","retail-launch":"shop","mobile-mechanic":"mobile-mechanic","dog-groomer":"dog-groomer","cleaner":"cleaner","personal-trainer":"personal-trainer","restaurant-signature":"restaurant"};
+    const key = map[name] || "trades";
+    const presets = (window.PBITemplatePresets && window.PBITemplatePresets.presets) || {};
+    const presetData = presets[key] || presets.cafe || {};
+    const p = { accent: presetData.accent || "#bf5c29", bg: presetData.background || "#fff8f1", deep: presetData.text || "#2b1b14", soft: "#ffffff", image: presetData.heroImage || "", gallery: Array.isArray(presetData.galleryImages) && presetData.galleryImages.length ? presetData.galleryImages : [presetData.heroImage || ""] };
+    const business = presetData.subHeading || "A premium starting point with stronger structure and more personality.";
+    const base = [block("navBar", { title: presetData.businessName || "PBI Preview", background: "#fffdf8", accent: p.accent }), block("splitHero", { title: presetData.pageMainHeading || business, text: business, image: p.image, background: p.bg, accent: p.accent }), block("floatingCard", { title: "Drag me", text: "Freeform card. Move this on desktop to create a less rigid hero composition.", button: "See proof", background: "#ffffff", accent: p.accent, x: 72, y: 210, width: 310, rotate: -2 }), block("trustBand", { background: "#ffffff", accent: p.accent }), block("services", { background: p.soft, accent: p.accent }), block("process", { background: p.bg, accent: p.accent }), block("featureGrid", { background: "#ffffff", accent: p.accent }), block("gallery", { text: p.gallery.join("|"), background: p.soft, accent: p.accent }), block("testimonial", { background: p.deep }), block("faq", { background: p.bg, accent: p.accent }), block("cta", { background: p.accent, accent: "#ffffff" })];
+    if (key === "shop") base.splice(7, 0, block("productGrid", { background: p.bg, accent: p.accent, image: p.image }));
+    if (["cafe", "restaurant"].includes(key)) base.splice(9, 0, block("booking", { background: p.bg, accent: p.accent }));
+    if (key === "holiday-let") base.splice(8, 0, block("map", { background: p.bg, accent: p.accent }));
+    if (key === "consultant") base.splice(8, 0, block("cmsList", { background: p.soft, accent: p.accent }));
     return base;
   }
 
   function initialBlocksForPreset() {
-    const presetMap = { shop: "retail-launch", cafe: "premium-cafe", "holiday-let": "holiday-stay", consultant: "consultant-authority", trades: "trades-pro", salon: "salon-luxe", mechanic: "mobile-mechanic", cleaner: "cleaning-pro", dog: "dog-groomer", fitness: "personal-trainer", restaurant: "restaurant" };
-    const key = presetMap[preset] || preset || "local-service";
-    return templateBlocks(key);
+    const map = {shop:"retail-launch", cafe:"premium-cafe", salon:"salon-signature", consultant:"consultant-authority", "holiday-let":"holiday-stay", trades:"local-service", "mobile-mechanic":"mobile-mechanic", "dog-groomer":"dog-groomer", cleaner:"cleaner", "personal-trainer":"personal-trainer", restaurant:"restaurant-signature"};
+    return templateBlocks(map[preset] || "local-service");
   }
 
   function initialPages() {
@@ -266,19 +242,30 @@
     return { id: uid("page"), title, slug: slugify(slug || title), blocks: (blocks || []).map(normaliseBlock), updatedAt: new Date().toISOString() };
   }
 
-  function loadState() {
-    try {
-      const saved = JSON.parse(localStorage.getItem(canvasKey) || "null");
-      if (saved) return normaliseState(saved);
-    } catch (_) {}
+  function freshState() {
     return normaliseState({
       projectId,
       title: "Untitled PBI visual site",
       theme: { ...defaultTheme },
       pages: initialPages(),
       activePageId: "",
+      selectedTemplate: preset || "",
       updatedAt: new Date().toISOString()
     });
+  }
+
+  function loadState() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(canvasKey) || "null");
+      if (saved) {
+        const forcedTemplate = params.get("preset") || params.get("template") || localStorage.getItem("pbi_selected_template") || "";
+        if (projectId === "draft" && forcedTemplate && saved.selectedTemplate !== forcedTemplate) {
+          return freshState();
+        }
+        return normaliseState(saved);
+      }
+    } catch (_) {}
+    return freshState();
   }
 
   function normaliseState(input = {}) {
@@ -302,6 +289,7 @@
       pages,
       activePageId,
       blocks: active.blocks,
+      selectedTemplate: input.selectedTemplate || preset || "",
       updatedAt: input.updatedAt || new Date().toISOString()
     };
   }
@@ -580,20 +568,10 @@
     $$('[data-layer-id]', list).forEach((button) => button.addEventListener("click", () => { selectedId = button.dataset.layerId; render(); }));
   }
 
-
-  function updateCmsPublicUrlPreview() {
-    const el = $("cmsPublicUrlPreview");
-    if (!el) return;
-    const type = $("cmsItemType")?.value || "blog";
-    const title = $("cmsItemTitle")?.value || "example-post";
-    const slug = slugify($("cmsItemSlug")?.value || title);
-    el.textContent = `/site/canvas/your-site/${type}/${slug}/`;
-  }
-
   function renderCms() {
     const list = $("cmsItemsList");
     if (!list) return;
-    list.innerHTML = cmsItems.length ? cmsItems.map((entry) => `<article><strong>${escapeHtml(entry.title)}</strong><small>${escapeHtml(entry.type)} • ${escapeHtml(entry.status || "draft")} • /${escapeHtml(entry.slug || slugify(entry.title))}</small><p>${escapeHtml(entry.excerpt || entry.text || entry.body || "")}</p><code>/site/canvas/site-slug/${escapeHtml(entry.type || "blog")}/${escapeHtml(entry.slug || slugify(entry.title))}/</code><button type="button" data-cms-edit="${entry.id}">Edit</button><button type="button" data-cms-remove="${entry.id}">Remove</button></article>`).join("") : '<p class="small-note muted">No CMS entries yet.</p>';
+    list.innerHTML = cmsItems.length ? cmsItems.map((entry) => `<article><strong>${escapeHtml(entry.title)}</strong><small>${escapeHtml(entry.type)} • ${escapeHtml(entry.status || "draft")} • /${escapeHtml(entry.slug || slugify(entry.title))}</small><p>${escapeHtml(entry.text)}</p><button type="button" data-cms-edit="${entry.id}">Edit</button><button type="button" data-cms-remove="${entry.id}">Remove</button></article>`).join("") : '<p class="small-note muted">No CMS entries yet.</p>';
     $$('[data-cms-remove]', list).forEach((button) => button.addEventListener("click", () => {
       cmsItems = cmsItems.filter((entry) => entry.id !== button.dataset.cmsRemove);
       saveCms();
@@ -607,11 +585,7 @@
       setValue("cmsItemType", entry.type || "blog");
       setValue("cmsItemSlug", entry.slug || slugify(entry.title));
       setValue("cmsItemStatus", entry.status || "draft");
-      setValue("cmsItemText", entry.text || entry.body || "");
-        setValue("cmsItemExcerpt", entry.excerpt || "");
-        setValue("cmsItemSeoTitle", entry.seo_title || entry.title || "");
-        setValue("cmsItemSeoDescription", entry.seo_description || entry.excerpt || "");
-        updateCmsPublicUrlPreview();
+      setValue("cmsItemText", entry.text || "");
     }));
   }
 
@@ -927,9 +901,6 @@
   function addOrUpdateCmsItem() {
     const title = $("cmsItemTitle")?.value.trim();
     const text = $("cmsItemText")?.value.trim();
-    const excerpt = $("cmsItemExcerpt")?.value.trim();
-    const seoTitle = $("cmsItemSeoTitle")?.value.trim();
-    const seoDescription = $("cmsItemSeoDescription")?.value.trim();
     if (!title && !text) return;
     const slug = slugify($("cmsItemSlug")?.value || title);
     const type = $("cmsItemType")?.value || "blog";
@@ -938,16 +909,12 @@
     if (existing) {
       existing.title = title || existing.title;
       existing.text = text || existing.text;
-      existing.body = text || existing.body || existing.text;
-      existing.excerpt = excerpt || existing.excerpt || String(text || existing.text || "").slice(0, 160);
-      existing.seo_title = seoTitle || existing.seo_title || title;
-      existing.seo_description = seoDescription || existing.seo_description || existing.excerpt;
       existing.status = status;
       existing.updated_at = new Date().toISOString();
     } else {
-      cmsItems.unshift({ id: uid("cms"), type, title: title || "Untitled entry", slug, status, text: text || "Short summary", body: text || "Short summary", excerpt: excerpt || String(text || "Short summary").slice(0, 160), seo_title: seoTitle || title || "Untitled entry", seo_description: seoDescription || excerpt || String(text || "Short summary").slice(0, 160), updated_at: new Date().toISOString() });
+      cmsItems.unshift({ id: uid("cms"), type, title: title || "Untitled entry", slug, status, text: text || "Short summary", updated_at: new Date().toISOString() });
     }
-    ["cmsItemTitle", "cmsItemSlug", "cmsItemText", "cmsItemExcerpt", "cmsItemSeoTitle", "cmsItemSeoDescription"].forEach((id) => { const el = $(id); if (el) el.value = ""; });
+    ["cmsItemTitle", "cmsItemSlug", "cmsItemText"].forEach((id) => { const el = $(id); if (el) el.value = ""; });
     saveCms();
     cloudSaveCms();
     render();
@@ -1115,7 +1082,7 @@
       if (home) {
         home.title = "Home";
         home.slug = "home";
-        home.blocks = templateBlocks(key === "cafe" ? "premium-cafe" : key === "shop" ? "retail-launch" : key === "holiday" ? "holiday-stay" : key === "consultant" ? "consultant-authority" : key === "mechanic" ? "mobile-mechanic" : key === "dog" ? "dog-groomer" : key === "cleaner" ? "cleaning-pro" : key === "fitness" ? "personal-trainer" : key === "restaurant" ? "restaurant" : "trades-pro");
+        home.blocks = templateBlocks(key === "cafe" ? "premium-cafe" : key === "shop" ? "retail-launch" : key === "holiday" ? "holiday-stay" : key === "consultant" ? "consultant-authority" : "local-service");
       }
       selectedId = currentBlocks()[0]?.id || null;
       saveVersion("Fallback full-site AI canvas");
@@ -1127,12 +1094,7 @@
   function kindFromText(value) {
     const lower = String(value || "").toLowerCase();
     if (/shop|retail|product|sell|ecommerce/.test(lower)) return "shop";
-    if (/mechanic|garage|vehicle|car|mot|diagnostic|roadside/.test(lower)) return "mechanic";
-    if (/dog|pet|groom|puppy/.test(lower)) return "dog";
-    if (/clean|cleaner|cleaning|tenancy|domestic|commercial clean/.test(lower)) return "cleaner";
-    if (/gym|fitness|personal trainer|pt|coach|training/.test(lower)) return "fitness";
-    if (/restaurant|dining|reservation|sunday lunch/.test(lower)) return "restaurant";
-    if (/cafe|coffee|food|bakery|brunch/.test(lower)) return "cafe";
+    if (/cafe|restaurant|coffee|food|bakery|brunch/.test(lower)) return "cafe";
     if (/plumb|electric|trade|builder|landscap|heating|roof|carpenter/.test(lower)) return "trades";
     if (/salon|beauty|hair|wellness|spa|massage/.test(lower)) return "salon";
     if (/holiday|glamping|let|stay|accommodation|bnb|guest/.test(lower)) return "holiday";
@@ -1344,6 +1306,8 @@
         pushHistory();
         const title = button.querySelector("strong")?.textContent || "PBI premium visual site";
         state.title = title;
+        state.selectedTemplate = button.dataset.templatePack || "";
+        localStorage.setItem("pbi_selected_template", state.selectedTemplate);
         setCurrentBlocks(templateBlocks(button.dataset.templatePack));
         selectedId = currentBlocks()[0]?.id || null;
         saveVersion(`Loaded ${title}`);
@@ -1398,7 +1362,6 @@
     $("canvasAddPageBtn")?.addEventListener("click", addPage);
     $("canvasDuplicatePageBtn")?.addEventListener("click", duplicatePage);
     $("canvasDeletePageBtn")?.addEventListener("click", deletePage);
-    ["cmsItemTitle", "cmsItemType", "cmsItemSlug"].forEach((id) => $(id)?.addEventListener("input", updateCmsPublicUrlPreview));
     $("cmsAddItemBtn")?.addEventListener("click", addOrUpdateCmsItem);
     $("cmsCloudSaveBtn")?.addEventListener("click", cloudSaveCms);
     $("cmsCloudLoadBtn")?.addEventListener("click", cloudLoadCms);
