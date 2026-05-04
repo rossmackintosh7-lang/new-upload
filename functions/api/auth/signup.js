@@ -50,8 +50,9 @@ export async function onRequestPost({ request, env }) {
     const password = String(body.password || '');
     const projectName = String(body.project_name || 'Untitled website').trim();
     const templatePreset = String(body.template_preset || '').trim();
-    const rawPlan = String(body.plan || 'starter').trim().toLowerCase();
-    const plan = ['starter', 'business', 'plus'].includes(rawPlan) ? rawPlan : 'starter';
+    const rawPlan = String(body.plan || '').trim().toLowerCase();
+    if (!['starter', 'business', 'plus'].includes(rawPlan)) return error('Choose a website package before creating an account.', 400);
+    const plan = rawPlan;
     const token = String(body.turnstileToken || '');
     const termsAccepted = body.terms_accepted === true;
     const termsVersion = String(body.terms_version || '2026-04-28').trim();
@@ -88,7 +89,10 @@ export async function onRequestPost({ request, env }) {
       template_preset: templatePreset || '',
       project_name: projectName || 'Untitled website',
       created_from_signup: true,
-      selected_plan: plan
+      selected_plan: plan,
+      plan,
+      build_is_free: true,
+      payment_due: 'publish'
     };
 
     await env.DB.prepare(`

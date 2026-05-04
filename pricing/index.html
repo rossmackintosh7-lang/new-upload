@@ -28,24 +28,24 @@
       <a class="btn-ghost" href="/pricing/">Pricing</a>
       <a class="btn-ghost" href="/help/">Help</a>
       <a class="btn-ghost" href="/login/">Login</a>
-      <a class="btn" href="/signup/">Start Building</a>
+      <a class="btn" href="/pricing/#packages">Start Building</a>
     </div>
   </div>
 </nav>
   
 <main class="pbi-pricing-page">
-<section class="page-hero"><div class="container"><p class="eyebrow">Pricing</p><h1 class="section-title">Choose the website package that matches how much support you need</h1><p class="hero-text">Start with a simple guided website, move up for stronger content and SEO support, or add hands-on help only when it actually helps.</p></div></section>
+<section class="page-hero"><div class="container"><p class="eyebrow">Pricing</p><h1 class="section-title">Choose your package before you build. Pay only when you publish.</h1><p class="hero-text">Building your website is free. Choose a package now so PBI can unlock the right builder controls, then only pay when you are ready to put the website live.</p></div></section>
 
 <section class="section" id="packages"><div class="container">
   <div class="pbi-section-head">
-    <div><p class="eyebrow">Website packages</p><h2>Clear plans for small businesses</h2></div>
+    <div><p class="eyebrow">Website packages</p><h2>Clear plans for small businesses</h2><p class="muted">No payment is taken at signup. Your chosen package controls the builder features, and billing starts only when you publish.</p></div>
     <p class="muted" data-currency-notice>Prices shown in GBP.</p>
   </div>
   <div class="pbi-pricing-grid pbi-pricing-grid-main">
     <article class="card pbi-price-card">
       <p class="eyebrow">Starter</p>
       <h3>Starter Site</h3>
-      <p class="price-line"><span data-gbp="12.99" data-price-suffix="/month">£12.99/month</span></p>
+      <p class="price-line"><span data-gbp="12.99" data-price-suffix="/month once published">£12.99/month once published</span></p><p class="small-note muted">Build for free. Pay this only when you publish.</p>
       <p>For simple small-business websites that need to get online quickly without fuss.</p>
       <ul>
         <li>Guided starter builder</li>
@@ -55,12 +55,12 @@
         <li>Starter content controls</li>
         <li>Save and publish route</li>
       </ul>
-      <a class="btn" href="/signup/?plan=starter">Choose Starter</a>
+      <a class="btn" href="/signup/?plan=starter">Choose Starter and build free</a>
     </article>
     <article class="card pbi-price-card featured">
       <p class="eyebrow">Best for most businesses</p>
       <h3>Business Site</h3>
-      <p class="price-line"><span data-gbp="24.99" data-price-suffix="/month">£24.99/month</span></p>
+      <p class="price-line"><span data-gbp="24.99" data-price-suffix="/month once published">£24.99/month once published</span></p><p class="small-note muted">Build for free. Pay this only when you publish.</p>
       <p>For businesses that need more control, stronger content and a fuller site.</p>
       <ul>
         <li>Everything in Starter</li>
@@ -71,12 +71,12 @@
         <li>Stronger content blocks for services and trust</li>
         <li>Existing domain connection route</li>
       </ul>
-      <a class="btn" href="/signup/?plan=business">Choose Business</a>
+      <a class="btn" href="/signup/?plan=business">Choose Business and build free</a>
     </article>
     <article class="card pbi-price-card">
       <p class="eyebrow">Growth + support</p>
       <h3>Plus Site</h3>
-      <p class="price-line"><span data-gbp="39.99" data-price-suffix="/month">£39.99/month</span></p>
+      <p class="price-line"><span data-gbp="39.99" data-price-suffix="/month once published">£39.99/month once published</span></p><p class="small-note muted">Build for free. Pay this only when you publish.</p>
       <p>For businesses that want the full builder toolkit, stronger launch support and more control after the site goes live.</p>
       <ul>
         <li>Everything in Business</li>
@@ -87,7 +87,7 @@
         <li>Monthly readiness checks and improvement prompts</li>
         <li>Priority support route and custom domain setup support</li>
       </ul>
-      <a class="btn" href="/signup/?plan=plus">Choose Plus</a>
+      <a class="btn" href="/signup/?plan=plus">Choose Plus and build free</a>
     </article>
   </div>
 </div></section>
@@ -119,7 +119,7 @@
       <a href="/examples/">Website examples</a>
       <a href="/pricing/">Pricing</a>
       <a href="/templates/">Templates</a>
-      <a href="/signup/">Start building</a>
+      <a href="/pricing/#packages">Start building</a>
     </div>
     <div>
       <h4>Services</h4>
@@ -139,8 +139,38 @@
     </div>
   </div>
 </footer>
-  <script src="/assets/currency.js"></script>
+  
+<script id="preserve-pricing-query">
+(() => {
+  const current = new URLSearchParams(location.search);
+  if (![...current.keys()].length) return;
+  document.querySelectorAll('a[href^="/signup/?plan="]').forEach((link) => {
+    const target = new URL(link.getAttribute('href'), location.origin);
+    current.forEach((value, key) => {
+      if (key !== 'plan') target.searchParams.set(key, value);
+    });
+    link.setAttribute('href', `${target.pathname}?${target.searchParams.toString()}`);
+  });
+})();
+</script>
+
+<script src="/assets/currency.js"></script>
 <script src="/assets/pbi-cookie-banner.js" defer></script>
   <script src="/assets/pbi-analytics.js" defer></script>
+<!-- PBI package-preserve script -->
+
+<script>
+(() => {
+  const incoming = new URLSearchParams(window.location.search);
+  document.querySelectorAll('a[href^="/signup/?plan="]').forEach((link) => {
+    const url = new URL(link.getAttribute('href'), window.location.origin);
+    const plan = url.searchParams.get('plan') || 'starter';
+    const next = new URLSearchParams(incoming.toString());
+    next.set('plan', plan);
+    link.setAttribute('href', `/signup/?${next.toString()}`);
+  });
+})();
+</script>
+
 </body>
 </html>

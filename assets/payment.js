@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
       const data = await api(`/api/projects/get?id=${encodeURIComponent(projectId)}`);
-      projectData = parseProjectData(data.project || {});
+      projectData = { ...parseProjectData(data.project || {}), plan: data.project?.plan || parseProjectData(data.project || {}).selected_plan || 'starter', billing_status: data.project?.billing_status || '' };
       renderDomainSummary();
     } catch (error) {
       console.warn('Could not load project domain data:', error);
@@ -120,7 +120,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  async function publishProject(plan = 'starter') {
+  async function publishProject(plan = 'starter', options = {}) {
+    const redirectOnPaymentRequired = options.redirectOnPaymentRequired !== false;
     const data = await api('/api/projects/publish', {
       method: 'POST',
       body: JSON.stringify({
@@ -131,24 +132,29 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     if (data.payment_required && data.payment_url) {
-      window.location.href = data.payment_url;
-      return;
+      if (redirectOnPaymentRequired) {
+        window.location.href = data.payment_url;
+      } else {
+        showMessage(data.message || 'Payment is still being confirmed. Please wait a moment, then try publishing again.', 'info');
+      }
+      return data;
     }
 
     if (data.published && data.live_url) {
       const liveUrl = data.live_url;
       showRichMessage(`
         <strong>Your website is live.</strong>
-        <p>You can now view the customer-facing website or go back to the dashboard.</p>
+        <p>Payment has been confirmed and your customer-facing website is now published.</p>
         <div class="row" style="margin-top:12px">
           <a class="btn" href="${esc(liveUrl)}" target="_blank" rel="noopener">View live website</a>
           <a class="btn-ghost" href="/dashboard/">Back to dashboard</a>
         </div>
       `, 'success');
-      return;
+      return data;
     }
 
     showMessage(data.message || 'Publish status is unclear. Check your dashboard.', 'info');
+    return data;
   }
 
   async function createCheckout(plan, button = null) {
@@ -166,7 +172,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     setPlanButtons(true, button, 'Preparing...');
-    showMessage('Preparing your plan...', 'info');
+    showMessage('Preparing checkout. Payment is only taken because you are publishing the website.', 'info');
 
     try {
       const data = await api('/api/billing/create-checkout', {
@@ -208,15 +214,38 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  function delay(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
   async function publishAfterPayment() {
     if (!projectId) return;
-    showMessage('Checking payment and publishing your website...', 'info');
+    showMessage('Payment received. Publishing your website now...', 'info');
 
-    try {
-      await publishProject(projectData.plan || 'starter');
-    } catch (error) {
-      showMessage(error.message || 'Could not publish website.', 'error');
+    const plan = projectData.plan || 'starter';
+    for (let attempt = 1; attempt <= 6; attempt += 1) {
+      try {
+        const result = await publishProject(plan, { redirectOnPaymentRequired: false });
+        if (result?.published) return;
+        if (!result?.payment_required) return;
+      } catch (error) {
+        if (attempt === 6) {
+          showMessage(error.message || 'Could not publish website after payment.', 'error');
+          return;
+        }
+      }
+      showMessage('Payment is being confirmed by Stripe. Trying again in a moment...', 'info');
+      await delay(1500);
     }
+
+    showRichMessage(`
+      <strong>Payment is being confirmed.</strong>
+      <p>Your website is saved. If it has not gone live yet, wait a moment and press Publish again from the builder or dashboard.</p>
+      <div class="row" style="margin-top:12px">
+        <a class="btn" href="/builder/?project=${encodeURIComponent(projectId)}&plan=${encodeURIComponent(plan)}">Back to builder</a>
+        <a class="btn-ghost" href="/dashboard/">Dashboard</a>
+      </div>
+    `, 'info');
   }
 
   document.querySelectorAll('.planBtn').forEach((button) => {

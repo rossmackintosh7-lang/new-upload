@@ -35,8 +35,10 @@ window.PBIAuth = (() => {
       try {
         const params = new URLSearchParams(window.location.search);
         const templatePreset = params.get('template_preset') || '';
-        const selectedPlan = ['starter','business','plus'].includes((params.get('plan') || '').toLowerCase()) ? (params.get('plan') || '').toLowerCase() : (localStorage.getItem('pbiSelectedPlan') || 'starter');
+        const selectedPlan = ['starter','business','plus'].includes((params.get('plan') || '').toLowerCase()) ? (params.get('plan') || '').toLowerCase() : '';
+        if (!selectedPlan) throw new Error('Choose a package before creating your account.');
         localStorage.setItem('pbiSelectedPlan', selectedPlan);
+        localStorage.setItem('pbiPlanConfirmed', '1');
         const data = await requestJson('/api/auth/signup', {
           email: fd.get('email'),
           password: fd.get('password'),

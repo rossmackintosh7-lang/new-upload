@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (project.billing_status === 'setup_required') return 'Stripe setup required';
     if (project.billing_status === 'past_due') return 'Payment issue';
     if (project.billing_status === 'cancelled') return 'Cancelled';
-    return 'Draft';
+    return 'Draft - build free';
   }
 
   function moneyMinor(amount, currency = 'gbp') {
@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
     else if (!data.page_main_heading && !data.pages?.home?.title) next = 'Write your homepage heading.';
     else if (!data.logo_data_url && !data.logoDataUrl) next = 'Upload your logo.';
     else if (!data.domain_registration?.name && !data.custom_domain && !project.custom_domain && !data.subdomain_slug) next = 'Choose your domain option.';
-    else if (Number(project.published || 0) !== 1) next = 'Preview your site and publish when ready.';
+    else if (Number(project.published || 0) !== 1) next = 'Preview your site. Payment is only needed when you publish.';
     else next = 'Your site is live. Next step: improve SEO or share your link.';
 
     return { score, missing, next };
@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       return `
         <div class="project-row dashboard-project" data-project-id="${esc(project.id)}">
-          <a class="project-main" href="/builder/?project=${encodeURIComponent(project.id)}">
+          <a class="project-main" href="/builder/?project=${encodeURIComponent(project.id)}&plan=${encodeURIComponent(project.plan || 'starter')}">
             <h3>${esc(project.name || 'Untitled website')}</h3>
             <p class="muted">${esc(statusLabel(project))} • ${esc(planLabel(project.plan))}${project.updated_at ? ` • Updated ${esc(project.updated_at)}` : ''}</p>
             ${Number(project.published || 0) === 1 && live ? `<p class="muted">Live: ${esc(live)}</p>` : ''}
@@ -118,8 +118,8 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
           <div class="project-actions">
             ${Number(project.published || 0) === 1 && live ? `<a class="btn-ghost" href="${esc(live)}" target="_blank" rel="noopener">View live</a>` : ''}
-            <a class="btn-ghost" href="/builder/?project=${encodeURIComponent(project.id)}">Edit</a>
-            ${Number(project.published || 0) === 1 ? `<a class="btn" href="/payment/?project=${encodeURIComponent(project.id)}">Manage plan</a>` : `<button class="btn dashboardPublishBtn" type="button" data-project-id="${esc(project.id)}">Publish</button>`}
+            <a class="btn-ghost" href="/builder/?project=${encodeURIComponent(project.id)}&plan=${encodeURIComponent(project.plan || 'starter')}">Edit</a>
+            ${Number(project.published || 0) === 1 ? `<a class="btn" href="/payment/?project=${encodeURIComponent(project.id)}">Manage plan</a>` : `<button class="btn dashboardPublishBtn" type="button" data-project-id="${esc(project.id)}">Publish / pay when live</button>`}
             <button class="btn-danger projectDeleteBtn" type="button" data-project-id="${esc(project.id)}" data-project-name="${esc(project.name || 'Untitled website')}">Delete</button>
           </div>
           <div class="dashboard-upgrade-grid">
@@ -169,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const projectId = button.dataset.projectId;
         const oldText = button.textContent;
         button.disabled = true;
-        button.textContent = 'Publishing...';
+        button.textContent = 'Checking publish...';
         try {
           const data = await api('/api/projects/publish', { method: 'POST', body: JSON.stringify({ project_id: projectId, domain_option: 'pbi_subdomain' }) });
           if (data.payment_required && data.payment_url) { window.location.href = data.payment_url; return; }
@@ -265,7 +265,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const data = await api('/api/projects/create', { method: 'POST', body: JSON.stringify({ name: name.trim() || 'New website' }) });
       if (!data.project?.id) throw new Error('Project created but no project id was returned.');
-      location.href = `/builder/?project=${encodeURIComponent(data.project.id)}`;
+      location.href = `/pricing/#packages`; // Package must be selected before creating a new builder project.
     } catch (error) { alert(error.message || 'Could not create project.'); }
     finally { if (newProjectBtn) { newProjectBtn.disabled = false; newProjectBtn.textContent = 'Create new project'; } }
   }

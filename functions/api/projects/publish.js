@@ -38,14 +38,14 @@ export async function onRequestPost({ request, env }) {
 
   if (!project) return error('Project not found.', 404);
 
-  const paymentRequired = env.PBI_REQUIRE_PAYMENT_TO_PUBLISH === 'true';
+  const paymentRequired = env.PBI_REQUIRE_PAYMENT_TO_PUBLISH !== 'false';
 
   if (project.billing_status !== 'active' && paymentRequired) {
     return json({
       ok: true,
       published: false,
       payment_required: true,
-      message: 'Payment is required before this website can be published.',
+      message: 'Building and previewing are free. Payment is only required when you publish this website live.',
       payment_url: `/payment/?project=${encodeURIComponent(id)}`
     });
   }

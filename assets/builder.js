@@ -1368,14 +1368,14 @@ async function startRetailConnect() {
     const oldText = els.publishBtn?.textContent || 'Publish website';
     if (els.publishBtn) {
       els.publishBtn.disabled = true;
-      els.publishBtn.textContent = 'Publishing...';
+      els.publishBtn.textContent = 'Checking publish...';
     }
 
     try {
       const saved = await saveProject();
       if (!saved) return;
 
-      setSaveMessage('Publishing website...', 'saving');
+      setSaveMessage('Checking whether payment is needed to publish. Building and previewing is free.', 'saving');
       const result = await api('/api/projects/publish', {
         method: 'POST',
         body: JSON.stringify({
@@ -1385,7 +1385,7 @@ async function startRetailConnect() {
       });
 
       if (result.payment_required && result.payment_url) {
-        setSaveMessage('Payment is needed before publishing. Opening checkout...', 'info');
+        setSaveMessage('Your website is saved. Payment is only needed now because you are publishing it live. Opening checkout...', 'info');
         window.location.href = result.payment_url;
         return;
       }

@@ -139,7 +139,7 @@ export async function onRequestPost({ request, env }) {
   const projectData = parseProjectData(project);
   const priceId = env[PLAN_PRICE_ENV[plan]];
   const checkoutMode = ONE_TIME_PAYMENT_PLANS.has(plan) ? 'payment' : 'subscription';
-  const paymentRequired = env.PBI_REQUIRE_PAYMENT_TO_PUBLISH === 'true';
+  const paymentRequired = env.PBI_REQUIRE_PAYMENT_TO_PUBLISH !== 'false';
 
   // Early-access / live-testing mode.
   // When payment is deliberately switched off, the plan buttons should still work:

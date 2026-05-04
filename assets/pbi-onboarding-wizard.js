@@ -98,29 +98,8 @@
       notes: d.notes
     });
 
-    // If already logged in, try to create the project directly. If not, go to signup with the setup attached.
-    try {
-      const me = await fetch("/api/auth/me", { credentials: "include" }).then((r) => r.ok ? r.json() : null).catch(() => null);
-      if (me?.user) {
-        const response = await fetch("/api/projects/create", {
-          method: "POST",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name: d.businessName || `${templateLabels[template] || "PBI"} website`,
-            template_preset: template,
-            onboarding_brief: d
-          })
-        });
-        const result = await response.json().catch(() => ({}));
-        if (response.ok && result.project?.id) {
-          window.location.href = `/builder/?project=${encodeURIComponent(result.project.id)}&preset=${encodeURIComponent(template)}&onboarding=1`;
-          return;
-        }
-      }
-    } catch (_) {}
-
-    window.location.href = `/signup/?${params.toString()}`;
+    // Package selection must happen before the builder opens, so the system knows which controls to unlock.
+    window.location.href = `/pricing/?${params.toString()}#packages`;
   });
 
   update();

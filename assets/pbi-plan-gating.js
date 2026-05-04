@@ -4,30 +4,24 @@
   const copy = {
     starter: {
       title: 'Starter Site',
-      description: 'Starter tools are active: template choice, core pages, basic wording, launch checklist and PBI subdomain publishing.'
+      description: 'Starter tools are active. Build and preview for free. Payment is only taken when you publish.'
     },
     business: {
       title: 'Business Site',
-      description: 'Business tools are active: Starter plus image uploads, gallery/trust sections, stronger content controls and existing-domain route.'
+      description: 'Business tools are active. Build and preview for free with image, gallery and trust-section tools. Payment is only taken when you publish.'
     },
     plus: {
       title: 'Plus Site',
-      description: 'Plus tools are active: full builder toolkit, advanced design controls, AI wording help, retail tools and priority growth controls.'
+      description: 'Plus tools are active. Build and preview for free with the full builder toolkit. Payment is only taken when you publish.'
     }
   };
   function cleanPlan(value) {
     value = String(value || '').toLowerCase();
-    return order[value] ? value : 'starter';
+    return order[value] ? value : '';
   }
-  let plan = cleanPlan(params.get('plan') || localStorage.getItem('pbiSelectedPlan') || document.body.dataset.plan || 'starter');
-  localStorage.setItem('pbiSelectedPlan', plan);
-  document.body.dataset.plan = plan;
-  window.PBISelectedPlan = plan;
-  window.PBIPlanRank = order[plan];
-  window.PBIPlanAllows = (min) => order[plan] >= order[cleanPlan(min)];
-
-  function labelFor(min) { return cleanPlan(min) === 'plus' ? 'Plus' : cleanPlan(min) === 'business' ? 'Business' : 'Starter'; }
-
+  function normalPlan(value) { return cleanPlan(value) || 'starter'; }
+  function labelFor(min) { return normalPlan(min) === 'plus' ? 'Plus' : normalPlan(min) === 'business' ? 'Business' : 'Starter'; }
+  function preventLocked(event) { event.preventDefault(); event.stopPropagation(); }
   function disableInside(node, disabled) {
     node.querySelectorAll('input,select,textarea,button').forEach((el) => {
       if (el.id === 'pbiPlanUpgradeLink') return;
@@ -39,18 +33,56 @@
       if (disabled) el.addEventListener('click', preventLocked, { capture: true });
     });
   }
-  function preventLocked(event) { event.preventDefault(); event.stopPropagation(); }
+  function showPackageRequired() {
+    const main = document.querySelector('.pbi-app-content') || document.querySelector('main') || document.body;
+    const current = new URLSearchParams(location.search);
+    current.delete('plan');
+    const back = current.toString() ? `?${current.toString()}` : '';
+    main.innerHTML = `<section class="card" style="max-width:780px;margin:60px auto;padding:34px"><p class="eyebrow">Package required</p><h1>Choose a package before opening the builder</h1><p class="muted">PBI needs a selected package first so it can unlock the correct builder controls for Starter, Business or Plus. This does not take payment. Billing starts only when you publish.</p><div class="row" style="margin-top:18px"><a class="btn" href="/pricing/${back}#packages">Choose package</a><a class="btn-ghost" href="/dashboard/">Back to dashboard</a></div></section>`;
+  }
+  async function fetchProjectPlan(projectId) {
+    if (!projectId) return '';
+    try {
+      const res = await fetch(`/api/projects/get?id=${encodeURIComponent(projectId)}`, { credentials: 'include' });
+      const data = await res.json().catch(() => ({}));
+      let parsed = {}; try { parsed = typeof data?.project?.data_json === 'string' ? JSON.parse(data.project.data_json || '{}') : (data?.project?.data_json || {}); } catch { parsed = {}; }
+      return cleanPlan(data?.project?.plan || parsed.selected_plan || parsed.plan || '');
+    } catch { return ''; }
+  }
 
-  function apply() {
+  async function resolvePlan() {
+    const explicit = cleanPlan(params.get('plan'));
+    if (explicit) {
+      localStorage.setItem('pbiSelectedPlan', explicit);
+      localStorage.setItem('pbiPlanConfirmed', '1');
+      return explicit;
+    }
+    const projectPlan = await fetchProjectPlan(params.get('project') || params.get('project_id'));
+    if (projectPlan) {
+      localStorage.setItem('pbiSelectedPlan', projectPlan);
+      localStorage.setItem('pbiPlanConfirmed', '1');
+      return projectPlan;
+    }
+    const stored = cleanPlan(localStorage.getItem('pbiSelectedPlan'));
+    const confirmed = localStorage.getItem('pbiPlanConfirmed') === '1';
+    if (stored && confirmed) return stored;
+    return '';
+  }
+
+  function apply(plan) {
     const c = copy[plan];
     const title = document.getElementById('pbiPlanTitle');
     const desc = document.getElementById('pbiPlanDescription');
     if (title) title.textContent = c.title;
     if (desc) desc.textContent = c.description;
+    document.body.dataset.plan = plan;
+    window.PBISelectedPlan = plan;
+    window.PBIPlanRank = order[plan];
+    window.PBIPlanAllows = (min) => order[plan] >= order[normalPlan(min)];
     document.querySelectorAll('[data-plan-chip]').forEach((chip) => chip.classList.toggle('active', chip.dataset.planChip === plan));
 
     document.querySelectorAll('[data-plan-min]').forEach((node) => {
-      const min = cleanPlan(node.dataset.planMin);
+      const min = normalPlan(node.dataset.planMin);
       const allowed = order[plan] >= order[min];
       node.classList.toggle('pbi-plan-locked', !allowed);
       node.setAttribute('aria-hidden', allowed ? 'false' : 'true');
@@ -63,7 +95,6 @@
       }
     });
 
-    // Domain choices: starter = PBI subdomain, business = connect existing, plus = register new too.
     document.querySelectorAll('input[name="launchDomainOption"]').forEach((input) => {
       const min = input.value === 'pbi_subdomain' ? 'starter' : input.value === 'connect_existing' ? 'business' : 'plus';
       const allowed = order[plan] >= order[min];
@@ -79,7 +110,6 @@
       }
     });
 
-    // Page choices: starter = core only, business = gallery, plus = shop.
     document.querySelectorAll('.pageToggle').forEach((input) => {
       const min = input.value === 'shop' ? 'plus' : input.value === 'gallery' ? 'business' : 'starter';
       const allowed = order[plan] >= order[min];
@@ -92,13 +122,12 @@
       if (!allowed) input.checked = false;
     });
 
-    // Add-section select options follow package gates.
     const select = document.getElementById('pbiAddSectionType');
     if (select) {
       [...select.options].forEach((option) => {
         const type = option.value;
         const min = option.dataset.planMin || ({ gallery:'business', featureGrid:'business', cta:'business', testimonial:'plus', faq:'plus', retail:'plus' }[type] || 'starter');
-        const allowed = order[plan] >= order[cleanPlan(min)];
+        const allowed = order[plan] >= order[normalPlan(min)];
         option.disabled = !allowed;
         option.hidden = !allowed;
       });
@@ -106,7 +135,12 @@
     }
   }
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply); else apply();
-  document.addEventListener('pbi:sections-updated', apply);
-  setInterval(apply, 1500);
+  async function init() {
+    const plan = await resolvePlan();
+    if (!plan) { showPackageRequired(); return; }
+    apply(plan);
+    document.addEventListener('pbi:sections-updated', () => apply(plan));
+    setInterval(() => apply(plan), 1500);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();
