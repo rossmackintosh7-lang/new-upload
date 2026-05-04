@@ -1,2 +1,0 @@
-Broken local function imports: 0
-JavaScript syntax errors: 0

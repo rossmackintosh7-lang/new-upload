@@ -1,4 +1,0 @@
-QA checks:
-- analytics duplicate absent: True
-- broken local imports: True
-- critical js syntax: True

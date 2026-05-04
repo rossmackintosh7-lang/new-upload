@@ -1,1 +1,0 @@
-This build clarifies the customer journey: package is selected before the builder, building/previewing is free, and payment is only required at publish. Publish/payment code now requires payment by default unless PBI_REQUIRE_PAYMENT_TO_PUBLISH is explicitly set to 'false' for testing. Payment success flow retries publishing while Stripe webhook confirmation catches up.

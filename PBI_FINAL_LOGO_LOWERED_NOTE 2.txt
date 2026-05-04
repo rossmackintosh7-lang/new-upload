@@ -1,1 +1,0 @@
-Final patch: moved the public PBI header logo down slightly so the top of the logo is fully visible. Banner height kept the same. All previous final-build changes remain included.

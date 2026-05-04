@@ -39,7 +39,10 @@
       <div class="pbi-canvas-blocks">
         <button draggable="true" data-block-type="hero"><strong>Hero</strong><span>Main headline, intro and CTA</span></button>
         <button draggable="true" data-block-type="splitHero"><strong>Split Hero</strong><span>Image and copy side by side</span></button>
-        <button draggable="true" data-block-type="services"><strong>Services</strong><span>3 service cards</span></button>
+        <button draggable="true" data-block-type="trustBand"><strong>Trust Band</strong><span>Proof points near the top</span></button>
+        <button draggable="true" data-block-type="services"><strong>Services</strong><span>Rich service cards</span></button>
+        <button draggable="true" data-block-type="process"><strong>Process</strong><span>Step-by-step customer journey</span></button>
+        <button draggable="true" data-block-type="stats"><strong>Stats Strip</strong><span>Fast confidence signals</span></button>
         <button draggable="true" data-block-type="featureGrid"><strong>Feature Grid</strong><span>Benefits and proof points</span></button>
         <button draggable="true" data-block-type="gallery"><strong>Gallery</strong><span>Image grid / portfolio</span></button>
         <button draggable="true" data-block-type="testimonial"><strong>Testimonial</strong><span>Customer quote</span></button>
@@ -51,6 +54,13 @@
       </div>
 
       <div class="pbi-canvas-panel-foot">
+        <label class="small-note muted" for="canvasStyleDirection">AI style direction</label>
+        <select id="canvasStyleDirection" class="select">
+          <option value="premium, warm, flowing, not blocky">Premium flowing</option>
+          <option value="bold, modern, high contrast, conversion-led">Bold modern</option>
+          <option value="soft, calm, editorial, image-led">Soft editorial</option>
+          <option value="practical, local, trustworthy, service-led">Local service</option>
+        </select>
         <button class="btn" id="canvasAiBuildBtn" type="button">AI build from brief</button>
         <textarea id="canvasAiBrief" class="textarea" placeholder="Describe the business and the site you want. Example: Local plumber in Dorset, needs quotes, services, reviews, emergency callout info."></textarea>
       </div>
@@ -61,6 +71,7 @@
         <div>
           <strong id="canvasProjectTitle">Untitled PBI page</strong>
           <span id="canvasAutosaveStatus">Autosave ready</span>
+          <small class="pbi-canvas-help-text">Click directly on headings, buttons and cards to edit them in the preview.</small>
         </div>
         <div class="pbi-device-switcher" role="group" aria-label="Preview size">
           <button class="active" data-device="desktop" type="button">Desktop</button>

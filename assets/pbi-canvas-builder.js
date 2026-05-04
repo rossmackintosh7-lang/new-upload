@@ -133,6 +133,55 @@
       padding: "spacious",
       align: "center"
     },
+
+    trustBand: {
+      type: "trustBand",
+      title: "Customer confidence at a glance.",
+      text: "Clear offer::Visitors understand what you do quickly|Proof built in::Trust points sit near the top|Easy next step::The call-to-action is always obvious",
+      button: "",
+      image: "",
+      layout: "cards",
+      background: "#ffffff",
+      accent: "#bf5c29",
+      padding: "compact",
+      align: "center"
+    },
+    process: {
+      type: "process",
+      title: "A simple route from interest to action.",
+      text: "Understand::Customers see the offer quickly|Trust::Proof and details remove hesitation|Act::The next step is obvious",
+      button: "",
+      image: "",
+      layout: "cards",
+      background: "#fff8f1",
+      accent: "#256b5b",
+      padding: "comfortable",
+      align: "left"
+    },
+    stats: {
+      type: "stats",
+      title: "Useful numbers and proof points.",
+      text: "Clear::Offer|Fast::Next step|Mobile::Ready",
+      button: "",
+      image: "",
+      layout: "cards",
+      background: "#ffffff",
+      accent: "#bf5c29",
+      padding: "compact",
+      align: "center"
+    },
+    comparison: {
+      type: "comparison",
+      title: "Why choose this approach.",
+      text: "Before::Unclear pages, weak proof and vague CTAs|After::A guided page with trust, services, answers and a clear next step",
+      button: "",
+      image: "",
+      layout: "cards",
+      background: "#f6efe7",
+      accent: "#bf5c29",
+      padding: "comfortable",
+      align: "left"
+    },
     spacer: {
       type: "spacer",
       title: "",
@@ -153,6 +202,7 @@
   let history = [];
   let future = [];
   let autosaveTimer = null;
+  let renderTimer = null;
 
   const $ = (id) => document.getElementById(id);
 
@@ -169,10 +219,10 @@
   }
 
   function initialBlocksForPreset() {
-    if (preset === "shop") return [block("splitHero"), block("retail"), block("featureGrid"), block("contact"), block("cta")];
-    if (preset === "cafe") return [block("splitHero"), block("services"), block("gallery"), block("testimonial"), block("contact")];
-    if (preset === "trades") return [block("hero"), block("services"), block("trust"), block("testimonial"), block("contact")];
-    return [block("hero"), block("services"), block("featureGrid"), block("contact"), block("cta")];
+    if (preset === "shop") return [block("splitHero"), block("trustBand"), block("retail"), block("process"), block("featureGrid"), block("faq"), block("cta")];
+    if (preset === "cafe") return [block("splitHero"), block("trustBand"), block("services"), block("gallery"), block("testimonial"), block("faq"), block("contact")];
+    if (preset === "trades") return [block("splitHero"), block("trustBand"), block("services"), block("process"), block("testimonial"), block("faq"), block("contact")];
+    return [block("splitHero"), block("trustBand"), block("services"), block("process"), block("featureGrid"), block("faq"), block("cta")];
   }
 
   function loadState() {
@@ -216,7 +266,8 @@
         background: b.background || "#fff8f1",
         accent: b.accent || "#bf5c29",
         padding: b.padding || "comfortable",
-        align: b.align || "left"
+        align: b.align || "left",
+        body_json: b.body_json || "{}"
       }));
       await fetch("/api/builder/project-sections", {
         method: "POST",
@@ -236,6 +287,11 @@
   function scheduleSave() {
     clearTimeout(autosaveTimer);
     autosaveTimer = setTimeout(saveState, 450);
+  }
+
+  function scheduleRender() {
+    clearTimeout(renderTimer);
+    renderTimer = setTimeout(render, 140);
   }
 
   function updateAutosaveStatus(text = "Autosave ready") {
@@ -260,7 +316,11 @@
     return {
       hero: "Hero",
       splitHero: "Split Hero",
+      trustBand: "Trust Band",
       services: "Services",
+      process: "Process",
+      stats: "Stats",
+      comparison: "Comparison",
       featureGrid: "Feature Grid",
       gallery: "Gallery",
       testimonial: "Testimonial",
@@ -276,6 +336,25 @@
     return `pad-${value || "comfortable"}`;
   }
 
+  function parseCanvasCards(item) {
+    return String(item.text || "")
+      .split("|")
+      .map((row) => row.trim())
+      .filter(Boolean)
+      .map((row, index) => {
+        const parts = row.includes("::") ? row.split("::") : row.split(" - ");
+        return {
+          title: (parts[0] || `Item ${index + 1}`).trim(),
+          text: (parts.slice(1).join("::") || "Use this card to explain a service, benefit or proof point.").trim(),
+          icon: index + 1
+        };
+      });
+  }
+
+  function writeCanvasCards(item, cards) {
+    item.text = cards.map((card) => `${card.title || ""}::${card.text || ""}`).join("|");
+  }
+
   function renderBlock(item, index) {
     const selected = item.id === selectedId ? "selected" : "";
     const style = `--block-bg:${item.background || "#fff8f1"};--block-accent:${item.accent || "#bf5c29"};--block-align:${item.align || "left"};`;
@@ -288,13 +367,13 @@
       return `<section draggable="true" class="canvas-block canvas-spacer ${selected} ${paddingClass(item.padding)}" data-block-id="${item.id}" style="${style}"><span>Spacer</span>${controls(item, index)}</section>`;
     }
 
-    if (item.type === "services" || item.type === "featureGrid") {
-      const cards = String(item.text || "").split("|").filter(Boolean).slice(0, 6);
-      return `<section draggable="true" class="canvas-block canvas-cards ${selected} ${paddingClass(item.padding)} layout-${item.layout}" data-block-id="${item.id}" style="${style}">
+    if (["services", "featureGrid", "process", "trustBand", "stats", "comparison", "retail"].includes(item.type)) {
+      const cards = parseCanvasCards(item).slice(0, 8);
+      return `<section draggable="true" class="canvas-block canvas-cards canvas-${item.type} ${selected} ${paddingClass(item.padding)} layout-${item.layout}" data-block-id="${item.id}" style="${style}">
         ${controls(item, index)}
         <div class="canvas-block-copy"><p class="canvas-kicker">${escapeHtml(blockLabel(item.type))}</p><h2 contenteditable="true" data-inline-field="title" data-block-id="${item.id}">${title}</h2></div>
-        <div class="canvas-card-grid">${cards.map((card) => `<article><h3>${escapeHtml(card.trim())}</h3><p>Use this card to explain a service, benefit or customer reason to choose you.</p></article>`).join("")}</div>
-        ${button ? `<a>${button}</a>` : ""}
+        <div class="canvas-card-grid">${cards.map((card, cardIndex) => `<article><span>${escapeHtml(card.icon || cardIndex + 1)}</span><h3 contenteditable="true" data-card-field="title" data-card-index="${cardIndex}" data-block-id="${item.id}">${escapeHtml(card.title)}</h3><p contenteditable="true" data-card-field="text" data-card-index="${cardIndex}" data-block-id="${item.id}">${escapeHtml(card.text)}</p></article>`).join("")}</div>
+        ${button ? `<a contenteditable="true" data-inline-field="button" data-block-id="${item.id}">${button}</a>` : ""}
       </section>`;
     }
 
@@ -322,7 +401,7 @@
     if (item.type === "splitHero" || item.layout === "split") {
       return `<section draggable="true" class="canvas-block canvas-split ${selected} ${paddingClass(item.padding)}" data-block-id="${item.id}" style="${style}">
         ${controls(item, index)}
-        <div><p class="canvas-kicker">${escapeHtml(blockLabel(item.type))}</p><h1 contenteditable="true" data-inline-field="title" data-block-id="${item.id}">${title}</h1><p contenteditable="true" data-inline-field="text" data-block-id="${item.id}">${text}</p>${button ? `<a>${button}</a>` : ""}</div>
+        <div><p class="canvas-kicker">${escapeHtml(blockLabel(item.type))}</p><h1 contenteditable="true" data-inline-field="title" data-block-id="${item.id}">${title}</h1><p contenteditable="true" data-inline-field="text" data-block-id="${item.id}">${text}</p>${button ? `<a contenteditable="true" data-inline-field="button" data-block-id="${item.id}">${button}</a>` : ""}</div>
         <figure>${img || `<div class="canvas-image-placeholder">Image</div>`}</figure>
       </section>`;
     }
@@ -332,7 +411,7 @@
       <p class="canvas-kicker">${escapeHtml(blockLabel(item.type))}</p>
       <h1 contenteditable="true" data-inline-field="title" data-block-id="${item.id}">${title}</h1>
       <p contenteditable="true" data-inline-field="text" data-block-id="${item.id}">${text}</p>
-      ${button ? `<a>${button}</a>` : ""}
+      ${button ? `<a contenteditable="true" data-inline-field="button" data-block-id="${item.id}">${button}</a>` : ""}
     </section>`;
   }
 
@@ -404,7 +483,6 @@
 
     scheduleSave();
     render();
-    loadProjectTemplateSectionsForCanvas();
   }
 
   function bindCanvasEvents() {
@@ -445,6 +523,20 @@
         const item = state.blocks.find((block) => block.id === field.dataset.blockId);
         if (!item) return;
         item[field.dataset.inlineField] = field.textContent.trim();
+        renderInspector();
+        scheduleSave();
+      });
+    });
+
+    document.querySelectorAll("[data-card-field]").forEach((field) => {
+      field.addEventListener("input", () => {
+        const item = state.blocks.find((block) => block.id === field.dataset.blockId);
+        if (!item) return;
+        const cards = parseCanvasCards(item);
+        const card = cards[Number(field.dataset.cardIndex)] || { title: "", text: "" };
+        card[field.dataset.cardField] = field.textContent.trim();
+        cards[Number(field.dataset.cardIndex)] = card;
+        writeCanvasCards(item, cards);
         renderInspector();
         scheduleSave();
       });
@@ -600,13 +692,17 @@
     if (/salon|beauty|hair|wellness/.test(lower)) main = "salon";
     if (/holiday|glamping|let|stay|accommodation/.test(lower)) main = "holiday";
 
-    state.title = "AI generated PBI canvas";
+    state.title = "AI generated premium PBI canvas";
     state.blocks = [
-      { ...blockDefaults.splitHero, id: uid(), title: "A clear website built around your business.", text: brief, image: imageFor(main) },
-      { ...blockDefaults.services, id: uid(), title: "What customers can do here.", text: "Understand your offer|Trust your business|Take the next step" },
-      { ...blockDefaults.featureGrid, id: uid(), title: "Why this works.", text: "Clear structure|Useful wording|Mobile-friendly flow|Easy enquiry route" },
+      { ...blockDefaults.splitHero, id: uid(), title: "A clear website built around your business.", text: brief, image: imageFor(main), layout: "split" },
+      { ...blockDefaults.trustBand, id: uid() },
+      { ...blockDefaults.services, id: uid(), title: "What customers can do here.", text: "Understand your offer::Make the first scroll obvious|Trust your business::Show proof before hesitation appears|Take the next step::Guide customers toward contact, booking or buying" },
+      { ...blockDefaults.process, id: uid() },
+      { ...blockDefaults.featureGrid, id: uid(), title: "Why this page feels premium.", text: "Richer sections::Proof, process and answers included|Better rhythm::Image, cards and CTA sections alternate|Mobile-first flow::Every section is easy to scan" },
+      { ...blockDefaults.gallery, id: uid(), text: galleryFor(main).join("|") },
+      { ...blockDefaults.testimonial, id: uid() },
       { ...blockDefaults.faq, id: uid() },
-      { ...blockDefaults.cta, id: uid(), title: "Ready to get started?", text: "Make the next step obvious and easy." }
+      { ...blockDefaults.cta, id: uid(), title: "Ready to publish when it feels right?", text: "Build free first, then choose the package when the site is ready to go live." }
     ];
 
     selectedId = state.blocks[0].id;
@@ -624,6 +720,17 @@
       holiday: "/assets/demo-media/holiday-let-hero.jpg",
       consultant: "/assets/demo-media/consultant-hero.jpg"
     }[kind] || "/assets/demo-media/consultant-hero.jpg";
+  }
+
+  function galleryFor(kind) {
+    return {
+      shop: ["/assets/demo-media/shop-1.jpg", "/assets/demo-media/shop-2.jpg", "/assets/demo-media/shop-3.jpg"],
+      cafe: ["/assets/demo-media/cafe-1.jpg", "/assets/demo-media/cafe-2.jpg", "/assets/demo-media/cafe-3.jpg"],
+      trades: ["/assets/demo-media/trades-1.jpg", "/assets/demo-media/trades-2.jpg", "/assets/demo-media/trades-3.jpg"],
+      salon: ["/assets/demo-media/salon-1.jpg", "/assets/demo-media/salon-2.jpg", "/assets/demo-media/salon-3.jpg"],
+      holiday: ["/assets/demo-media/holiday-let-1.jpg", "/assets/demo-media/holiday-let-2.jpg", "/assets/demo-media/holiday-let-3.jpg"],
+      consultant: ["/assets/demo-media/consultant-1.jpg", "/assets/demo-media/consultant-2.jpg", "/assets/demo-media/consultant-3.jpg"]
+    }[kind] || ["/assets/demo-media/consultant-1.jpg", "/assets/demo-media/consultant-2.jpg", "/assets/demo-media/consultant-3.jpg"];
   }
 
   function exportText() {
@@ -719,7 +826,8 @@
           generation_type: "canvas",
           business_name: state.title || "",
           business_type: preset || "",
-          goals: "website, enquiries, SEO"
+          goals: "website, enquiries, SEO",
+          style_direction: document.getElementById("canvasStyleDirection")?.value || "premium, warm, flowing, not blocky"
         })
       });
 
@@ -732,10 +840,10 @@
           blocks: result.canvas.blocks
         };
         selectedId = state.blocks[0]?.id || null;
-        saveVersion(result.mode === "openai" ? "OpenAI generated canvas" : "Fallback AI generated canvas");
+        saveVersion(result.mode === "responses" ? "AI generated premium canvas" : "Fallback premium canvas");
         saveState();
         cloudSaveCanvas();
-    pbiSaveCanvasSectionsToBuilder();
+        pbiSaveCanvasSectionsToBuilder();
         render();
         return true;
       }
@@ -796,6 +904,25 @@
     });
 
     $("canvasApplyInspectorBtn").addEventListener("click", applyInspector);
+    ["inspectorTitle", "inspectorText", "inspectorButton", "inspectorImage", "inspectorLayout", "inspectorBg", "inspectorAccent", "inspectorPadding", "inspectorAlign"].forEach((id) => {
+      const input = $(id);
+      if (!input) return;
+      input.addEventListener("input", () => {
+        const item = selectedBlock();
+        if (!item) return;
+        item.title = $("inspectorTitle").value;
+        item.text = $("inspectorText").value;
+        item.button = $("inspectorButton").value;
+        item.image = $("inspectorImage").value;
+        item.layout = $("inspectorLayout").value;
+        item.background = $("inspectorBg").value;
+        item.accent = $("inspectorAccent").value;
+        item.padding = $("inspectorPadding").value;
+        item.align = $("inspectorAlign").value;
+        scheduleSave();
+        scheduleRender();
+      });
+    });
     $("canvasDuplicateBtn").addEventListener("click", () => selectedId && handleAction("duplicate", selectedId));
     $("canvasDeleteBtn").addEventListener("click", () => selectedId && handleAction("delete", selectedId));
     $("canvasUndoBtn").addEventListener("click", undo);
