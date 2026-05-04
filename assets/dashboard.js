@@ -261,13 +261,8 @@ document.addEventListener('DOMContentLoaded', () => {
   async function create() {
     const name = prompt('Project name:', 'New website');
     if (name === null) return;
-    if (newProjectBtn) { newProjectBtn.disabled = true; newProjectBtn.textContent = 'Creating...'; }
-    try {
-      const data = await api('/api/projects/create', { method: 'POST', body: JSON.stringify({ name: name.trim() || 'New website' }) });
-      if (!data.project?.id) throw new Error('Project created but no project id was returned.');
-      location.href = `/pricing/#packages`; // Package must be selected before creating a new builder project.
-    } catch (error) { alert(error.message || 'Could not create project.'); }
-    finally { if (newProjectBtn) { newProjectBtn.disabled = false; newProjectBtn.textContent = 'Create new project'; } }
+    localStorage.setItem('pbiPendingProjectName', name.trim() || 'New website');
+    location.href = '/pricing/#packages';
   }
 
   async function logout() { try { await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' }); } finally { location.href = '/login/'; } }

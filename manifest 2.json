@@ -2,24 +2,37 @@
   "name": "Purbeck Business Innovations",
   "short_name": "PBI",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#f4ede5",
+  "background_color": "#ece6de",
   "theme_color": "#b95624",
   "icons": [
     {
-      "src": "/assets/favicon-192.png",
+      "src": "/android-chrome-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/assets/favicon-512.png",
+      "src": "/android-chrome-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/assets/apple-touch-icon.png",
+      "src": "/android-chrome-maskable-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/android-chrome-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
       "sizes": "180x180",
       "type": "image/png",
       "purpose": "any"

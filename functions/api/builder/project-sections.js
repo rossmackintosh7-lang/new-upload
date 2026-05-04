@@ -4,7 +4,7 @@ async function body(request){try{return await request.json()}catch{return {}}}
 
 const PLAN_RANK = { starter: 1, business: 2, plus: 3 };
 function cleanPlan(value){ value = String(value || '').toLowerCase(); return PLAN_RANK[value] ? value : 'starter'; }
-function sectionMinPlan(type){ return ({ gallery:'business', featureGrid:'business', cta:'business', testimonial:'plus', faq:'plus', retail:'plus' })[type] || 'starter'; }
+function sectionMinPlan(type){ return ({ logoCloud:'business', gallery:'business', featureGrid:'business', stats:'business', pricing:'business', booking:'business', map:'business', cta:'business', testimonial:'plus', faq:'plus', productGrid:'plus', cmsList:'plus', retail:'plus' })[type] || 'starter'; }
 function planAllows(plan,min){ return PLAN_RANK[cleanPlan(plan)] >= PLAN_RANK[cleanPlan(min)]; }
 function filterSectionsForPlan(sections, plan){ const p=cleanPlan(plan); return (sections||[]).filter(s=>planAllows(p, sectionMinPlan(s.section_type||s.type))).map(s=>{ const out={...s}; if(p==='starter') out.image=''; return out; }); }
 async function projectPlan(env, projectId, fallback='starter'){

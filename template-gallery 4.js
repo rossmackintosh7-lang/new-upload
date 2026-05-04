@@ -14,7 +14,7 @@
     const presetApi = window.PBITemplatePresets;
     const preset = presetApi?.get?.(templateKey);
     if (!preset) {
-      window.location.href = '/signup/';
+      window.location.href = '/pricing/#packages';
       return;
     }
 
@@ -24,11 +24,14 @@
       return;
     }
 
+    const selectedPlan = ['starter','business','plus'].includes(String(new URLSearchParams(location.search).get('plan') || localStorage.getItem('pbiSelectedPlan') || '').toLowerCase()) ? String(new URLSearchParams(location.search).get('plan') || localStorage.getItem('pbiSelectedPlan')).toLowerCase() : '';
+    if (!selectedPlan) { window.location.href = `/pricing/?template_preset=${encodeURIComponent(templateKey)}#packages`; return; }
+
     const response = await fetch('/api/projects/create', {
       method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: preset.projectName || `${preset.businessName || 'New'} website`, template_preset: templateKey })
+      body: JSON.stringify({ name: preset.projectName || `${preset.businessName || 'New'} website`, template_preset: templateKey, plan: selectedPlan })
     });
 
     const data = await response.json().catch(() => ({}));
@@ -36,7 +39,7 @@
       throw new Error(data.error || data.message || 'Could not create project from template.');
     }
 
-    window.location.href = `/builder/?project=${encodeURIComponent(data.project.id)}&preset=${encodeURIComponent(templateKey)}`;
+    window.location.href = `/builder/?project=${encodeURIComponent(data.project.id)}&preset=${encodeURIComponent(templateKey)}&plan=${encodeURIComponent(selectedPlan)}`;
   }
 
   function bindFilters() {
