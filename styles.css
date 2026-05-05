@@ -5337,7 +5337,7 @@ body:has(.builder-app) .container {
   }
 
   .pbi-main-nav a[href="/how-it-works/"],
-  .pbi-main-nav a[href="/examples/"],
+  .pbi-main-nav a[href="/templates/"],
   .pbi-main-nav a[href="/pricing/"],
   .pbi-main-nav a[href="/help/"] {
     display: none !important;
