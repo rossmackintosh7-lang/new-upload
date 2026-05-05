@@ -15,6 +15,7 @@
   <title>Framer-Level Visual Studio • PBI</title>
   <meta name="description" content="PBI visual website studio with freeform positioning, multi-page editing, advanced animations, CMS database tools, collaborative editing, AI generation and build-free pay-at-publish export.">
   <link rel="stylesheet" href="/assets/styles.css">
+  <link rel="stylesheet" href="/assets/pbi-trust-polish.css">
 </head>
 <body class="pbi-canvas-page pbi-framer-studio-page">
   <header class="pbi-canvas-topbar pbi-studio-topbar">
@@ -35,7 +36,7 @@
       <div class="pbi-canvas-panel-head">
         <p class="eyebrow">Components</p>
         <h2>Build visually</h2>
-        <p class="small-note muted">Drag blocks, switch pages, place elements freely, tune animations and publish only when the site is ready.</p>
+        <p class="small-note muted">Drag blocks, switch pages, press “Freeform selected” for absolute placement, tune animations and publish only when the site is ready.</p>
       </div>
 
       <div class="pbi-studio-tabs pbi-studio-tabs-six" role="tablist" aria-label="Studio panels">
@@ -90,11 +91,17 @@
 
       <section class="pbi-studio-tab-panel" data-studio-panel="templates">
         <div class="pbi-studio-template-grid">
-          <button type="button" data-template-pack="local-service"><strong>Local Service Pro</strong><span>Hero, trust, services, process, FAQ and CTA.</span></button>
-          <button type="button" data-template-pack="premium-cafe"><strong>Premium Café</strong><span>Image-led food layout with gallery and bookings.</span></button>
-          <button type="button" data-template-pack="retail-launch"><strong>Retail Launch</strong><span>Products, trust, shop flow and checkout CTA.</span></button>
-          <button type="button" data-template-pack="consultant-authority"><strong>Consultant Authority</strong><span>Proof, services, case-study rhythm and booking CTA.</span></button>
-          <button type="button" data-template-pack="holiday-stay"><strong>Holiday Stay</strong><span>Visual stay layout with amenities, map and enquiry.</span></button>
+          <button type="button" data-template-pack="premium-cafe"><strong>Café</strong><span>Menus, bookings, proof, gallery and opening details.</span></button>
+          <button type="button" data-template-pack="trades-pro"><strong>Tradesperson</strong><span>Quote-led layout with services, proof and area coverage.</span></button>
+          <button type="button" data-template-pack="salon-luxe"><strong>Salon</strong><span>Elegant treatment pages, gallery and appointment CTAs.</span></button>
+          <button type="button" data-template-pack="consultant-authority"><strong>Consultant</strong><span>Authority, services, case studies and discovery calls.</span></button>
+          <button type="button" data-template-pack="holiday-stay"><strong>Holiday let</strong><span>Visual accommodation layout with amenities and enquiries.</span></button>
+          <button type="button" data-template-pack="retail-launch"><strong>Shop</strong><span>Product-led homepage, collection cards and checkout path.</span></button>
+          <button type="button" data-template-pack="mobile-mechanic"><strong>Mobile mechanic</strong><span>Callouts, diagnostics, coverage and trust proof.</span></button>
+          <button type="button" data-template-pack="dog-groomer"><strong>Dog groomer</strong><span>Packages, calm handling, proof and appointment requests.</span></button>
+          <button type="button" data-template-pack="cleaning-pro"><strong>Cleaner</strong><span>Domestic and commercial cleaning with quote flow.</span></button>
+          <button type="button" data-template-pack="personal-trainer"><strong>Personal trainer</strong><span>Programmes, progress proof and consultation booking.</span></button>
+          <button type="button" data-template-pack="restaurant"><strong>Local restaurant</strong><span>Menu-first storytelling with reservations and gallery.</span></button>
         </div>
       </section>
 
@@ -124,7 +131,13 @@
               <option value="published">Published</option>
             </select>
           </div>
-          <textarea id="cmsItemText" class="textarea" placeholder="Short summary or body content"></textarea>
+          <textarea id="cmsItemText" class="textarea" placeholder="Full body content. This is used on the public CMS page."></textarea>
+          <textarea id="cmsItemExcerpt" class="textarea" placeholder="Short excerpt for blog/service/product cards and SEO description"></textarea>
+          <div class="grid-2">
+            <input id="cmsItemSeoTitle" class="input" placeholder="SEO title">
+            <input id="cmsItemSeoDescription" class="input" placeholder="SEO description">
+          </div>
+          <div class="pbi-cms-route-preview"><strong>Public URL after publish</strong><code id="cmsPublicUrlPreview">/site/canvas/your-site/blog/example-post/</code></div>
           <div class="pbi-inspector-actions">
             <button class="btn-ghost" id="cmsAddItemBtn" type="button">Add CMS entry</button>
             <button class="btn-ghost" id="cmsCloudSaveBtn" type="button">Save CMS to cloud</button>
@@ -172,7 +185,7 @@
         </div>
         <div class="pbi-studio-toolbar-actions">
           <button class="btn-ghost" id="canvasThemeBtn" type="button">Apply brand theme</button>
-          <button class="btn-ghost" id="canvasFreeformGuideBtn" type="button">Freeform guide</button>
+          <button class="btn-ghost" id="canvasFreeformGuideBtn" type="button">Freeform guide</button><a class="btn-ghost" href="/templates/">Template library</a>
           <div class="pbi-device-switcher" role="group" aria-label="Preview size">
             <button class="active" data-device="desktop" type="button">Desktop</button>
             <button data-device="tablet" type="button">Tablet</button>
@@ -277,7 +290,9 @@
     </aside>
   </main>
 
+  <script src="/template-presets.js" defer></script>
   <script src="/assets/pbi-canvas-builder.js" defer></script>
+  <script src="/assets/pbi-editor-polish.js" defer></script>
   <script src="/assets/pbi-request-capture.js" defer></script>
 </body>
 </html>

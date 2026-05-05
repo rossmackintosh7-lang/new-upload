@@ -5,29 +5,59 @@
       if (!res.ok) return null;
       const data = await res.json().catch(() => ({}));
       return data.user || null;
-    } catch { return null; }
+    } catch {
+      return null;
+    }
   }
 
   async function createProjectFromTemplate(templateKey) {
     const presetApi = window.PBITemplatePresets;
     const preset = presetApi?.get?.(templateKey);
-    if (!preset) { window.location.href = '/pricing/#packages'; return; }
+    if (!preset) {
+      window.location.href = '/pricing/#packages';
+      return;
+    }
 
-    const qs = new URLSearchParams({ template_preset: templateKey });
-    window.location.href = `/pricing/?${qs.toString()}#packages`;
+    const user = await getCurrentUser();
+    if (!user) {
+      window.location.href = `/signup/?template_preset=${encodeURIComponent(templateKey)}`;
+      return;
+    }
+
+    const selectedPlan = ['starter','business','plus'].includes(String(new URLSearchParams(location.search).get('plan') || localStorage.getItem('pbiSelectedPlan') || '').toLowerCase()) ? String(new URLSearchParams(location.search).get('plan') || localStorage.getItem('pbiSelectedPlan')).toLowerCase() : '';
+    if (!selectedPlan) { window.location.href = `/pricing/?template_preset=${encodeURIComponent(templateKey)}#packages`; return; }
+
+    const response = await fetch('/api/projects/create', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: preset.projectName || `${preset.businessName || 'New'} website`, template_preset: templateKey, plan: selectedPlan })
+    });
+
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.project?.id) {
+      throw new Error(data.error || data.message || 'Could not create project from template.');
+    }
+
+    window.location.href = `/builder/?project=${encodeURIComponent(data.project.id)}&preset=${encodeURIComponent(templateKey)}&plan=${encodeURIComponent(selectedPlan)}`;
   }
 
   function bindFilters() {
-    const buttons = document.querySelectorAll('[data-filter]');
+    const filterButtons = document.querySelectorAll('[data-filter]');
     const cards = document.querySelectorAll('[data-template-category]');
-    buttons.forEach((button) => button.addEventListener('click', () => {
-      const filter = button.getAttribute('data-filter');
-      buttons.forEach((btn) => btn.classList.toggle('active', btn === button));
-      cards.forEach((card) => {
-        const show = filter === 'all' || card.getAttribute('data-template-category') === filter;
-        card.style.display = show ? '' : 'none';
+    if (!filterButtons.length || !cards.length) return;
+
+    filterButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const filter = button.getAttribute('data-filter');
+        filterButtons.forEach((btn) => btn.classList.toggle('active', btn === button));
+        cards.forEach((card) => {
+          const category = card.getAttribute('data-template-category');
+          const show = filter === 'all' || category === filter;
+          card.style.display = show ? '' : 'none';
+        });
       });
-    }));
+    });
   }
 
   document.addEventListener('DOMContentLoaded', () => {
@@ -38,10 +68,16 @@
         const oldText = button.textContent;
         button.textContent = 'Opening...';
         button.setAttribute('disabled', 'disabled');
-        try { await createProjectFromTemplate(templateKey); }
-        catch (error) { alert(error.message || 'Could not open template.'); button.textContent = oldText; button.removeAttribute('disabled'); }
+        try {
+          await createProjectFromTemplate(templateKey);
+        } catch (error) {
+          alert(error.message || 'Could not open template.');
+          button.textContent = oldText;
+          button.removeAttribute('disabled');
+        }
       });
     });
+
     bindFilters();
   });
 })();

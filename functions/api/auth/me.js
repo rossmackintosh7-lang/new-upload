@@ -1,99 +1,19 @@
-import { json, error } from '../../_lib/json.js';
-import { ensureCoreTables } from '../../_lib/auth.js';
+import { json } from '../../_lib/json.js';
+import { getSessionUser } from '../../_lib/session.js';
 
-const SESSION_COOKIE_NAME = 'session_id';
-
-function getCookie(request, name) {
-  const cookieHeader = request.headers.get('Cookie') || '';
-
-  const cookies = cookieHeader
-    .split(';')
-    .map((cookie) => cookie.trim())
-    .filter(Boolean);
-
-  for (const cookie of cookies) {
-    const separatorIndex = cookie.indexOf('=');
-
-    if (separatorIndex === -1) {
-      continue;
-    }
-
-    const cookieName = cookie.slice(0, separatorIndex);
-    const cookieValue = cookie.slice(separatorIndex + 1);
-
-    if (cookieName === name) {
-      return decodeURIComponent(cookieValue);
-    }
-  }
-
-  return null;
+function adminEmails(env){
+  return String(env.PBI_ADMIN_EMAILS || 'rossmackintosh7@icloud.com')
+    .split(',').map(e=>e.trim().toLowerCase()).filter(Boolean);
 }
 
 export async function onRequestGet({ request, env }) {
+  const user = await getSessionUser(env, request);
+  if (!user) return json({ ok: false, authenticated: false, is_admin: false, plan: 'starter' }, 200);
+  let plan = 'starter';
   try {
-    const sessionId = getCookie(request, SESSION_COOKIE_NAME);
-
-    if (!sessionId) {
-      return error('Unauthorized.', 401);
-    }
-
-    if (!env.DB) {
-      return error('Database binding missing.', 500);
-    }
-
-    await ensureCoreTables(env);
-
-    const session = await env.DB.prepare(
-      `
-      SELECT
-        sessions.id,
-        sessions.user_id,
-        sessions.expires_at,
-        users.email
-      FROM sessions
-      INNER JOIN users ON users.id = sessions.user_id
-      WHERE sessions.id = ?
-      LIMIT 1
-      `
-    )
-      .bind(sessionId)
-      .first();
-
-    if (!session) {
-      return error('Unauthorized.', 401);
-    }
-
-    const now = new Date();
-    const expiresAt = new Date(session.expires_at);
-
-    if (Number.isNaN(expiresAt.getTime()) || expiresAt <= now) {
-      await env.DB.prepare('DELETE FROM sessions WHERE id = ?')
-        .bind(sessionId)
-        .run();
-
-      return error('Session expired.', 401);
-    }
-
-    try {
-      await env.DB.prepare(
-        `
-        UPDATE sessions
-        SET last_seen_at = CURRENT_TIMESTAMP
-        WHERE id = ?
-        `
-      )
-        .bind(sessionId)
-        .run();
-    } catch {}
-
-    return json({
-      ok: true,
-      user: {
-        id: session.user_id,
-        email: session.email
-      }
-    });
-  } catch (err) {
-    return error(err?.message || 'Failed to read session.', 500);
-  }
+    const row = await env.DB.prepare(`SELECT plan FROM projects WHERE user_id = ? ORDER BY datetime(COALESCE(updated_at, created_at, '1970-01-01')) DESC LIMIT 1`).bind(user.id).first();
+    if (row?.plan) plan = row.plan;
+  } catch (_) {}
+  const isAdmin = adminEmails(env).includes(String(user.email || '').toLowerCase());
+  return json({ ok: true, authenticated: true, user, email: user.email, is_admin: isAdmin, plan });
 }

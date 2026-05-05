@@ -61,6 +61,17 @@ export async function ensureCoreTables(env) {
     last_seen_at TEXT
   )`).run();
 
+
+  await env.DB.prepare(`CREATE TABLE IF NOT EXISTS admin_user_controls (
+    user_id TEXT PRIMARY KEY,
+    status TEXT DEFAULT 'active',
+    notes TEXT,
+    suspended_at TEXT,
+    suspended_by TEXT,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+  )`).run();
+
   await env.DB.prepare(`CREATE TABLE IF NOT EXISTS projects (
     id TEXT PRIMARY KEY,
     user_id TEXT,
@@ -114,16 +125,34 @@ export async function getUserFromSession(env, request) {
   const sessionId = getCookie(request, SESSION_COOKIE_NAME);
   if (!sessionId) return null;
 
-  const session = await env.DB.prepare(`
-    SELECT sessions.user_id, users.email
-    FROM sessions
-    JOIN users ON users.id = sessions.user_id
-    WHERE sessions.id = ?
-      AND (sessions.expires_at IS NULL OR datetime(sessions.expires_at) > datetime('now'))
-    LIMIT 1
-  `).bind(sessionId).first();
+  let session = null;
+  try {
+    session = await env.DB.prepare(`
+      SELECT sessions.user_id, users.email, COALESCE(admin_user_controls.status, 'active') AS account_status
+      FROM sessions
+      JOIN users ON users.id = sessions.user_id
+      LEFT JOIN admin_user_controls ON admin_user_controls.user_id = users.id
+      WHERE sessions.id = ?
+        AND (sessions.expires_at IS NULL OR datetime(sessions.expires_at) > datetime('now'))
+      LIMIT 1
+    `).bind(sessionId).first();
+  } catch (_) {
+    session = await env.DB.prepare(`
+      SELECT sessions.user_id, users.email, 'active' AS account_status
+      FROM sessions
+      JOIN users ON users.id = sessions.user_id
+      WHERE sessions.id = ?
+        AND (sessions.expires_at IS NULL OR datetime(sessions.expires_at) > datetime('now'))
+      LIMIT 1
+    `).bind(sessionId).first();
+  }
 
   if (!session) return null;
+
+  if (session.account_status === 'suspended') {
+    await env.DB.prepare(`DELETE FROM sessions WHERE id = ?`).bind(sessionId).run();
+    return null;
+  }
 
   try {
     await env.DB.prepare(`UPDATE sessions SET last_seen_at = datetime('now') WHERE id = ?`).bind(sessionId).run();

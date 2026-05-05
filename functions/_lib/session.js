@@ -27,6 +27,21 @@ export function clearCookie(name, secure = true) {
   return makeSetCookie(name, '', 0, secure);
 }
 
+async function ensureSessionSupportTables(env) {
+  if (!env?.DB) return;
+  try {
+    await env.DB.prepare(`CREATE TABLE IF NOT EXISTS admin_user_controls (
+      user_id TEXT PRIMARY KEY,
+      status TEXT DEFAULT 'active',
+      notes TEXT,
+      suspended_at TEXT,
+      suspended_by TEXT,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+    )`).run();
+  } catch (_) {}
+}
+
 export async function createSession(env, userId) {
   const id = crypto.randomUUID();
   const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30).toISOString();
@@ -44,23 +59,49 @@ export async function getSessionUser(env, request) {
   const sessionId = cookies.session_id;
   if (!sessionId) return null;
 
-  const row = await env.DB
-    .prepare(`
-      SELECT users.id, users.email, COALESCE(users.email_verified, 0) AS email_verified, sessions.expires_at
-      FROM sessions
-      JOIN users ON users.id = sessions.user_id
-      WHERE sessions.id = ?
-      LIMIT 1
-    `)
-    .bind(sessionId)
-    .first();
+  await ensureSessionSupportTables(env);
+
+  let row = null;
+  try {
+    row = await env.DB
+      .prepare(`
+        SELECT users.id, users.email, COALESCE(users.email_verified, 0) AS email_verified, sessions.expires_at,
+               COALESCE(admin_user_controls.status, 'active') AS account_status
+        FROM sessions
+        JOIN users ON users.id = sessions.user_id
+        LEFT JOIN admin_user_controls ON admin_user_controls.user_id = users.id
+        WHERE sessions.id = ?
+        LIMIT 1
+      `)
+      .bind(sessionId)
+      .first();
+  } catch (_) {
+    row = await env.DB
+      .prepare(`
+        SELECT users.id, users.email, COALESCE(users.email_verified, 0) AS email_verified, sessions.expires_at,
+               'active' AS account_status
+        FROM sessions
+        JOIN users ON users.id = sessions.user_id
+        WHERE sessions.id = ?
+        LIMIT 1
+      `)
+      .bind(sessionId)
+      .first();
+  }
 
   if (!row) return null;
+
+  if (row.account_status === 'suspended') {
+    await env.DB.prepare('DELETE FROM sessions WHERE id = ?').bind(sessionId).run();
+    return null;
+  }
 
   if (new Date(row.expires_at).getTime() < Date.now()) {
     await env.DB.prepare('DELETE FROM sessions WHERE id = ?').bind(sessionId).run();
     return null;
   }
+
+  try { await env.DB.prepare('UPDATE sessions SET last_seen_at = CURRENT_TIMESTAMP WHERE id = ?').bind(sessionId).run(); } catch (_) {}
 
   return {
     id: row.id,

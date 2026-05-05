@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       return `
         <div class="project-row dashboard-project" data-project-id="${esc(project.id)}">
-          <a class="project-main" href="/builder/?project=${encodeURIComponent(project.id)}&plan=${encodeURIComponent(project.plan || 'starter')}">
+          <a class="project-main" href="/builder/?project=${encodeURIComponent(project.id)}">
             <h3>${esc(project.name || 'Untitled website')}</h3>
             <p class="muted">${esc(statusLabel(project))} • ${esc(planLabel(project.plan))}${project.updated_at ? ` • Updated ${esc(project.updated_at)}` : ''}</p>
             ${Number(project.published || 0) === 1 && live ? `<p class="muted">Live: ${esc(live)}</p>` : ''}
@@ -118,8 +118,8 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
           <div class="project-actions">
             ${Number(project.published || 0) === 1 && live ? `<a class="btn-ghost" href="${esc(live)}" target="_blank" rel="noopener">View live</a>` : ''}
-            <a class="btn-ghost" href="/builder/?project=${encodeURIComponent(project.id)}&plan=${encodeURIComponent(project.plan || 'starter')}">Edit</a>
-            ${Number(project.published || 0) === 1 ? `<a class="btn" href="/payment/?project=${encodeURIComponent(project.id)}">Manage plan</a>` : `<button class="btn dashboardPublishBtn" type="button" data-project-id="${esc(project.id)}">Publish / pay when live</button>`}
+            <a class="btn-ghost" href="/builder/?project=${encodeURIComponent(project.id)}">Edit</a>
+            <a class="btn" href="/payment/?project=${encodeURIComponent(project.id)}">${Number(project.published || 0) === 1 ? 'Manage plan' : 'Publish'}</a>
             <button class="btn-danger projectDeleteBtn" type="button" data-project-id="${esc(project.id)}" data-project-name="${esc(project.name || 'Untitled website')}">Delete</button>
           </div>
           <div class="dashboard-upgrade-grid">
@@ -163,23 +163,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function bindProjectActions() {
-
-    document.querySelectorAll('.dashboardPublishBtn').forEach((button) => {
-      button.addEventListener('click', async () => {
-        const projectId = button.dataset.projectId;
-        const oldText = button.textContent;
-        button.disabled = true;
-        button.textContent = 'Checking publish...';
-        try {
-          const data = await api('/api/projects/publish', { method: 'POST', body: JSON.stringify({ project_id: projectId, domain_option: 'pbi_subdomain' }) });
-          if (data.payment_required && data.payment_url) { window.location.href = data.payment_url; return; }
-          if (data.live_url) { showMessage(`Website published: ${data.live_url}`, 'success'); await load(); return; }
-          showMessage(data.message || 'Publish status unclear.', 'info');
-        } catch (error) { showMessage(error.message || 'Could not publish website.', 'error'); }
-        finally { button.disabled = false; button.textContent = oldText; }
-      });
-    });
-
     document.querySelectorAll('.dashboardCheckoutBtn').forEach((button) => {
       button.addEventListener('click', async () => {
         button.disabled = true;
@@ -261,8 +244,13 @@ document.addEventListener('DOMContentLoaded', () => {
   async function create() {
     const name = prompt('Project name:', 'New website');
     if (name === null) return;
-    localStorage.setItem('pbiPendingProjectName', name.trim() || 'New website');
-    location.href = '/pricing/#packages';
+    if (newProjectBtn) { newProjectBtn.disabled = true; newProjectBtn.textContent = 'Creating...'; }
+    try {
+      const data = await api('/api/projects/create', { method: 'POST', body: JSON.stringify({ name: name.trim() || 'New website' }) });
+      if (!data.project?.id) throw new Error('Project created but no project id was returned.');
+      location.href = `/builder/?project=${encodeURIComponent(data.project.id)}`;
+    } catch (error) { alert(error.message || 'Could not create project.'); }
+    finally { if (newProjectBtn) { newProjectBtn.disabled = false; newProjectBtn.textContent = 'Create new project'; } }
   }
 
   async function logout() { try { await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' }); } finally { location.href = '/login/'; } }

@@ -24,11 +24,6 @@
       title: 'Gallery',
       body: 'Show customers your work, products, venue, food, team or finished projects.'
     },
-    shop: {
-      label: 'Shop',
-      title: 'Shop our products',
-      body: 'Browse featured products and buy securely through Stripe Checkout.'
-    },
     contact: {
       label: 'Contact',
       title: 'Get in touch',
@@ -101,7 +96,6 @@
 
   const els = {
     saveBtn: $('saveBtn'),
-    publishBtn: $('publishBtn'),
     backBtn: $('backBtn'),
     logoutBtn: $('logoutBtn'),
     saveStatus: $('builderSaveStatus'),
@@ -149,35 +143,6 @@
     checkDomainBtn: $('checkDomainBtn'),
     domainResult: $('domainResult'),
 
-    retailEnabled: $('retailEnabled'),
-    retailCurrency: $('retailCurrency'),
-    retailStripeAccountId: $('retailStripeAccountId'),
-    retailConnectBtn: $('retailConnectBtn'),
-    retailRefreshConnectBtn: $('retailRefreshConnectBtn'),
-    retailConnectStatus: $('retailConnectStatus'),
-    retailConnectedAccountView: $('retailConnectedAccountView'),
-    retailTaxEnabled: $('retailTaxEnabled'),
-    retailShippingLabel: $('retailShippingLabel'),
-    retailShippingAmount: $('retailShippingAmount'),
-    addRetailProductBtn: $('addRetailProductBtn'),
-    retailProductsList: $('retailProductsList'),
-    retailProductCount: $('retailProductCount'),
-
-    siteLayoutStyle: $('siteLayoutStyle'),
-    sectionShape: $('sectionShape'),
-    imageStyle: $('imageStyle'),
-    backgroundMode: $('backgroundMode'),
-    headingFontStyle: $('headingFontStyle'),
-    contentDensity: $('contentDensity'),
-    secondaryColor: $('secondaryColor'),
-    cardColor: $('cardColor'),
-    logoPackage: $('logoPackage'),
-    logoBrief: $('logoBrief'),
-    logoStyle: $('logoStyle'),
-    logoColours: $('logoColours'),
-    requestLogoBtn: $('requestLogoBtn'),
-    logoRequestStatus: $('logoRequestStatus'),
-
     desktopBtn: $('desktopBtn'),
     mobileBtn: $('mobileBtn'),
     previewFrame: $('previewFrame'),
@@ -222,28 +187,7 @@
     useCustomDomain: false,
     httpsEnabled: true,
     domainOption: 'pbi_subdomain',
-    domainRegistration: null,
-
-    retailEnabled: false,
-    retailCurrency: 'gbp',
-    retailStripeAccountId: '',
-    retailTaxEnabled: false,
-    retailShippingLabel: 'UK standard delivery',
-    retailShippingAmount: '3.99',
-    retailProducts: [],
-
-    siteLayoutStyle: 'classic',
-    sectionShape: 'soft',
-    imageStyle: 'rounded',
-    backgroundMode: 'plain',
-    headingFontStyle: 'bold',
-    contentDensity: 'comfortable',
-    secondaryColor: '#f2b66d',
-    cardColor: '#fff8f1',
-    logoPackage: 'standard',
-    logoBrief: '',
-    logoStyle: 'clean',
-    logoColours: ''
+    domainRegistration: null
   };
 
   function escapeHtml(value) {
@@ -478,31 +422,9 @@
       document.querySelector('input[name="launchDomainOption"]:checked')?.value ||
       'pbi_subdomain';
 
-    syncRetailInputsToState();
-
-    state.siteLayoutStyle = els.siteLayoutStyle?.value || state.siteLayoutStyle || 'classic';
-    state.sectionShape = els.sectionShape?.value || state.sectionShape || 'soft';
-    state.imageStyle = els.imageStyle?.value || state.imageStyle || 'rounded';
-    state.backgroundMode = els.backgroundMode?.value || state.backgroundMode || 'plain';
-    state.headingFontStyle = els.headingFontStyle?.value || state.headingFontStyle || 'bold';
-    state.contentDensity = els.contentDensity?.value || state.contentDensity || 'comfortable';
-    state.secondaryColor = els.secondaryColor?.value || state.secondaryColor || '#f2b66d';
-    state.cardColor = els.cardColor?.value || state.cardColor || '#fff8f1';
-    state.logoPackage = els.logoPackage?.value || state.logoPackage || 'standard';
-    state.logoBrief = els.logoBrief?.value || state.logoBrief || '';
-    state.logoStyle = els.logoStyle?.value || state.logoStyle || 'clean';
-    state.logoColours = els.logoColours?.value || state.logoColours || '';
-
-    const selectedTemplateChoice = document.querySelector('input[name="templateStyle"]:checked')?.value || '';
-    const selectedPreset = getTemplatePreset(selectedTemplateChoice);
-
-    if (selectedPreset) {
-      state.templatePreset = selectedPreset.id;
-      state.template = normaliseTemplate(selectedPreset.template || state.template);
-    } else {
-      state.templatePreset = '';
-      state.template = normaliseTemplate(selectedTemplateChoice || state.template);
-    }
+    state.template = normaliseTemplate(
+      document.querySelector('input[name="templateStyle"]:checked')?.value || state.template
+    );
 
     const currentPage = getPage(state.activePage);
     currentPage.title = els.pageTitle?.value || '';
@@ -545,24 +467,8 @@
     if (els.useCustomDomain) els.useCustomDomain.value = String(Boolean(state.useCustomDomain));
     if (els.httpsEnabled) els.httpsEnabled.value = String(state.httpsEnabled !== false);
 
-    syncRetailStateToInputs();
-
-    if (els.siteLayoutStyle) els.siteLayoutStyle.value = state.siteLayoutStyle || 'classic';
-    if (els.sectionShape) els.sectionShape.value = state.sectionShape || 'soft';
-    if (els.imageStyle) els.imageStyle.value = state.imageStyle || 'rounded';
-    if (els.backgroundMode) els.backgroundMode.value = state.backgroundMode || 'plain';
-    if (els.headingFontStyle) els.headingFontStyle.value = state.headingFontStyle || 'bold';
-    if (els.contentDensity) els.contentDensity.value = state.contentDensity || 'comfortable';
-    if (els.secondaryColor) els.secondaryColor.value = state.secondaryColor || '#f2b66d';
-    if (els.cardColor) els.cardColor.value = state.cardColor || '#fff8f1';
-    if (els.logoPackage) els.logoPackage.value = state.logoPackage || 'standard';
-    if (els.logoBrief) els.logoBrief.value = state.logoBrief || '';
-    if (els.logoStyle) els.logoStyle.value = state.logoStyle || 'clean';
-    if (els.logoColours) els.logoColours.value = state.logoColours || '';
-
-    const templateChoiceValue = state.templatePreset || state.template;
     const templateInput = document.querySelector(
-      `input[name="templateStyle"][value="${templateChoiceValue}"]`
+      `input[name="templateStyle"][value="${state.template}"]`
     );
 
     if (templateInput) {
@@ -740,19 +646,7 @@
   }
 
   function activePage() {
-    const page = { ...getPage(state.activePage) };
-
-    // The main heading/subheading controls are the customer's obvious homepage controls.
-    // Keep them wired into the live preview so typing there immediately changes the hero.
-    if (state.activePage === 'home') {
-      const mainHeading = (state.pageMainHeading || '').trim();
-      const subHeading = (state.subHeading || '').trim();
-
-      if (mainHeading) page.title = mainHeading;
-      if (subHeading) page.body = subHeading;
-    }
-
-    return page;
+    return getPage(state.activePage);
   }
 
   function renderLocalServiceTemplate() {
@@ -838,7 +732,6 @@
       </section>
 
       ${state.activePage === 'gallery' ? `<section class="tpl-gallery-section"><h2>Gallery</h2>${previewGallery(8)}</section>` : ''}
-      ${state.activePage === 'shop' || state.retailEnabled ? `<section class="tpl-gallery-section"><h2>Shop products</h2>${renderRetailPreviewProducts(8)}</section>` : ''}
       <footer class="preview-footer">© ${escapeHtml(businessName)} • Crafted with PBI</footer>
     `;
   }
@@ -867,7 +760,13 @@
           ${cta('Browse now')}
         </div>
 
-        ${renderRetailPreviewProducts(4)}
+        <div class="tpl-retail-product-grid">
+          ${(images.length ? images.slice(0, 4) : ['', '', '', '']).map((image, index) => `
+            <div class="tpl-product-card">
+              ${image ? `<img src="${image}" alt="">` : `<span>Product ${index + 1}</span>`}
+            </div>
+          `).join('')}
+        </div>
       </section>
 
       <section class="tpl-retail-promo">
@@ -955,243 +854,8 @@
     `;
   }
 
-
-
-  function formatRetailPrice(product) {
-    const currency = (state.retailCurrency || 'gbp').toUpperCase();
-    const amount = Number(product?.price || 0);
-    if (!Number.isFinite(amount)) return `${currency} 0.00`;
-    try { return new Intl.NumberFormat('en-GB', { style: 'currency', currency }).format(amount); }
-    catch { return `${currency} ${amount.toFixed(2)}`; }
-  }
-
-  function defaultRetailProduct(index = 0) {
-    return {
-      id: `prod_${Date.now()}_${Math.random().toString(16).slice(2, 8)}`,
-      name: `Product ${index + 1}`,
-      description: 'Short product description.',
-      price: '9.99',
-      stock: '10',
-      sku: '',
-      image: '',
-      stripe_price_id: '',
-      payment_url: '',
-      active: true,
-      track_stock: true
-    };
-  }
-
-  function activeRetailProducts() {
-    return (state.retailProducts || []).filter((product) => product && product.active !== false && product.name);
-  }
-
-
-function setRetailConnectMessage(message, type = 'info') {
-  if (!els.retailConnectStatus) return;
-  els.retailConnectStatus.textContent = message || '';
-  els.retailConnectStatus.className = `small-note ${type === 'success' ? 'success-text' : type === 'error' ? 'error-text' : 'muted'}`;
-}
-
-function setRetailConnectedAccount(accountId, ready = false) {
-  state.retailStripeAccountId = accountId || '';
-  if (els.retailStripeAccountId) els.retailStripeAccountId.value = state.retailStripeAccountId;
-  if (els.retailConnectedAccountView) {
-    els.retailConnectedAccountView.value = accountId
-      ? `${accountId}${ready ? ' • ready' : ' • onboarding pending'}`
-      : 'Not connected yet';
-  }
-}
-
-async function loadRetailConnectStatus({ quiet = false } = {}) {
-  try {
-    const query = projectId ? `?project=${encodeURIComponent(projectId)}` : '';
-    const result = await api(`/api/retail/connect/status${query}`);
-    const connect = result.connect || {};
-    setRetailConnectedAccount(connect.account_id || '', Boolean(connect.ready));
-
-    if (connect.ready) {
-      setRetailConnectMessage('Stripe is connected and ready for live retail checkout.', 'success');
-    } else if (connect.connected) {
-      setRetailConnectMessage('Stripe account created. Finish the Stripe-hosted onboarding before taking live shop payments.', 'info');
-    } else if (!quiet) {
-      setRetailConnectMessage('Stripe is not connected yet. Click Connect Stripe to start secure onboarding.', 'info');
-    }
-
-    return connect;
-  } catch (error) {
-    if (!quiet) setRetailConnectMessage(error.message || 'Could not check Stripe connection.', 'error');
-    return null;
-  }
-}
-
-async function startRetailConnect() {
-  if (!projectId) {
-    setRetailConnectMessage('Save/create the project first, then connect Stripe.', 'error');
-    return;
-  }
-
-  if (els.retailConnectBtn) {
-    els.retailConnectBtn.disabled = true;
-    els.retailConnectBtn.textContent = 'Opening Stripe...';
-  }
-
-  try {
-    syncInputsToState();
-    await saveProject();
-    const result = await api('/api/retail/connect/start', {
-      method: 'POST',
-      body: JSON.stringify({
-        project_id: projectId,
-        country: 'GB',
-        business_type: 'company'
-      })
-    });
-
-    if (result.url) {
-      window.location.href = result.url;
-      return;
-    }
-
-    setRetailConnectMessage('Stripe did not return an onboarding link.', 'error');
-  } catch (error) {
-    setRetailConnectMessage(error.message || 'Could not start Stripe onboarding.', 'error');
-  } finally {
-    if (els.retailConnectBtn) {
-      els.retailConnectBtn.disabled = false;
-      els.retailConnectBtn.textContent = 'Connect Stripe';
-    }
-  }
-}
-
-  function syncRetailInputsToState() {
-    if (els.retailEnabled) state.retailEnabled = els.retailEnabled.value === 'true';
-    if (els.retailCurrency) state.retailCurrency = (els.retailCurrency.value || 'gbp').toLowerCase();
-    if (els.retailStripeAccountId) state.retailStripeAccountId = els.retailStripeAccountId.value || '';
-    if (els.retailTaxEnabled) state.retailTaxEnabled = els.retailTaxEnabled.value === 'true';
-    if (els.retailShippingLabel) state.retailShippingLabel = els.retailShippingLabel.value || 'UK standard delivery';
-    if (els.retailShippingAmount) state.retailShippingAmount = els.retailShippingAmount.value || '0';
-
-    if (!els.retailProductsList) return;
-
-    const cards = Array.from(els.retailProductsList.querySelectorAll('[data-retail-product-index]'));
-    if (!cards.length) return;
-
-    const products = cards.map((card) => {
-      const index = Number(card.dataset.retailProductIndex || 0);
-      const existing = state.retailProducts[index] || defaultRetailProduct(index);
-      return {
-        ...existing,
-        name: card.querySelector('[data-product-field="name"]')?.value || '',
-        description: card.querySelector('[data-product-field="description"]')?.value || '',
-        price: card.querySelector('[data-product-field="price"]')?.value || '0',
-        stock: card.querySelector('[data-product-field="stock"]')?.value || '0',
-        sku: card.querySelector('[data-product-field="sku"]')?.value || '',
-        stripe_price_id: card.querySelector('[data-product-field="stripe_price_id"]')?.value || '',
-        payment_url: card.querySelector('[data-product-field="payment_url"]')?.value || '',
-        active: card.querySelector('[data-product-field="active"]')?.value !== 'false',
-        track_stock: card.querySelector('[data-product-field="track_stock"]')?.value !== 'false'
-      };
-    });
-
-    state.retailProducts = products.slice(0, 10);
-  }
-
-  function syncRetailStateToInputs() {
-    if (els.retailEnabled) els.retailEnabled.value = String(Boolean(state.retailEnabled));
-    if (els.retailCurrency) els.retailCurrency.value = (state.retailCurrency || 'gbp').toLowerCase();
-    if (els.retailStripeAccountId) els.retailStripeAccountId.value = state.retailStripeAccountId || '';
-    if (els.retailConnectedAccountView) els.retailConnectedAccountView.value = state.retailStripeAccountId ? `${state.retailStripeAccountId} • saved` : 'Not connected yet';
-    if (els.retailTaxEnabled) els.retailTaxEnabled.value = String(Boolean(state.retailTaxEnabled));
-    if (els.retailShippingLabel) els.retailShippingLabel.value = state.retailShippingLabel || 'UK standard delivery';
-    if (els.retailShippingAmount) els.retailShippingAmount.value = state.retailShippingAmount || '0';
-  }
-
-  function renderRetailProductsEditor() {
-    if (!els.retailProductsList) return;
-    const products = (state.retailProducts || []).slice(0, 10);
-    if (els.retailProductCount) els.retailProductCount.textContent = `${products.length} / 10 products`;
-
-    if (!products.length) {
-      els.retailProductsList.innerHTML = '<div class="notice">No products added yet. Click “Add product” to start your retail page.</div>';
-      return;
-    }
-
-    els.retailProductsList.innerHTML = products.map((product, index) => `
-      <article class="retail-product-editor" data-retail-product-index="${index}">
-        <div class="retail-product-editor-head">
-          <strong>Product ${index + 1}</strong>
-          <button type="button" class="btn-ghost" data-remove-retail-product="${index}">Remove</button>
-        </div>
-        <div class="grid-2">
-          <div class="field"><label>Name</label><input class="input" data-product-field="name" value="${escapeAttr(product.name || '')}" placeholder="Product name"></div>
-          <div class="field"><label>Price</label><input class="input" data-product-field="price" type="number" min="0" step="0.01" value="${escapeAttr(product.price || '')}" placeholder="14.99"></div>
-        </div>
-        <div class="field"><label>Description</label><textarea class="textarea" data-product-field="description" placeholder="Short description">${escapeHtml(product.description || '')}</textarea></div>
-        <div class="grid-2">
-          <div class="field"><label>Stock quantity</label><input class="input" data-product-field="stock" type="number" min="0" step="1" value="${escapeAttr(product.stock ?? '0')}"></div>
-          <div class="field"><label>SKU/reference</label><input class="input" data-product-field="sku" value="${escapeAttr(product.sku || '')}" placeholder="SKU-001"></div>
-        </div>
-        <div class="grid-2">
-          <div class="field"><label>Stripe Price ID (optional)</label><input class="input" data-product-field="stripe_price_id" value="${escapeAttr(product.stripe_price_id || '')}" placeholder="price_..."></div>
-          <div class="field"><label>Payment Link fallback</label><input class="input" data-product-field="payment_url" value="${escapeAttr(product.payment_url || '')}" placeholder="https://buy.stripe.com/..."></div>
-        </div>
-        <div class="grid-2">
-          <div class="field"><label>Visible</label><select class="select" data-product-field="active"><option value="true" ${product.active !== false ? 'selected' : ''}>Yes</option><option value="false" ${product.active === false ? 'selected' : ''}>No</option></select></div>
-          <div class="field"><label>Track stock</label><select class="select" data-product-field="track_stock"><option value="true" ${product.track_stock !== false ? 'selected' : ''}>Yes</option><option value="false" ${product.track_stock === false ? 'selected' : ''}>No</option></select></div>
-        </div>
-        <div class="field"><label>Product image</label><input class="input" data-product-image="${index}" type="file" accept="image/*"></div>
-        ${product.image ? `<img class="retail-product-editor-image" src="${product.image}" alt="${escapeAttr(product.name || 'Product image')}">` : ''}
-      </article>
-    `).join('');
-  }
-
-  function renderRetailPreviewProducts(limit = 4) {
-    const products = activeRetailProducts().slice(0, limit);
-    if (!products.length) {
-      return `
-        <div class="retail-products">
-          <div class="retail-product">Featured</div>
-          <div class="retail-product">New</div>
-          <div class="retail-product">Local</div>
-          <div class="retail-product">Offers</div>
-        </div>
-      `;
-    }
-
-    return `<div class="retail-products retail-products-live-preview">${products.map((product) => `
-      <div class="retail-product retail-product-card-preview">
-        ${product.image ? `<img src="${product.image}" alt="${escapeAttr(product.name)}">` : '<span>Product image</span>'}
-        <div><strong>${escapeHtml(product.name)}</strong><small>${escapeHtml(formatRetailPrice(product))}</small></div>
-      </div>`).join('')}</div>`;
-  }
-
-
-  function applyAdvancedPreviewClasses() {
-    if (!els.previewScroll) return;
-    const classes = [
-      `layout-${state.siteLayoutStyle || 'classic'}`,
-      `shape-${state.sectionShape || 'soft'}`,
-      `image-${state.imageStyle || 'rounded'}`,
-      `bg-${state.backgroundMode || 'plain'}`,
-      `heading-${state.headingFontStyle || 'bold'}`,
-      `density-${state.contentDensity || 'comfortable'}`
-    ];
-    els.previewScroll.classList.remove(
-      'layout-classic','layout-split','layout-editorial','layout-cards',
-      'shape-soft','shape-square','shape-pill',
-      'image-rounded','image-circle','image-polaroid','image-edge',
-      'bg-plain','bg-gradient','bg-image','bg-pattern',
-      'heading-bold','heading-friendly','heading-editorial',
-      'density-comfortable','density-compact','density-spacious'
-    );
-    els.previewScroll.classList.add(...classes);
-    els.previewScroll.style.setProperty('--pbi-secondary', state.secondaryColor || '#f2b66d');
-    els.previewScroll.style.setProperty('--pbi-card', state.cardColor || '#fff8f1');
-  }
-
   function renderPreview() {
     if (!els.previewScroll) return;
-    applyAdvancedPreviewClasses();
 
     if (els.previewAddress) {
       els.previewAddress.textContent = `https://${getPreviewDomain()}`;
@@ -1236,24 +900,9 @@ async function startRetailConnect() {
     renderPageTabs();
     renderPageEditor();
     renderGalleryThumbs();
-    renderRetailProductsEditor();
     renderPreview();
     showTemplatePresetBanner();
   }
-
-  let previewUpdateFrame = null;
-
-  function schedulePreviewUpdate() {
-    if (previewUpdateFrame) cancelAnimationFrame(previewUpdateFrame);
-
-    previewUpdateFrame = requestAnimationFrame(() => {
-      previewUpdateFrame = null;
-      syncInputsToState();
-      updateRangeNotes();
-      renderPreview();
-    });
-  }
-
 
   function collectProjectData() {
     syncInputsToState();
@@ -1294,27 +943,7 @@ async function startRetailConnect() {
       custom_domain: state.customDomain,
       use_custom_domain: state.useCustomDomain,
       https_enabled: state.httpsEnabled,
-      domain_option: state.domainOption,
-      retail_enabled: state.retailEnabled,
-      retail_currency: state.retailCurrency || 'gbp',
-      retail_stripe_account_id: state.retailStripeAccountId || '',
-      retail_tax_enabled: state.retailTaxEnabled,
-      retail_shipping_label: state.retailShippingLabel || 'UK standard delivery',
-      retail_shipping_amount: state.retailShippingAmount || '0',
-      retail_products: (state.retailProducts || []).slice(0, 10),
-      site_layout_style: state.siteLayoutStyle,
-      section_shape: state.sectionShape,
-      image_style: state.imageStyle,
-      background_mode: state.backgroundMode,
-      heading_font_style: state.headingFontStyle,
-      content_density: state.contentDensity,
-      secondary_color: state.secondaryColor,
-      card_color: state.cardColor,
-      logo_package: state.logoPackage,
-      logo_package: state.logoPackage,
-          logo_brief: state.logoBrief,
-      logo_style: state.logoStyle,
-      logo_colours: state.logoColours
+      domain_option: state.domainOption
     };
   }
 
@@ -1346,82 +975,13 @@ async function startRetailConnect() {
       });
 
       setSaveMessage('Project saved successfully.', 'success');
-      return true;
     } catch (error) {
       console.error(error);
       setSaveMessage(error.message || 'Could not save project.', 'error');
-      return false;
     } finally {
       if (els.saveBtn) {
         els.saveBtn.disabled = false;
         els.saveBtn.textContent = 'Save project';
-      }
-    }
-  }
-
-  async function publishProject() {
-    if (!projectId) {
-      setSaveMessage('No project ID found in the URL.', 'error');
-      return;
-    }
-
-    const oldText = els.publishBtn?.textContent || 'Publish website';
-    if (els.publishBtn) {
-      els.publishBtn.disabled = true;
-      els.publishBtn.textContent = 'Checking publish...';
-    }
-
-    try {
-      const saved = await saveProject();
-      if (!saved) return;
-
-      setSaveMessage('Checking whether payment is needed to publish. Building and previewing is free.', 'saving');
-      const result = await api('/api/projects/publish', {
-        method: 'POST',
-        body: JSON.stringify({
-          project_id: projectId,
-          domain_option: state.domainOption || 'pbi_subdomain'
-        })
-      });
-
-      if (result.payment_required && result.payment_url) {
-        setSaveMessage('Your website is saved. Payment is only needed now because you are publishing it live. Opening checkout...', 'info');
-        window.location.href = result.payment_url;
-        return;
-      }
-
-      if (result.published && result.live_url) {
-        setSaveMessage(`Website published successfully. Your live customer link is ready: ${result.live_url}`, 'success');
-        const wrap = document.createElement('span');
-        wrap.className = 'builder-live-link-wrap';
-
-        const liveButton = document.createElement('a');
-        liveButton.href = result.live_url;
-        liveButton.target = '_blank';
-        liveButton.rel = 'noopener';
-        liveButton.className = 'btn-ghost builder-live-link';
-        liveButton.textContent = 'View live website';
-
-        const dashboardButton = document.createElement('a');
-        dashboardButton.href = '/dashboard/';
-        dashboardButton.className = 'btn-ghost builder-live-link';
-        dashboardButton.textContent = 'Back to dashboard';
-
-        wrap.appendChild(liveButton);
-        wrap.appendChild(dashboardButton);
-        els.saveStatus?.appendChild(document.createTextNode(' '));
-        els.saveStatus?.appendChild(wrap);
-        return;
-      }
-
-      setSaveMessage(result.message || 'Publish status is unclear. Check your dashboard.', 'info');
-    } catch (error) {
-      console.error(error);
-      setSaveMessage(error.message || 'Could not publish website.', 'error');
-    } finally {
-      if (els.publishBtn) {
-        els.publishBtn.disabled = false;
-        els.publishBtn.textContent = oldText;
       }
     }
   }
@@ -1569,27 +1129,6 @@ async function startRetailConnect() {
       state.domainOption = data.domain_option || project.domain_option || 'pbi_subdomain';
       state.domainRegistration = data.domain_registration || null;
 
-      state.retailEnabled = Boolean(data.retail_enabled || data.template === 'retail' || data.template_preset === 'shop');
-      state.retailCurrency = (data.retail_currency || 'gbp').toLowerCase();
-      state.retailStripeAccountId = data.retail_stripe_account_id || '';
-      state.retailTaxEnabled = Boolean(data.retail_tax_enabled);
-      state.retailShippingLabel = data.retail_shipping_label || 'UK standard delivery';
-      state.retailShippingAmount = data.retail_shipping_amount || '3.99';
-      state.retailProducts = Array.isArray(data.retail_products) ? data.retail_products.slice(0, 10) : [];
-
-      state.siteLayoutStyle = data.site_layout_style || 'classic';
-      state.sectionShape = data.section_shape || 'soft';
-      state.imageStyle = data.image_style || 'rounded';
-      state.backgroundMode = data.background_mode || 'plain';
-      state.headingFontStyle = data.heading_font_style || 'bold';
-      state.contentDensity = data.content_density || 'comfortable';
-      state.secondaryColor = data.secondary_color || '#f2b66d';
-      state.cardColor = data.card_color || '#fff8f1';
-      state.logoPackage = data.logo_package || 'standard';
-      state.logoBrief = data.logo_brief || '';
-      state.logoStyle = data.logo_style || 'clean';
-      state.logoColours = data.logo_colours || '';
-
       const urlPreset = params.get('preset') || '';
       const presetToApply = urlPreset || state.templatePreset;
       if (presetToApply && (projectLooksBlank(data) || urlPreset)) {
@@ -1602,13 +1141,6 @@ async function startRetailConnect() {
 
     syncStateToInputs();
     renderAll();
-
-    // Cloudflare preview pages can finish image/layout work just after data load.
-    // Trigger a second lightweight preview pass so loaded template data is reflected.
-    setTimeout(() => {
-      syncInputsToState();
-      renderPreview();
-    }, 0);
   }
 
   async function handleLogoUpload(event) {
@@ -1617,7 +1149,7 @@ async function startRetailConnect() {
     if (!file) return;
 
     state.logoDataUrl = await readFileAsDataUrl(file);
-    renderAll();
+    renderPreview();
   }
 
   async function handleGalleryUpload(event) {
@@ -1668,7 +1200,7 @@ async function startRetailConnect() {
       renderDomainResults(result);
     } catch (error) {
       console.error(error);
-      setDomainMessage(error.message || 'Could not check domain. You can still publish on a PBI subdomain and add a custom domain later.', 'error');
+      setDomainMessage(error.message || 'Could not check domain.', 'error');
     }
   }
 
@@ -1678,7 +1210,6 @@ async function startRetailConnect() {
 
     if (!template) return;
 
-    state.templatePreset = '';
     state.template = normalisedKey;
     state.accentColor = template.accent;
     state.backgroundColor = template.background;
@@ -1689,18 +1220,6 @@ async function startRetailConnect() {
 
     syncStateToInputs();
     renderAll();
-  }
-
-  function applyTemplateChoice(templateKey) {
-    const preset = getTemplatePreset(templateKey);
-    if (preset) {
-      applyTemplatePreset(templateKey, { keepProjectName: true });
-      syncStateToInputs();
-      renderAll();
-      return;
-    }
-
-    applyTemplateDefaults(templateKey);
   }
 
   function updateTemplateChoiceLabels() {
@@ -1720,65 +1239,11 @@ async function startRetailConnect() {
     });
   }
 
-
-  function setLogoRequestMessage(message, type = 'info') {
-    if (!els.logoRequestStatus) return;
-    els.logoRequestStatus.style.display = 'block';
-    els.logoRequestStatus.className = `notice ${type}`;
-    els.logoRequestStatus.textContent = message || '';
-  }
-
-  async function requestPaidLogoCreation() {
-    syncInputsToState();
-
-    if (!state.logoBrief || state.logoBrief.trim().length < 12) {
-      setLogoRequestMessage('Please describe the logo you want before requesting paid logo creation.', 'error');
-      return;
-    }
-
-    if (els.requestLogoBtn) {
-      els.requestLogoBtn.disabled = true;
-      els.requestLogoBtn.textContent = 'Preparing logo request...';
-    }
-
-    try {
-      await saveProject();
-      const result = await api('/api/logo/create-checkout', {
-        method: 'POST',
-        body: JSON.stringify({
-          project_id: projectId,
-          business_name: state.businessName,
-          logo_brief: state.logoBrief,
-          logo_style: state.logoStyle,
-          logo_colours: state.logoColours
-        })
-      });
-
-      if (result.url) {
-        window.location.href = result.url;
-        return;
-      }
-
-      setLogoRequestMessage(result.message || 'Logo request saved. PBI will contact you.', 'success');
-    } catch (error) {
-      setLogoRequestMessage(error.message || 'Could not start logo creation request.', 'error');
-    } finally {
-      if (els.requestLogoBtn) {
-        els.requestLogoBtn.disabled = false;
-        els.requestLogoBtn.textContent = 'Request paid logo creation';
-      }
-    }
-  }
-
   function bindEvents() {
     updateTemplateChoiceLabels();
 
     if (els.saveBtn) {
       els.saveBtn.addEventListener('click', saveProject);
-    }
-
-    if (els.publishBtn) {
-      els.publishBtn.addEventListener('click', publishProject);
     }
 
     if (els.aiGenerateBtn) {
@@ -1822,81 +1287,9 @@ async function startRetailConnect() {
 
     document.querySelectorAll('input[name="templateStyle"]').forEach((input) => {
       input.addEventListener('change', () => {
-        applyTemplateChoice(input.value);
+        applyTemplateDefaults(input.value);
       });
     });
-
-
-
-    if (els.addRetailProductBtn) {
-      els.addRetailProductBtn.addEventListener('click', () => {
-        syncRetailInputsToState();
-        if ((state.retailProducts || []).length >= 10) {
-          setSaveMessage('You can add up to 10 products on this retail template.', 'error');
-          return;
-        }
-        state.retailEnabled = true;
-        state.retailProducts.push(defaultRetailProduct(state.retailProducts.length));
-        syncRetailStateToInputs();
-        renderAll();
-      });
-    }
-
-    if (els.retailProductsList) {
-      els.retailProductsList.addEventListener('input', (event) => {
-        if (event.target.closest('[data-product-field]')) {
-          syncRetailInputsToState();
-          renderPreview();
-        }
-      });
-
-      els.retailProductsList.addEventListener('change', async (event) => {
-        const imageInput = event.target.closest('[data-product-image]');
-        if (imageInput) {
-          const index = Number(imageInput.dataset.productImage || 0);
-          const file = imageInput.files?.[0];
-          if (file) {
-            syncRetailInputsToState();
-            state.retailProducts[index] = state.retailProducts[index] || defaultRetailProduct(index);
-            state.retailProducts[index].image = await readFileAsDataUrl(file);
-            renderAll();
-          }
-          return;
-        }
-
-        if (event.target.closest('[data-product-field]')) {
-          syncRetailInputsToState();
-          renderPreview();
-        }
-      });
-
-      els.retailProductsList.addEventListener('click', (event) => {
-        const remove = event.target.closest('[data-remove-retail-product]');
-        if (!remove) return;
-        syncRetailInputsToState();
-        state.retailProducts.splice(Number(remove.dataset.removeRetailProduct), 1);
-        renderAll();
-      });
-    }
-
-    [els.retailEnabled, els.retailCurrency, els.retailStripeAccountId, els.retailTaxEnabled, els.retailShippingLabel, els.retailShippingAmount]
-      .filter(Boolean)
-      .forEach((input) => {
-        input.addEventListener('input', () => { syncRetailInputsToState(); schedulePreviewUpdate(); });
-        input.addEventListener('change', () => { syncRetailInputsToState(); schedulePreviewUpdate(); });
-      });
-
-    if (els.retailConnectBtn) els.retailConnectBtn.addEventListener('click', startRetailConnect);
-    if (els.retailRefreshConnectBtn) els.retailRefreshConnectBtn.addEventListener('click', () => loadRetailConnectStatus({ quiet: false }));
-
-    if (els.requestLogoBtn) els.requestLogoBtn.addEventListener('click', requestPaidLogoCreation);
-
-    [els.siteLayoutStyle, els.sectionShape, els.imageStyle, els.backgroundMode, els.headingFontStyle, els.contentDensity, els.secondaryColor, els.cardColor, els.logoPackage, els.logoBrief, els.logoStyle, els.logoColours]
-      .filter(Boolean)
-      .forEach((input) => {
-        input.addEventListener('input', schedulePreviewUpdate);
-        input.addEventListener('change', schedulePreviewUpdate);
-      });
 
     document
       .querySelectorAll('input[name="launchDomainOption"], .pageToggle')
@@ -1934,31 +1327,16 @@ async function startRetailConnect() {
     ]
       .filter(Boolean)
       .forEach((input) => {
-        input.addEventListener('input', schedulePreviewUpdate);
-        input.addEventListener('change', schedulePreviewUpdate);
+        input.addEventListener('input', () => {
+          syncInputsToState();
+          renderAll();
+        });
+
+        input.addEventListener('change', () => {
+          syncInputsToState();
+          renderAll();
+        });
       });
-
-    const builderLeft = document.querySelector('.builder-left');
-    if (builderLeft && !builderLeft.dataset.livePreviewBound) {
-      builderLeft.dataset.livePreviewBound = 'true';
-
-      builderLeft.addEventListener('input', (event) => {
-        const target = event.target;
-        if (!target || target.type === 'file') return;
-        schedulePreviewUpdate();
-      });
-
-      builderLeft.addEventListener('change', (event) => {
-        const target = event.target;
-        if (!target || target.type === 'file') return;
-
-        if (target.matches('input[name="templateStyle"], input[name="launchDomainOption"], .pageToggle')) {
-          return;
-        }
-
-        schedulePreviewUpdate();
-      });
-    }
 
     if (els.desktopBtn && els.mobileBtn && els.previewFrame) {
       els.desktopBtn.addEventListener('click', () => {
@@ -1987,5 +1365,5 @@ async function startRetailConnect() {
   bindEvents();
   syncStateToInputs();
   renderAll();
-  loadProject().then(() => loadRetailConnectStatus({ quiet: true }));
+  loadProject();
 })();
