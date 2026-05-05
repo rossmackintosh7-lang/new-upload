@@ -25,7 +25,7 @@
     if(!drop)return; if(empty) empty.hidden=true;
     drop.style.setProperty('--preview-accent',accent); drop.style.background=bg; drop.style.color=text;
     const services=(state.servicesList||state.services_list||preset.servicesList||['Service one','Service two','Service three']).map(x=>`<article><h3>${x}</h3><p>Edit this card from the inspector or replace it with your own section.</p></article>`).join('');
-    const img=state.heroImage||preset.heroImage||'/assets/pbi-logo-original.png';
+    const img=state.heroImage||preset.heroImage||'/assets/demo-media/cafe-hero.jpg';
     drop.innerHTML = block('hero',`<div class="pbi-live-hero"><div><p class="eyebrow">${state.tagline||preset.tagline||'Built with PBI'}</p><h1>${p.title||state.page_main_heading||preset.pageMainHeading||'Your website headline'}</h1><p>${p.body||state.sub_heading||preset.subHeading||'Your website introduction.'}</p><a class="btn" style="background:${accent}" href="#contact">${state.cta_button_text||preset.ctaButtonText||'Get started'}</a></div><img src="${img}" alt="Website preview image"></div>`)+
       block('services',`<div class="pbi-live-section"><p class="eyebrow">What you offer</p><h2>${preset.label||'Services'} built clearly</h2><div class="pbi-live-card-grid">${services}</div></div>`)+
       block('gallery',`<div class="pbi-live-section"><p class="eyebrow">Premium flow</p><h2>Move sections, edit content and shape the page.</h2><p>${premium?'Freeform and advanced controls are unlocked for this package.':'Starter keeps the page guided so customers cannot accidentally wreck the layout.'}</p></div>`)+

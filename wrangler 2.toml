@@ -1,0 +1,39 @@
+name = "new-upload"
+compatibility_date = "2025-04-01"
+pages_build_output_dir = "."
+
+[vars]
+PBI_REQUIRE_PAYMENT_TO_PUBLISH = "true"
+OPENAI_MODEL = "gpt-5.5"
+PBI_BASE_URL = "https://www.purbeckbusinessinnovations.co.uk"
+PBI_ASSETS_PUBLIC_URL = "https://assets.purbeckbusinessinnovations.co.uk"
+PBI_ADMIN_EMAILS = "rossmackintosh7@icloud.com,info@purbeckbusinessinnovations.co.uk"
+CUSTOM_BUILD_NOTIFY_TO = "info@purbeckbusinessinnovations.co.uk"
+CUSTOM_BUILD_NOTIFY_FROM = "PBI <enquiry@purbeckbusinessinnovations.co.uk>"
+PBI_SEO_PAGES = "/,/builder/,/custom-build/,/pricing/,/contact/,/about/,/examples/,/websites-for-cafes/,/websites-for-consultants/,/websites-for-holiday-lets/,/websites-for-salons/,/websites-for-shops/,/websites-for-tradespeople/"
+STRIPE_PRICE_STARTER = "price_1TQkSiS5Wx1jQ43vmL9MywGU"
+STRIPE_PRICE_BUSINESS = "price_1TQkTDS5Wx1jQ43vAAJ2e1eX"
+STRIPE_PRICE_PLUS = "price_1TQkThS5Wx1jQ43vm0p1XAv2"
+STRIPE_PRICE_ASSISTED_SETUP = "price_1TQkU8S5Wx1jQ43vb0stUBnG"
+STRIPE_PRICE_CUSTOM_DEPOSIT = "price_1TQn8b5SWx1jQ43vaEMcza6I"
+STRIPE_PRICE_DOMAIN_MANAGEMENT_YEARLY = "price_1TQkVRS5Wx1jQ43vnq8AP6wN"
+
+# Retail V5 starter switches
+PBI_RETAIL_CONNECT_ENABLED = "true"
+PBI_RETAIL_ALLOW_PLATFORM_PAYMENTS = "false"
+PBI_RETAIL_APPLICATION_FEE_PERCENT = "0"
+PBI_RETAIL_CONNECT_ACCOUNT_TYPE = "express"
+RETAIL_ALLOWED_COUNTRY_1 = "GB"
+PBI_LOGO_CREATION_ENABLED = "true"
+PBI_LOGO_CREATION_PRICE_REQUIRED = "true"
+STRIPE_PRICE_LOGO_CREATION = "price_1TSaZIS5Wx1jQ43vIDEO3hcJ"
+STRIPE_PRICE_LOGO_BRAND_KIT = "price_1TSab9S5Wx1jQ43veBeaYSXL"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "d1-template-database"
+database_id = "f4c649dc-8047-43c3-940a-fa3854d18c21"
+
+[[r2_buckets]]
+binding = "PBI_ASSETS"
+bucket_name = "pbi-assets"
