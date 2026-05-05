@@ -34,19 +34,22 @@ window.PBIAuth = (() => {
       if (btn) { btn.disabled = true; btn.textContent = 'Creating account...'; }
       try {
         const params = new URLSearchParams(window.location.search);
-        const templatePreset = params.get('template_preset') || '';
+        const templatePreset = params.get('template_preset') || params.get('preset') || params.get('template') || localStorage.getItem('pbi_selected_template') || 'cafe';
+        const selectedPlan = (params.get('plan') || localStorage.getItem('pbi_plan') || 'starter').toLowerCase();
         const data = await requestJson('/api/auth/signup', {
           email: fd.get('email'),
           password: fd.get('password'),
           project_name: fd.get('project_name'),
           template_preset: templatePreset,
+          plan: selectedPlan,
+          package: selectedPlan,
           terms_accepted: fd.get('terms_accepted') === 'on',
           terms_version: fd.get('terms_version') || '2026-04-28',
           turnstileToken: fd.get('cf-turnstile-response')
         });
         showMessage(messageId, 'success', 'Account created. Redirecting...');
-        const target = templatePreset && data.project?.id
-          ? `/builder/?project=${encodeURIComponent(data.project.id)}&preset=${encodeURIComponent(templatePreset)}`
+        const target = data.project?.id
+          ? `/canvas-builder/?project=${encodeURIComponent(data.project.id)}&preset=${encodeURIComponent(templatePreset)}&plan=${encodeURIComponent(selectedPlan)}`
           : '/dashboard/';
         setTimeout(() => { location.href = target; }, 500);
       } catch (err) {

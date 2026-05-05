@@ -1,10 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
   const params = new URLSearchParams(window.location.search);
   const projectId = params.get('project');
-  let selectedPlan = (params.get('plan') || localStorage.getItem('pbi_plan') || 'starter').toLowerCase();
   const success = params.get('success') === '1';
   const cancelled = params.get('cancelled') === '1';
-  const stripeSessionId = params.get('session_id') || '';
   const message = document.getElementById('paymentMessage');
   const selectedDomainSummary = document.getElementById('selectedDomainSummary');
   let projectData = {};
@@ -86,33 +84,14 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const data = await api(`/api/projects/get?id=${encodeURIComponent(projectId)}`);
       projectData = parseProjectData(data.project || {});
-      selectedPlan = (params.get('plan') || data.project?.plan || projectData.plan || projectData.package || selectedPlan || 'starter').toLowerCase();
-      localStorage.setItem('pbi_plan', selectedPlan);
-      renderSelectedPlan();
       renderDomainSummary();
     } catch (error) {
       console.warn('Could not load project domain data:', error);
     }
   }
 
-  function renderSelectedPlan() {
-    document.querySelectorAll('.planBtn').forEach((button) => {
-      const active = String(button.dataset.plan || '').toLowerCase() === selectedPlan;
-      button.classList.toggle('active', active);
-      if (active) button.textContent = `Pay and publish ${selectedPlan.charAt(0).toUpperCase() + selectedPlan.slice(1)}`;
-    });
-    document.querySelectorAll('[data-plan]').forEach((card) => {
-      card.classList.toggle('selected-plan', String(card.dataset.plan || '').toLowerCase() === selectedPlan);
-    });
-  }
-
   async function createCheckout(plan) {
     if (!projectId) return showMessage('No project selected. Go back to your dashboard and choose a project to publish.', 'error');
-
-    plan = (plan || selectedPlan || 'starter').toLowerCase();
-    selectedPlan = plan;
-    localStorage.setItem('pbi_plan', selectedPlan);
-    renderSelectedPlan();
 
     const domainOption = selectedDomainOption();
     const domainRegistration = selectedDomainRegistration();
@@ -129,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
         method: 'POST',
         body: JSON.stringify({
           project_id: projectId,
-          plan: selectedPlan,
+          plan,
           domain_option: domainOption,
           domain_registration: domainRegistration
         })
@@ -148,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
     showMessage('Checking payment and publishing your website...', 'info');
 
     try {
-      const data = await api('/api/projects/publish', { method: 'POST', body: JSON.stringify({ project_id: projectId, plan: selectedPlan, stripe_session_id: stripeSessionId, domain_option: selectedDomainOption() }) });
+      const data = await api('/api/projects/publish', { method: 'POST', body: JSON.stringify({ project_id: projectId, domain_option: selectedDomainOption() }) });
       if (data.published) { showMessage(`Your website is live: ${data.live_url}`, 'success'); return; }
       if (data.payment_required) { showMessage('Payment is not active yet. If you have just paid, wait a few seconds and refresh this page.', 'info'); return; }
       showMessage(data.message || 'Publish status is unclear.', 'info');
@@ -156,7 +135,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   document.querySelectorAll('.planBtn').forEach((button) => button.addEventListener('click', () => createCheckout(button.dataset.plan)));
-  renderSelectedPlan();
   document.querySelectorAll('input[name="domainOption"]').forEach((input) => input.addEventListener('change', renderDomainSummary));
 
   loadProject().then(() => {

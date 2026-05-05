@@ -253,6 +253,25 @@
         <button type="button" data-plan-select="plus">Plus</button>
       `;
       $(".pbi-canvas-top-actions")?.prepend(control);
+      const newBtn = document.createElement("button");
+      newBtn.id = "pbiNewProjectBtn";
+      newBtn.className = "btn-ghost";
+      newBtn.type = "button";
+      newBtn.textContent = "New project";
+      newBtn.addEventListener("click", () => {
+        localStorage.removeItem("pbi_canvas_state");
+        const plan = currentPlan();
+        state = projectFromPreset("cafe");
+        state.plan = plan;
+        state.project_id = crypto.randomUUID?.() || ("local-" + Date.now());
+        state.blocksByPage = {};
+        for (const page of state.selected_pages) state.blocksByPage[page] = blocksForPreset(state, page);
+        activePage = "home";
+        selectedId = null;
+        render();
+        setStatus("New project started");
+      });
+      control.after(newBtn);
     }
     $$("[data-plan-select]", control).forEach(btn => {
       btn.classList.toggle("active", btn.dataset.planSelect === currentPlan());
@@ -470,7 +489,8 @@
 
   function saveProject(){
     const local = JSON.parse(localStorage.getItem("pbi_local_projects") || "[]");
-    const id = state.project_id || qs.get("project") || "local-canvas";
+    const id = state.project_id || qs.get("project") || ("local-" + Date.now());
+    state.project_id = id;
     const project = {
       id,
       name: state.business_name || getPreset(state.templateId).businessName || "PBI Website",
@@ -487,12 +507,12 @@
     localStorage.setItem("pbi_local_projects", JSON.stringify(local));
     persist();
     setStatus("Project saved locally");
-    fetch("/api/projects/save", {
+    return fetch("/api/projects/save", {
       method:"POST",
       credentials:"include",
       headers:{ "Content-Type":"application/json" },
       body:JSON.stringify({ project, canvas:state })
-    }).catch(() => {});
+    }).catch(() => null);
   }
 
   function applyGate(){
@@ -549,7 +569,11 @@
       localStorage.setItem("pbi_canvas_versions", JSON.stringify(versions.slice(0,10)));
       setStatus("Version saved");
     });
-    $("#canvasPublishBtn")?.addEventListener("click", () => location.href = "/pricing/?publish=1&project=" + encodeURIComponent(state.project_id || qs.get("project") || ""));
+    $("#canvasPublishBtn")?.addEventListener("click", async () => {
+      await saveProject();
+      const projectId = state.project_id || qs.get("project") || "local-canvas";
+      location.href = `/payment/?project=${encodeURIComponent(projectId)}&plan=${encodeURIComponent(currentPlan())}`;
+    });
     $("#canvasBackToBuilder")?.setAttribute("href", "/dashboard/");
     $("#canvasAiBuildBtn")?.addEventListener("click", () => {
       const brief = $("#canvasAiBrief")?.value?.trim();
