@@ -5814,3 +5814,157 @@ body:not(.pbi-framer-studio-page) .brand-logo-only img,
   .pbi-canvas-device{padding:12px;min-height:auto}
   .pbi-canvas-dropzone{padding:16px;min-height:420px}
 }
+
+
+/* --- 2026-05-05 canvas behaviour patch --- */
+.pbi-plan-control{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+  padding:6px 8px;
+  border:1px solid rgba(70,42,27,.12);
+  border-radius:999px;
+  background:#fffaf4;
+}
+.pbi-plan-control span{font-size:.78rem;font-weight:800;color:#7b4b2f;text-transform:uppercase;letter-spacing:.08em}
+.pbi-plan-control button{
+  border:1px solid rgba(70,42,27,.14);
+  background:#fff;
+  border-radius:999px;
+  padding:8px 11px;
+  font-weight:800;
+  cursor:pointer;
+}
+.pbi-plan-control button.active{
+  background:#24130c;
+  color:#fff;
+}
+#canvasProjectTitle span{
+  display:inline-block;
+  margin-left:8px;
+  padding:4px 9px;
+  border-radius:999px;
+  background:#fff0e5;
+  color:#8b421e;
+  font-size:.75rem;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+.pbi-studio-template-grid button.active,
+.pbi-canvas-blocks button:hover{
+  border-color:#bf5c29 !important;
+  box-shadow:0 0 0 2px rgba(191,92,41,.12);
+}
+.pbi-studio-template-grid button,
+.pbi-canvas-blocks button{
+  min-height:74px;
+  background:#fff !important;
+}
+.pbi-studio-template-grid button strong,
+.pbi-canvas-blocks button strong{
+  display:block;
+  font-size:.92rem;
+}
+.pbi-studio-template-grid button span,
+.pbi-canvas-blocks button span{
+  display:block;
+  color:#6f5748;
+  font-size:.78rem;
+  line-height:1.25;
+}
+.pbi-layer-row{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:8px;
+  align-items:center;
+  padding:8px;
+  border:1px solid rgba(70,42,27,.12);
+  border-radius:16px;
+  background:#fff;
+  margin-bottom:8px;
+}
+.pbi-layer-row.active{
+  outline:2px solid #bf5c29;
+}
+.pbi-layer-row > button{
+  border:0;
+  background:transparent;
+  text-align:left;
+  cursor:pointer;
+}
+.pbi-layer-row span{
+  display:block;
+  color:#6f5748;
+  font-size:.76rem;
+}
+.pbi-layer-actions{
+  display:flex;
+  gap:4px;
+}
+.pbi-layer-actions button{
+  width:30px;
+  height:30px;
+  border-radius:10px;
+  border:1px solid rgba(70,42,27,.14);
+  background:#fffaf4;
+  cursor:pointer;
+}
+.pbi-layer-actions button:disabled{opacity:.35;cursor:not-allowed}
+.pbi-freeform-guide-box{
+  margin:0 0 14px;
+  padding:16px 18px;
+  border:1px solid rgba(191,92,41,.22);
+  border-radius:22px;
+  background:#fff5ec;
+  color:#341b10;
+  box-shadow:0 12px 26px rgba(54,29,13,.06);
+}
+.pbi-freeform-guide-box p{
+  margin:6px 0 12px;
+  color:#654634;
+}
+.pbi-canvas-dropzone.has-freeform{
+  position:relative;
+  min-height:900px;
+}
+.pbi-canvas-render-block.freeform{
+  box-shadow:0 16px 32px rgba(46,23,12,.12);
+}
+.pbi-live-nav{
+  display:flex;
+  gap:16px;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+}
+.pbi-live-wide-image{
+  width:100%;
+  border-radius:20px;
+  margin-top:16px;
+  aspect-ratio:16/8;
+  object-fit:cover;
+  display:block;
+}
+.pbi-live-spacer{
+  min-height:90px;
+  display:grid;
+  place-items:center;
+  color:#927769;
+  border:1px dashed rgba(70,42,27,.18);
+  border-radius:18px;
+}
+.pbi-canvas-render-block{
+  cursor:pointer;
+}
+.pbi-canvas-render-block:hover{
+  outline:1px solid rgba(191,92,41,.45);
+  outline-offset:2px;
+}
+.pbi-canvas-render-block.selected{
+  outline:3px solid #bf5c29 !important;
+  outline-offset:3px;
+}
+@media(max-width:780px){
+  .pbi-plan-control{border-radius:18px;justify-content:flex-start}
+}
