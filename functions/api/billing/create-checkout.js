@@ -1,17 +1,10 @@
 import { json, error } from '../../_lib/json.js';
 import { requireUser, ensureCoreTables } from '../../_lib/auth.js';
-
-const VALID_PLANS = new Set(['starter', 'business', 'plus']);
-
-function cleanPlan(value) {
-  const plan = String(value || 'starter').trim().toLowerCase();
-  return VALID_PLANS.has(plan) ? plan : 'starter';
-}
+import { cleanPlan, priceEnvNameForPlan, validateProjectForPublish } from '../../_lib/package-rules.js';
 
 function priceIdForPlan(env, plan) {
-  if (plan === 'business') return env.STRIPE_PRICE_BUSINESS || '';
-  if (plan === 'plus') return env.STRIPE_PRICE_PLUS || '';
-  return env.STRIPE_PRICE_STARTER || '';
+  const envName = priceEnvNameForPlan(plan);
+  return env[envName] || '';
 }
 
 function baseUrlFromRequest(request, env) {
@@ -25,7 +18,6 @@ export async function onRequestPost({ request, env }) {
 
   const body = await request.json().catch(() => ({}));
   const projectId = String(body.project_id || body.project || '').trim();
-  const requestedPlan = cleanPlan(body.plan);
   if (!projectId) return error('Project id is required.');
 
   const project = await env.DB.prepare(`
@@ -37,22 +29,38 @@ export async function onRequestPost({ request, env }) {
 
   if (!project) return error('Project not found.', 404);
 
-  const plan = requestedPlan || cleanPlan(project.plan);
-  const priceId = priceIdForPlan(env, plan);
+  const requested = cleanPlan(body.plan || '');
+  const saved = cleanPlan(project.plan || 'starter');
+  const plan = requested || saved || 'starter';
+  const data = JSON.parse(project.data_json || '{}');
+  const validation = validateProjectForPublish(data, plan);
+
+  if (!validation.ok) {
+    return json({
+      ok: false,
+      checkout_blocked: true,
+      message: 'Fix the pre-publish checklist before checkout.',
+      issues: validation.issues,
+      warnings: validation.warnings
+    }, 400);
+  }
 
   await env.DB.prepare(`
     UPDATE projects
-    SET plan = ?, billing_status = COALESCE(NULLIF(billing_status, ''), 'draft'), updated_at = CURRENT_TIMESTAMP
+    SET plan = ?, data_json = ?, readiness_score = ?, package_warnings = ?, last_validated_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
     WHERE id = ? AND user_id = ?
-  `).bind(plan, projectId, auth.user.id).run();
+  `).bind(plan, JSON.stringify(validation.data), validation.score || 0, JSON.stringify(validation.warnings || []), projectId, auth.user.id).run();
+
+  const priceId = priceIdForPlan(env, plan);
 
   if (!env.STRIPE_SECRET_KEY || !priceId) {
     return json({
       ok: true,
       setup_required: true,
       plan,
+      expected_price_env: priceEnvNameForPlan(plan),
       price_id_missing: !priceId,
-      message: `Stripe is not fully connected for the ${plan} package. Add STRIPE_SECRET_KEY and the matching STRIPE_PRICE_${plan.toUpperCase()} value in Cloudflare.`
+      message: `Stripe is not fully connected for the ${plan} package. Add STRIPE_SECRET_KEY and ${priceEnvNameForPlan(plan)} in Cloudflare.`
     });
   }
 
@@ -84,19 +92,17 @@ export async function onRequestPost({ request, env }) {
     body: params
   });
 
-  const data = await stripeResponse.json().catch(() => ({}));
-
+  const stripe = await stripeResponse.json().catch(() => ({}));
   if (!stripeResponse.ok) {
-    return error(data.error?.message || 'Stripe checkout could not be created.', 502, { stripe_error: data.error || null });
+    return error(stripe.error?.message || 'Stripe checkout could not be created.', 502, { stripe_error: stripe.error || null });
   }
 
   try {
     await env.DB.prepare(`
-      UPDATE projects
-      SET stripe_session_id = ?, plan = ?, updated_at = CURRENT_TIMESTAMP
+      UPDATE projects SET stripe_session_id = ?, plan = ?, updated_at = CURRENT_TIMESTAMP
       WHERE id = ? AND user_id = ?
-    `).bind(data.id || '', plan, projectId, auth.user.id).run();
+    `).bind(stripe.id || '', plan, projectId, auth.user.id).run();
   } catch (_) {}
 
-  return json({ ok: true, url: data.url, id: data.id, plan });
+  return json({ ok: true, url: stripe.url, id: stripe.id, plan, price_env: priceEnvNameForPlan(plan) });
 }

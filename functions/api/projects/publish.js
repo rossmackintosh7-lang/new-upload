@@ -1,5 +1,6 @@
 import { json, error } from '../../_lib/json.js';
 import { requireUser, ensureCoreTables } from '../../_lib/auth.js';
+import { validateProjectForPublish, cleanPlan } from '../../_lib/package-rules.js';
 
 function slugify(value) {
   return String(value || 'site').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '').slice(0, 70) || 'site';
@@ -36,7 +37,7 @@ export async function onRequestPost({ request, env }) {
 
   const body = await request.json().catch(() => ({}));
   const projectId = String(body.project_id || body.project || '').trim();
-  const selectedPlan = String(body.plan || '').trim().toLowerCase();
+  const selectedPlan = cleanPlan(body.plan || '');
   const stripeSessionId = String(body.stripe_session_id || '').trim();
 
   if (!projectId) return error('Project id is required.');
@@ -50,11 +51,26 @@ export async function onRequestPost({ request, env }) {
 
   if (!project) return error('Project not found.', 404);
 
-  if (selectedPlan && ['starter','business','plus'].includes(selectedPlan) && selectedPlan !== project.plan) {
-    await env.DB.prepare(`UPDATE projects SET plan = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND user_id = ?`)
-      .bind(selectedPlan, projectId, auth.user.id).run();
-    project.plan = selectedPlan;
+  const plan = cleanPlan(selectedPlan || project.plan || 'starter');
+  const rawData = JSON.parse(project.data_json || '{}');
+  const validation = validateProjectForPublish(rawData, plan);
+
+  if (!validation.ok) {
+    return json({
+      ok: false,
+      publish_blocked: true,
+      message: 'Fix the pre-publish checklist before publishing.',
+      issues: validation.issues,
+      warnings: validation.warnings,
+      readiness_score: validation.score
+    }, 400);
   }
+
+  await env.DB.prepare(`
+    UPDATE projects
+    SET data_json = ?, plan = ?, readiness_score = ?, package_warnings = ?, last_validated_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
+    WHERE id = ? AND user_id = ?
+  `).bind(JSON.stringify(validation.data), plan, validation.score || 0, JSON.stringify(validation.warnings || []), projectId, auth.user.id).run();
 
   const requiresPayment = String(env.PBI_REQUIRE_PAYMENT_TO_PUBLISH || 'true').toLowerCase() !== 'false';
   let billing = String(project.billing_status || '').toLowerCase();
@@ -74,8 +90,7 @@ export async function onRequestPost({ request, env }) {
             plan = COALESCE(NULLIF(?, ''), plan),
             updated_at = CURRENT_TIMESTAMP
         WHERE id = ? AND user_id = ?
-      `).bind(stripeSessionId, verified.customer || '', verified.subscription || '', verified.plan || project.plan || selectedPlan || 'starter', projectId, auth.user.id).run();
-      project.plan = verified.plan || project.plan;
+      `).bind(stripeSessionId, verified.customer || '', verified.subscription || '', verified.plan || plan, projectId, auth.user.id).run();
     } else if (verified.error) {
       return error(verified.error, 400);
     }
@@ -86,7 +101,7 @@ export async function onRequestPost({ request, env }) {
       ok: true,
       payment_required: true,
       message: 'Payment is required before this website can be published.',
-      checkout_url: `/payment/?project=${encodeURIComponent(projectId)}&plan=${encodeURIComponent(project.plan || selectedPlan || 'starter')}`
+      checkout_url: `/payment/?project=${encodeURIComponent(projectId)}&plan=${encodeURIComponent(plan)}`
     });
   }
 
@@ -97,5 +112,5 @@ export async function onRequestPost({ request, env }) {
     WHERE id = ? AND user_id = ?
   `).bind(slug, projectId, auth.user.id).run();
 
-  return json({ ok: true, published: true, live_url: `/site/canvas/${encodeURIComponent(slug)}/` });
+  return json({ ok: true, published: true, live_url: `/site/canvas/${encodeURIComponent(slug)}/`, warnings: validation.warnings || [] });
 }
