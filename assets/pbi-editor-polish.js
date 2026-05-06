@@ -4,7 +4,7 @@
   const load = (src) => {
     if ([...document.scripts].some(s => s.src.includes(src))) return;
     const script = document.createElement('script');
-    script.src = src + '?v=20260506-910';
+    script.src = src + '?v=20260506-platform';
     script.defer = true;
     document.head.appendChild(script);
   };
@@ -12,13 +12,14 @@
     if ([...document.styleSheets].some(s => (s.href || '').includes(href))) return;
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = href + '?v=20260506-910';
+    link.href = href + '?v=20260506-platform';
     document.head.appendChild(link);
   };
   const init = () => {
     loadCss('/assets/pbi-9-10-platform.css');
     load('/assets/pbi-builder-ai-media-hotfix.js');
     load('/assets/pbi-9-10-platform.js');
+    load('/assets/pbi-platform-bridge.js');
   };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
