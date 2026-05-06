@@ -1,0 +1,78 @@
+PBI ENGINE ROOM UPGRADE BUILD
+
+Source:
+- PBI_PLATFORM_UPGRADE_BUILD.zip
+
+Major upgrades:
+- Added builder pro controls panel: section manager, AI rewrite tools, autosave and versions
+- Loaded pbi-builder-pro.js on builder page
+- Added builder pro JS: add/remove/reorder/duplicate sections, local autosave, local versions and AI rewrite helpers
+- Added project_versions table to D1 schema for cloud version history foundation
+- Added cloud version history API foundation
+- Expanded analytics dashboard with next-best-action and roadmap panels
+- Added Launch Command Centre page for a more Hostinger-level publish/check flow
+- Added CSS for builder pro controls
+
+What this adds:
+- Builder section manager:
+  - Add hero/services/trust/testimonial/FAQ/CTA sections.
+  - Reorder sections.
+  - Duplicate sections.
+  - Remove sections.
+  - Apply section structure into the current page.
+- Local autosave:
+  - Saves active editing data to local browser storage.
+  - Restore autosave button.
+- Local version history:
+  - Manual save version.
+  - Restore latest version.
+  - Keeps last 10 local versions.
+- AI section helper:
+  - Make clearer.
+  - Make friendlier.
+  - Add local SEO focus.
+  - Shorten.
+  - Currently safe local rewrite; can be upgraded to true OpenAI endpoint later.
+- Cloud version history foundation:
+  - project_versions D1 table.
+  - /api/versions endpoint.
+- Better analytics dashboard wording.
+- Launch Command Centre page.
+- Better builder pro controls styling.
+
+Important honesty:
+- This is a real engine upgrade, but not full drag-and-drop canvas editing yet.
+- Local versions are browser/device-local unless the cloud endpoint is wired into the builder next.
+- AI rewriting is currently safe/local. True OpenAI rewrite needs endpoint integration using OPENAI_API_KEY.
+- Section manager writes section content into the current page body, so it works with the existing builder without breaking the save/publish flow.
+
+New route:
+- /launch-command-centre/
+
+D1 required after upload:
+npx wrangler d1 execute d1-template-database --file=./database/pbi-combined-schema.sql --remote
+
+Static checks:
+- Missing internal page links: 0
+  - None found.
+
+- Missing local assets/images: 0
+  - None found.
+
+- JavaScript syntax errors: 0
+  - None found.
+
+Test after upload:
+1. Open builder.
+2. Add a section.
+3. Reorder it.
+4. Apply sections to page.
+5. Confirm preview updates.
+6. Save version.
+7. Change text.
+8. Restore latest version.
+9. Wait for autosave.
+10. Refresh page and restore autosave.
+11. Try AI helper buttons.
+12. Run D1 schema.
+13. Check /launch-command-centre/.

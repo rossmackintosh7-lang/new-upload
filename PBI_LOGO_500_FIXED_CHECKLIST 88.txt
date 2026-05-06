@@ -1,0 +1,29 @@
+PBI LOGO 500 FIXED
+
+Fixed:
+- Fixed logo checkout 500: packageLabel now exists before DB insert
+- Added safe logo_package column upgrade inside endpoint
+- Added manual SQL file for Cloudflare D1 Console
+
+Why the old staging build failed:
+- The logo endpoint tried to save package_label into body_json before package_label had been created.
+- That caused a server-side 500.
+- The database may also need the logo_package column added.
+
+Important:
+- In Cloudflare D1 Console, paste SQL only.
+- Do not paste:
+  npx wrangler d1 execute ...
+  into the D1 Console.
+
+Manual D1 Console helper added:
+- database/manual-logo-creation-fix-d1-console.sql
+
+Static checks:
+- JavaScript syntax errors: 0
+
+After uploading this build:
+1. Push to staging.
+2. Wait for Cloudflare deployment.
+3. In D1 Console, run the SQL from database/manual-logo-creation-fix-d1-console.sql if needed.
+4. Test the logo checkout again.

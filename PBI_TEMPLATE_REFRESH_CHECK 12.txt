@@ -1,0 +1,10 @@
+PBI template refresh applied.
+
+Included in this build:
+- 6 refreshed working templates
+- Real-life template imagery wired into examples, template index and builder ribbon
+- Updated template preset definitions for cafe, trades, salon, consultant, shop and holiday-let
+- Basic template filtering on Examples and Templates pages
+- Removed old fitness/professional cards from public template listings
+
+Source base: PBI_DB_FIXED.zip

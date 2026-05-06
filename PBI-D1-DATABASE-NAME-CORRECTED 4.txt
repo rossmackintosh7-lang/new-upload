@@ -1,0 +1,27 @@
+PBI D1 DATABASE NAME CORRECTION
+
+Your Cloudflare screenshot shows the actual D1 database name is:
+
+d1-template-database
+
+This build has been corrected so wrangler.toml now uses:
+
+[[d1_databases]]
+binding = "DB"
+database_name = "d1-template-database"
+database_id = "f4c649dc-8047-43c3-940a-fa3854d18c21"
+
+Important:
+- Keep the Pages binding name as DB.
+- Keep Cloudflare Pages connected to the D1 database named d1-template-database.
+- Do not rename the binding to the database name. The code expects env.DB.
+
+Run the schema against this database:
+
+npx wrangler d1 execute d1-template-database --file=./database/pbi-combined-schema.sql --remote
+
+Cloudflare Pages settings should remain:
+- Framework preset: None
+- Build command: blank
+- Build output directory: .
+- Root directory: /

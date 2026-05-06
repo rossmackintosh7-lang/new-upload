@@ -1,0 +1,25 @@
+PBI GO-LIVE CHECKLIST
+
+This build is intended to make the real website flow match the publish journey:
+
+1. Customer opens /examples/
+2. Customer chooses a real-life template image
+3. Use this template sends logged-out users to /signup/?template_preset=...
+4. Signup creates account + first project
+5. Builder loads selected template wording, colours and imagery
+6. Save project stores the draft
+7. Publish website saves then publishes to /site/{slug}/
+8. Customer can view the live website on desktop/mobile
+9. Published site includes gallery and a customer enquiry form
+10. Dashboard shows live link after publishing
+
+Important environment checks before live launch:
+- DB binding name must be DB
+- D1 database must be d1-template-database
+- TURNSTILE_SECRET_KEY must be set for login/signup
+- PBI_ADMIN_EMAILS should include rossmackintosh7@icloud.com
+- RESEND_API_KEY and CUSTOM_BUILD_NOTIFY_* should be set for emails
+- Stripe variables are only needed for paid checkout flow
+- Set PBI_REQUIRE_PAYMENT_TO_PUBLISH=true only when you want to force payment before publishing
+
+Static checks were run against this package, but live Cloudflare variables and Stripe webhooks must still be tested on deployment.

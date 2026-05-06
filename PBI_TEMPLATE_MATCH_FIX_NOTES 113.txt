@@ -1,0 +1,22 @@
+PBI TEMPLATE MATCH FIX
+
+Issue fixed:
+- The template choices at the top of the builder did not match the public advertised example templates.
+- Choosing a template inside the builder only changed the style/colour family, not the exact example template.
+
+What changed:
+- The builder now shows the exact 6 public example templates:
+  1. Café / Restaurant
+  2. Tradesperson
+  3. Salon / Beauty
+  4. Consultant / Service Business
+  5. Shop / Retail
+  6. Holiday Let / Glamping
+- Selecting one of those in the builder now loads the exact corresponding preset.
+- The correct template stays selected after the project loads or saves.
+- The template wording/colour descriptions now match the public Examples page.
+
+Expected result:
+- The builder template cards now correspond to the advertised templates.
+- If a customer clicks Shop / Retail in the builder, they get the same Shop / Retail setup shown publicly.
+- If a customer clicks Consultant / Service Business, they get that exact preset, not a generic style.
