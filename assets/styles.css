@@ -1,0 +1,50 @@
+@import url('/styles.css');
+
+/* Emergency asset-path repair.
+   Some deployed pages link to /assets/styles.css, while the main stylesheet in this repo lives at /styles.css.
+   This shim restores styling without changing the existing layout. */
+
+img:not([src]), img[src=''] { display:none; }
+
+/* Keep the latest mobile tuning active. */
+.pbi-canvas-device.mobile{max-width:390px;}
+.pbi-canvas-device.mobile .pbi-canvas-dropzone{padding:12px;}
+.pbi-canvas-device.mobile .pbi-canvas-render-block,
+.pbi-canvas-device.mobile .pbi-live-section,
+.pbi-canvas-device.mobile .pbi-live-card-grid article{padding:16px;border-radius:18px;}
+.pbi-canvas-device.mobile .pbi-live-hero{gap:16px;}
+.pbi-canvas-device.mobile .pbi-live-hero h1,
+.pbi-canvas-device.mobile .pbi-page-intro h1,
+.pbi-canvas-device.mobile .pbi-home-copy h1{font-size:clamp(2rem,8vw,3.2rem);line-height:.94;letter-spacing:-.04em;}
+.pbi-canvas-device.mobile .pbi-live-section h2,
+.pbi-canvas-device.mobile .pbi-canvas-panel-head h2,
+.pbi-canvas-device.mobile .pbi-home-copy h2{font-size:clamp(1.35rem,5.2vw,2rem);line-height:1.02;}
+.pbi-canvas-device.mobile .pbi-live-hero p,
+.pbi-canvas-device.mobile .pbi-live-section p,
+.pbi-canvas-device.mobile .pbi-live-card-grid article p,
+.pbi-canvas-device.mobile .pbi-live-section li{font-size:.95rem;line-height:1.48;}
+.pbi-canvas-device.mobile .pbi-live-card-grid{grid-template-columns:1fr;gap:10px;}
+.pbi-canvas-device.mobile .btn,
+.pbi-canvas-device.mobile .btn-ghost,
+.pbi-canvas-device.mobile button{font-size:.92rem;}
+.pbi-canvas-device.mobile img{border-radius:18px;}
+
+@media(max-width:520px){
+  .pbi-public-nav-inner{width:calc(100% - 18px);min-height:70px;padding-inline:8px;}
+  .pbi-public-brand img{max-width:118px!important;width:auto!important;}
+  .pbi-public-links .btn{padding:9px 12px;font-size:12px;}
+  .pbi-home-hero,.pbi-page-intro,.pbi-home-copy{width:calc(100% - 20px);}
+  .pbi-home-copy h1,.pbi-page-intro h1{font-size:clamp(2rem,12vw,2.9rem);line-height:.94;letter-spacing:-.04em;}
+  .pbi-home-copy p,.pbi-page-intro p,.pbi-template-card p,.pbi-public-examples-page p{font-size:.95rem;line-height:1.5;}
+  .pbi-feature-strip,.pbi-home-template-grid,.pbi-home-lower-grid,.pbi-how-strip,.pbi-how-clean-grid,.pbi-template-ribbon,.pbi-template-card,.pbi-package,.pbi-process,.pbi-how-flow,.pbi-admin-tool-grid{grid-template-columns:1fr!important;}
+  .pbi-home-preview-card,.pbi-template-card,.pbi-package,.pbi-home-lower-grid article,.pbi-how-card,.pbi-feature-strip article{padding:16px;border-radius:18px;}
+  .pbi-home-hero{padding-top:24px;}
+  .pbi-home-actions,.pbi-public-links{gap:8px;flex-wrap:wrap;}
+  .pbi-home-actions .btn,.pbi-home-actions .btn-ghost,.pbi-public-links .btn{width:auto;}
+  .pbi-live-hero{gap:16px;}
+  .pbi-live-hero h1{font-size:clamp(2rem,11vw,2.9rem);line-height:.94;}
+  .pbi-live-section,.pbi-canvas-render-block,.pbi-live-card-grid article{padding:16px;border-radius:18px;}
+  .pbi-live-section h2,.pbi-canvas-panel-head h2{font-size:clamp(1.35rem,7vw,2rem);line-height:1.03;}
+  .pbi-live-card-grid article h3{font-size:1.05rem;line-height:1.15;}
+  .pbi-live-hero p,.pbi-live-section p,.pbi-live-card-grid article p,.pbi-live-section li{font-size:.95rem;line-height:1.48;}
+}
