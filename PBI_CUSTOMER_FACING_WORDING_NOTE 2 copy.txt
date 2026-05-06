@@ -1,0 +1,1 @@
+Changed the onboarding side card from internal/developer wording to customer-facing wording. No layout, icon, pricing, builder, admin, D1, R2, or function files were changed in this patch.

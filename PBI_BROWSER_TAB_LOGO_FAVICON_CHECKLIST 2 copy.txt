@@ -1,0 +1,20 @@
+PBI browser tab logo/favicon patch
+
+Added:
+- /favicon.ico
+- /assets/favicon-16.png
+- /assets/favicon-32.png
+- /assets/favicon-48.png
+- /assets/favicon-192.png
+- /assets/favicon-512.png
+- /assets/apple-touch-icon.png
+
+Updated:
+- HTML heads now include favicon/apple touch icon links.
+- Manifest JSON files include icon entries.
+
+Purpose:
+Make the accepted PBI logo appear in the browser tab, bookmarks and mobile saved shortcuts.
+
+After deploy:
+Browsers may cache favicons strongly. Hard refresh the site and, if needed, open in an incognito window or visit /favicon.ico directly once.

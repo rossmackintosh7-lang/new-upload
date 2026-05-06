@@ -1,3 +1,0 @@
-Checked internal public links in HTML.
-Missing page targets:
-None found.

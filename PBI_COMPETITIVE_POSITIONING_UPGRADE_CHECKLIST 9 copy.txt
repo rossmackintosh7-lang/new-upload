@@ -1,0 +1,42 @@
+PBI COMPETITIVE POSITIONING UPGRADE
+
+Source build:
+- PBI_TEMPLATE_MATCHED_ADVERTISED_BUILD.zip
+
+Changes made:
+- Rebuilt homepage with stronger product-led positioning, clearer steps, comparison messaging and better CTAs
+- Added sharper pricing route section with clear buyer choices and add-ons
+- Added a dedicated comparison page for visitors comparing PBI against larger builders
+- Added CSS for stronger homepage, comparison panels and pricing upgrade
+- Added comparison page to sitemap
+
+Positioning changes:
+- Homepage now leads with: small business website builder with help built in.
+- PBI is positioned against larger builders by focusing on clarity, templates, practical support, SEO, enquiries and human help.
+- The homepage now explains:
+  1. Choose a real template.
+  2. Customise with AI help.
+  3. Add business tools.
+  4. Publish with confidence.
+- Added stronger feature sections for enquiries, SEO support, retail starter and logo creation.
+- Added clearer pricing route section.
+- Added /compare-website-builders/ comparison page.
+
+Static checks:
+- Missing internal page links: 0
+  - None found.
+
+- Missing local assets/images: 0
+  - None found.
+
+- JavaScript syntax errors: 0
+  - None found.
+
+Recommended visual checks after upload:
+1. Homepage desktop.
+2. Homepage mobile.
+3. Pricing page.
+4. /compare-website-builders/
+5. Examples page.
+6. Builder template choices.
+7. Signup and publish flow.

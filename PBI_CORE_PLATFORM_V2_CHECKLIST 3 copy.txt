@@ -1,0 +1,101 @@
+PBI CORE PLATFORM V2 BUILD
+
+Source:
+- PBI_FULL_DRAG_DROP_CANVAS_BUILD.zip
+
+Major upgrades:
+- Added Core Platform V2 D1 schema: canvas JSON, published JSON, AI logs, domain tasks, retail v2 categories/variants
+- Added shared published canvas renderer
+- Added published canvas CSS
+- Added canvas save/load/publish API and published-site canvas renderer route
+- Added true AI site/canvas generation endpoint with safe fallback when OPENAI_API_KEY is missing
+- Added AI rewrite endpoint with OpenAI support and safe fallback
+- Wired canvas builder to cloud canvas save/publish and AI endpoints
+- Added Platform Command Centre and Domain/Email Command Centre pages
+- Added analytics summary API foundation
+- Upgraded analytics dashboard with live summary chart shell
+- Added Core Platform V2 CSS
+
+This build adds:
+1. Canvas JSON saved to D1:
+   - project_canvas table
+   - /api/canvas GET/POST
+
+2. Published canvas renderer:
+   - /api/canvas/publish
+   - /site/canvas/[project]
+   - functions/_lib/canvas-renderer.js
+   - assets/pbi-published-canvas.css
+
+3. AI generation:
+   - /api/ai/generate-site
+   - /api/ai/rewrite
+   - Uses OPENAI_API_KEY if set.
+   - Uses safe fallback generator if OPENAI_API_KEY is missing.
+
+4. Canvas builder cloud wiring:
+   - Autosaves to D1 when logged in.
+   - Can publish canvas JSON.
+   - AI build from brief calls the AI endpoint.
+   - AI rewrite calls the rewrite endpoint.
+   - Apply to project stores live canvas URL locally.
+
+5. Analytics:
+   - /api/analytics/summary
+   - Dashboard chart shell.
+
+6. Domain/email:
+   - /domain-command-centre/
+
+7. Platform:
+   - /platform-command-centre/
+
+8. Retail v2 foundations:
+   - retail_product_categories
+   - retail_product_variants
+
+Important required Cloudflare variables/secrets:
+- OPENAI_API_KEY for true AI generation.
+- OPENAI_MODEL optional.
+- DB binding to d1-template-database.
+- STRIPE_SECRET_KEY for payments.
+- STRIPE_WEBHOOK_SECRET for payment webhook.
+- RESEND_API_KEY for enquiry emails.
+- TURNSTILE_SECRET_KEY for anti-spam/login validation.
+
+D1 command after upload:
+npx wrangler d1 execute d1-template-database --file=./database/pbi-combined-schema.sql --remote
+
+Test sequence:
+1. Run D1 schema.
+2. Open /canvas-builder/?project=YOUR_PROJECT_ID
+3. Use AI build from brief.
+4. Save/edit blocks.
+5. Check autosave.
+6. Click Apply to project.
+7. Check /site/canvas/YOUR_PROJECT_ID
+8. Open /platform-command-centre/
+9. Open /domain-command-centre/
+10. Open /analytics/
+
+Honest notes:
+- This is now much closer to a true platform architecture.
+- It is still not a complete Hostinger-scale backend/app builder.
+- The biggest remaining commercial-grade upgrades are:
+  - Direct published domain routing from project slug/custom domain to canvas renderer.
+  - Full cloud version restore in the UI.
+  - Full ecommerce admin for categories/variants.
+  - Real analytics aggregation charts by date.
+  - Collaboration/multi-user editing.
+  - File storage/media library.
+  - Booking/member/customer-account modules.
+
+Static checks:
+- Missing internal page links: 0
+  - None found.
+
+- Missing local assets/images: 0
+  - None found.
+
+- JavaScript syntax errors: 0
+  - None found.
