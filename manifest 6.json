@@ -1,6 +1,6 @@
 {
-  "name": "PBI Website Builder",
-  "short_name": "PBI Builder",
+  "name": "Purbeck Business Innovations",
+  "short_name": "PBI",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -37,6 +37,5 @@
       "type": "image/png",
       "purpose": "any"
     }
-  ],
-  "description": "Free website builder - only pay when you publish."
+  ]
 }
