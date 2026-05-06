@@ -5,7 +5,7 @@ This package uses `pbi-template-demo-builder-upgrade.zip` as the base, so the or
 ## Preserved
 
 - `/index.html`
-- `/assets/PBI Logo.png`
+- `/assets/pbi-header-logo-no-bg-20260502c.png?v=20260502c`
 - `/assets/Website background image.png`
 - `/assets/styles.css`
 - Existing pages, builder, dashboard, examples, pricing, custom build, admin panel and existing functions
