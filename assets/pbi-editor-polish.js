@@ -1,1 +1,25 @@
-(()=>{if(window.__PBI_EDITOR_POLISH_LOADED__)return;window.__PBI_EDITOR_POLISH_LOADED__=true;const s=document.createElement('script');s.src='/assets/pbi-builder-ai-media-hotfix.js?v=20260506-ai-media-mobile';s.defer=true;document.head.appendChild(s);})();
+(()=>{
+  if (window.__PBI_EDITOR_POLISH_LOADED__) return;
+  window.__PBI_EDITOR_POLISH_LOADED__ = true;
+  const load = (src) => {
+    if ([...document.scripts].some(s => s.src.includes(src))) return;
+    const script = document.createElement('script');
+    script.src = src + '?v=20260506-910';
+    script.defer = true;
+    document.head.appendChild(script);
+  };
+  const loadCss = (href) => {
+    if ([...document.styleSheets].some(s => (s.href || '').includes(href))) return;
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = href + '?v=20260506-910';
+    document.head.appendChild(link);
+  };
+  const init = () => {
+    loadCss('/assets/pbi-9-10-platform.css');
+    load('/assets/pbi-builder-ai-media-hotfix.js');
+    load('/assets/pbi-9-10-platform.js');
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
