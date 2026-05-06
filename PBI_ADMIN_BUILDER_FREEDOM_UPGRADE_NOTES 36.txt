@@ -1,0 +1,56 @@
+PBI ADMIN + BUILDER FREEDOM UPGRADE
+
+Built from: PBI_LOGO_HARD_FIX_NO_WHITE_TILE_BUILD.zip
+
+Admin subdomain answer:
+- No new domain is needed.
+- admin.purbeckbusinessinnovations.co.uk is a subdomain of purbeckbusinessinnovations.co.uk.
+- Add it as a custom domain or CNAME in Cloudflare.
+
+What changed:
+- Extended existing admin shared helper with notifications, requests, project sections and audit tables
+- Added admin/builder D1 schema
+- Added admin APIs for summary, notifications, requests, projects, project notes, project sections and scans
+- Added template section endpoint so chosen templates become editable section records
+- Added separated admin app pages
+- Added admin CSS/JS
+- Added request capture for customer forms
+- Added integrated builder template editor with visible live preview changes
+- Bridged canvas builder to load actual project template sections
+
+Admin routes:
+- /admin/
+- /admin/requests/
+- /admin/projects/
+- /admin/notifications/
+- /admin/custom-builds/
+- /admin/assisted-builds/
+- /admin/logo-orders/
+- /admin/domain-desk/
+
+Key API routes:
+- /api/admin/summary
+- /api/admin/requests
+- /api/admin/notifications
+- /api/admin/projects-v2
+- /api/admin/project-sections
+- /api/admin/project-note
+- /api/admin/repair-project
+- /api/builder/template-sections
+
+Run schema after upload:
+npx wrangler d1 execute d1-template-database --file=./database/pbi-combined-schema.sql --remote
+
+Optional standalone schema:
+npx wrangler d1 execute d1-template-database --file=./database/pbi-admin-builder-freedom-schema.sql --remote
+
+Important:
+- Delete functions/api/analytics/track 2.js from GitHub if it still exists.
+- Admin pages are noindex/nofollow.
+- For serious protection later, put admin.purbeckbusinessinnovations.co.uk behind Cloudflare Access/Zero Trust.
+
+Checks:
+- Broken local function imports: 0
+- JavaScript syntax errors: 0
+- Missing internal page links: 0
+- Missing local assets/images: 0

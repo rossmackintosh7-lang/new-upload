@@ -1,0 +1,28 @@
+PBI PAYMENT BUTTONS FIX
+
+What changed:
+- Payment page plan buttons now work while PBI_REQUIRE_PAYMENT_TO_PUBLISH=false.
+- In testing mode, choosing Starter/Business/Plus saves the chosen plan and publishes the site without Stripe.
+- When PBI_REQUIRE_PAYMENT_TO_PUBLISH=true, the same buttons use Stripe Checkout.
+- Stripe missing setup messages now explain exactly which price variable is missing.
+- wrangler.toml now includes safe [vars], including PBI_REQUIRE_PAYMENT_TO_PUBLISH=false.
+
+Before public paid launch, add these GitHub/wrangler variables with real Stripe price_... IDs:
+- STRIPE_PRICE_STARTER
+- STRIPE_PRICE_BUSINESS
+- STRIPE_PRICE_PLUS
+- STRIPE_PRICE_ASSISTED_SETUP
+- STRIPE_PRICE_DOMAIN_MANAGEMENT_YEARLY
+- STRIPE_PRICE_CUSTOM_DEPOSIT if you use the custom build deposit checkout
+
+Keep these as Cloudflare Secrets, not GitHub variables:
+- STRIPE_SECRET_KEY
+- STRIPE_WEBHOOK_SECRET
+- OPENAI_API_KEY
+- RESEND_API_KEY
+- TURNSTILE_SECRET_KEY
+- CLOUDFLARE_API_TOKEN
+- PBI_ADMIN_TOKEN
+
+Test:
+Homepage -> Examples -> Use template -> Create account -> Builder -> Save -> Publish -> Payment page -> Choose Starter -> View live site.

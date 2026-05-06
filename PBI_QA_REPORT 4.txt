@@ -1,0 +1,28 @@
+PBI_READY FULL UPDATED QA REPORT
+Generated fresh in this chat after applying the leading builder patch and the Cloudflare import hotfix.
+
+Build target:
+- Full website build ZIP, not patch-only files.
+- Intended repo: rossmackintosh7-lang/new-upload
+- Main Cloudflare config: wrangler.toml
+- Pages build output: .
+
+Included direction checked:
+- Premium customer dashboard / command centre: OK
+- Package-first builder flow: OK
+- Builder package upgrade flow: OK
+- AI site generation panel and endpoint: OK
+- SEO agent panel and endpoint: OK
+- Analytics panel and project-safe summary endpoint: OK
+- Live preview quick-edit polish: OK
+- Build free, pay only at publish: OK
+- Logo corrected back inside the banner and smaller: OK
+- Leading builder upgrade: richer templates, richer AI section layouts, stronger visual editing flow: OK
+- Cloudflare missing import fix: functions/api/projects/_shared.js included: OK
+
+Validation completed before ZIP creation:
+- Critical JS syntax checked with node --check across 135 JS files: PASS
+- Missing local JS imports checked: PASS, 0 missing
+- ZIP integrity checked after creation: PASS
+- Extract test: PASS
+- Extracted file count: 402

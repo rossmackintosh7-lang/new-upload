@@ -1,0 +1,18 @@
+PBI LOGO PRICE ID ADDED
+
+Updated:
+- STRIPE_PRICE_LOGO_CREATION = "price_1TSaZIS5Wx1jQ43vIDEO3hcJ"
+
+This connects the builder's paid logo creation button to your Stripe price:
+- Product: Custom Logo Creation
+- Price: £99 one-off
+- Stripe price ID: price_1TSaZIS5Wx1jQ43vIDEO3hcJ
+
+Required for live checkout:
+- STRIPE_SECRET_KEY must exist as a Cloudflare Secret.
+- STRIPE_WEBHOOK_SECRET must exist as a Cloudflare Secret.
+- Stripe webhook should point to your PBI webhook endpoint.
+- This price ID must be in the deployed wrangler.toml/GitHub code.
+
+Static check:
+- JavaScript syntax errors: 0
