@@ -1,1 +1,215 @@
-/* optional compatibility stylesheet intentionally kept light */
+/* Admin v2 compatibility layer. Keep admin chrome self-contained and prevent
+   large brand artwork from rendering as a page-sized image. */
+body.pbi-admin-body{
+  margin:0;
+  min-height:100vh;
+  display:grid;
+  grid-template-columns:270px minmax(0,1fr);
+  gap:0;
+  background:#f7ede4;
+  color:#21130d;
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+body.pbi-admin-body::before,
+body.pbi-admin-body::after{
+  content:none!important;
+  display:none!important;
+}
+.pbi-admin-body .pbi-admin-sidebar{
+  position:sticky;
+  top:0;
+  height:100vh;
+  overflow:auto;
+  padding:18px;
+  background:rgba(255,250,244,.94);
+  border-right:1px solid rgba(55,31,18,.12);
+  box-shadow:18px 0 48px rgba(54,29,13,.08);
+  z-index:10;
+}
+.pbi-admin-body .pbi-admin-logo{
+  display:flex!important;
+  align-items:center;
+  gap:10px;
+  max-width:100%;
+  min-height:68px;
+  margin:0 0 14px;
+  padding:10px 12px;
+  overflow:hidden;
+  border:1px solid rgba(55,31,18,.12);
+  border-radius:18px;
+  background:#fffaf4;
+  color:#21130d;
+  text-decoration:none;
+  font-weight:950;
+}
+.pbi-admin-body .pbi-admin-logo img{
+  display:block!important;
+  position:static!important;
+  inset:auto!important;
+  width:auto!important;
+  height:auto!important;
+  max-width:96px!important;
+  max-height:52px!important;
+  min-width:0!important;
+  object-fit:contain!important;
+  transform:none!important;
+  flex:0 0 auto;
+}
+.pbi-admin-body .pbi-admin-sidebar nav{
+  display:grid;
+  gap:8px;
+}
+.pbi-admin-body .pbi-admin-sidebar nav a{
+  display:block;
+  padding:12px 13px;
+  border-radius:14px;
+  color:#21130d;
+  text-decoration:none;
+  font-weight:850;
+  border:1px solid transparent;
+}
+.pbi-admin-body .pbi-admin-sidebar nav a:hover,
+.pbi-admin-body .pbi-admin-sidebar nav a.active{
+  background:#fff;
+  border-color:rgba(55,31,18,.12);
+}
+.pbi-admin-body .pbi-admin-main{
+  min-width:0;
+  padding:28px;
+  display:grid;
+  align-content:start;
+  gap:20px;
+}
+.pbi-admin-body .pbi-admin-header{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:18px;
+  flex-wrap:wrap;
+}
+.pbi-admin-body .pbi-admin-header h1{
+  margin:.1em 0 .12em;
+  font-size:clamp(2rem,4vw,4rem);
+  line-height:.96;
+  letter-spacing:-.045em;
+}
+.pbi-admin-body .eyebrow{
+  margin:0 0 8px;
+  color:#8a431d;
+  font-size:12px;
+  font-weight:950;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+}
+.pbi-admin-body .pbi-admin-kpi-grid,
+.pbi-admin-body .pbi-admin-grid{
+  display:grid;
+  gap:16px;
+}
+.pbi-admin-body .pbi-admin-kpi-grid{
+  grid-template-columns:repeat(4,minmax(0,1fr));
+}
+.pbi-admin-body .pbi-admin-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+}
+.pbi-admin-body .pbi-admin-grid.wide-left{
+  grid-template-columns:minmax(0,1.1fr) minmax(320px,.9fr);
+}
+.pbi-admin-body .pbi-admin-panel,
+.pbi-admin-body .pbi-admin-kpi-grid article,
+.pbi-admin-body .card{
+  min-width:0;
+  padding:20px;
+  border:1px solid rgba(55,31,18,.12);
+  border-radius:22px;
+  background:rgba(255,250,244,.92);
+  box-shadow:0 18px 42px rgba(54,29,13,.08);
+}
+.pbi-admin-body .pbi-admin-kpi-grid strong,
+.pbi-admin-body .card strong{
+  display:block;
+  font-size:1.65rem;
+}
+.pbi-admin-body .pbi-admin-kpi-grid span,
+.pbi-admin-body .muted,
+.pbi-admin-body .meta{
+  color:#6f5b50;
+}
+.pbi-admin-body .pbi-admin-list{
+  display:grid;
+  gap:10px;
+}
+.pbi-admin-body .pbi-admin-item{
+  width:100%;
+  display:block;
+  text-align:left;
+  padding:13px;
+  border:1px solid rgba(55,31,18,.12);
+  border-radius:16px;
+  background:#fff;
+  color:#21130d;
+  text-decoration:none;
+}
+.pbi-admin-body .pbi-admin-item strong,
+.pbi-admin-body .pbi-admin-item span{
+  display:block;
+  overflow-wrap:anywhere;
+}
+.pbi-admin-body .pbi-admin-badges,
+.pbi-admin-body .pbi-admin-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+.pbi-admin-body .pbi-admin-badge{
+  display:inline-flex;
+  border-radius:999px;
+  padding:5px 8px;
+  background:#fff4e8;
+  color:#8a431d;
+  font-size:12px;
+  font-weight:900;
+}
+.pbi-admin-body .btn,
+.pbi-admin-body .btn-ghost,
+.pbi-admin-body button{
+  appearance:none;
+  border:1px solid rgba(55,31,18,.14);
+  border-radius:999px;
+  background:#fff;
+  color:#21130d;
+  padding:10px 14px;
+  font:850 14px/1 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  text-decoration:none;
+  cursor:pointer;
+}
+.pbi-admin-body .btn{
+  background:#bf5c29;
+  color:#fff;
+  border-color:transparent;
+}
+.pbi-admin-body input,
+.pbi-admin-body select,
+.pbi-admin-body textarea{
+  max-width:100%;
+  border:1px solid rgba(55,31,18,.14);
+  border-radius:14px;
+  background:#fff;
+  color:#21130d;
+  padding:10px 12px;
+  font:inherit;
+}
+.pbi-admin-body .sticky-panel{
+  position:sticky;
+  top:18px;
+  align-self:start;
+}
+@media(max-width:900px){
+  body.pbi-admin-body{grid-template-columns:1fr}
+  .pbi-admin-body .pbi-admin-sidebar{position:static;height:auto}
+  .pbi-admin-body .pbi-admin-kpi-grid,
+  .pbi-admin-body .pbi-admin-grid,
+  .pbi-admin-body .pbi-admin-grid.wide-left{grid-template-columns:1fr}
+  .pbi-admin-body .sticky-panel{position:static}
+}
