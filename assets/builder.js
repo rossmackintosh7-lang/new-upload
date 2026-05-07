@@ -259,7 +259,7 @@
       : '<p class="muted">No automatically registrable suggestions came back. Try another name or extension.</p>';
 
     const hasAvailable = requested?.available === true || suggestions.some((domain) => domain.available === true);
-    setDomainHtml(`${requestedHtml}${suggestionsHtml}<p class="small-note muted">Selecting a domain saves it against this project. The domain charge will be added to the first checkout payment, then PBI will attempt registration after payment if automatic registration is enabled.</p>`, hasAvailable ? 'success' : 'info');
+    setDomainHtml(`${requestedHtml}${suggestionsHtml}<p class="small-note muted">Selecting a domain saves it against this project. The domain charge is added to checkout, then the Domain Registration Agent queues registration and can hand it to an automatic registrar workflow when connected.</p>`, hasAvailable ? 'success' : 'info');
 
     els.domainResult.querySelectorAll('.domainSelectBtn').forEach((button) => {
       button.addEventListener('click', () => {

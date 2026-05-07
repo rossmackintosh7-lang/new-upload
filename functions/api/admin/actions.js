@@ -1,5 +1,9 @@
 import { json, error, readBody, requireAdmin, ensurePbiOpsTables, audit } from './_shared.js';
 
+function parseData(project) {
+  try { return JSON.parse(project?.data_json || '{}'); } catch { return {}; }
+}
+
 export async function onRequestPost({ request, env }) {
   const { admin, response } = await requireAdmin(env, request);
   if (response) return response;
@@ -25,6 +29,34 @@ export async function onRequestPost({ request, env }) {
   }
 
   if (!projectId) return error('project_id is required.');
+  const project = await env.DB.prepare(`SELECT * FROM projects WHERE id = ? LIMIT 1`).bind(projectId).first();
+  if (!project) return error('Project not found.', 404);
+
+  if (action === 'set_domain_status') {
+    const data = {
+      ...parseData(project),
+      domain_registration_status: String(body.domain_status || '').trim(),
+      domain_registration_message: String(body.domain_message || '').trim(),
+      domain_renewal_date: String(body.renewal_date || '').trim()
+    };
+    await env.DB.prepare(`UPDATE projects SET data_json = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`).bind(JSON.stringify(data), projectId).run();
+    await audit(env, admin, action, { project_id: projectId, domain_status: data.domain_registration_status });
+    return json({ ok: true });
+  }
+
+  if (action === 'send_domain_renewal') {
+    const data = parseData(project);
+    const requestId = crypto.randomUUID();
+    const domainName = String(body.domain_name || data.custom_domain || project.custom_domain || '').trim();
+    const message = `Domain renewal reminder requested for ${domainName || 'domain'}${body.renewal_date ? ` on ${body.renewal_date}` : ''}.`;
+    await env.DB.prepare(`
+      INSERT INTO support_requests (id, project_id, user_id, email, type, message, status, body_json, created_at, updated_at)
+      VALUES (?, ?, ?, ?, 'domain_renewal', ?, 'new', ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+    `).bind(requestId, projectId, project.user_id || '', body.email || '', message, JSON.stringify(body)).run();
+    await audit(env, admin, action, { project_id: projectId, request_id: requestId, domain_name: domainName });
+    return json({ ok: true, request_id: requestId });
+  }
+
   const updates = {
     mark_billing_active: [`billing_status = 'active'`],
     mark_billing_pending: [`billing_status = 'pending'`],

@@ -155,10 +155,40 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
       const data = await api('/api/projects/publish', { method: 'POST', body: JSON.stringify({ project_id: projectId, plan: selectedPlan, stripe_session_id: stripeSessionId, domain_option: selectedDomainOption() }) });
-      if (data.published) { showMessage(`Your website is live: ${data.live_url}`, 'success'); return; }
+      if (data.published) {
+        if (selectedDomainOption() === 'register_new' && selectedDomainRegistration()?.name) {
+          await runDomainRegistrationAgent(data.live_url);
+          return;
+        }
+        showMessage(`Your website is live: ${data.live_url}`, 'success');
+        return;
+      }
       if (data.payment_required) { showMessage('Payment is not active yet. If you have just paid, wait a few seconds and refresh this page.', 'info'); return; }
       showMessage(data.message || 'Publish status is unclear.', 'info');
     } catch (error) { showMessage(error.message || 'Could not publish website.', 'error'); }
+  }
+
+  async function runDomainRegistrationAgent(liveUrl) {
+    const domain = selectedDomainRegistration();
+    showMessage(`Your website is live: ${liveUrl}. Starting Domain Registration Agent for ${domain.name}...`, 'info');
+    try {
+      const result = await api('/api/domain/registration-agent', {
+        method: 'POST',
+        body: JSON.stringify({
+          project_id: projectId,
+          stripe_session_id: stripeSessionId,
+          domain_option: 'register_new',
+          domain_registration: domain,
+          live_url: liveUrl
+        })
+      });
+      const suffix = result.actual_purchase_attempted
+        ? 'The registration automation has been started.'
+        : 'The domain has been queued for PBI to register manually because no registrar automation is connected yet.';
+      showMessage(`Your website is live: ${liveUrl}. ${suffix} ${result.message || ''}`.trim(), 'success');
+    } catch (error) {
+      showMessage(`Your website is live: ${liveUrl}. Domain registration still needs attention: ${error.message || 'Domain agent could not start.'}`, 'error');
+    }
   }
 
   document.querySelectorAll('.planBtn').forEach((button) => button.addEventListener('click', () => createCheckout(button.dataset.plan)));
