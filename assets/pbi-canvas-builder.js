@@ -23,7 +23,10 @@
   const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
   const uid = (prefix="block") => `${prefix}-${Math.random().toString(36).slice(2,9)}-${Date.now().toString(36)}`;
   const esc = (value) => String(value ?? "").replace(/[&<>"']/g, ch => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[ch]));
+  const attr = (value) => esc(value).replace(/`/g, "&#96;");
   const normalise = (key) => packAliases[String(key || "").toLowerCase()] || String(key || "cafe").toLowerCase();
+  const domainSlug = (value) => String(value || "my-business").toLowerCase().replace(/&/g, " and ").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 48) || "my-business";
+  const cleanDomainText = (value) => String(value || "").trim().toLowerCase().replace(/^https?:\/\//, "").replace(/^www\./, "").split(/[/?#]/)[0].replace(/:\d+$/, "").replace(/\s+/g, "");
 
   function getPreset(key){
     const id = normalise(key);
@@ -71,6 +74,9 @@
     project.analytics = project.analytics || { enabled: true, events: [] };
     project.cmsItems = project.cmsItems || [];
     project.leadForms = project.leadForms || [];
+    project.domain_option = project.domain_option || "pbi_subdomain";
+    project.custom_domain = project.custom_domain || "";
+    project.domain_registration = project.domain_registration || null;
     return project;
   }
 
@@ -89,6 +95,10 @@
   state.project_id = state.project_id || qs.get("project") || localStorage.getItem("pbi_active_project_id") || `local-${Date.now()}`;
   state.selected_pages = state.selected_pages || state.selectedPages || Object.keys(state.pages || { home:{} });
   state.pages = state.pages || projectFromPreset(state.templateId).pages;
+  state.domain_option = state.domain_option || state.domainOption || "pbi_subdomain";
+  state.custom_domain = state.custom_domain || state.customDomain || "";
+  state.domain_registration = state.domain_registration || state.domainRegistration || null;
+  state.use_custom_domain = Boolean(state.use_custom_domain || state.useCustomDomain || state.custom_domain || state.domain_registration?.name);
   let activePage = state.activePage || state.active_page || state.selected_pages[0] || "home";
   state.blocksByPage = state.blocksByPage || {};
 
@@ -386,12 +396,185 @@
     $("#pbiRunChecklistBtn")?.addEventListener("click", () => showChecklist(result));
   }
 
+  function suggestedDomainInput(){
+    if (state.domain_lookup_input) return state.domain_lookup_input;
+    if (state.domain_registration?.name) return state.domain_registration.name;
+    if (state.custom_domain) return state.custom_domain;
+    return `${domainSlug(state.business_name || state.project_name || state.templateId || "my-business")}.co.uk`;
+  }
+
+  function domainModeLabel(mode){
+    if (mode === "register_new") return "Register new domain";
+    if (mode === "connect_existing") return "Connect owned domain";
+    return "PBI subdomain";
+  }
+
+  function domainPriceLabel(domain){
+    const pricing = domain?.pricing || {};
+    const cost = pricing.registration_cost || "";
+    const currency = pricing.currency || "GBP";
+    return cost ? `${currency} ${cost} year one` : "Price confirmed at checkout";
+  }
+
+  function domainStatusLabel(domain){
+    if (domain?.available === true) return "Available";
+    if (domain?.available === false) return "Taken";
+    if (domain?.status === "invalid") return "Invalid";
+    return "Review";
+  }
+
+  function domainStatusClass(domain){
+    if (domain?.available === true) return "available";
+    if (domain?.available === false) return "taken";
+    if (domain?.status === "invalid") return "invalid";
+    return "review";
+  }
+
+  function renderDomainCard(domain, featured=false){
+    if (!domain?.name) return "";
+    const selectable = domain.available === true;
+    const payload = attr(JSON.stringify(domain));
+    return `
+      <article class="pbi-domain-result-card ${domainStatusClass(domain)} ${featured ? "featured" : ""}">
+        <div>
+          <strong>${esc(domain.name)}</strong>
+          <span>${esc(domain.message || domainStatusLabel(domain))}</span>
+          <small>${esc(domainPriceLabel(domain))} · ${esc(domain.confidence || "manual")} confidence</small>
+        </div>
+        <div class="pbi-domain-card-actions">
+          <em>${esc(domainStatusLabel(domain))}</em>
+          ${selectable ? `<button class="btn-ghost pbiDomainSelectBtn" type="button" data-domain-json="${payload}">Select</button>` : ""}
+        </div>
+      </article>
+    `;
+  }
+
+  function renderDomainPanel(){
+    const input = $("#canvasDomainInput");
+    const current = $("#canvasDomainCurrent");
+    const results = $("#canvasDomainResults");
+    const mode = state.domain_option || "pbi_subdomain";
+    const selectedName = state.domain_registration?.name || state.custom_domain || "";
+
+    if (input && document.activeElement !== input) input.value = suggestedDomainInput();
+
+    $$("[data-domain-mode]").forEach((button) => {
+      const active = button.dataset.domainMode === mode;
+      button.classList.toggle("active", active);
+      button.setAttribute("aria-pressed", active ? "true" : "false");
+    });
+
+    if (current) {
+      current.innerHTML = `
+        <strong>${esc(domainModeLabel(mode))}</strong>
+        <span>${selectedName ? esc(selectedName) : "No custom domain selected yet"}</span>
+        ${state.domain_registration?.available === true ? `<small>${esc(domainPriceLabel(state.domain_registration))}</small>` : ""}
+      `;
+    }
+
+    if (!results) return;
+    const check = state.domain_check;
+    if (!check) {
+      results.innerHTML = `<p class="muted">Check a name to see availability and selectable alternatives.</p>`;
+      return;
+    }
+
+    const suggestions = Array.isArray(check.suggestions) ? check.suggestions : [];
+    results.innerHTML = `
+      ${renderDomainCard(check.requested, true)}
+      ${suggestions.length ? `<div class="pbi-domain-suggestion-stack">${suggestions.map((domain) => renderDomainCard(domain)).join("")}</div>` : ""}
+      <p class="small-note muted">${esc(check.message || "Final registrar confirmation happens before purchase.")}</p>
+    `;
+
+    $$(".pbiDomainSelectBtn", results).forEach((button) => {
+      button.addEventListener("click", () => {
+        try {
+          selectCheckedDomain(JSON.parse(button.dataset.domainJson || "{}"));
+        } catch {
+          setStatus("Could not select that domain");
+        }
+      });
+    });
+  }
+
+  function setDomainMode(mode){
+    snapshot();
+    state.domain_option = mode || "pbi_subdomain";
+    if (state.domain_option === "pbi_subdomain") {
+      state.custom_domain = "";
+      state.domain_registration = null;
+      state.use_custom_domain = false;
+    }
+    if (state.domain_option === "connect_existing") {
+      state.domain_registration = null;
+      state.use_custom_domain = Boolean(state.custom_domain);
+    }
+    render();
+    setStatus(`${domainModeLabel(state.domain_option)} selected`);
+  }
+
+  async function checkCanvasDomain(){
+    const input = $("#canvasDomainInput");
+    const domain = input?.value?.trim() || suggestedDomainInput();
+    state.domain_lookup_input = domain;
+    const keyword = state.business_name || state.project_name || state.templateId || domain;
+    const results = $("#canvasDomainResults");
+    if (results) results.innerHTML = `<p class="muted">Checking live availability...</p>`;
+    setStatus("Checking domain availability");
+
+    try {
+      const response = await fetch("/api/domain/check", {
+        method:"POST",
+        credentials:"include",
+        headers:{ "Content-Type":"application/json" },
+        body:JSON.stringify({ domain, keyword, business_name: state.business_name || "" })
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error || data.message || "Could not check domain");
+      state.domain_check = data;
+      renderDomainPanel();
+      persist();
+      setStatus("Domain check complete");
+    } catch (err) {
+      if (results) results.innerHTML = `<div class="notice domain-error">${esc(err.message || "Could not check domain")}</div>`;
+      setStatus("Domain check failed");
+    }
+  }
+
+  function selectCheckedDomain(domain){
+    if (domain?.available !== true) return setStatus("Choose an available domain");
+    snapshot();
+    state.domain_registration = domain;
+    state.custom_domain = domain.name;
+    state.use_custom_domain = true;
+    state.domain_option = "register_new";
+    state.domain_lookup_input = domain.name;
+    render();
+    setStatus(`${domain.name} selected and saved locally`);
+    saveProject()?.then(() => setStatus(`${domain.name} saved to project`));
+  }
+
+  function useExistingDomain(){
+    const name = cleanDomainText($("#canvasDomainInput")?.value || state.custom_domain || "");
+    if (!name || !name.includes(".")) return setStatus("Enter the owned domain first");
+    snapshot();
+    state.custom_domain = name;
+    state.domain_registration = null;
+    state.domain_option = "connect_existing";
+    state.use_custom_domain = true;
+    state.domain_lookup_input = name;
+    render();
+    setStatus(`${name} set as owned domain`);
+    saveProject()?.then(() => setStatus(`${name} saved to project`));
+  }
+
   function render(){
     enforcePlan();
     const preset = getPreset(state.templateId || "cafe");
     if (titleEl) titleEl.innerHTML = `${esc(state.business_name || preset.businessName || "PBI Website")} <span>${esc(currentPlan())} package</span>`;
     renderPages();
     renderPlanControl();
+    renderDomainPanel();
 
     const bg = state.background_color || preset.background || "#fffaf4";
     const accent = state.accent_color || preset.accent || "#b95624";
@@ -710,6 +893,8 @@
       package: currentPlan(),
       template: state.templateId,
       billing_status:"draft",
+      domain_option: state.domain_option || "pbi_subdomain",
+      custom_domain: state.custom_domain || state.domain_registration?.name || "",
       readiness_score: result.score || 100,
       package_warnings: result.warnings || [],
       published:0,
@@ -948,6 +1133,10 @@
     $("#cmsCloudLoadBtn")?.addEventListener("click", loadCmsCloud);
     $("#collabInviteBtn")?.addEventListener("click", inviteCollaborator);
     $("#collabCommentBtn")?.addEventListener("click", addCollabNote);
+    $("#canvasDomainCheckBtn")?.addEventListener("click", checkCanvasDomain);
+    $("#canvasUseExistingDomainBtn")?.addEventListener("click", useExistingDomain);
+    $("#canvasDomainInput")?.addEventListener("input", () => { state.domain_lookup_input = $("#canvasDomainInput")?.value || ""; persist(); });
+    $$("[data-domain-mode]").forEach(btn => btn.addEventListener("click", () => setDomainMode(btn.dataset.domainMode)));
     $$("[data-canvas-ai]").forEach(btn => btn.addEventListener("click", () => aiRewrite(btn.dataset.canvasAi)));
     $$("[data-device]").forEach(btn => btn.addEventListener("click", () => {
       $$("[data-device]").forEach(b=>b.classList.remove("active"));

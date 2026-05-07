@@ -33,13 +33,16 @@ export async function onRequestPost({ request, env }) {
   const plan = cleanPlan(body.plan || rawData.plan || existing.plan || 'starter');
   const data = enforceProjectPackage({ ...rawData, project_id: id, business_name: rawData.business_name || name }, plan);
   const checklist = validateProjectForPublish(data, plan);
+  const domainOption = String(data.domain_option || rawData.domain_option || 'pbi_subdomain').slice(0, 80);
+  const customDomain = String(data.custom_domain || data.domain_registration?.name || rawData.custom_domain || '').slice(0, 253);
 
   await env.DB.prepare(`
     UPDATE projects
     SET name = ?, data_json = ?, plan = ?, readiness_score = ?, package_warnings = ?,
+        domain_option = ?, custom_domain = ?,
         last_validated_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
     WHERE id = ? AND user_id = ?
-  `).bind(name, JSON.stringify(data), plan, checklist.score || 0, JSON.stringify(checklist.warnings || []), id, auth.user.id).run();
+  `).bind(name, JSON.stringify(data), plan, checklist.score || 0, JSON.stringify(checklist.warnings || []), domainOption, customDomain, id, auth.user.id).run();
 
   return json({ ok: true, project: { id, name, plan, readiness_score: checklist.score || 0 }, checklist });
 }

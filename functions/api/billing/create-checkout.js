@@ -21,7 +21,7 @@ export async function onRequestPost({ request, env }) {
   if (!projectId) return error('Project id is required.');
 
   const project = await env.DB.prepare(`
-    SELECT id, user_id, name, plan, data_json
+    SELECT id, user_id, name, plan, data_json, domain_option, custom_domain
     FROM projects
     WHERE id = ? AND user_id = ?
     LIMIT 1
@@ -32,7 +32,26 @@ export async function onRequestPost({ request, env }) {
   const requested = cleanPlan(body.plan || '');
   const saved = cleanPlan(project.plan || 'starter');
   const plan = requested || saved || 'starter';
-  const data = JSON.parse(project.data_json || '{}');
+  const existingData = JSON.parse(project.data_json || '{}');
+  const domainOption = String(body.domain_option || existingData.domain_option || project.domain_option || 'pbi_subdomain');
+  const domainRegistration = body.domain_registration || existingData.domain_registration || null;
+  const selectedDomainRegistration = domainOption === 'register_new' ? domainRegistration : null;
+  const customDomain = String(
+    selectedDomainRegistration?.name ||
+    (domainOption === 'connect_existing' ? (body.custom_domain || existingData.custom_domain || project.custom_domain || '') : '') ||
+    ''
+  ).slice(0, 253);
+
+  if (domainOption === 'register_new' && (!selectedDomainRegistration?.name || selectedDomainRegistration.available !== true)) {
+    return error('Choose and save an available domain before registering a new domain at checkout.', 400);
+  }
+
+  const data = {
+    ...existingData,
+    domain_option: domainOption,
+    custom_domain: customDomain,
+    domain_registration: selectedDomainRegistration
+  };
   const validation = validateProjectForPublish(data, plan);
 
   if (!validation.ok) {
@@ -47,9 +66,9 @@ export async function onRequestPost({ request, env }) {
 
   await env.DB.prepare(`
     UPDATE projects
-    SET plan = ?, data_json = ?, readiness_score = ?, package_warnings = ?, last_validated_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
+    SET plan = ?, data_json = ?, domain_option = ?, custom_domain = ?, readiness_score = ?, package_warnings = ?, last_validated_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
     WHERE id = ? AND user_id = ?
-  `).bind(plan, JSON.stringify(validation.data), validation.score || 0, JSON.stringify(validation.warnings || []), projectId, auth.user.id).run();
+  `).bind(plan, JSON.stringify(validation.data), domainOption, customDomain, validation.score || 0, JSON.stringify(validation.warnings || []), projectId, auth.user.id).run();
 
   const priceId = priceIdForPlan(env, plan);
 
@@ -79,9 +98,21 @@ export async function onRequestPost({ request, env }) {
   params.append('metadata[project_id]', projectId);
   params.append('metadata[user_id]', auth.user.id);
   params.append('metadata[plan]', plan);
+  params.append('metadata[domain_option]', domainOption);
   params.append('subscription_data[metadata][project_id]', projectId);
   params.append('subscription_data[metadata][user_id]', auth.user.id);
   params.append('subscription_data[metadata][plan]', plan);
+  params.append('subscription_data[metadata][domain_option]', domainOption);
+  if (selectedDomainRegistration?.name) {
+    params.append('metadata[domain_name]', selectedDomainRegistration.name);
+    params.append('subscription_data[metadata][domain_name]', selectedDomainRegistration.name);
+  }
+
+  const domainPriceId = env.STRIPE_DOMAIN_REGISTRATION_PRICE_ID || env.STRIPE_DOMAIN_PRICE_ID || env.STRIPE_PRICE_DOMAIN_MANAGEMENT_YEARLY || '';
+  if (domainOption === 'register_new' && selectedDomainRegistration?.name && domainPriceId) {
+    params.append('line_items[1][price]', domainPriceId);
+    params.append('line_items[1][quantity]', '1');
+  }
 
   const stripeResponse = await fetch('https://api.stripe.com/v1/checkout/sessions', {
     method: 'POST',
