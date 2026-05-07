@@ -224,7 +224,7 @@
         <div class="admin-grid-2">
           <form id="adminDomainCheckerForm" class="admin-mini-form">
             <h4>Admin domain checker</h4>
-            <div class="field"><label>Domain to check</label><input class="input" name="domain" placeholder="example.co.uk"></div>
+            <div class="field"><label>Domain to check</label><input class="input" name="domain" value="${esc(domain || data.business_name || project.name || '')}" placeholder="example.co.uk"></div>
             <button class="btn-ghost" type="submit">Check domain</button>
             <div id="adminDomainResults" class="admin-domain-results"></div>
           </form>
@@ -482,6 +482,94 @@
       await loadProject(projectId);
     } catch (error) {
       showMessage(error.message || 'Could not send renewal email.', 'error');
+    }
+  }
+
+  function adminDomainStatus(domain) {
+    if (domain?.available === true) return 'Available';
+    if (domain?.available === false) return 'Taken';
+    if (domain?.status === 'invalid') return 'Invalid';
+    return 'Review';
+  }
+
+  function adminDomainCard(domain, featured = false) {
+    if (!domain?.name) return '';
+    const canUse = domain.available === true;
+    return `
+      <div class="admin-domain-option ${featured ? 'featured' : ''}">
+        <div>
+          <strong>${esc(domain.name)}</strong>
+          <span>${esc(domain.message || adminDomainStatus(domain))}</span>
+        </div>
+        <div class="admin-domain-actions">
+          <span>${esc(adminDomainStatus(domain))}</span>
+          ${canUse ? `<button class="btn-ghost adminUseDomainBtn" type="button" data-domain-json="${esc(JSON.stringify(domain))}">Use</button>` : ''}
+        </div>
+      </div>
+    `;
+  }
+
+  function useAdminDomain(domain) {
+    const customDomain = document.querySelector('[name="custom_domain"]');
+    const domainOption = document.querySelector('[name="domain_option"]');
+    const status = document.querySelector('[name="domain_status"]');
+    const message = document.querySelector('[name="domain_message"]');
+    const jsonBox = document.querySelector('[name="data_json"]');
+
+    if (customDomain) customDomain.value = domain.name || '';
+    if (domainOption) domainOption.value = 'register_new';
+    if (status) status.value = domain.available === true ? 'available_checked' : 'manual_review';
+    if (message) message.value = domain.message || '';
+
+    if (jsonBox) {
+      try {
+        const data = JSON.parse(jsonBox.value || '{}');
+        data.domain_option = 'register_new';
+        data.custom_domain = domain.name || '';
+        data.domain_registration = domain;
+        data.domain_registration_status = domain.available === true ? 'available_checked' : 'manual_review';
+        data.domain_registration_message = domain.message || '';
+        jsonBox.value = JSON.stringify(data, null, 2);
+      } catch {
+        showMessage('Domain selected, but project JSON needs manual updating before save.', 'error');
+        return;
+      }
+    }
+
+    showMessage(`${domain.name} added to the project form. Save admin changes to persist it.`, 'success');
+  }
+
+  async function checkAdminDomain(event) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const fd = new FormData(form);
+    const domain = String(fd.get('domain') || '').trim();
+    const results = document.getElementById('adminDomainResults');
+    if (!domain) return showMessage('Enter a domain or business name to check.', 'error');
+    if (results) results.innerHTML = '<p class="muted">Checking live availability...</p>';
+
+    try {
+      const data = await api('/api/domain/check', {
+        method: 'POST',
+        body: JSON.stringify({ domain, keyword: domain })
+      });
+      const suggestions = Array.isArray(data.suggestions) ? data.suggestions : [];
+      if (results) {
+        results.innerHTML = `
+          ${adminDomainCard(data.requested, true)}
+          ${suggestions.map((item) => adminDomainCard(item)).join('')}
+          <p class="muted">${esc(data.message || 'Final registrar confirmation happens before purchase.')}</p>
+        `;
+        results.querySelectorAll('.adminUseDomainBtn').forEach((button) => {
+          button.addEventListener('click', () => {
+            try { useAdminDomain(JSON.parse(button.dataset.domainJson || '{}')); }
+            catch { showMessage('Could not use that domain result.', 'error'); }
+          });
+        });
+      }
+    } catch (error) {
+      if (results) results.innerHTML = `<div class="notice error">${esc(error.message || 'Could not check domain.')}</div>`;
+      showMessage(error.message || 'Could not check domain.', 'error');
     }
   }
 

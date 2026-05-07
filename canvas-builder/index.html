@@ -42,6 +42,7 @@
       <div class="pbi-studio-tabs pbi-studio-tabs-six" role="tablist" aria-label="Studio panels">
         <button class="active" type="button" data-studio-tab="blocks">Blocks</button>
         <button type="button" data-studio-tab="pages">Pages</button>
+        <button type="button" data-studio-tab="domain">Domain</button>
         <button type="button" data-studio-tab="templates">Templates</button>
         <button type="button" data-studio-tab="layers">Layers</button>
         <button type="button" data-studio-tab="cms">CMS</button>
@@ -86,6 +87,24 @@
           </div>
           <button class="btn-ghost" id="canvasDuplicatePageBtn" type="button">Duplicate current page</button>
           <button class="btn-ghost danger" id="canvasDeletePageBtn" type="button">Delete current page</button>
+        </div>
+      </section>
+
+      <section class="pbi-studio-tab-panel" data-studio-panel="domain">
+        <div class="pbi-domain-panel" id="canvasDomainPanel">
+          <h3>Launch domain</h3>
+          <div class="pbi-domain-mode-grid" role="group" aria-label="Domain mode">
+            <button type="button" data-domain-mode="pbi_subdomain"><strong>PBI subdomain</strong><span>Fastest</span></button>
+            <button type="button" data-domain-mode="connect_existing"><strong>Connect owned</strong><span>DNS steps</span></button>
+            <button type="button" data-domain-mode="register_new"><strong>Register new</strong><span>Check first</span></button>
+          </div>
+          <div class="field"><label for="canvasDomainInput">Domain or business name</label><input id="canvasDomainInput" class="input" placeholder="purbeckbusiness.co.uk"></div>
+          <div class="pbi-inspector-actions">
+            <button class="btn" id="canvasDomainCheckBtn" type="button">Check availability</button>
+            <button class="btn-ghost" id="canvasUseExistingDomainBtn" type="button">Use owned domain</button>
+          </div>
+          <div id="canvasDomainCurrent" class="pbi-domain-current"></div>
+          <div id="canvasDomainResults" class="pbi-domain-results"></div>
         </div>
       </section>
 
@@ -292,7 +311,7 @@
 
   <script src="/assets/template-presets.js" defer></script>
   <script src="/assets/pbi-package-rules.js" defer></script>
-  <script src="/assets/pbi-canvas-builder.js?v=20260506-muscles" defer></script>
+  <script src="/assets/pbi-canvas-builder.js?v=20260507-domain" defer></script>
   <script src="/assets/pbi-editor-polish.js" defer></script>
   <script src="/assets/pbi-request-capture.js" defer></script>
 </body>

@@ -235,6 +235,12 @@
     return `${currency} ${registration} for year one, plus PBI registration handling fee`;
   }
 
+  function domainStatusText(domain) {
+    if (domain?.available === true) return `Available • ${formatDomainPrice(domain)}`;
+    if (domain?.available === false) return domain.message || 'Already registered';
+    return domain?.message || 'Manual review required';
+  }
+
   function renderDomainResults(result) {
     const requested = result.requested;
     const suggestions = Array.isArray(result.suggestions) ? result.suggestions : [];
@@ -245,14 +251,15 @@
     }
 
     const requestedHtml = requested
-      ? `<div class="domain-check-summary"><strong>${escapeHtml(requested.name)}</strong><span>${requested.available ? 'Available' : escapeHtml(requested.message || 'Not available')}</span>${requested.available ? `<button class="btn domainSelectBtn" type="button" data-domain-json="${escapeAttr(JSON.stringify(requested))}">Select this domain</button>` : ''}</div>`
+      ? `<div class="domain-check-summary"><strong>${escapeHtml(requested.name)}</strong><span>${escapeHtml(domainStatusText(requested))}</span>${requested.available ? `<button class="btn domainSelectBtn" type="button" data-domain-json="${escapeAttr(JSON.stringify(requested))}">Select this domain</button>` : ''}</div>`
       : '';
 
     const suggestionsHtml = suggestions.length
-      ? `<div class="domain-suggestion-list"><h4>Available suggestions</h4>${suggestions.map((domain) => `<button class="domain-suggestion-card domainSelectBtn" type="button" data-domain-json="${escapeAttr(JSON.stringify(domain))}"><strong>${escapeHtml(domain.name)}</strong><span>${escapeHtml(formatDomainPrice(domain))}</span></button>`).join('')}</div>`
+      ? `<div class="domain-suggestion-list"><h4>Domain suggestions</h4>${suggestions.map((domain) => domain.available ? `<button class="domain-suggestion-card domainSelectBtn" type="button" data-domain-json="${escapeAttr(JSON.stringify(domain))}"><strong>${escapeHtml(domain.name)}</strong><span>${escapeHtml(domainStatusText(domain))}</span></button>` : `<div class="domain-suggestion-card" aria-disabled="true"><strong>${escapeHtml(domain.name)}</strong><span>${escapeHtml(domainStatusText(domain))}</span></div>`).join('')}</div>`
       : '<p class="muted">No automatically registrable suggestions came back. Try another name or extension.</p>';
 
-    setDomainHtml(`${requestedHtml}${suggestionsHtml}<p class="small-note muted">Selecting a domain saves it against this project. The domain charge will be added to the first checkout payment, then PBI will attempt registration after payment if automatic registration is enabled.</p>`, suggestions.length || requested?.available ? 'success' : 'info');
+    const hasAvailable = requested?.available === true || suggestions.some((domain) => domain.available === true);
+    setDomainHtml(`${requestedHtml}${suggestionsHtml}<p class="small-note muted">Selecting a domain saves it against this project. The domain charge will be added to the first checkout payment, then PBI will attempt registration after payment if automatic registration is enabled.</p>`, hasAvailable ? 'success' : 'info');
 
     els.domainResult.querySelectorAll('.domainSelectBtn').forEach((button) => {
       button.addEventListener('click', () => {
@@ -943,7 +950,8 @@
       custom_domain: state.customDomain,
       use_custom_domain: state.useCustomDomain,
       https_enabled: state.httpsEnabled,
-      domain_option: state.domainOption
+      domain_option: state.domainOption,
+      domain_registration: state.domainRegistration
     };
   }
 

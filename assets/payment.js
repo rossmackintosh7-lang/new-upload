@@ -72,12 +72,12 @@ document.addEventListener('DOMContentLoaded', () => {
           <strong>Selected new domain:</strong> ${esc(domain.name)}
           <small>${esc(priceLabel(domain))}</small>
         </div>
-        <a class="btn-ghost" href="/builder/?project=${encodeURIComponent(projectId || '')}">Change domain</a>
+        <a class="btn-ghost" href="/canvas-builder/?project=${encodeURIComponent(projectId || '')}">Change domain</a>
       </div>
     `;
 
     const registerRadio = document.querySelector('input[name="domainOption"][value="register_new"]');
-    if (registerRadio && (projectData.domain_option === 'register_new' || domain.name)) registerRadio.checked = true;
+    if (registerRadio && projectData.domain_option === 'register_new') registerRadio.checked = true;
   }
 
   async function loadProject() {
@@ -85,7 +85,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
       const data = await api(`/api/projects/get?id=${encodeURIComponent(projectId)}`);
-      projectData = parseProjectData(data.project || {});
+      const project = data.project || {};
+      const parsed = parseProjectData(project);
+      projectData = {
+        ...parsed,
+        domain_option: parsed.domain_option || project.domain_option || 'pbi_subdomain',
+        custom_domain: parsed.custom_domain || project.custom_domain || ''
+      };
       selectedPlan = (params.get('plan') || data.project?.plan || projectData.plan || projectData.package || selectedPlan || 'starter').toLowerCase();
       localStorage.setItem('pbi_plan', selectedPlan);
       renderSelectedPlan();

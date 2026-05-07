@@ -13,6 +13,8 @@ async function ensure(env){
     public_slug TEXT,
     plan TEXT DEFAULT 'starter',
     billing_status TEXT DEFAULT 'draft',
+    domain_option TEXT DEFAULT 'pbi_subdomain',
+    custom_domain TEXT,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
     updated_at TEXT DEFAULT CURRENT_TIMESTAMP
   )`).run();
@@ -22,7 +24,9 @@ async function ensure(env){
     `ALTER TABLE projects ADD COLUMN package_warnings TEXT DEFAULT '[]'`,
     `ALTER TABLE projects ADD COLUMN last_validated_at TEXT`,
     `ALTER TABLE projects ADD COLUMN staging_slug TEXT`,
-    `ALTER TABLE projects ADD COLUMN unpublished_at TEXT`
+    `ALTER TABLE projects ADD COLUMN unpublished_at TEXT`,
+    `ALTER TABLE projects ADD COLUMN domain_option TEXT DEFAULT 'pbi_subdomain'`,
+    `ALTER TABLE projects ADD COLUMN custom_domain TEXT`
   ];
   for (const sql of alters) { try { await env.DB.prepare(sql).run(); } catch (_) {} }
 }
@@ -40,18 +44,22 @@ export async function onRequestPost({ request, env }) {
   const plan = cleanPlan(project.plan || rawCanvas.plan || rawCanvas.package || 'starter');
   const enforced = enforceProjectPackage({ ...rawCanvas, project_id: id, business_name: name }, plan);
   const checklist = validateProjectForPublish(enforced, plan);
+  const domainOption = String(enforced.domain_option || project.domain_option || 'pbi_subdomain').slice(0, 80);
+  const customDomain = String(enforced.custom_domain || enforced.domain_registration?.name || project.custom_domain || '').slice(0, 253);
 
-  await env.DB.prepare(`INSERT INTO projects (id, user_id, name, status, data_json, plan, billing_status, published, readiness_score, package_warnings, last_validated_at, created_at, updated_at)
-    VALUES (?, ?, ?, 'draft', ?, ?, 'draft', 0, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+  await env.DB.prepare(`INSERT INTO projects (id, user_id, name, status, data_json, plan, billing_status, domain_option, custom_domain, published, readiness_score, package_warnings, last_validated_at, created_at, updated_at)
+    VALUES (?, ?, ?, 'draft', ?, ?, 'draft', ?, ?, 0, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
     ON CONFLICT(id) DO UPDATE SET
       name = excluded.name,
       data_json = excluded.data_json,
       plan = excluded.plan,
+      domain_option = excluded.domain_option,
+      custom_domain = excluded.custom_domain,
       readiness_score = excluded.readiness_score,
       package_warnings = excluded.package_warnings,
       last_validated_at = CURRENT_TIMESTAMP,
       updated_at = CURRENT_TIMESTAMP`)
-    .bind(id, user.id, name, JSON.stringify(enforced), plan, checklist.score || 0, JSON.stringify(checklist.warnings || [])).run();
+    .bind(id, user.id, name, JSON.stringify(enforced), plan, domainOption, customDomain, checklist.score || 0, JSON.stringify(checklist.warnings || [])).run();
 
   return json({
     ok: true,

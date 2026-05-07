@@ -11,7 +11,7 @@ export async function onRequestGet({ request, env }) {
   if (!id) return error('Project id is required.');
 
   const project = await env.DB.prepare(`
-    SELECT id, user_id, name, status, data_json, published, public_slug, plan, billing_status, stripe_customer_id, stripe_subscription_id, updated_at, created_at
+    SELECT id, user_id, name, status, data_json, published, public_slug, plan, billing_status, domain_option, custom_domain, stripe_customer_id, stripe_subscription_id, updated_at, created_at
     FROM projects
     WHERE id = ? AND user_id = ?
     LIMIT 1
