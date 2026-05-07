@@ -27,6 +27,10 @@
   const normalise = (key) => packAliases[String(key || "").toLowerCase()] || String(key || "cafe").toLowerCase();
   const domainSlug = (value) => String(value || "my-business").toLowerCase().replace(/&/g, " and ").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 48) || "my-business";
   const cleanDomainText = (value) => String(value || "").trim().toLowerCase().replace(/^https?:\/\//, "").replace(/^www\./, "").split(/[/?#]/)[0].replace(/:\d+$/, "").replace(/\s+/g, "");
+  const clone = (value, fallback = null) => {
+    try { return JSON.parse(JSON.stringify(value ?? fallback)); } catch { return fallback; }
+  };
+  const classToken = (value) => String(value || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "standard";
 
   function getPreset(key){
     const id = normalise(key);
@@ -89,8 +93,13 @@
     try { return JSON.parse(localStorage.getItem("pbi_canvas_state") || "null"); } catch { return null; }
   })();
 
-  let state = saved || projectFromPreset(qs.get("preset") || qs.get("template") || localStorage.getItem("pbi_selected_template") || "cafe");
-  state.templateId = normalise(qs.get("preset") || qs.get("template") || state.templateId || "cafe");
+  const requestedTemplate = normalise(qs.get("preset") || qs.get("template") || localStorage.getItem("pbi_selected_template") || saved?.templateId || "cafe");
+  const requestedProject = qs.get("project") || "";
+  const shouldStartFromRequestedTemplate = !saved ||
+    (Boolean(qs.get("preset") || qs.get("template")) && normalise(saved.templateId || saved.template || "") !== requestedTemplate) ||
+    (Boolean(requestedProject) && saved.project_id && saved.project_id !== requestedProject);
+  let state = shouldStartFromRequestedTemplate ? projectFromPreset(requestedTemplate) : saved;
+  state.templateId = requestedTemplate || normalise(state.templateId || "cafe");
   state.plan = rules.cleanPlan(qs.get("plan") || state.plan || state.package || localStorage.getItem("pbi_plan") || "starter");
   state.project_id = state.project_id || qs.get("project") || localStorage.getItem("pbi_active_project_id") || `local-${Date.now()}`;
   state.selected_pages = state.selected_pages || state.selectedPages || Object.keys(state.pages || { home:{} });
@@ -156,6 +165,22 @@
   function blocksForPreset(project, pageKey){
     const p = getPreset(project.templateId || "cafe");
     const page = project.pages?.[pageKey] || {};
+    const presetBlocks = Array.isArray(p.blocksByPage?.[pageKey]) ? p.blocksByPage[pageKey] : null;
+    if (presetBlocks?.length) {
+      return presetBlocks.map((presetBlock, idx) => {
+        const type = presetBlock.type || "hero";
+        const base = createBlock(type, p, pageKey);
+        return {
+          ...base,
+          ...clone(presetBlock, {}),
+          id: uid(type),
+          type,
+          accent: presetBlock.accent || base.accent,
+          background: presetBlock.background || base.background,
+          z: idx + 1
+        };
+      });
+    }
     const blocks = [
       createBlock("hero", p, pageKey),
       createBlock("services", p, pageKey),
@@ -170,7 +195,8 @@
   }
 
   for (const page of state.selected_pages) {
-    if (!state.blocksByPage[page] || !state.blocksByPage[page].length) {
+    const current = state.blocksByPage[page] || [];
+    if (!current.length || current.some((block) => !block.id)) {
       state.blocksByPage[page] = blocksForPreset(state, page);
     }
   }
@@ -239,12 +265,17 @@
     const selectedClass = block.id === selectedId ? " selected" : "";
     const freeClass = block.positionMode === "free" && isPremium() && !block.packageLocked ? " freeform" : "";
     const lockedClass = block.packageLocked ? " package-locked" : "";
-    const attrs = `class="pbi-canvas-render-block${selectedClass}${freeClass}${lockedClass}" draggable="${previewMode ? "false" : "true"}" data-block-id="${esc(block.id)}" data-kind="${esc(block.type)}" tabindex="0" style="${blockStyle(block)}"`;
+    const layoutClass = ` layout-${classToken(block.layout)}`;
+    const attrs = `class="pbi-canvas-render-block${selectedClass}${freeClass}${lockedClass}${layoutClass}" draggable="${previewMode ? "false" : "true"}" data-block-id="${esc(block.id)}" data-kind="${esc(block.type)}" data-layout="${esc(block.layout || "standard")}" tabindex="0" style="${blockStyle(block)}"`;
     const title = esc(block.title);
     const text = esc(block.text);
     const button = esc(block.button || "");
     const eyebrow = esc(block.eyebrow || block.type);
     const image = esc(block.image || state.heroImage || getPreset(state.templateId).heroImage || "/assets/demo-media/cafe-hero.jpg");
+    const galleryImages = [
+      block.image,
+      ...(Array.isArray(block.images) ? block.images : [])
+    ].filter(Boolean).filter((item, index, arr) => arr.indexOf(item) === index).slice(0, 6);
 
     if (block.type === "navBar") {
       return `<section ${attrs}><div class="pbi-live-nav"><strong ${editableAttr(block,'title')}>${title}</strong><span ${editableAttr(block,'text')}>${text}</span>${button ? `<a class="btn" style="background:${accent}" href="#contact">${button}</a>` : ""}</div>${lockedOverlay(block)}</section>`;
@@ -257,7 +288,10 @@
       return `<section ${attrs}><div class="pbi-live-section"><p class="eyebrow">${eyebrow}</p><h2 ${editableAttr(block,'title')}>${title}</h2><div class="pbi-live-card-grid">${items.map(item => `<article><h3>${esc(item)}</h3><p>Edit this item from the inspector.</p></article>`).join("") || `<article><h3>Add item</h3><p>Use | between items.</p></article>`}</div></div>${lockedOverlay(block)}</section>`;
     }
     if (block.type === "gallery") {
-      return `<section ${attrs}><div class="pbi-live-section"><p class="eyebrow">${eyebrow}</p><h2 ${editableAttr(block,'title')}>${title}</h2><p ${editableAttr(block,'text')}>${text}</p><img class="pbi-live-wide-image" src="${image}" alt="Gallery preview"></div>${lockedOverlay(block)}</section>`;
+      const galleryMarkup = galleryImages.length > 1
+        ? `<div class="pbi-live-gallery-grid">${galleryImages.map((src, index) => `<img src="${esc(src)}" alt="Gallery preview ${index + 1}">`).join("")}</div>`
+        : `<img class="pbi-live-wide-image" src="${image}" alt="Gallery preview">`;
+      return `<section ${attrs}><div class="pbi-live-section"><p class="eyebrow">${eyebrow}</p><h2 ${editableAttr(block,'title')}>${title}</h2><p ${editableAttr(block,'text')}>${text}</p>${galleryMarkup}</div>${lockedOverlay(block)}</section>`;
     }
     if (block.type === "spacer") {
       return `<section ${attrs}><div class="pbi-live-spacer"><span ${editableAttr(block,'title')}>${title}</span></div>${lockedOverlay(block)}</section>`;
@@ -350,10 +384,10 @@
         snapshot();
         localStorage.removeItem("pbi_canvas_state");
         const plan = currentPlan();
-        state = projectFromPreset("cafe");
-        state.plan = plan;
-        state.project_id = `local-${Date.now()}`;
-        state.blocksByPage = {};
+      state = projectFromPreset("cafe");
+      state.plan = plan;
+      state.project_id = `local-${Date.now()}`;
+      state.blocksByPage = {};
         for (const page of state.selected_pages) state.blocksByPage[page] = blocksForPreset(state, page);
         activePage = "home";
         selectedId = null;
