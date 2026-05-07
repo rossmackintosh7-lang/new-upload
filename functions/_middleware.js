@@ -62,21 +62,30 @@ const SEO_JSON_LD = `
 }
 </script>`;
 
+const SECRET_AGENT_SCRIPT = '<script src="/assets/pbi-secret-agent.js" defer></script>';
+
+function shouldLoadSecretAgent(pathname) {
+  return pathname.startsWith('/dashboard/') || pathname.startsWith('/admin/') || pathname.startsWith('/projects/') || pathname.startsWith('/canvas-builder/');
+}
+
 export async function onRequest(context) {
   const response = await context.next();
   const url = new URL(context.request.url);
   const contentType = response.headers.get('content-type') || '';
 
-  if (url.pathname !== '/' || !contentType.includes('text/html')) {
+  if (!contentType.includes('text/html')) {
     return response;
   }
 
   let html = await response.text();
-  if (!html.includes('id="google-seo-ready"')) {
+  if (url.pathname === '/' && !html.includes('id="google-seo-ready"')) {
     html = html.replace('</main>', `${SEO_HOME_SECTION}\n</main>`);
   }
-  if (!html.includes('id="pbi-seo-home-schema"')) {
+  if (url.pathname === '/' && !html.includes('id="pbi-seo-home-schema"')) {
     html = html.replace('</head>', `${SEO_JSON_LD}\n</head>`);
+  }
+  if (shouldLoadSecretAgent(url.pathname) && !html.includes('/assets/pbi-secret-agent.js')) {
+    html = html.replace('</body>', `${SECRET_AGENT_SCRIPT}\n</body>`);
   }
 
   const headers = new Headers(response.headers);

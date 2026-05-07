@@ -94,6 +94,17 @@ export async function ensurePbiOpsTables(env) {
   await env.DB.prepare(`CREATE TABLE IF NOT EXISTS admin_notifications (id TEXT PRIMARY KEY,type TEXT NOT NULL,title TEXT NOT NULL,message TEXT,status TEXT DEFAULT 'new',priority TEXT DEFAULT 'normal',customer_email TEXT,project_id TEXT,request_id TEXT,body_json TEXT,created_at TEXT DEFAULT CURRENT_TIMESTAMP,updated_at TEXT DEFAULT CURRENT_TIMESTAMP,read_at TEXT)`).run();
   await env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_admin_notifications_status ON admin_notifications(status)`).run();
   await env.DB.prepare(`CREATE TABLE IF NOT EXISTS admin_requests (id TEXT PRIMARY KEY,request_type TEXT NOT NULL,status TEXT DEFAULT 'new',priority TEXT DEFAULT 'normal',customer_name TEXT,customer_email TEXT,customer_phone TEXT,business_name TEXT,business_type TEXT,project_id TEXT,package_name TEXT,payment_status TEXT DEFAULT 'unknown',brief TEXT,requested_pages TEXT,uploaded_assets_json TEXT,internal_notes TEXT,customer_message TEXT,body_json TEXT,created_at TEXT DEFAULT CURRENT_TIMESTAMP,updated_at TEXT DEFAULT CURRENT_TIMESTAMP)`).run();
+  for (const sql of [
+    `ALTER TABLE admin_requests ADD COLUMN business_type TEXT`,
+    `ALTER TABLE admin_requests ADD COLUMN package_name TEXT`,
+    `ALTER TABLE admin_requests ADD COLUMN payment_status TEXT DEFAULT 'unknown'`,
+    `ALTER TABLE admin_requests ADD COLUMN requested_pages TEXT`,
+    `ALTER TABLE admin_requests ADD COLUMN uploaded_assets_json TEXT`,
+    `ALTER TABLE admin_requests ADD COLUMN internal_notes TEXT`,
+    `ALTER TABLE admin_requests ADD COLUMN customer_message TEXT`
+  ]) {
+    try { await env.DB.prepare(sql).run(); } catch (_) {}
+  }
   await env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_admin_requests_status ON admin_requests(status)`).run();
   await env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_admin_requests_project_id ON admin_requests(project_id)`).run();
   await env.DB.prepare(`CREATE TABLE IF NOT EXISTS admin_project_notes (id TEXT PRIMARY KEY,project_id TEXT NOT NULL,request_id TEXT,note TEXT NOT NULL,created_by TEXT,created_at TEXT DEFAULT CURRENT_TIMESTAMP)`).run();
