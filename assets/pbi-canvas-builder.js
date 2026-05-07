@@ -1148,6 +1148,40 @@
     }));
   }
 
+  window.PBIBuilderV2 = {
+    getState() {
+      return JSON.parse(JSON.stringify(state));
+    },
+    getActivePage() {
+      return activePage;
+    },
+    addBlock(type) {
+      addBlock(type);
+      return this.getState();
+    },
+    updateState(mutator, statusText) {
+      if (typeof mutator !== "function") return this.getState();
+      snapshot();
+      const result = mutator(state, {
+        activePage,
+        activeBlocks: activeBlocks(),
+        currentPlan: currentPlan()
+      });
+      if (result) state = result;
+      enforcePlan();
+      persist();
+      render();
+      setStatus(statusText || "Builder updated");
+      window.dispatchEvent(new CustomEvent("pbi:builder-v2-updated", { detail: { state: this.getState() } }));
+      return this.getState();
+    },
+    saveProject,
+    saveVersion,
+    openTab(tab) {
+      document.querySelector(`[data-studio-tab="${tab}"]`)?.click();
+    }
+  };
+
   wireEvents();
   render();
 })();
