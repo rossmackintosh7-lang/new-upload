@@ -229,13 +229,18 @@ export async function onRequestPost({ request, env }) {
 
   const requested = await checkOne(domain, env);
   const suggestions = await Promise.all(suggestionNames(domain, suggestionKeyword).map((name) => checkOne(name, env)));
+  const registrationAgentConnected = Boolean(env.DOMAIN_REGISTRATION_AGENT_URL || env.DOMAIN_REGISTRATION_WEBHOOK_URL);
 
   return json({
     ok: true,
     live_check: true,
-    registrar_connected: Boolean(env.CLOUDFLARE_API_TOKEN && env.CLOUDFLARE_ACCOUNT_ID),
+    registrar_connected: registrationAgentConnected,
+    registration_agent_connected: registrationAgentConnected,
+    cloudflare_credentials_present: Boolean(env.CLOUDFLARE_API_TOKEN && env.CLOUDFLARE_ACCOUNT_ID),
     requested,
     suggestions,
-    message: 'Live public domain checks completed. Availability still needs final registrar confirmation before purchase.'
+    message: registrationAgentConnected
+      ? 'Live public domain checks completed. The Domain Registration Agent can hand available domains to the registrar workflow after checkout.'
+      : 'Live public domain checks completed. Available domains can be selected, then PBI will queue registration after checkout until registrar automation is connected.'
   });
 }
