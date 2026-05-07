@@ -29,6 +29,27 @@
     return params.get('project') || params.get('project_id') || params.get('id') || '';
   }
 
+  function collectPageContext() {
+    const readText = (selector, limit = 16) => Array.from(document.querySelectorAll(selector))
+      .map((node) => node.textContent.trim().replace(/\s+/g, ' '))
+      .filter(Boolean)
+      .slice(0, limit);
+    const meta = document.querySelector('meta[name="description"]')?.getAttribute('content') || '';
+    return {
+      title: document.title,
+      path: window.location.pathname,
+      bodyClass: document.body.className || '',
+      metaDescription: meta,
+      headings: readText('h1,h2,h3', 18),
+      buttons: readText('button,a.btn,a.btn-ghost,[role="button"]', 18),
+      fields: Array.from(document.querySelectorAll('label, input[placeholder], textarea[placeholder], select'))
+        .map((node) => node.textContent?.trim() || node.getAttribute('placeholder') || node.getAttribute('name') || node.id || '')
+        .map((text) => text.replace(/\s+/g, ' ').trim())
+        .filter(Boolean)
+        .slice(0, 18)
+    };
+  }
+
   async function isLoggedIn() {
     try {
       const response = await fetch('/api/auth/me', { credentials: 'include', cache: 'no-store' });
@@ -102,6 +123,9 @@
       .pbi-secret-agent-head h2{font-size:26px;letter-spacing:-.03em;margin:4px 0 0}
       .pbi-secret-agent-close{border:1px solid rgba(105,74,49,.18);border-radius:999px;background:#fff;color:#2f1b12;padding:8px 10px;font-weight:850;cursor:pointer}
       .pbi-secret-agent-log{overflow:auto;display:grid;gap:10px;padding:8px;border-radius:18px;background:#fff8f1}
+      .pbi-secret-agent-suggestions{display:flex;gap:8px;flex-wrap:wrap;padding:0 2px}
+      .pbi-secret-agent-suggestions[hidden]{display:none}
+      .pbi-secret-agent-suggestions button{border:1px solid rgba(105,74,49,.18);border-radius:999px;background:#fff;color:#2f1b12;padding:8px 10px;font-size:12px;font-weight:850;cursor:pointer}
       .pbi-secret-agent-message{max-width:92%;border:1px solid rgba(105,74,49,.14);border-radius:18px;padding:10px 12px;background:#fff;color:#2f1b12}
       .pbi-secret-agent-message.agent{display:grid;grid-template-columns:38px 1fr;gap:10px;align-items:start}
       .pbi-secret-agent-message.agent[data-mood="alert"]{border-color:rgba(191,92,41,.28);background:#fff3e8}
@@ -147,11 +171,13 @@
           <button type="button" class="pbi-secret-agent-close" aria-label="Close Goose">Close</button>
         </div>
         <div class="pbi-secret-agent-log" aria-live="polite"></div>
+        <div class="pbi-secret-agent-suggestions" hidden></div>
         <form class="pbi-secret-agent-form">
-          <textarea name="message" rows="3" placeholder="Ask Goose for a launch check, SEO fix, copy improvement or admin next step."></textarea>
+          <textarea name="message" rows="3" placeholder="Ask Goose anything about PBI: pricing, domains, templates, publishing, SEO, admin, custom builds or this page."></textarea>
           <div class="pbi-secret-agent-actions">
-            <button type="button" data-agent-prompt="What is the fastest improvement I can make on this page?">Fastest win</button>
-            <button type="button" data-agent-prompt="Check this project for launch blockers.">Launch blockers</button>
+            <button type="button" data-agent-prompt="What should I do next on this PBI page?">Next step</button>
+            <button type="button" data-agent-prompt="Explain the PBI pricing and publish route.">Pricing</button>
+            <button type="button" data-agent-prompt="How should I handle domains for this project?">Domains</button>
             <button class="btn" type="submit">Ask Goose</button>
           </div>
         </form>
@@ -165,6 +191,20 @@
     const form = shell.querySelector('.pbi-secret-agent-form');
     const textarea = form.querySelector('textarea');
     const log = shell.querySelector('.pbi-secret-agent-log');
+    const suggestions = shell.querySelector('.pbi-secret-agent-suggestions');
+
+    function renderSuggestions(items = []) {
+      const useful = items.filter(Boolean).slice(0, 3);
+      suggestions.hidden = !useful.length;
+      suggestions.innerHTML = '';
+      useful.forEach((label) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.textContent = label;
+        button.addEventListener('click', () => ask(label));
+        suggestions.appendChild(button);
+      });
+    }
 
     function setOpen(open) {
       panel.hidden = !open;
@@ -172,7 +212,8 @@
       if (open && !log.dataset.started) {
         log.dataset.started = 'true';
         setGooseFace(shell, 'profile');
-        addMessage(log, 'agent', 'I am Goose. I can check launch blockers, tidy SEO, sharpen copy and suggest the next admin move. I will always suggest changes first before anything gets applied.', 'profile');
+        addMessage(log, 'agent', 'I am Goose. Ask me anything PBI-related: pricing, domains, templates, publishing, SEO, admin, support routes, custom builds or what to do next on the page you are viewing.', 'profile');
+        renderSuggestions(['What should I do next?', 'Explain this page', 'Check launch readiness']);
       }
     }
 
@@ -191,7 +232,10 @@
           body: JSON.stringify({
             message: text,
             project_id: projectIdFromUrl(),
-            page: window.location.pathname
+            page: window.location.pathname,
+            page_url: window.location.href,
+            page_title: document.title,
+            page_context: collectPageContext()
           })
         });
         const data = await response.json().catch(() => ({}));
@@ -202,6 +246,7 @@
         last.querySelector('[data-goose-message-face]').src = GOOSE_ASSETS[mood] || GOOSE_ASSETS.answer;
         last.querySelector('p').textContent = answer;
         setGooseFace(shell, mood);
+        renderSuggestions(data.reply?.suggestedActions || []);
       } catch (error) {
         last.dataset.mood = 'alert';
         last.querySelector('[data-goose-message-face]').src = GOOSE_ASSETS.alert;
