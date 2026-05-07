@@ -62,7 +62,7 @@ const SEO_JSON_LD = `
 }
 </script>`;
 
-const SECRET_AGENT_SCRIPT = '<script src="/assets/pbi-secret-agent.js" defer></script>';
+const SECRET_AGENT_SCRIPT = '<script src="/assets/pbi-secret-agent.js?v=20260507-goose" defer></script>';
 
 function shouldLoadSecretAgent(pathname) {
   return pathname.startsWith('/dashboard/') || pathname.startsWith('/admin/') || pathname.startsWith('/projects/') || pathname.startsWith('/canvas-builder/');

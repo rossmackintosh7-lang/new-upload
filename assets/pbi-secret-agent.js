@@ -1,4 +1,21 @@
 (function () {
+  const GOOSE_ASSETS = {
+    profile: '/assets/goose/goose-profile.png',
+    thinking: '/assets/goose/goose-thinking.png',
+    wink: '/assets/goose/goose-wink.png',
+    answer: '/assets/goose/goose-answer.png',
+    success: '/assets/goose/goose-success.png',
+    alert: '/assets/goose/goose-alert.png',
+    excited: '/assets/goose/goose-excited.png'
+  };
+
+  function preloadGooseFaces() {
+    Object.values(GOOSE_ASSETS).forEach((src) => {
+      const img = new Image();
+      img.src = src;
+    });
+  }
+
   const esc = (value) => String(value || '').replace(/[&<>"']/g, (char) => ({
     '&': '&amp;',
     '<': '&lt;',
@@ -21,12 +38,50 @@
     }
   }
 
-  function addMessage(log, who, text) {
+  function moodForPrompt(text) {
+    const lower = String(text || '').toLowerCase();
+    if (/block|broken|error|issue|risk|missing|urgent|fail|stuck/.test(lower)) return 'alert';
+    if (/launch|publish|ready|payment|stripe|check/.test(lower)) return 'excited';
+    if (/seo|copy|rewrite|improve|fastest|win|idea/.test(lower)) return 'answer';
+    return 'profile';
+  }
+
+  function moodForAnswer(prompt, answer) {
+    const lower = `${prompt || ''} ${answer || ''}`.toLowerCase();
+    if (/error|failed|could not|blocked|missing|risk|broken|problem/.test(lower)) return 'alert';
+    if (/passed|done|success|quickest|fastest|win/.test(lower)) return 'success';
+    if (/launch|publish|live|ready|payment|stripe/.test(lower)) return 'excited';
+    if (/seo|title|description|copy|rewrite|improve/.test(lower)) return 'wink';
+    return 'answer';
+  }
+
+  function setGooseFace(shell, mood) {
+    const src = GOOSE_ASSETS[mood] || GOOSE_ASSETS.profile;
+    shell.querySelectorAll('[data-goose-face]').forEach((img) => {
+      img.src = src;
+      img.dataset.mood = mood;
+    });
+  }
+
+  function addMessage(log, who, text, mood = 'answer') {
     const item = document.createElement('div');
     item.className = `pbi-secret-agent-message ${who}`;
-    item.innerHTML = `<strong>${who === 'user' ? 'You' : 'Secret Agent'}</strong><p>${esc(text)}</p>`;
+    if (who === 'agent') {
+      const src = GOOSE_ASSETS[mood] || GOOSE_ASSETS.answer;
+      item.dataset.mood = mood;
+      item.innerHTML = `
+        <img class="pbi-secret-agent-avatar" data-goose-message-face src="${src}" alt="Goose">
+        <div>
+          <strong>Goose</strong>
+          <p>${esc(text)}</p>
+        </div>
+      `;
+    } else {
+      item.innerHTML = `<strong>You</strong><p>${esc(text)}</p>`;
+    }
     log.appendChild(item);
     log.scrollTop = log.scrollHeight;
+    return item;
   }
 
   function injectStyles() {
@@ -36,16 +91,23 @@
     style.textContent = `
       .pbi-secret-agent{position:fixed;right:18px;bottom:18px;z-index:1000;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
       .pbi-secret-agent-toggle{display:flex;align-items:center;gap:10px;border:1px solid rgba(105,74,49,.18);border-radius:999px;background:#24130c;color:#fffaf4;box-shadow:0 18px 45px rgba(36,19,12,.22);padding:10px 14px;cursor:pointer}
-      .pbi-secret-agent-toggle span{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#fffaf4;color:#24130c;font-weight:950;font-size:12px}
+      .pbi-secret-agent-toggle img{width:38px;height:38px;border-radius:50%;object-fit:cover;background:#fffaf4;border:2px solid rgba(255,250,244,.9)}
       .pbi-secret-agent-toggle strong{font-size:14px}
-      .pbi-secret-agent-panel{width:min(420px,calc(100vw - 28px));max-height:min(680px,calc(100vh - 96px));display:grid;grid-template-rows:auto minmax(180px,1fr) auto;gap:12px;margin-bottom:12px;border:1px solid rgba(105,74,49,.18);border-radius:24px;background:rgba(255,250,244,.98);box-shadow:0 24px 70px rgba(36,19,12,.24);padding:16px}
+      .pbi-secret-agent-panel{width:min(430px,calc(100vw - 28px));max-height:min(700px,calc(100vh - 96px));display:grid;grid-template-rows:auto minmax(190px,1fr) auto;gap:12px;margin-bottom:12px;border:1px solid rgba(105,74,49,.18);border-radius:24px;background:rgba(255,250,244,.98);box-shadow:0 24px 70px rgba(36,19,12,.24);padding:16px}
       .pbi-secret-agent-panel[hidden]{display:none}
       .pbi-secret-agent-head{display:flex;justify-content:space-between;gap:12px;align-items:start}
+      .pbi-secret-agent-id{display:flex;gap:12px;align-items:center}
+      .pbi-secret-agent-portrait{width:58px;height:58px;border-radius:18px;object-fit:cover;border:1px solid rgba(105,74,49,.18);background:#fff;box-shadow:0 10px 24px rgba(36,19,12,.12)}
       .pbi-secret-agent-head span{display:block;color:#8a431d;font-size:11px;font-weight:950;letter-spacing:.12em;text-transform:uppercase}
-      .pbi-secret-agent-head h2{font-size:24px;letter-spacing:-.03em;margin:4px 0 0}
+      .pbi-secret-agent-head h2{font-size:26px;letter-spacing:-.03em;margin:4px 0 0}
       .pbi-secret-agent-close{border:1px solid rgba(105,74,49,.18);border-radius:999px;background:#fff;color:#2f1b12;padding:8px 10px;font-weight:850;cursor:pointer}
       .pbi-secret-agent-log{overflow:auto;display:grid;gap:10px;padding:8px;border-radius:18px;background:#fff8f1}
-      .pbi-secret-agent-message{max-width:88%;border:1px solid rgba(105,74,49,.14);border-radius:18px;padding:10px 12px;background:#fff;color:#2f1b12}
+      .pbi-secret-agent-message{max-width:92%;border:1px solid rgba(105,74,49,.14);border-radius:18px;padding:10px 12px;background:#fff;color:#2f1b12}
+      .pbi-secret-agent-message.agent{display:grid;grid-template-columns:38px 1fr;gap:10px;align-items:start}
+      .pbi-secret-agent-message.agent[data-mood="alert"]{border-color:rgba(191,92,41,.28);background:#fff3e8}
+      .pbi-secret-agent-message.agent[data-mood="success"]{border-color:rgba(73,130,76,.28);background:#f5fff1}
+      .pbi-secret-agent-message.agent[data-mood="excited"]{border-color:rgba(138,67,29,.28);background:#fff7dc}
+      .pbi-secret-agent-avatar{width:38px;height:38px;border-radius:50%;object-fit:cover;border:1px solid rgba(105,74,49,.18);background:#fff}
       .pbi-secret-agent-message.user{justify-self:end;background:#24130c;color:#fffaf4}
       .pbi-secret-agent-message strong{display:block;font-size:12px;margin-bottom:4px}
       .pbi-secret-agent-message p{margin:0;line-height:1.45;font-size:14px;white-space:pre-wrap}
@@ -62,6 +124,7 @@
   async function init() {
     if (!document.body || document.querySelector('[data-pbi-secret-agent]')) return;
     if (!await isLoggedIn()) return;
+    preloadGooseFaces();
     injectStyles();
 
     const shell = document.createElement('section');
@@ -69,24 +132,27 @@
     shell.setAttribute('data-pbi-secret-agent', 'true');
     shell.innerHTML = `
       <button class="pbi-secret-agent-toggle" type="button" aria-expanded="false" aria-controls="pbiSecretAgentPanel">
-        <span>SA</span>
-        <strong>Secret Agent</strong>
+        <img data-goose-face src="${GOOSE_ASSETS.profile}" alt="" aria-hidden="true">
+        <strong>Goose</strong>
       </button>
       <div class="pbi-secret-agent-panel" id="pbiSecretAgentPanel" hidden>
         <div class="pbi-secret-agent-head">
-          <div>
-            <span>Private beta</span>
-            <h2>PBI Secret Agent</h2>
+          <div class="pbi-secret-agent-id">
+            <img class="pbi-secret-agent-portrait" data-goose-face src="${GOOSE_ASSETS.profile}" alt="Goose">
+            <div>
+              <span>Private agent</span>
+              <h2>Goose</h2>
+            </div>
           </div>
-          <button type="button" class="pbi-secret-agent-close" aria-label="Close Secret Agent">Close</button>
+          <button type="button" class="pbi-secret-agent-close" aria-label="Close Goose">Close</button>
         </div>
         <div class="pbi-secret-agent-log" aria-live="polite"></div>
         <form class="pbi-secret-agent-form">
-          <textarea name="message" rows="3" placeholder="Ask for a launch check, SEO fix, copy improvement or admin next step."></textarea>
+          <textarea name="message" rows="3" placeholder="Ask Goose for a launch check, SEO fix, copy improvement or admin next step."></textarea>
           <div class="pbi-secret-agent-actions">
             <button type="button" data-agent-prompt="What is the fastest improvement I can make on this page?">Fastest win</button>
             <button type="button" data-agent-prompt="Check this project for launch blockers.">Launch blockers</button>
-            <button class="btn" type="submit">Ask agent</button>
+            <button class="btn" type="submit">Ask Goose</button>
           </div>
         </form>
       </div>
@@ -105,7 +171,8 @@
       toggle.setAttribute('aria-expanded', String(open));
       if (open && !log.dataset.started) {
         log.dataset.started = 'true';
-        addMessage(log, 'agent', 'I can help with launch checks, SEO, customer support notes and builder next steps. I will suggest changes first before anything gets applied.');
+        setGooseFace(shell, 'profile');
+        addMessage(log, 'agent', 'I am Goose. I can check launch blockers, tidy SEO, sharpen copy and suggest the next admin move. I will always suggest changes first before anything gets applied.', 'profile');
       }
     }
 
@@ -114,8 +181,8 @@
       if (!text) return;
       addMessage(log, 'user', text);
       textarea.value = '';
-      addMessage(log, 'agent', 'Thinking through the safest next step...');
-      const last = log.lastElementChild;
+      setGooseFace(shell, 'thinking');
+      const last = addMessage(log, 'agent', 'Thinking through the safest next step...', 'thinking');
       try {
         const response = await fetch('/api/agent/chat', {
           method: 'POST',
@@ -129,9 +196,17 @@
         });
         const data = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(data.error || data.message || `Agent failed with status ${response.status}`);
-        last.querySelector('p').textContent = data.reply?.answer || 'No response came back.';
+        const answer = data.reply?.answer || 'No response came back.';
+        const mood = data.reply?.mood || moodForAnswer(text, answer);
+        last.dataset.mood = mood;
+        last.querySelector('[data-goose-message-face]').src = GOOSE_ASSETS[mood] || GOOSE_ASSETS.answer;
+        last.querySelector('p').textContent = answer;
+        setGooseFace(shell, mood);
       } catch (error) {
-        last.querySelector('p').textContent = error.message || 'Secret Agent could not respond.';
+        last.dataset.mood = 'alert';
+        last.querySelector('[data-goose-message-face]').src = GOOSE_ASSETS.alert;
+        last.querySelector('p').textContent = error.message || 'Goose could not respond.';
+        setGooseFace(shell, 'alert');
       }
     }
 
@@ -140,6 +215,7 @@
     shell.querySelectorAll('[data-agent-prompt]').forEach((button) => {
       button.addEventListener('click', () => {
         setOpen(true);
+        setGooseFace(shell, moodForPrompt(button.dataset.agentPrompt));
         ask(button.dataset.agentPrompt);
       });
     });
