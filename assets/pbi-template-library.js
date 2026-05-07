@@ -18,6 +18,10 @@
       .slice(0,3)
       .map((x) => `<span>${esc(x)}</span>`)
       .join('');
+    const pageFlow = (p.selectedPages || [])
+      .map((key) => p.pages?.[key]?.label || key)
+      .slice(0, 5)
+      .join(' / ');
     const templateUrl = `/canvas-builder/?preset=${encodeURIComponent(p.id)}&template=${encodeURIComponent(p.id)}`;
     const route = p.route || '/examples/';
     return `
@@ -31,8 +35,8 @@
           <p>${esc(p.cardDescription || p.subHeading || '')}</p>
           <div class="pbi-premium-proof-row">${bullets}</div>
           <div class="pbi-template-launch-path">
-            <span>Template start</span>
-            <span>Goose checks</span>
+            <span>${esc(p.flowLabel || 'Purpose-built flow')}</span>
+            <span>${esc(pageFlow || 'Editable pages')}</span>
             <span>Assisted setup optional</span>
           </div>
           <div class="row pbi-template-action-row">
