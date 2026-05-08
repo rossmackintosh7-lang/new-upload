@@ -241,6 +241,32 @@
     return domain?.message || 'Manual review required';
   }
 
+  function domainCanBeSaved(domain) {
+    if (!domain?.name) return false;
+    if (domain.available === true) return true;
+    if (domain.available === false || domain.status === 'invalid') return false;
+    return true;
+  }
+
+  function normaliseSelectedDomain(domain) {
+    const manualReview = domain.available !== true;
+    return {
+      ...domain,
+      available: domain.available === true ? true : null,
+      status: manualReview ? (domain.status || 'manual_review') : (domain.status || 'available'),
+      requires_manual_review: manualReview,
+      message: manualReview
+        ? (domain.message || 'Could not confirm automatically. PBI will review this domain manually before registration.')
+        : (domain.message || 'Available')
+    };
+  }
+
+  function domainSelectButton(domain, label = 'Select this domain') {
+    if (!domainCanBeSaved(domain)) return '';
+    const text = domain.available === true ? label : 'Review and save';
+    return `<button class="btn domainSelectBtn" type="button" data-domain-json="${escapeAttr(JSON.stringify(domain))}">${escapeHtml(text)}</button>`;
+  }
+
   function renderDomainResults(result) {
     const requested = result.requested;
     const suggestions = Array.isArray(result.suggestions) ? result.suggestions : [];
@@ -251,20 +277,20 @@
     }
 
     const requestedHtml = requested
-      ? `<div class="domain-check-summary"><strong>${escapeHtml(requested.name)}</strong><span>${escapeHtml(domainStatusText(requested))}</span>${requested.available ? `<button class="btn domainSelectBtn" type="button" data-domain-json="${escapeAttr(JSON.stringify(requested))}">Select this domain</button>` : ''}</div>`
+      ? `<div class="domain-check-summary"><strong>${escapeHtml(requested.name)}</strong><span>${escapeHtml(domainStatusText(requested))}</span>${domainSelectButton(requested, 'Select this domain')}</div>`
       : '';
 
     const suggestionsHtml = suggestions.length
-      ? `<div class="domain-suggestion-list"><h4>Domain suggestions</h4>${suggestions.map((domain) => domain.available ? `<button class="domain-suggestion-card domainSelectBtn" type="button" data-domain-json="${escapeAttr(JSON.stringify(domain))}"><strong>${escapeHtml(domain.name)}</strong><span>${escapeHtml(domainStatusText(domain))}</span></button>` : `<div class="domain-suggestion-card" aria-disabled="true"><strong>${escapeHtml(domain.name)}</strong><span>${escapeHtml(domainStatusText(domain))}</span></div>`).join('')}</div>`
+      ? `<div class="domain-suggestion-list"><h4>Domain suggestions</h4>${suggestions.map((domain) => domainCanBeSaved(domain) ? `<button class="domain-suggestion-card domainSelectBtn" type="button" data-domain-json="${escapeAttr(JSON.stringify(domain))}"><strong>${escapeHtml(domain.name)}</strong><span>${escapeHtml(domainStatusText(domain))}</span><small>${domain.available === true ? 'Select' : 'Review and save'}</small></button>` : `<div class="domain-suggestion-card" aria-disabled="true"><strong>${escapeHtml(domain.name)}</strong><span>${escapeHtml(domainStatusText(domain))}</span></div>`).join('')}</div>`
       : '<p class="muted">No automatically registrable suggestions came back. Try another name or extension.</p>';
 
-    const hasAvailable = requested?.available === true || suggestions.some((domain) => domain.available === true);
-    setDomainHtml(`${requestedHtml}${suggestionsHtml}<p class="small-note muted">Selecting a domain saves it against this project. The domain charge is added to checkout, then the Domain Registration Agent queues registration and can hand it to an automatic registrar workflow when connected.</p>`, hasAvailable ? 'success' : 'info');
+    const hasSelectable = domainCanBeSaved(requested) || suggestions.some((domain) => domainCanBeSaved(domain));
+    setDomainHtml(`${requestedHtml}${suggestionsHtml}<p class="small-note muted">Selecting or reviewing a domain saves it against this project. Confirmed domains can go to the Domain Registration Agent after checkout; manual-review domains are queued for PBI to check before registration.</p>`, hasSelectable ? 'success' : 'info');
 
     els.domainResult.querySelectorAll('.domainSelectBtn').forEach((button) => {
       button.addEventListener('click', () => {
         try {
-          state.domainRegistration = JSON.parse(button.dataset.domainJson || '{}');
+          state.domainRegistration = normaliseSelectedDomain(JSON.parse(button.dataset.domainJson || '{}'));
         } catch {
           state.domainRegistration = null;
         }
@@ -277,7 +303,7 @@
 
         syncStateToInputs();
         renderPreview();
-        setDomainMessage(`${state.domainRegistration.name} selected. Save the project, then continue to payment when ready.`, 'success');
+        setDomainMessage(`${state.domainRegistration.name} selected${state.domainRegistration.requires_manual_review ? ' for manual review' : ''}. Save the project, then continue to payment when ready.`, 'success');
       });
     });
   }

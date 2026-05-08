@@ -220,15 +220,24 @@ export async function onRequestPost({ request, env }) {
 
   const domain = selectedDomain(body, data, project);
   if (!domain.name) return error('No selected domain was found for this project.');
-  if (domain.available !== true) {
-    return error('The selected domain is not marked as available. Re-check and select an available domain first.', 400, { domain });
+  let manualRegistrationOnly = domain.available !== true || domain.requires_manual_review === true || domain.status === 'manual_review';
+  if (manualRegistrationOnly) {
+    domain.available = null;
+    domain.status = domain.status || 'manual_review';
+    domain.requires_manual_review = true;
+    domain.message = domain.message || 'This domain could not be confirmed automatically and needs PBI manual review before registration.';
+  } else {
+    const availability = await confirmDomainAvailable(domain.name);
+    domain.availability_confirmation = availability;
+    if (!availability.available) {
+      manualRegistrationOnly = true;
+      domain.available = null;
+      domain.status = 'manual_review';
+      domain.requires_manual_review = true;
+      domain.message = 'The final availability check could not confirm this domain, so it has been queued for manual review before registration.';
+    }
   }
-  const availability = await confirmDomainAvailable(domain.name);
-  if (!availability.available) {
-    return error('The selected domain could not be safely reconfirmed as available. Review it manually before registration.', 409, { domain, availability });
-  }
-  domain.availability_confirmation = availability;
-  domain.requires_final_confirmation = true;
+  domain.requires_final_confirmation = !manualRegistrationOnly;
 
   let stripe = { active: isPaid(project), session_id: String(body.stripe_session_id || project.stripe_session_id || '') };
   if (!stripe.active && stripe.session_id) {
@@ -256,21 +265,25 @@ export async function onRequestPost({ request, env }) {
     live_url: body.live_url || data.live_url || '',
     requested_at: new Date().toISOString()
   };
-  const webhook = await callRegistrationWebhook(env, orderPayload);
+  const webhook = manualRegistrationOnly
+    ? { configured: false, ok: false, manual_only: true }
+    : await callRegistrationWebhook(env, orderPayload);
   const agent = {
     id: orderPayload.order_id,
     domain_name: domain.name,
     requested_at: orderPayload.requested_at,
-    registrar_connected: webhook.configured === true,
-    actual_purchase_attempted: webhook.configured === true,
-    status: webhook.configured
+    registrar_connected: manualRegistrationOnly ? false : webhook.configured === true,
+    actual_purchase_attempted: manualRegistrationOnly ? false : webhook.configured === true,
+    status: manualRegistrationOnly ? 'queued_for_manual_registration' : (webhook.configured
       ? (webhook.ok ? 'submitted_to_registration_agent' : 'automation_failed_manual_queue')
-      : 'queued_for_manual_registration',
+      : 'queued_for_manual_registration'),
     order_id: webhook.order_id || orderPayload.order_id,
     registrar: webhook.registrar || '',
-    message: webhook.configured
+    message: manualRegistrationOnly
+      ? 'This domain needs manual review before registration. It has been saved and queued for PBI to check.'
+      : (webhook.configured
       ? (webhook.ok ? webhook.message : `${webhook.message}. A manual registration task has been queued.`)
-      : 'No registrar automation webhook is configured yet, so this has been queued for manual registration.',
+      : 'No registrar automation webhook is configured yet, so this has been queued for manual registration.'),
     webhook_response: webhook.response || null
   };
 

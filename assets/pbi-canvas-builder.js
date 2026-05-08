@@ -464,9 +464,30 @@
     return "review";
   }
 
+  function domainCanBeSaved(domain){
+    if (!domain?.name) return false;
+    if (domain.available === true) return true;
+    if (domain.available === false || domain.status === "invalid") return false;
+    return true;
+  }
+
+  function normaliseSelectedDomain(domain){
+    const manualReview = domain.available !== true;
+    return {
+      ...domain,
+      available: domain.available === true ? true : null,
+      status: manualReview ? (domain.status || "manual_review") : (domain.status || "available"),
+      requires_manual_review: manualReview,
+      message: manualReview
+        ? (domain.message || "Could not confirm automatically. PBI will review this domain manually before registration.")
+        : (domain.message || "Available")
+    };
+  }
+
   function renderDomainCard(domain, featured=false){
     if (!domain?.name) return "";
-    const selectable = domain.available === true;
+    const selectable = domainCanBeSaved(domain);
+    const buttonLabel = domain.available === true ? "Select" : "Review & save";
     const payload = attr(JSON.stringify(domain));
     return `
       <article class="pbi-domain-result-card ${domainStatusClass(domain)} ${featured ? "featured" : ""}">
@@ -477,7 +498,7 @@
         </div>
         <div class="pbi-domain-card-actions">
           <em>${esc(domainStatusLabel(domain))}</em>
-          ${selectable ? `<button class="btn-ghost pbiDomainSelectBtn" type="button" data-domain-json="${payload}">Select</button>` : ""}
+          ${selectable ? `<button class="btn-ghost pbiDomainSelectBtn" type="button" data-domain-json="${payload}">${esc(buttonLabel)}</button>` : ""}
         </div>
       </article>
     `;
@@ -502,7 +523,7 @@
       current.innerHTML = `
         <strong>${esc(domainModeLabel(mode))}</strong>
         <span>${selectedName ? esc(selectedName) : "No custom domain selected yet"}</span>
-        ${state.domain_registration?.available === true ? `<small>${esc(domainPriceLabel(state.domain_registration))}</small>` : ""}
+        ${state.domain_registration?.name ? `<small>${esc(state.domain_registration.requires_manual_review ? "Saved for manual review before registration" : domainPriceLabel(state.domain_registration))}</small>` : ""}
       `;
     }
 
@@ -576,16 +597,17 @@
   }
 
   function selectCheckedDomain(domain){
-    if (domain?.available !== true) return setStatus("Choose an available domain");
+    if (!domainCanBeSaved(domain)) return setStatus("Choose an available or reviewable domain");
+    const selectedDomain = normaliseSelectedDomain(domain);
     snapshot();
-    state.domain_registration = domain;
-    state.custom_domain = domain.name;
+    state.domain_registration = selectedDomain;
+    state.custom_domain = selectedDomain.name;
     state.use_custom_domain = true;
     state.domain_option = "register_new";
-    state.domain_lookup_input = domain.name;
+    state.domain_lookup_input = selectedDomain.name;
     render();
-    setStatus(`${domain.name} selected and saved locally`);
-    saveProject()?.then(() => setStatus(`${domain.name} saved to project`));
+    setStatus(`${selectedDomain.name} selected and saved locally`);
+    saveProject()?.then(() => setStatus(`${selectedDomain.name} saved to project${selectedDomain.requires_manual_review ? " for manual review" : ""}`));
   }
 
   function useExistingDomain(){
