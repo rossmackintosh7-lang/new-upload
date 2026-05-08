@@ -2,7 +2,7 @@ PBI platform auth starter v2
 
 ## Domain checker and paid domain registration
 
-The builder checks live domain availability and returns available suggestions. Customers can select a domain in the builder, save the project, then choose **Register a new domain** on the payment page. The saved first-year domain price is added to the first Stripe Checkout payment as a dynamic one-time line item, while the yearly PBI domain management fee remains a recurring Stripe price.
+The builder checks live domain availability and returns available suggestions. Customers can select a domain in the builder, save the project, then choose **Register a new domain** on the payment page. The saved first-year domain price is added to the first Stripe Checkout payment as a dynamic one-time line item alongside the selected website subscription.
 
 Required Cloudflare env vars:
 
@@ -22,9 +22,9 @@ Important: when `DOMAIN_AUTO_REGISTER=true`, the Domain Registration Agent will 
 
 ## Domain billing env vars
 
-For new domains, add this Stripe price to Cloudflare Pages so the yearly PBI domain management fee is linked to the customer's subscription:
+Do not add the yearly domain management price to the initial Checkout Session when the website plan is monthly. Stripe blocks subscription Checkout Sessions that contain recurring prices on different billing intervals. Keep the first-year domain registration charge as a one-time dynamic line item.
 
-- `STRIPE_PRICE_DOMAIN_MANAGEMENT_YEARLY` = Stripe recurring yearly price for PBI Domain Management Fee (£10/year)
+- `STRIPE_PRICE_DOMAIN_MANAGEMENT_YEARLY` = optional yearly price for PBI Domain Management Fee (£10/year), for a separate renewal/management flow rather than the initial publish checkout
 
 Optional domain charge settings:
 
@@ -33,4 +33,4 @@ Optional domain charge settings:
 - `DOMAIN_MANAGEMENT_FEE_AMOUNT_MINOR` = display/tracking amount for annual management fee, default `1000`
 - `DOMAIN_REGISTRATION_ONE_OFF_HANDLING_AMOUNT_MINOR` = optional one-off extra setup/handling amount, default `0`
 
-The old `DOMAIN_MARKUP_AMOUNT_MINOR` should no longer be used for the yearly £10 fee, because the yearly fee now belongs in Stripe as `STRIPE_PRICE_DOMAIN_MANAGEMENT_YEARLY`.
+The old `DOMAIN_MARKUP_AMOUNT_MINOR` should no longer be used for checkout. Use the dynamic first-year registrar price for the publish checkout, and keep any yearly management/renewal fee in a separate renewal flow.

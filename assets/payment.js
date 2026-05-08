@@ -61,8 +61,8 @@ document.addEventListener('DOMContentLoaded', () => {
         : 'Saved for PBI confirmation before registration.');
     }
     return checkoutLabel
-      ? `${checkoutLabel} is added automatically at checkout, plus annual PBI domain management`
-      : (registration ? `${currency} ${registration} first-year registration, plus annual PBI domain management fee at checkout` : 'Price confirmed at checkout');
+      ? `${checkoutLabel} is added automatically at checkout`
+      : (registration ? `${currency} ${registration} first-year registration is added automatically at checkout` : 'Price confirmed at checkout');
   }
 
   async function api(path, options = {}) {
