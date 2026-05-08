@@ -711,7 +711,7 @@ body.pbi-admin-body::after{
   max-width:58%;
 }
 .pbi-builder-v2-checks button{
-  min-height:34px;
+  min-height:38px;
   padding:8px 10px;
   display:flex;
   align-items:center;
@@ -740,6 +740,12 @@ body.pbi-admin-body::after{
   border-radius:22px;
   background:rgba(255,255,255,.68);
   padding:16px;
+  padding-bottom:88px;
+}
+@media(min-width:900px){
+  body.pbi-canvas-page .pbi-builder-v2-action-engine{
+    padding-right:190px;
+  }
 }
 .pbi-builder-v2-action-head{
   display:flex;
