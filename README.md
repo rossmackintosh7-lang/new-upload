@@ -2,7 +2,7 @@ PBI platform auth starter v2
 
 ## Domain checker and paid domain registration
 
-The builder now checks live domain availability through Cloudflare Registrar and returns available suggestions. Customers can select an available domain in the builder, save the project, then choose **Register a new domain** on the payment page. The domain registration fee is added to the first Stripe Checkout payment as a one-time line item.
+The builder checks live domain availability and returns available suggestions. Customers can select a domain in the builder, save the project, then choose **Register a new domain** on the payment page. The saved first-year domain price is added to the first Stripe Checkout payment as a dynamic one-time line item, while the yearly PBI domain management fee remains a recurring Stripe price.
 
 Required Cloudflare env vars:
 
@@ -15,8 +15,9 @@ Required/optional domain payment env vars:
 - `DOMAIN_REGISTRATION_DEFAULT_AMOUNT_MINOR` defaults to `2000` (£20.00 base if Cloudflare pricing is not in your checkout currency)
 - `DOMAIN_REGISTRATION_ONE_OFF_HANDLING_AMOUNT_MINOR` defaults to `0` and can be used only if you want an extra one-off setup fee on top of the first-year registration cost
 - `DOMAIN_AUTO_REGISTER` defaults to off. Set to `true` only after your Cloudflare Registrar account has billing, default registrant contact, and domain registration agreement set up.
+- `DOMAIN_REGISTRATION_AGENT_URL` and `DOMAIN_REGISTRATION_AGENT_TOKEN` can point to a separate registrar automation agent for extensions your Cloudflare Registrar account cannot register programmatically.
 
-Important: when `DOMAIN_AUTO_REGISTER=true`, the Stripe webhook will attempt to register the selected domain after successful payment. Successful registrations are billable and normally non-refundable.
+Important: when `DOMAIN_AUTO_REGISTER=true`, the Domain Registration Agent will attempt to register the selected domain after successful payment/publish. Successful registrations are billable and normally non-refundable.
 
 
 ## Domain billing env vars

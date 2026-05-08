@@ -14,7 +14,7 @@
 <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Publish Website • PBI</title>
-  <link rel="stylesheet" href="/assets/styles.css?v=20260508-payment-domain">
+  <link rel="stylesheet" href="/assets/styles.css?v=20260508-domain-auto">
   <link rel="stylesheet" href="/assets/pbi-trust-polish.css">
 </head>
 <body class="pbi-payment-page">
@@ -24,16 +24,16 @@
     <div class="notice domain-info" data-currency-notice style="margin-bottom:20px">Prices shown in GBP. Billing starts only when you publish.</div>
     <div id="paymentMessage" class="notice" style="display:none;margin-bottom:20px"></div>
     <section id="stripeSetupAssistant" class="card" style="margin-bottom:20px"><h3>Checking payment setup...</h3><p class="muted">PBI is checking Stripe runtime settings now.</p></section>
-    <section class="domain-option-panel card"><h3>Domain options</h3><div class="domain-option-grid"><label class="domain-option-card"><input type="radio" name="domainOption" value="pbi_subdomain" checked><span><strong>PBI subdomain</strong><small>Fastest launch. Your site goes live on a PBI web address.</small></span></label><label class="domain-option-card"><input type="radio" name="domainOption" value="connect_existing"><span><strong>Connect your own domain</strong><small>Best if you already own a domain. PBI gives you the DNS steps.</small></span></label><label class="domain-option-card"><input type="radio" name="domainOption" value="register_new"><span><strong>Register a new domain</strong><small>Best if you do not have a domain yet. First-year registration is charged at checkout, with ongoing domain management billed yearly.</small></span></label></div><div id="selectedDomainSummary" class="domain-purchase-summary" style="display:none"></div></section>
+    <section class="domain-option-panel card"><h3>Domain options</h3><div class="domain-option-grid"><label class="domain-option-card"><input type="radio" name="domainOption" value="pbi_subdomain" checked><span><strong>PBI subdomain</strong><small>Fastest launch. Your site goes live on a PBI web address.</small></span></label><label class="domain-option-card"><input type="radio" name="domainOption" value="connect_existing"><span><strong>Connect your own domain</strong><small>Best if you already own a domain. PBI gives you the DNS steps.</small></span></label><label class="domain-option-card"><input type="radio" name="domainOption" value="register_new"><span><strong>Register a new domain</strong><small>The selected domain price is added dynamically to this checkout, then the registrar agent starts after payment.</small></span></label></div><div id="selectedDomainSummary" class="domain-purchase-summary" style="display:none"></div></section>
     <section class="pricing-grid">
       <article class="pricing-card card" data-plan="starter"><p class="template-label">Starter Launch</p><h2><span data-gbp="12.99" data-price-suffix="/month">£12.99/month</span></h2><p class="muted">For a simple local business website launched on a PBI subdomain.</p><ul><li>Publish live website</li><li>Payment starts at publish</li><li>PBI subdomain</li><li>Hosting and SSL</li><li>Basic support</li></ul><button class="btn planBtn" type="button" data-plan="starter">Pay and publish Starter</button></article>
       <article class="pricing-card card featured" data-plan="business"><p class="template-label">Business Launch</p><h2><span data-gbp="24.99" data-price-suffix="/month">£24.99/month</span></h2><p class="muted">For most businesses. Publish on a PBI subdomain or connect your own domain.</p><ul><li>Everything in Starter</li><li>Connect existing domain</li><li>More pages and images</li><li>Launch guidance</li></ul><button class="btn planBtn" type="button" data-plan="business">Pay and publish Business</button></article>
       <article class="pricing-card card" data-plan="plus"><p class="template-label">Business Plus</p><h2><span data-gbp="39.99" data-price-suffix="/month">£39.99/month</span></h2><p class="muted">For businesses that want priority support and extra help with setup.</p><ul><li>Everything in Business</li><li>Priority support</li><li>Custom domain help</li><li>Extra update support</li></ul><button class="btn planBtn" type="button" data-plan="plus">Pay and publish Plus</button></article>
     </section>
-    <section class="card domain-note"><h3>Domain registration</h3><p class="muted">New domain registration is added to your first checkout payment after you select an available domain in the builder. After payment, the Domain Registration Agent verifies the project, queues the registration for PBI and can hand the order to an automatic registrar workflow when that webhook is connected.</p></section>
+    <section class="card domain-note"><h3>Domain registration</h3><p class="muted">New domain registration is added to your first checkout payment using the saved domain price from the checker. After payment, the Domain Registration Agent verifies the domain and starts the automatic registrar workflow where the connected registrar supports it.</p></section>
   </main>
   <script src="/assets/currency.js"></script>
-  <script src="/assets/payment.js?v=20260508-payment-domain"></script>
+  <script src="/assets/payment.js?v=20260508-domain-auto"></script>
   <script src="/assets/pbi-stripe-setup-assistant.js" defer></script>
 <script src="/assets/pbi-cookie-banner.js" defer></script>
 </body>

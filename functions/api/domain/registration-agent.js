@@ -1,6 +1,12 @@
 import { json, error } from '../../_lib/json.js';
 import { requireUser, ensureCoreTables } from '../../_lib/auth.js';
 import { ensurePbiOpsTables, createAdminNotification } from '../admin/_shared.js';
+import {
+  autoRegisterEnabled,
+  checkCloudflareRegistrarDomains,
+  cloudflareRegistrarConfigured,
+  createCloudflareRegistration
+} from './_registrar.js';
 
 function parseData(project) {
   try {
@@ -30,7 +36,8 @@ function selectedDomain(body, data, project) {
     name,
     available: registration.available,
     status: registration.status || data.domain_registration_status || '',
-    pricing: registration.pricing || data.domain_registration?.pricing || null
+    pricing: registration.pricing || data.domain_registration?.pricing || null,
+    checkout_pricing: registration.checkout_pricing || data.domain_registration?.checkout_pricing || data.domain_billing || null
   };
 }
 
@@ -135,6 +142,102 @@ async function callRegistrationWebhook(env, payload) {
   };
 }
 
+function registrarDomainName(item = {}) {
+  return String(item.domain_name || item.domain || item.name || item.fqdn || '').trim().toLowerCase();
+}
+
+function registrarBoolean(value) {
+  if (value === true || value === false) return value;
+  if (typeof value === 'string') {
+    const lower = value.toLowerCase();
+    if (['true', 'yes', 'available', 'registrable'].includes(lower)) return true;
+    if (['false', 'no', 'unavailable', 'registered', 'taken'].includes(lower)) return false;
+  }
+  return null;
+}
+
+function registrarItemFor(result, domainName) {
+  const wanted = String(domainName || '').toLowerCase();
+  return (result.domains || []).find((item) => registrarDomainName(item) === wanted) || result.domains?.[0] || null;
+}
+
+function cloudflareCanRegister(item = {}) {
+  const supported = registrarBoolean(item.supported);
+  const available = registrarBoolean(item.available);
+  const registrable = registrarBoolean(item.registrable ?? item.can_register ?? item.registerable ?? item.supported);
+  const reason = String(item.reason || item.status || item.availability || item.message || '').toLowerCase();
+  const premium = item.premium === true || String(item.tier || '').toLowerCase() === 'premium';
+
+  if (premium || supported === false || reason.includes('unsupported') || reason.includes('not_supported') || reason.includes('not supported')) return false;
+  if (available === false || reason.includes('taken') || reason.includes('registered') || reason.includes('unavailable')) return false;
+  return (available === true || registrable === true) && registrable !== false;
+}
+
+function mergeRegistrarPricing(domain, item = {}) {
+  const pricing = item.pricing || item.price || item.prices || {};
+  const amount = pricing.registration_cost || pricing.registration || pricing.create || pricing.first_year || item.registration_cost || item.registration_price || item.price || '';
+  const renewal = pricing.renewal_cost || pricing.renewal || item.renewal_cost || item.renewal_price || '';
+  if (!amount && !renewal) return domain.pricing || null;
+
+  return {
+    ...(domain.pricing || {}),
+    currency: String(item.currency || pricing.currency || domain.pricing?.currency || 'GBP').toUpperCase(),
+    registration_cost: String(amount || domain.pricing?.registration_cost || ''),
+    renewal_cost: String(renewal || domain.pricing?.renewal_cost || ''),
+    registrar_source: 'cloudflare_registrar'
+  };
+}
+
+async function finalCloudflareCheck(env, domain) {
+  if (!cloudflareRegistrarConfigured(env)) return { checked: false, configured: false };
+
+  const result = await checkCloudflareRegistrarDomains(env, [domain.name]);
+  if (!result.ok) {
+    return {
+      checked: false,
+      configured: true,
+      ok: false,
+      status: result.status || 0,
+      message: result.message || 'Cloudflare Registrar final check failed.'
+    };
+  }
+
+  const item = registrarItemFor(result, domain.name);
+  if (!item) {
+    return {
+      checked: false,
+      configured: true,
+      ok: false,
+      message: 'Cloudflare Registrar returned no final domain result.'
+    };
+  }
+
+  const registrable = cloudflareCanRegister(item);
+  const unavailable = registrarBoolean(item.available) === false;
+  return {
+    checked: true,
+    configured: true,
+    ok: registrable,
+    registrable,
+    unavailable,
+    status: item.status || item.availability || '',
+    reason: item.reason || item.message || '',
+    pricing: mergeRegistrarPricing(domain, item),
+    raw: item,
+    message: registrable
+      ? 'Cloudflare Registrar final check confirms this domain can be registered.'
+      : 'Cloudflare Registrar cannot automatically register this domain.'
+  };
+}
+
+async function submitAutomaticRegistration(env, payload, domain) {
+  if (autoRegisterEnabled(env) && cloudflareRegistrarConfigured(env) && domain.cloudflare_registrable === true) {
+    return createCloudflareRegistration(env, domain.name);
+  }
+
+  return callRegistrationWebhook(env, payload);
+}
+
 async function queueSupportRequest(env, { project, user, domain, agent }) {
   const id = crypto.randomUUID();
   const message = `Domain registration required for ${domain.name}. Status: ${agent.status}.`;
@@ -157,7 +260,7 @@ async function updateProject(env, project, data, domain, agent, stripe = {}) {
     domain_management: {
       ...(data.domain_management || {}),
       status: agent.status,
-      active: agent.status === 'submitted_to_registration_agent' || agent.status === 'queued_for_manual_registration',
+      active: ['registration_in_progress', 'submitted_to_registration_agent', 'queued_for_manual_registration'].includes(agent.status),
       domain_name: domain.name,
       agent_order_id: agent.order_id || '',
       current_period_start: new Date().toISOString()
@@ -262,38 +365,63 @@ export async function onRequestPost({ request, env }) {
     project_name: project.name,
     customer_email: auth.user.email || '',
     domain,
+    domain_billing: domain.checkout_pricing || data.domain_billing || null,
     live_url: body.live_url || data.live_url || '',
     requested_at: new Date().toISOString()
   };
-  const webhook = manualRegistrationOnly
+
+  if (!manualRegistrationOnly) {
+    const registrarCheck = await finalCloudflareCheck(env, domain);
+    domain.registrar_final_check = registrarCheck;
+    if (registrarCheck.checked && registrarCheck.registrable) {
+      domain.available = true;
+      domain.status = 'available';
+      domain.requires_manual_review = false;
+      domain.cloudflare_registrable = true;
+      domain.pricing = registrarCheck.pricing || domain.pricing;
+      domain.message = registrarCheck.message;
+    } else if (registrarCheck.checked && registrarCheck.unavailable) {
+      manualRegistrationOnly = true;
+      domain.available = null;
+      domain.status = 'manual_review';
+      domain.requires_manual_review = true;
+      domain.message = 'The final registrar check says this domain is no longer available, so PBI must review it before registration.';
+    } else if (registrarCheck.checked) {
+      domain.cloudflare_registrable = false;
+    }
+  }
+
+  const registration = manualRegistrationOnly
     ? { configured: false, ok: false, manual_only: true }
-    : await callRegistrationWebhook(env, orderPayload);
+    : await submitAutomaticRegistration(env, orderPayload, domain);
+
+  const automaticSubmitted = !manualRegistrationOnly && registration.configured === true;
   const agent = {
     id: orderPayload.order_id,
     domain_name: domain.name,
     requested_at: orderPayload.requested_at,
-    registrar_connected: manualRegistrationOnly ? false : webhook.configured === true,
-    actual_purchase_attempted: manualRegistrationOnly ? false : webhook.configured === true,
-    status: manualRegistrationOnly ? 'queued_for_manual_registration' : (webhook.configured
-      ? (webhook.ok ? 'submitted_to_registration_agent' : 'automation_failed_manual_queue')
+    registrar_connected: automaticSubmitted,
+    actual_purchase_attempted: automaticSubmitted,
+    status: manualRegistrationOnly ? 'queued_for_manual_registration' : (registration.configured
+      ? (registration.ok ? (registration.registrar === 'cloudflare' ? 'registration_in_progress' : 'submitted_to_registration_agent') : 'automation_failed_manual_queue')
       : 'queued_for_manual_registration'),
-    order_id: webhook.order_id || orderPayload.order_id,
-    registrar: webhook.registrar || '',
+    order_id: registration.order_id || orderPayload.order_id,
+    registrar: registration.registrar || '',
     message: manualRegistrationOnly
       ? 'This domain needs manual review before registration. It has been saved and queued for PBI to check.'
-      : (webhook.configured
-      ? (webhook.ok ? webhook.message : `${webhook.message}. A manual registration task has been queued.`)
-      : 'No registrar automation webhook is configured yet, so this has been queued for manual registration.'),
-    webhook_response: webhook.response || null
+      : (registration.configured
+      ? (registration.ok ? registration.message : `${registration.message}. A manual registration task has been queued.`)
+      : 'No automatic registrar is configured for this domain yet, so this has been queued for manual registration.'),
+    webhook_response: registration.response || null
   };
 
   const requestId = await queueSupportRequest(env, { project, user: auth.user, domain, agent });
   agent.support_request_id = requestId;
   await createAdminNotification(env, {
     type: 'domain_registration',
-    title: webhook.ok ? 'Domain registration automation started' : 'Domain registration needs action',
+    title: registration.ok ? 'Domain registration automation started' : 'Domain registration needs action',
     message: `${domain.name} for ${project.name || project.id}: ${agent.message}`,
-    priority: webhook.ok ? 'normal' : 'high',
+    priority: registration.ok ? 'normal' : 'high',
     customer_email: auth.user.email || '',
     project_id: project.id,
     request_id: requestId,

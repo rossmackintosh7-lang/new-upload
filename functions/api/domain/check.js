@@ -1,5 +1,6 @@
 import { json, error } from '../../_lib/json.js';
 import { requireUser } from '../../_lib/auth.js';
+import { checkCloudflareRegistrarDomains, cloudflareRegistrarConfigured } from './_registrar.js';
 
 const MULTI_PART_SUFFIXES = ['com.au', 'co.au', 'net.au', 'org.au', 'asn.au', 'id.au', 'co.uk', 'org.uk', 'me.uk', 'ltd.uk', 'plc.uk'];
 const DEFAULT_TLDS = ['co.uk', 'uk', 'com', 'net', 'org'];
@@ -7,6 +8,7 @@ const AU_TLDS = ['com.au', 'au', 'net.au', 'org.au', 'com', 'co.uk'];
 const DEFAULT_PRICES = {
   'co.uk': '12.00',
   'com.au': '18.00',
+  'co.au': '18.00',
   au: '18.00',
   'net.au': '18.00',
   'org.au': '18.00',
@@ -92,6 +94,131 @@ function pricingFor(domain, env = {}) {
   return {
     currency: String(env.DOMAIN_REGISTRATION_CURRENCY || 'GBP').toUpperCase(),
     registration_cost: String(env[envName] || env.DOMAIN_DEFAULT_YEAR_ONE_COST || DEFAULT_PRICES[key] || '')
+  };
+}
+
+function registrarDomainName(item = {}) {
+  return String(item.domain_name || item.domain || item.name || item.fqdn || '').trim().toLowerCase();
+}
+
+function registrarBoolean(value) {
+  if (value === true || value === false) return value;
+  if (typeof value === 'string') {
+    const lower = value.toLowerCase();
+    if (['true', 'yes', 'available', 'registrable'].includes(lower)) return true;
+    if (['false', 'no', 'unavailable', 'registered', 'taken'].includes(lower)) return false;
+  }
+  return null;
+}
+
+function extractRegistrarAmount(value) {
+  if (value == null || value === '') return '';
+  if (typeof value === 'number' || typeof value === 'string') return String(value);
+  if (typeof value === 'object') {
+    return String(
+      value.amount_decimal ||
+      value.amount ||
+      value.price ||
+      value.registration_cost ||
+      value.registration ||
+      ''
+    );
+  }
+  return '';
+}
+
+function registrarPricingFor(domain, item = {}, env = {}) {
+  const pricing = item.pricing || item.price || item.prices || {};
+  const currency = String(
+    item.currency ||
+    pricing.currency ||
+    pricing.registration_currency ||
+    env.DOMAIN_REGISTRATION_CURRENCY ||
+    'GBP'
+  ).toUpperCase();
+  const registration = extractRegistrarAmount(
+    pricing.registration_cost ||
+    pricing.registration ||
+    pricing.create ||
+    pricing.first_year ||
+    pricing.year_one ||
+    item.registration_cost ||
+    item.registration_price ||
+    item.price
+  );
+  const renewal = extractRegistrarAmount(
+    pricing.renewal_cost ||
+    pricing.renewal ||
+    pricing.renew ||
+    item.renewal_cost ||
+    item.renewal_price
+  );
+
+  return {
+    ...pricingFor(domain, env),
+    currency,
+    registration_cost: registration || pricingFor(domain, env).registration_cost,
+    renewal_cost: renewal || pricingFor(domain, env).renewal_cost || '',
+    registrar_source: 'cloudflare_registrar'
+  };
+}
+
+function registrarResultFor(result, domain) {
+  const wanted = String(domain || '').toLowerCase();
+  return (result.domains || []).find((item) => registrarDomainName(item) === wanted) || result.domains?.[0] || null;
+}
+
+function registrarAvailability(item = {}) {
+  const direct = registrarBoolean(item.available);
+  const supported = registrarBoolean(item.supported);
+  const registrable = registrarBoolean(item.registrable ?? item.can_register ?? item.registerable ?? item.supported);
+  const reason = String(item.reason || item.status || item.availability || item.message || '').toLowerCase();
+  const premium = item.premium === true || String(item.tier || '').toLowerCase() === 'premium';
+
+  if (direct === false || reason.includes('taken') || reason.includes('unavailable') || reason.includes('registered')) {
+    return { available: false, status: 'registered', confidence: 'high', registrable: false, premium, reason };
+  }
+
+  if (supported === false || reason.includes('unsupported') || reason.includes('not_supported') || reason.includes('not supported')) {
+    return { available: null, status: 'manual_review', confidence: 'manual', registrable: false, premium, reason };
+  }
+
+  if ((direct === true || registrable === true) && registrable !== false && !premium) {
+    return { available: true, status: 'available', confidence: 'high', registrable: true, premium, reason };
+  }
+
+  return { available: null, status: premium ? 'manual_review' : 'manual_review', confidence: 'manual', registrable: false, premium, reason };
+}
+
+async function lookupCloudflareRegistrar(domain, env) {
+  if (!cloudflareRegistrarConfigured(env)) return { checked: false, configured: false };
+
+  const result = await checkCloudflareRegistrarDomains(env, [domain]);
+  if (!result.ok) {
+    return {
+      checked: false,
+      configured: true,
+      error: result.message || 'Cloudflare Registrar check failed.',
+      status: result.status || 0
+    };
+  }
+
+  const item = registrarResultFor(result, domain);
+  if (!item) return { checked: false, configured: true, error: 'Cloudflare Registrar returned no domain result.' };
+
+  const availability = registrarAvailability(item);
+  return {
+    checked: true,
+    configured: true,
+    item,
+    ...availability,
+    pricing: registrarPricingFor(domain, item, env),
+    raw_status: item.status || item.availability || '',
+    message: availability.available === true
+      ? 'Available from Cloudflare Registrar. The first-year registration price can be added dynamically at checkout.'
+      : availability.available === false
+      ? 'Cloudflare Registrar reports this domain is not available.'
+      : 'Cloudflare Registrar could not confirm automatic registration for this domain, so PBI will use public checks and review if needed.'
   };
 }
 
@@ -185,6 +312,31 @@ async function checkOne(domain, env) {
     };
   }
 
+  const registrar = await lookupCloudflareRegistrar(domain, env);
+  const registrarUnsupported = registrar.checked && registrar.available === null;
+
+  if (registrar.checked && registrar.available !== null) {
+    return {
+      name: domain,
+      available: registrar.available,
+      status: registrar.status,
+      confidence: registrar.confidence,
+      message: registrar.message,
+      source: 'cloudflare_registrar',
+      checked_at: new Date().toISOString(),
+      pricing: registrar.pricing,
+      cloudflare_registrar: {
+        checked: true,
+        registrable: registrar.registrable,
+        status: registrar.raw_status || registrar.status,
+        premium: registrar.premium,
+        reason: registrar.reason || ''
+      },
+      automation_supported: registrar.available === true,
+      requires_final_confirmation: registrar.available === true
+    };
+  }
+
   const [rdap, dns] = await Promise.all([lookupRdap(domain), lookupDns(domain)]);
   let available = null;
   let status = 'manual_review';
@@ -212,9 +364,17 @@ async function checkOne(domain, env) {
     message: resultMessage({ available, rdap, dns }),
     source: 'rdap_dns',
     checked_at: new Date().toISOString(),
-    pricing: pricingFor(domain, env),
+    pricing: registrarUnsupported ? registrar.pricing : pricingFor(domain, env),
     rdap,
     dns,
+    cloudflare_registrar: registrar.checked || registrar.error ? {
+      checked: registrar.checked,
+      registrable: registrar.registrable || false,
+      status: registrar.raw_status || registrar.status || '',
+      premium: Boolean(registrar.premium),
+      reason: registrar.reason || registrar.error || ''
+    } : null,
+    automation_supported: available === true && !registrarUnsupported,
     requires_final_confirmation: available === true
   };
 }
@@ -249,17 +409,18 @@ export async function onRequestPost({ request, env }) {
   const requested = await checkOne(domain, env);
   const suggestions = await Promise.all(suggestionNames(domain, suggestionKeyword).map((name) => checkOne(name, env)));
   const registrationAgentConnected = Boolean(env.DOMAIN_REGISTRATION_AGENT_URL || env.DOMAIN_REGISTRATION_WEBHOOK_URL);
+  const cloudflareConnected = cloudflareRegistrarConfigured(env);
 
   return json({
     ok: true,
     live_check: true,
-    registrar_connected: registrationAgentConnected,
+    registrar_connected: registrationAgentConnected || cloudflareConnected,
     registration_agent_connected: registrationAgentConnected,
-    cloudflare_credentials_present: Boolean(env.CLOUDFLARE_API_TOKEN && env.CLOUDFLARE_ACCOUNT_ID),
+    cloudflare_credentials_present: cloudflareConnected,
     requested,
     suggestions,
-    message: registrationAgentConnected
-      ? 'Live public domain checks completed. The Domain Registration Agent can hand available domains to the registrar workflow after checkout.'
+    message: registrationAgentConnected || cloudflareConnected
+      ? 'Live domain checks completed. Available domains can be charged dynamically at checkout and handed to the registrar workflow after payment.'
       : 'Live public domain checks completed. Available domains can be selected, then PBI will queue registration after checkout until registrar automation is connected.'
   });
 }
