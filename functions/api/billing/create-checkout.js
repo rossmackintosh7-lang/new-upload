@@ -201,7 +201,6 @@ export async function onRequestPost({ request, env }) {
 
   if (domainOption === 'register_new' && selectedDomainRegistration?.name && selectedDomainBilling) {
     lineItemIndex = appendDomainRegistrationLine(params, lineItemIndex, selectedDomainRegistration, selectedDomainBilling);
-    lineItemIndex = appendPriceLine(params, lineItemIndex, env.STRIPE_PRICE_DOMAIN_MANAGEMENT_YEARLY || '');
   }
 
   const stripeResponse = await fetch('https://api.stripe.com/v1/checkout/sessions', {
