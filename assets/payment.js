@@ -46,14 +46,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function priceLabel(domain) {
     const pricing = domain?.pricing || {};
+    const checkout = domain?.checkout_pricing || projectData.domain_billing || {};
     const registration = pricing.registration_cost || '';
-    const currency = pricing.currency || 'GBP';
+    const currency = checkout.currency?.toUpperCase?.() || pricing.currency || 'GBP';
+    const checkoutAmount = Number(checkout.amount_minor || 0);
+    const checkoutLabel = checkoutAmount
+      ? `${currency} ${(checkoutAmount / 100).toFixed(2)} first-year registration`
+      : '';
     if (domain?.requires_manual_review || domain?.available !== true) {
-      return registration
+      return checkoutLabel
+        ? `${checkoutLabel}. Saved for PBI manual review before registration.`
+        : (registration
         ? `${currency} ${registration} first-year estimate. Saved for PBI manual review before registration.`
-        : 'Saved for PBI manual review before registration.';
+        : 'Saved for PBI manual review before registration.');
     }
-    return registration ? `${currency} ${registration} first-year registration, plus annual PBI domain management fee at checkout` : 'Price confirmed at checkout';
+    return checkoutLabel
+      ? `${checkoutLabel} is added automatically at checkout, plus annual PBI domain management`
+      : (registration ? `${currency} ${registration} first-year registration, plus annual PBI domain management fee at checkout` : 'Price confirmed at checkout');
   }
 
   async function api(path, options = {}) {
@@ -82,6 +91,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     selectedDomainSummary.style.display = 'block';
+    if (message?.classList.contains('domain-error')) {
+      message.style.display = 'none';
+      message.textContent = '';
+    }
     selectedDomainSummary.innerHTML = `
       <div class="domain-selected-box">
         <div>
@@ -158,7 +171,12 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       if (data.url) { window.location.href = data.url; return; }
-      if (data.setup_required) { showMessage(data.message || 'Stripe is not connected yet.', 'info'); return; }
+      if (data.setup_required) {
+        showMessage(data.domain_billing?.amount_minor
+          ? `${data.message || 'Stripe is not connected yet.'} Domain line would be ${String(data.domain_billing.currency || 'gbp').toUpperCase()} ${(Number(data.domain_billing.amount_minor) / 100).toFixed(2)}.`
+          : (data.message || 'Stripe is not connected yet.'), 'info');
+        return;
+      }
       showMessage('Checkout was created, but no redirect URL was returned.', 'error');
     } catch (error) {
       showMessage(error.message || 'Could not start checkout.', 'error');
@@ -199,7 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
         })
       });
       const suffix = result.actual_purchase_attempted
-        ? 'The registration automation has been started.'
+        ? 'The domain registration automation has been started.'
         : 'The domain has been queued for PBI to register manually because no registrar automation is connected yet.';
       showMessage(`Your website is live: ${liveUrl}. ${suffix} ${result.message || ''}`.trim(), 'success');
     } catch (error) {
