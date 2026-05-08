@@ -1234,6 +1234,10 @@
     saveProject,
     saveVersion,
     openTab(tab) {
+      if (tab === "domain") {
+        document.querySelector("#canvasDomainPanel")?.scrollIntoView({ behavior:"smooth", block:"start" });
+        return;
+      }
       document.querySelector(`[data-studio-tab="${tab}"]`)?.click();
     }
   };

@@ -1,10 +1,15 @@
 import { json, error } from '../../_lib/json.js';
 import { requireUser } from '../../_lib/auth.js';
 
-const MULTI_PART_SUFFIXES = ['co.uk', 'org.uk', 'me.uk', 'ltd.uk', 'plc.uk'];
+const MULTI_PART_SUFFIXES = ['com.au', 'co.au', 'net.au', 'org.au', 'asn.au', 'id.au', 'co.uk', 'org.uk', 'me.uk', 'ltd.uk', 'plc.uk'];
 const DEFAULT_TLDS = ['co.uk', 'uk', 'com', 'net', 'org'];
+const AU_TLDS = ['com.au', 'au', 'net.au', 'org.au', 'com', 'co.uk'];
 const DEFAULT_PRICES = {
   'co.uk': '12.00',
+  'com.au': '18.00',
+  au: '18.00',
+  'net.au': '18.00',
+  'org.au': '18.00',
   uk: '12.00',
   com: '18.00',
   net: '18.00',
@@ -69,6 +74,11 @@ function suffixKey(domain) {
   return domain.split('.').pop() || 'domain';
 }
 
+function isAuDomain(domain) {
+  const suffix = suffixKey(domain);
+  return suffix === 'au' || suffix.endsWith('.au') || String(domain || '').endsWith('.au');
+}
+
 function domainRoot(domain) {
   const suffix = suffixKey(domain);
   return domain.endsWith(`.${suffix}`)
@@ -100,28 +110,36 @@ async function fetchJson(url, options = {}, timeoutMs = 4500) {
 }
 
 async function lookupRdap(domain) {
-  const result = await fetchJson(`https://rdap.org/domain/${encodeURIComponent(domain)}`, {
-    headers: { Accept: 'application/rdap+json, application/json' }
-  });
+  const endpoints = [`https://rdap.org/domain/${encodeURIComponent(domain)}`];
+  if (isAuDomain(domain)) endpoints.push(`https://rdap.cctld.au/rdap/domain/${encodeURIComponent(domain)}`);
 
-  if (result.status === 404) {
-    return { checked: true, registered: false, status: 'not_found' };
+  let last = null;
+  for (const endpoint of endpoints) {
+    const result = await fetchJson(endpoint, {
+      headers: { Accept: 'application/rdap+json, application/json' }
+    });
+    last = result;
+
+    if (result.status === 404) {
+      return { checked: true, registered: false, status: 'not_found', endpoint };
+    }
+
+    if (result.ok) {
+      const nameservers = Array.isArray(result.body?.nameservers)
+        ? result.body.nameservers.map((item) => item?.ldhName || item?.unicodeName).filter(Boolean).slice(0, 6)
+        : [];
+      return {
+        checked: true,
+        registered: true,
+        status: 'registered',
+        nameservers,
+        rdap_status: Array.isArray(result.body?.status) ? result.body.status.slice(0, 5) : [],
+        endpoint
+      };
+    }
   }
 
-  if (result.ok) {
-    const nameservers = Array.isArray(result.body?.nameservers)
-      ? result.body.nameservers.map((item) => item?.ldhName || item?.unicodeName).filter(Boolean).slice(0, 6)
-      : [];
-    return {
-      checked: true,
-      registered: true,
-      status: 'registered',
-      nameservers,
-      rdap_status: Array.isArray(result.body?.status) ? result.body.status.slice(0, 5) : []
-    };
-  }
-
-  return { checked: false, registered: null, status: result.error || `rdap_${result.status || 'unavailable'}` };
+  return { checked: false, registered: null, status: last?.error || `rdap_${last?.status || 'unavailable'}` };
 }
 
 async function lookupDns(domain) {
@@ -203,11 +221,12 @@ async function checkOne(domain, env) {
 
 function suggestionNames(domain, keywordValue) {
   const base = slug(keywordValue || domainRoot(domain) || domain);
+  const tlds = isAuDomain(domain) ? AU_TLDS : DEFAULT_TLDS;
   const ideas = [
-    ...DEFAULT_TLDS.map((tld) => `${base}.${tld}`),
-    `${base}online.co.uk`,
-    `${base}digital.co.uk`,
-    `${base}studio.co.uk`,
+    ...tlds.map((tld) => `${base}.${tld}`),
+    isAuDomain(domain) ? `${base}online.com.au` : `${base}online.co.uk`,
+    isAuDomain(domain) ? `${base}digital.com.au` : `${base}digital.co.uk`,
+    isAuDomain(domain) ? `${base}studio.com.au` : `${base}studio.co.uk`,
     `${base}.services`,
     `${base}.studio`
   ];

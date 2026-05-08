@@ -270,6 +270,11 @@
   }
 
   function openTab(tab) {
+    if (tab === 'domain') {
+      $('#canvasDomainPanel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setStatus('Domain checker opened');
+      return true;
+    }
     const button = $(`[data-studio-tab="${cssEscape(tab)}"]`);
     if (!button) return false;
     button.click();
