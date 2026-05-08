@@ -295,7 +295,7 @@ function resultMessage({ available, rdap, dns }) {
   if (available === true) return 'Looks available from live RDAP and DNS checks. Final registrar confirmation happens at checkout.';
   if (available === false && rdap?.registered) return 'Already registered according to live RDAP records.';
   if (available === false && dns?.has_records) return 'Already has live DNS records, so treat it as taken or owned elsewhere.';
-  return 'Could not confirm automatically. Review manually before promising this domain.';
+  return 'Could not confirm automatically. Save it for PBI confirmation before registration.';
 }
 
 async function checkOne(domain, env) {

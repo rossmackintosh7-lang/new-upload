@@ -263,7 +263,7 @@
 
   function domainSelectButton(domain, label = 'Select this domain') {
     if (!domainCanBeSaved(domain)) return '';
-    const text = domain.available === true ? label : 'Review and save';
+    const text = domain.available === true ? label : 'Save domain';
     return `<button class="btn domainSelectBtn" type="button" data-domain-json="${escapeAttr(JSON.stringify(domain))}">${escapeHtml(text)}</button>`;
   }
 
@@ -281,7 +281,7 @@
       : '';
 
     const suggestionsHtml = suggestions.length
-      ? `<div class="domain-suggestion-list"><h4>Domain suggestions</h4>${suggestions.map((domain) => domainCanBeSaved(domain) ? `<button class="domain-suggestion-card domainSelectBtn" type="button" data-domain-json="${escapeAttr(JSON.stringify(domain))}"><strong>${escapeHtml(domain.name)}</strong><span>${escapeHtml(domainStatusText(domain))}</span><small>${domain.available === true ? 'Select' : 'Review and save'}</small></button>` : `<div class="domain-suggestion-card" aria-disabled="true"><strong>${escapeHtml(domain.name)}</strong><span>${escapeHtml(domainStatusText(domain))}</span></div>`).join('')}</div>`
+      ? `<div class="domain-suggestion-list"><h4>Domain suggestions</h4>${suggestions.map((domain) => domainCanBeSaved(domain) ? `<button class="domain-suggestion-card domainSelectBtn" type="button" data-domain-json="${escapeAttr(JSON.stringify(domain))}"><strong>${escapeHtml(domain.name)}</strong><span>${escapeHtml(domainStatusText(domain))}</span><small>${domain.available === true ? 'Select' : 'Save'}</small></button>` : `<div class="domain-suggestion-card" aria-disabled="true"><strong>${escapeHtml(domain.name)}</strong><span>${escapeHtml(domainStatusText(domain))}</span></div>`).join('')}</div>`
       : '<p class="muted">No automatically registrable suggestions came back. Try another name or extension.</p>';
 
     const hasSelectable = domainCanBeSaved(requested) || suggestions.some((domain) => domainCanBeSaved(domain));
@@ -303,7 +303,7 @@
 
         syncStateToInputs();
         renderPreview();
-        setDomainMessage(`${state.domainRegistration.name} selected${state.domainRegistration.requires_manual_review ? ' for manual review' : ''}. Save the project, then continue to payment when ready.`, 'success');
+        setDomainMessage(`${state.domainRegistration.name} selected${state.domainRegistration.requires_manual_review ? ' for PBI confirmation' : ''}. Save the project, then continue to payment when ready.`, 'success');
       });
     });
   }
