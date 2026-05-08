@@ -81,6 +81,7 @@
     project.domain_option = project.domain_option || "pbi_subdomain";
     project.custom_domain = project.custom_domain || "";
     project.domain_registration = project.domain_registration || null;
+    project.pending_domain_registration = project.pending_domain_registration || null;
     return project;
   }
 
@@ -107,6 +108,7 @@
   state.domain_option = state.domain_option || state.domainOption || "pbi_subdomain";
   state.custom_domain = state.custom_domain || state.customDomain || "";
   state.domain_registration = state.domain_registration || state.domainRegistration || null;
+  state.pending_domain_registration = state.pending_domain_registration || null;
   state.use_custom_domain = Boolean(state.use_custom_domain || state.useCustomDomain || state.custom_domain || state.domain_registration?.name);
   let activePage = state.activePage || state.active_page || state.selected_pages[0] || "home";
   state.blocksByPage = state.blocksByPage || {};
@@ -454,7 +456,7 @@
     if (domain?.available === true) return "Available";
     if (domain?.available === false) return "Taken";
     if (domain?.status === "invalid") return "Invalid";
-    return "Review";
+    return "Manual check";
   }
 
   function domainStatusClass(domain){
@@ -479,29 +481,40 @@
       status: manualReview ? (domain.status || "manual_review") : (domain.status || "available"),
       requires_manual_review: manualReview,
       message: manualReview
-        ? (domain.message || "Could not confirm automatically. PBI will review this domain manually before registration.")
+        ? (domain.message || "Could not confirm automatically. PBI will confirm this domain before registration.")
         : (domain.message || "Available")
     };
+  }
+
+  function domainCardMessage(domain){
+    if (domain?.available === true) return domain.message || "Available for registration. Save it to this project before checkout.";
+    if (domain?.available === false) return "Already registered or unavailable.";
+    if (domain?.status === "invalid") return domain.message || "Enter a valid domain name.";
+    return "Could not confirm automatically. Save it for PBI confirmation before registration.";
   }
 
   function renderDomainCard(domain, featured=false){
     if (!domain?.name) return "";
     const selectable = domainCanBeSaved(domain);
-    const buttonLabel = domain.available === true ? "Select" : "Review & save";
     const payload = attr(JSON.stringify(domain));
+    const chosen = state.pending_domain_registration?.name === domain.name || state.domain_registration?.name === domain.name;
     return `
-      <article class="pbi-domain-result-card ${domainStatusClass(domain)} ${featured ? "featured" : ""}">
+      <article class="pbi-domain-result-card ${domainStatusClass(domain)} ${featured ? "featured" : ""} ${chosen ? "selected" : ""}">
         <div>
           <strong>${esc(domain.name)}</strong>
-          <span>${esc(domain.message || domainStatusLabel(domain))}</span>
+          <span>${esc(domainCardMessage(domain))}</span>
           <small>${esc(domainPriceLabel(domain))} · ${esc(domain.confidence || "manual")} confidence</small>
         </div>
         <div class="pbi-domain-card-actions">
-          <em>${esc(domainStatusLabel(domain))}</em>
-          ${selectable ? `<button class="btn-ghost pbiDomainSelectBtn" type="button" data-domain-json="${payload}">${esc(buttonLabel)}</button>` : ""}
+          <span class="pbi-domain-state">${esc(domainStatusLabel(domain))}</span>
+          ${selectable ? `<button class="btn-ghost pbiDomainSelectBtn" type="button" data-domain-json="${payload}">${chosen ? "Chosen" : "Choose domain"}</button>` : ""}
         </div>
       </article>
     `;
+  }
+
+  function activeDomainSelection(){
+    return state.pending_domain_registration || state.domain_registration || null;
   }
 
   function renderDomainPanel(){
@@ -509,7 +522,8 @@
     const current = $("#canvasDomainCurrent");
     const results = $("#canvasDomainResults");
     const mode = state.domain_option || "pbi_subdomain";
-    const selectedName = state.domain_registration?.name || state.custom_domain || "";
+    const activeDomain = activeDomainSelection();
+    const selectedName = activeDomain?.name || state.custom_domain || "";
 
     if (input && document.activeElement !== input) input.value = suggestedDomainInput();
 
@@ -520,11 +534,18 @@
     });
 
     if (current) {
+      const pending = Boolean(state.pending_domain_registration?.name);
+      const saved = Boolean(state.domain_registration?.name);
       current.innerHTML = `
         <strong>${esc(domainModeLabel(mode))}</strong>
         <span>${selectedName ? esc(selectedName) : "No custom domain selected yet"}</span>
-        ${state.domain_registration?.name ? `<small>${esc(state.domain_registration.requires_manual_review ? "Saved for manual review before registration" : domainPriceLabel(state.domain_registration))}</small>` : ""}
+        ${activeDomain?.name ? `<small>${esc(activeDomain.requires_manual_review ? "PBI confirmation before registration" : domainPriceLabel(activeDomain))}</small>` : ""}
+        <div class="pbi-domain-current-actions">
+          ${pending ? `<button class="btn" id="canvasDomainSaveBtn" type="button">Save selected domain</button>` : ""}
+          ${saved && !pending ? `<span class="pbi-domain-saved-note">Saved to project</span>` : ""}
+        </div>
       `;
+      $("#canvasDomainSaveBtn")?.addEventListener("click", saveSelectedDomain);
     }
 
     if (!results) return;
@@ -536,9 +557,14 @@
 
     const suggestions = Array.isArray(check.suggestions) ? check.suggestions : [];
     results.innerHTML = `
-      ${renderDomainCard(check.requested, true)}
-      ${suggestions.length ? `<div class="pbi-domain-suggestion-stack">${suggestions.map((domain) => renderDomainCard(domain)).join("")}</div>` : ""}
-      <p class="small-note muted">${esc(check.message || "Final registrar confirmation happens before purchase.")}</p>
+      <div class="pbi-domain-results-head">
+        <strong>Domain results</strong>
+        <span>${esc(check.message || "Final registrar confirmation happens before purchase.")}</span>
+      </div>
+      <div class="pbi-domain-result-grid">
+        ${renderDomainCard(check.requested, true)}
+        ${suggestions.map((domain) => renderDomainCard(domain)).join("")}
+      </div>
     `;
 
     $$(".pbiDomainSelectBtn", results).forEach((button) => {
@@ -558,10 +584,12 @@
     if (state.domain_option === "pbi_subdomain") {
       state.custom_domain = "";
       state.domain_registration = null;
+      state.pending_domain_registration = null;
       state.use_custom_domain = false;
     }
     if (state.domain_option === "connect_existing") {
       state.domain_registration = null;
+      state.pending_domain_registration = null;
       state.use_custom_domain = Boolean(state.custom_domain);
     }
     render();
@@ -597,17 +625,44 @@
   }
 
   function selectCheckedDomain(domain){
-    if (!domainCanBeSaved(domain)) return setStatus("Choose an available or reviewable domain");
+    if (!domainCanBeSaved(domain)) return setStatus("Choose an available or manually confirmable domain");
     const selectedDomain = normaliseSelectedDomain(domain);
     snapshot();
-    state.domain_registration = selectedDomain;
+    state.pending_domain_registration = selectedDomain;
     state.custom_domain = selectedDomain.name;
     state.use_custom_domain = true;
     state.domain_option = "register_new";
     state.domain_lookup_input = selectedDomain.name;
     render();
-    setStatus(`${selectedDomain.name} selected and saved locally`);
-    saveProject()?.then(() => setStatus(`${selectedDomain.name} saved to project${selectedDomain.requires_manual_review ? " for manual review" : ""}`));
+    persist();
+    setStatus(`${selectedDomain.name} chosen. Press Save selected domain to store it.`);
+  }
+
+  function saveSelectedDomain(){
+    const selectedDomain = normaliseSelectedDomain(activeDomainSelection() || {});
+    if (!selectedDomain?.name) return setStatus("Choose a domain result first");
+    snapshot();
+    state.domain_registration = selectedDomain;
+    state.pending_domain_registration = null;
+    state.custom_domain = selectedDomain.name;
+    state.use_custom_domain = true;
+    state.domain_option = "register_new";
+    state.domain_lookup_input = selectedDomain.name;
+    render();
+    persist();
+    setStatus(`Saving ${selectedDomain.name} to project`);
+    const saved = saveProject();
+    if (saved?.then) {
+      saved.then(async (response) => {
+        if (response && !response.ok) {
+          const body = await response.json().catch(() => ({}));
+          setStatus(body.error || body.message || "Could not save domain to account");
+          return;
+        }
+        setStatus(`${selectedDomain.name} saved to project`);
+        renderDomainPanel();
+      }).catch(() => setStatus("Could not save domain to account"));
+    }
   }
 
   function useExistingDomain(){
@@ -616,6 +671,7 @@
     snapshot();
     state.custom_domain = name;
     state.domain_registration = null;
+    state.pending_domain_registration = null;
     state.domain_option = "connect_existing";
     state.use_custom_domain = true;
     state.domain_lookup_input = name;

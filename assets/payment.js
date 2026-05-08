@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
         available: null,
         status: 'manual_review',
         requires_manual_review: true,
-        message: 'This domain is saved for PBI manual review before registration.'
+        message: 'This domain is saved for PBI confirmation before registration.'
       };
     }
     return null;
@@ -55,10 +55,10 @@ document.addEventListener('DOMContentLoaded', () => {
       : '';
     if (domain?.requires_manual_review || domain?.available !== true) {
       return checkoutLabel
-        ? `${checkoutLabel}. Saved for PBI manual review before registration.`
+        ? `${checkoutLabel}. Saved for PBI confirmation before registration.`
         : (registration
-        ? `${currency} ${registration} first-year estimate. Saved for PBI manual review before registration.`
-        : 'Saved for PBI manual review before registration.');
+        ? `${currency} ${registration} first-year estimate. Saved for PBI confirmation before registration.`
+        : 'Saved for PBI confirmation before registration.');
     }
     return checkoutLabel
       ? `${checkoutLabel} is added automatically at checkout, plus annual PBI domain management`
@@ -153,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const domainRegistration = selectedDomainRegistration();
 
     if (domainOption === 'register_new' && (!domainRegistration?.name || domainRegistration.available === false || domainRegistration.status === 'invalid')) {
-      showMessage('Choose and save an available or reviewable domain in the builder before selecting “Register a new domain”.', 'error');
+      showMessage('Choose and save an available or manually confirmable domain in the builder before selecting “Register a new domain”.', 'error');
       return;
     }
 
