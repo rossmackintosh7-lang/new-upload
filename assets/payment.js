@@ -30,13 +30,29 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function selectedDomainRegistration() {
-    return projectData.domain_registration || null;
+    const domain = projectData.domain_registration || null;
+    if (domain?.name) return domain;
+    if (projectData.domain_option === 'register_new' && projectData.custom_domain) {
+      return {
+        name: projectData.custom_domain,
+        available: null,
+        status: 'manual_review',
+        requires_manual_review: true,
+        message: 'This domain is saved for PBI manual review before registration.'
+      };
+    }
+    return null;
   }
 
   function priceLabel(domain) {
     const pricing = domain?.pricing || {};
     const registration = pricing.registration_cost || '';
     const currency = pricing.currency || 'GBP';
+    if (domain?.requires_manual_review || domain?.available !== true) {
+      return registration
+        ? `${currency} ${registration} first-year estimate. Saved for PBI manual review before registration.`
+        : 'Saved for PBI manual review before registration.';
+    }
     return registration ? `${currency} ${registration} first-year registration, plus annual PBI domain management fee at checkout` : 'Price confirmed at checkout';
   }
 
@@ -123,8 +139,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const domainOption = selectedDomainOption();
     const domainRegistration = selectedDomainRegistration();
 
-    if (domainOption === 'register_new' && !domainRegistration?.name) {
-      showMessage('Choose and save an available domain in the builder before selecting “Register a new domain”.', 'error');
+    if (domainOption === 'register_new' && (!domainRegistration?.name || domainRegistration.available === false || domainRegistration.status === 'invalid')) {
+      showMessage('Choose and save an available or reviewable domain in the builder before selecting “Register a new domain”.', 'error');
       return;
     }
 

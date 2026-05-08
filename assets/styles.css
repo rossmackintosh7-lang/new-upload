@@ -360,6 +360,34 @@ body.pbi-admin-body::after{
   content:none!important;
   display:none!important;
 }
+.pbi-payment-page .nav{
+  background:rgba(255,248,241,.90)!important;
+  border-bottom:1px solid var(--pbi-line)!important;
+  box-shadow:0 12px 30px rgba(98,50,26,.06)!important;
+  overflow:hidden!important;
+}
+.pbi-payment-page .nav-inner{
+  height:auto!important;
+  min-height:82px!important;
+  padding-top:10px!important;
+  padding-bottom:10px!important;
+}
+.pbi-payment-page .brand-logo-only{
+  align-items:center!important;
+}
+.pbi-payment-page .header-logo{
+  display:block!important;
+  width:auto!important;
+  max-width:118px!important;
+  max-height:62px!important;
+  margin:0!important;
+  object-fit:contain!important;
+  position:static!important;
+  transform:none!important;
+}
+.pbi-payment-page .section{
+  padding-top:38px;
+}
 .pbi-template-demo-body .pbi-template-demo-nav{
   position:sticky;
   top:0;
