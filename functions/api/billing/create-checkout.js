@@ -11,6 +11,31 @@ function baseUrlFromRequest(request, env) {
   return String(env.PBI_BASE_URL || new URL(request.url).origin).replace(/\/+$/, '');
 }
 
+function normaliseCheckoutDomain(domain, fallbackName = '') {
+  const name = String(domain?.name || fallbackName || '').trim().toLowerCase().slice(0, 253);
+  if (!name) return null;
+
+  const blocked = domain?.available === false || domain?.status === 'invalid';
+  const manualReview = domain?.available !== true;
+  return {
+    ...(domain || {}),
+    name,
+    available: domain?.available === true ? true : null,
+    status: manualReview ? (domain?.status || 'manual_review') : (domain?.status || 'available'),
+    requires_manual_review: manualReview,
+    checkout_blocked: blocked,
+    message: manualReview
+      ? (domain?.message || 'This domain is saved for PBI manual review before registration.')
+      : (domain?.message || 'Available')
+  };
+}
+
+function canCheckoutWithDomain(domain) {
+  if (!domain?.name) return false;
+  if (domain.checkout_blocked || domain.available === false || domain.status === 'invalid') return false;
+  return true;
+}
+
 export async function onRequestPost({ request, env }) {
   await ensureCoreTables(env);
   const auth = await requireUser(env, request);
@@ -34,16 +59,19 @@ export async function onRequestPost({ request, env }) {
   const plan = requested || saved || 'starter';
   const existingData = JSON.parse(project.data_json || '{}');
   const domainOption = String(body.domain_option || existingData.domain_option || project.domain_option || 'pbi_subdomain');
+  const fallbackDomainName = body.custom_domain || existingData.custom_domain || project.custom_domain || '';
   const domainRegistration = body.domain_registration || existingData.domain_registration || null;
-  const selectedDomainRegistration = domainOption === 'register_new' ? domainRegistration : null;
+  const selectedDomainRegistration = domainOption === 'register_new'
+    ? normaliseCheckoutDomain(domainRegistration, fallbackDomainName)
+    : null;
   const customDomain = String(
     selectedDomainRegistration?.name ||
     (domainOption === 'connect_existing' ? (body.custom_domain || existingData.custom_domain || project.custom_domain || '') : '') ||
     ''
   ).slice(0, 253);
 
-  if (domainOption === 'register_new' && (!selectedDomainRegistration?.name || selectedDomainRegistration.available !== true)) {
-    return error('Choose and save an available domain before registering a new domain at checkout.', 400);
+  if (domainOption === 'register_new' && !canCheckoutWithDomain(selectedDomainRegistration)) {
+    return error('Choose and save an available or reviewable domain before registering a new domain at checkout.', 400);
   }
 
   const data = {
