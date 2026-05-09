@@ -40,9 +40,8 @@
             <span>Assisted setup optional</span>
           </div>
           <div class="row pbi-template-action-row">
-            <a class="btn-ghost" href="${esc(route)}">View example</a>
+            <a class="btn-ghost" href="${esc(route)}">View demo</a>
             <a class="btn" href="${esc(templateUrl)}" data-use-template="${esc(p.id)}">Use template</a>
-            <a class="btn-ghost pbi-template-help-link" href="/custom-build/?type=assisted_setup">Get help</a>
           </div>
         </div>
       </article>`;
