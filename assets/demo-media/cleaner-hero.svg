@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1100" role="img" aria-labelledby="title desc">
+  <title id="title">Professional cleaner bright home scene</title>
+  <desc id="desc">A distinctive illustrated cleaning business hero image with a bright kitchen, spray bottle, cloth, checklist and polished surfaces.</desc>
+  <defs>
+    <linearGradient id="room" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f1fbff"/>
+      <stop offset="0.58" stop-color="#dff5f5"/>
+      <stop offset="1" stop-color="#b5dfdc"/>
+    </linearGradient>
+    <linearGradient id="counter" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#edf7f6"/>
+    </linearGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="20" stdDeviation="24" flood-color="#0f3940" flood-opacity=".16"/>
+    </filter>
+  </defs>
+  <rect width="1600" height="1100" fill="url(#room)"/>
+  <path d="M0 742 C265 665 480 702 710 752 C962 806 1215 774 1600 662 L1600 1100 L0 1100 Z" fill="#ffffff" opacity=".55"/>
+  <g opacity=".72">
+    <rect x="145" y="130" width="425" height="315" rx="36" fill="#ffffff"/>
+    <path d="M176 405 L538 405" stroke="#b5dfdc" stroke-width="12" stroke-linecap="round"/>
+    <rect x="212" y="174" width="122" height="194" rx="20" fill="#d8eff3"/>
+    <rect x="368" y="174" width="122" height="194" rx="20" fill="#d8eff3"/>
+    <path d="M176 276 L538 276" stroke="#ffffff" stroke-width="14"/>
+    <path d="M351 174 L351 368" stroke="#ffffff" stroke-width="14"/>
+  </g>
+  <g filter="url(#softShadow)">
+    <rect x="142" y="690" width="1316" height="220" rx="52" fill="url(#counter)"/>
+    <path d="M210 780 C390 745 530 745 724 784 C928 825 1112 814 1370 764" fill="none" stroke="#97cac8" stroke-width="10" stroke-linecap="round" opacity=".45"/>
+  </g>
+  <g transform="translate(945 330)" filter="url(#softShadow)">
+    <path d="M96 68 C96 31 126 0 164 0 H230 C250 0 267 17 267 38 V105 H96 Z" fill="#1e786f"/>
+    <path d="M132 102 H323 C366 102 400 137 400 180 V520 H62 V172 C62 133 93 102 132 102 Z" fill="#ffffff"/>
+    <path d="M112 160 H352 V500 H112 Z" fill="#e8fbf8"/>
+    <path d="M156 216 H306 M156 274 H322 M156 332 H280" stroke="#1e786f" stroke-width="17" stroke-linecap="round"/>
+    <path d="M267 38 H352 C390 38 420 68 420 106" fill="none" stroke="#1e786f" stroke-width="36" stroke-linecap="round"/>
+  </g>
+  <g transform="translate(508 438)" filter="url(#softShadow)">
+    <path d="M0 330 C100 245 248 244 356 326 L330 398 C220 342 106 348 28 410 Z" fill="#f8c75c"/>
+    <path d="M26 286 C110 216 235 214 327 282 L356 326 C248 244 100 245 0 330 Z" fill="#ffe59a"/>
+    <rect x="230" y="0" width="170" height="338" rx="32" fill="#ffffff"/>
+    <rect x="260" y="56" width="110" height="192" rx="20" fill="#dff5f5"/>
+    <path d="M280 290 H356" stroke="#1e786f" stroke-width="18" stroke-linecap="round"/>
+  </g>
+  <g transform="translate(250 438)" filter="url(#softShadow)">
+    <rect width="220" height="310" rx="28" fill="#ffffff"/>
+    <path d="M48 82 H168 M48 148 H168 M48 214 H128" stroke="#2f6f75" stroke-width="16" stroke-linecap="round"/>
+    <path d="M58 260 L92 292 L162 230" fill="none" stroke="#f8c75c" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g fill="none" stroke="#ffffff" stroke-width="12" stroke-linecap="round">
+    <path d="M1332 230 L1332 176 M1332 284 L1332 338 M1278 284 L1224 284 M1386 284 L1440 284"/>
+    <path d="M734 178 L734 132 M734 224 L734 270 M688 224 L642 224 M780 224 L826 224"/>
+  </g>
+  <g fill="#ffffff" opacity=".75">
+    <circle cx="1248" cy="610" r="18"/>
+    <circle cx="1310" cy="566" r="11"/>
+    <circle cx="1398" cy="628" r="15"/>
+    <circle cx="730" cy="612" r="12"/>
+  </g>
+</svg>
