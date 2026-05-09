@@ -88,6 +88,14 @@
           <button draggable="true" data-block-type="featureGrid"><strong>Feature Grid</strong><span>Benefits and proof</span></button>
           <button draggable="true" data-block-type="gallery"><strong>Gallery</strong><span>Masonry portfolio</span></button>
           <button draggable="true" data-block-type="testimonial"><strong>Testimonial</strong><span>Quote section</span></button>
+          <button draggable="true" data-block-type="reviews"><strong>Reviews</strong><span>Multi-review proof grid</span></button>
+          <button draggable="true" data-block-type="team"><strong>Team</strong><span>People and credibility</span></button>
+          <button draggable="true" data-block-type="hours"><strong>Hours</strong><span>Opening and coverage</span></button>
+          <button draggable="true" data-block-type="salesBanner"><strong>Sales Banner</strong><span>Offer or announcement</span></button>
+          <button draggable="true" data-block-type="video"><strong>Video</strong><span>Story or walkthrough</span></button>
+          <button draggable="true" data-block-type="beforeAfter"><strong>Before / After</strong><span>Transformation proof</span></button>
+          <button draggable="true" data-block-type="quoteForm"><strong>Quote Form</strong><span>Service enquiry flow</span></button>
+          <button draggable="true" data-block-type="courseList"><strong>Programmes</strong><span>Courses or sessions</span></button>
           <button draggable="true" data-block-type="pricing"><strong>Pricing</strong><span>Package cards</span></button>
           <button draggable="true" data-block-type="productGrid"><strong>Product Grid</strong><span>Shop-ready product cards</span></button>
           <button draggable="true" data-block-type="cmsList"><strong>CMS List</strong><span>Blog, news, case studies</span></button>
@@ -197,7 +205,15 @@
           <option value="soft, calm, editorial, image-led, spacious">Soft editorial</option>
           <option value="practical, local, trustworthy, service-led, mobile-first">Local service</option>
         </select>
-        <button class="btn" id="canvasAiBuildBtn" type="button">AI generate full site</button>
+        <label class="small-note muted" for="canvasAiGoal">AI site goal</label>
+        <select id="canvasAiGoal" class="select">
+          <option value="enquiries">Enquiries</option>
+          <option value="bookings">Bookings</option>
+          <option value="calls">Phone calls</option>
+          <option value="shop">Shop orders</option>
+          <option value="courses">Course signups</option>
+        </select>
+        <button class="btn" id="canvasAiBuildBtn" type="button">Generate full multi-page site</button>
         <textarea id="canvasAiBrief" class="textarea" placeholder="Describe the business, audience, goal, area, tone and sections needed. Example: local plumber in Dorset, emergency callouts, quote requests, trust and reviews."></textarea>
       </div>
     </aside>
@@ -318,9 +334,9 @@
 
   <script src="/assets/template-presets.js?v=20260509-real-photo-templates" defer></script>
   <script src="/assets/pbi-package-rules.js" defer></script>
-  <script src="/assets/pbi-canvas-builder.js?v=20260508-domain-save" defer></script>
+  <script src="/assets/pbi-canvas-builder.js?v=20260509-site-director" defer></script>
   <script src="/assets/pbi-builder-v2-command.js?v=20260508-domain-logo" defer></script>
-  <script src="/assets/pbi-builder-v2-actions.js?v=20260507-actions" defer></script>
+  <script src="/assets/pbi-builder-v2-actions.js?v=20260509-site-director" defer></script>
   <script src="/assets/pbi-editor-polish.js" defer></script>
   <script src="/assets/pbi-request-capture.js" defer></script>
 </body>

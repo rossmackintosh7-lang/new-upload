@@ -184,6 +184,116 @@
     flash('Publish preparation applied and the project save route has been triggered.');
   }
 
+  function directorBrief() {
+    const brief = $('#pbiSiteDirectorPrompt')?.value.trim() || '';
+    const basic = briefValues();
+    const parts = [
+      brief,
+      basic.business ? `Business: ${basic.business}` : '',
+      basic.location ? `Area: ${basic.location}` : '',
+      `Goal: ${$('#pbiSiteDirectorGoal')?.value || basic.goal}`,
+      `Tone: ${basic.tone}`
+    ].filter(Boolean);
+    return parts.join('. ');
+  }
+
+  function generateFullSite() {
+    const prompt = directorBrief();
+    const builder = api();
+    if (!prompt || !builder) return flash('Add a short site brief first.');
+    if (builder.generateSiteFromBrief) {
+      builder.generateSiteFromBrief(prompt, {
+        goal: $('#pbiSiteDirectorGoal')?.value || briefValues().goal,
+        style: $('#pbiActionTone')?.value || 'practical'
+      });
+      flash('Full multi-page site generated. Pages, blocks, SEO basics and launch direction have been rebuilt.');
+      return;
+    }
+    applyBrief();
+    prepareHomepage();
+  }
+
+  function redesignCurrentPage() {
+    update((state, context) => {
+      const layouts = ['split', 'image-first', 'bento', 'timeline', 'cards', 'spotlight'];
+      (context.activeBlocks || []).forEach((block, index) => {
+        if (block.packageLocked) return;
+        if (['hero', 'splitHero'].includes(block.type)) block.layout = index % 2 ? 'image-first' : 'split';
+        else if (['services', 'featureGrid', 'reviews', 'team'].includes(block.type)) block.layout = index % 2 ? 'bento' : 'cards';
+        else if (block.type === 'process') block.layout = 'timeline';
+        else block.layout = block.layout || layouts[index % layouts.length];
+        block.animation = ['rise', 'fade', 'stagger'][index % 3];
+      });
+      state.page_redesigned_at = new Date().toISOString();
+    }, 'Current page redesigned');
+    flash('Current page rhythm updated with stronger layouts and motion.');
+  }
+
+  function applyBrandEverywhere() {
+    const tone = $('#pbiActionTone')?.value || 'practical';
+    const palettes = {
+      premium: { bg: '#fbf5ec', accent: '#2b160e', text: '#21140f' },
+      friendly: { bg: '#fff8ef', accent: '#bf5c29', text: '#2b160e' },
+      direct: { bg: '#f7fbf5', accent: '#537744', text: '#172414' },
+      practical: { bg: '#fffaf4', accent: '#b76233', text: '#24130c' }
+    };
+    const palette = palettes[tone] || palettes.practical;
+    update((state) => {
+      state.background_color = palette.bg;
+      state.accent_color = palette.accent;
+      state.text_color = palette.text;
+      Object.values(state.blocksByPage || {}).flat().forEach((block) => {
+        if (!block.packageLocked) {
+          block.accent = palette.accent;
+          block.background = block.type === 'salesBanner' ? palette.accent : (block.background || palette.bg);
+        }
+      });
+      state.brand_system_applied_at = new Date().toISOString();
+    }, 'Brand applied across site');
+    flash('Brand colour, accent and block styling applied across every page.');
+  }
+
+  function addBusinessApp() {
+    const appType = $('#pbiBusinessApp')?.value || 'quote';
+    const appBlocks = {
+      quote: ['quoteForm', 'faq'],
+      bookings: ['booking', 'hours'],
+      shop: ['productGrid', 'retail'],
+      courses: ['courseList', 'booking'],
+      proof: ['reviews', 'beforeAfter']
+    }[appType] || ['quoteForm'];
+    appBlocks.forEach(ensureBlock);
+    update((state) => {
+      state.business_apps = state.business_apps || [];
+      if (!state.business_apps.includes(appType)) state.business_apps.push(appType);
+    }, 'Business app inserted');
+    flash('Business app inserted into the current page.');
+  }
+
+  function tuneMobile() {
+    update((state) => {
+      Object.values(state.blocksByPage || {}).flat().forEach((block) => {
+        if (block.packageLocked) return;
+        if (['hero', 'splitHero'].includes(block.type)) block.layout = 'split';
+        if (String(block.title || '').length > 86) block.title = String(block.title).slice(0, 82).replace(/\s+\S*$/, '') + '.';
+        if (!block.animation || block.animation === 'parallax') block.animation = 'rise';
+      });
+      state.mobile_polish_applied_at = new Date().toISOString();
+    }, 'Mobile polish applied');
+    flash('Mobile polish applied: shorter headings, safer hero layouts and lighter motion.');
+  }
+
+  function auditAndFixBasics() {
+    ['trustBand', 'reviews', 'faq', 'contact'].forEach(ensureBlock);
+    writeSeoBasics();
+    update((state) => {
+      if (!state.domain_lookup_input) state.domain_lookup_input = `${cleanSlug(businessName(state))}.co.uk`;
+      if (!state.launch_goal) state.launch_goal = $('#pbiSiteDirectorGoal')?.value || briefValues().goal;
+      state.ai_audit_fixed_at = new Date().toISOString();
+    }, 'Audit fixes applied');
+    flash('Audit fixes applied: proof, FAQ, contact route, SEO and domain suggestion checked.');
+  }
+
   function flash(message) {
     const box = $('[data-v2-action-result]');
     if (!box) return;
@@ -201,11 +311,38 @@
     panel.innerHTML = `
       <div class="pbi-builder-v2-action-head">
         <div>
-          <p class="eyebrow">Action Engine</p>
-          <h2>Goose can now apply the obvious fixes</h2>
-          <p>Turn the launch checklist into actual builder changes: stronger homepage flow, SEO basics, FAQs, publish prep and a sharper site brief.</p>
+          <p class="eyebrow">AI Site Director</p>
+          <h2>Goose can now change the actual site</h2>
+          <p>Generate the full site, tune the current page, add business apps, apply brand direction and fix the launch basics from one control centre.</p>
         </div>
         <button type="button" class="pbi-builder-v2-primary-action" data-v2-apply="publish">Prepare publish</button>
+      </div>
+      <div class="pbi-builder-v2-director">
+        <textarea id="pbiSiteDirectorPrompt" class="textarea" placeholder="Example: mobile mechanic in Poole, urgent callouts, quote requests, trust proof, service area and simple booking route."></textarea>
+        <div class="pbi-builder-v2-director-controls">
+          <select id="pbiSiteDirectorGoal" class="select">
+            <option value="enquiries">Enquiries</option>
+            <option value="bookings">Bookings</option>
+            <option value="calls">Phone calls</option>
+            <option value="shop">Shop orders</option>
+            <option value="courses">Course signups</option>
+          </select>
+          <button type="button" data-v2-apply="full-site">Generate full site</button>
+          <button type="button" data-v2-apply="redesign">Redesign page</button>
+          <button type="button" data-v2-apply="brand">Apply brand everywhere</button>
+        </div>
+        <div class="pbi-builder-v2-director-controls">
+          <select id="pbiBusinessApp" class="select">
+            <option value="quote">Quote flow</option>
+            <option value="bookings">Booking flow</option>
+            <option value="shop">Shop flow</option>
+            <option value="courses">Course flow</option>
+            <option value="proof">Proof stack</option>
+          </select>
+          <button type="button" data-v2-apply="business-app">Add business app</button>
+          <button type="button" data-v2-apply="mobile">Improve mobile</button>
+          <button type="button" data-v2-apply="audit">Audit & fix basics</button>
+        </div>
       </div>
       <div class="pbi-builder-v2-brief">
         <input id="pbiActionBusiness" class="input" placeholder="Business name" value="${esc(businessName(state) === 'this business' ? '' : businessName(state))}">
@@ -245,6 +382,12 @@
         if (action === 'seo') writeSeoBasics();
         if (action === 'faq') addFaq();
         if (action === 'publish') preparePublish();
+        if (action === 'full-site') generateFullSite();
+        if (action === 'redesign') redesignCurrentPage();
+        if (action === 'brand') applyBrandEverywhere();
+        if (action === 'business-app') addBusinessApp();
+        if (action === 'mobile') tuneMobile();
+        if (action === 'audit') auditAndFixBasics();
         window.dispatchEvent(new CustomEvent('pbi:builder-v2-action', { detail: { action } }));
       });
     });

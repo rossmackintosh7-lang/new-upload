@@ -1,6 +1,6 @@
 window.PBIPackageRules = (() => {
   const TYPES = {
-    base: ['navBar','hero','splitHero','services','process','stats','featureGrid','gallery','testimonial','faq','map','booking','contact','cta','spacer','trustBand'],
+    base: ['navBar','hero','splitHero','services','process','stats','featureGrid','gallery','testimonial','reviews','team','hours','salesBanner','video','beforeAfter','quoteForm','courseList','faq','map','booking','contact','cta','spacer','trustBand'],
     business: ['floatingCard','logoCloud','pricing','productGrid','retail'],
     plus: ['cmsList','customCode','localizedSection','analyticsPanel','automationFlow']
   };

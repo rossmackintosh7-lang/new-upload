@@ -255,6 +255,69 @@ body.pbi-canvas-page header img{
 .pbi-canvas-render-block.layout-menu .pbi-live-card-grid article{border-radius:4px;background:#fff;border-style:dashed;}
 .pbi-canvas-render-block.layout-product .pbi-live-card-grid article{min-height:145px;display:grid;align-content:end;}
 .pbi-canvas-render-block.layout-strip .pbi-live-card-grid{grid-template-columns:repeat(4,minmax(0,1fr));}
+.pbi-live-sales-banner{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  color:#fffaf4;
+  background:var(--preview-accent);
+  border-radius:22px;
+  padding:24px;
+}
+.pbi-live-sales-banner .eyebrow,
+.pbi-live-sales-banner p{color:rgba(255,250,244,.82);}
+.pbi-live-sales-banner h2{margin:.05em 0;font-size:clamp(1.7rem,3vw,3rem);line-height:.95;}
+.pbi-live-sales-banner .btn{background:#fffaf4!important;color:#2b160e;}
+.pbi-live-video,
+.pbi-live-before-after,
+.pbi-live-quote-form{display:grid;grid-template-columns:1fr .9fr;gap:20px;align-items:center;}
+.pbi-live-video-frame{
+  min-height:230px;
+  border-radius:18px;
+  background:linear-gradient(135deg, rgba(43,22,14,.92), rgba(83,119,68,.72));
+  display:grid;
+  place-items:center;
+  color:#fffaf4;
+  font-weight:900;
+  position:relative;
+}
+.pbi-live-video-frame span{
+  width:72px;
+  height:72px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  background:rgba(255,250,244,.16);
+  border:1px solid rgba(255,250,244,.3);
+}
+.pbi-live-before-after .pbi-live-card-grid{
+  grid-template-columns:1fr;
+}
+.pbi-live-before-after .pbi-live-card-grid article small{
+  display:block;
+  color:var(--preview-accent);
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  margin-bottom:6px;
+}
+.pbi-live-form-preview{
+  display:grid;
+  gap:10px;
+  padding:18px;
+  border:1px solid rgba(70,42,27,.12);
+  border-radius:18px;
+  background:#fff;
+}
+.pbi-live-form-preview span{
+  display:block;
+  border:1px solid rgba(70,42,27,.12);
+  border-radius:12px;
+  padding:12px 14px;
+  color:#7b604d;
+  font-weight:800;
+}
 .pbi-live-gallery-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:12px;margin-top:14px;}
 .pbi-live-gallery-grid img{width:100%;height:220px;object-fit:cover;border-radius:18px;display:block;}
 .pbi-live-gallery-grid img:first-child{grid-row:span 2;height:452px;}
@@ -769,6 +832,7 @@ body.pbi-admin-body::after{
 }
 .pbi-builder-v2-primary-action,
 .pbi-builder-v2-brief button,
+.pbi-builder-v2-director button,
 .pbi-builder-v2-apply-grid button,
 .pbi-builder-v2-apply-grid a{
   appearance:none;
@@ -792,6 +856,35 @@ body.pbi-admin-body::after{
   grid-template-columns:1fr 1fr 150px 140px auto;
   gap:8px;
   margin-bottom:10px;
+}
+.pbi-builder-v2-director{
+  display:grid;
+  gap:8px;
+  margin:0 0 10px;
+}
+.pbi-builder-v2-director textarea{
+  min-height:74px;
+  border-radius:18px;
+  background:#fffaf4;
+}
+.pbi-builder-v2-director-controls{
+  display:grid;
+  grid-template-columns:180px repeat(3,minmax(0,1fr));
+  gap:8px;
+}
+.pbi-builder-v2-director-controls button{
+  min-height:44px;
+  text-align:center;
+  border-radius:999px;
+}
+.pbi-builder-v2-director-controls button[data-v2-apply="full-site"]{
+  background:#2b160e;
+  color:#fffaf4;
+}
+.pbi-builder-v2-director-controls button[data-v2-apply="audit"],
+.pbi-builder-v2-director-controls button[data-v2-apply="mobile"]{
+  background:#f5fff1;
+  color:#274b24;
 }
 .pbi-builder-v2-brief .input,
 .pbi-builder-v2-brief .select{
@@ -855,9 +948,14 @@ body.pbi-admin-body::after{
   .pbi-studio-panel,.pbi-canvas-palette,.pbi-canvas-inspector{max-height:none;}
   .pbi-studio-toolbar{display:grid;}
   .pbi-studio-toolbar-actions{justify-content:flex-start;}
+  .pbi-live-video,
+  .pbi-live-before-after,
+  .pbi-live-quote-form{grid-template-columns:1fr;}
+  .pbi-live-sales-banner{display:grid;}
   .pbi-builder-v2-grid{grid-template-columns:1fr;}
   .pbi-builder-v2-action-head{display:grid;}
   .pbi-builder-v2-brief{grid-template-columns:1fr 1fr;}
+  .pbi-builder-v2-director-controls{grid-template-columns:1fr 1fr;}
   .pbi-builder-v2-apply-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
   .pbi-builder-v2-readiness{align-items:flex-start;display:grid;}
   .pbi-builder-v2-checks{max-width:none;justify-content:flex-start;}
@@ -879,6 +977,7 @@ body.pbi-admin-body::after{
   .pbi-builder-v2-score{width:100%;min-height:84px;display:flex;justify-content:space-between;text-align:left;}
   .pbi-builder-v2-section-grid{grid-template-columns:1fr;}
   .pbi-builder-v2-brief,
+  .pbi-builder-v2-director-controls,
   .pbi-builder-v2-apply-grid{grid-template-columns:1fr;}
   .pbi-builder-v2-primary-action{width:100%;}
   body.pbi-canvas-page .pbi-live-hero,

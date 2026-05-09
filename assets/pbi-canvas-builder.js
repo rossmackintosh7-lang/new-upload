@@ -146,6 +146,14 @@
       featureGrid: { title:"Why customers choose us", text:"Clear offer | Friendly service | Reliable follow-up", layout:"bento" },
       gallery: { title:"Gallery", text:"Show real work, atmosphere and customer-facing visuals.", image: gallery[0] || p.heroImage || "/assets/demo-media/cafe-hero.jpg", layout:"masonry" },
       testimonial: { title:"What customers say", text:"“Exactly what we needed. Clear, simple and easy to use.”", layout:"spotlight" },
+      reviews: { title:"Recent customer reviews", text:"Friendly and clear from the first message | The result felt polished and easy to use | We knew exactly what to do next", layout:"cards" },
+      team: { title:"Meet the people behind the service", text:"Owner-led | Local team | Helpful support", layout:"cards" },
+      hours: { title:"Opening and response times", text:"Monday to Friday 9am-5pm | Saturday by appointment | Fast replies for urgent enquiries", layout:"cards" },
+      salesBanner: { title:"Ready this week", text:"A timely offer, announcement or availability message can sit here without taking over the page.", button:"Claim this offer", layout:"strip" },
+      video: { title:"See how it works", text:"Use this section for a short intro video, customer walkthrough or service explanation.", button:"Watch preview", layout:"spotlight" },
+      beforeAfter: { title:"Before and after", text:"Before: confusing next steps | After: clearer offer, stronger proof and an easier route to enquire", image: gallery[1] || gallery[0] || p.heroImage || "/assets/demo-media/cafe-hero.jpg", layout:"split" },
+      quoteForm: { title:"Request a quote", text:"Tell us what you need, where you are and when you would like help.", button:"Send quote request", layout:"spotlight" },
+      courseList: { title:"Programmes and sessions", text:"Starter session | Progress plan | Ongoing support", layout:"cards" },
       pricing: { title:"Packages", text:"Starter | Business | Plus", layout:"cards" },
       productGrid: { title:"Featured products", text:"Product one | Product two | Product three", layout:"cards" },
       retail: { title:"Shop highlights", text:"Collections | Gift cards | Best sellers", layout:"cards" },
@@ -285,9 +293,22 @@
     if (["hero","splitHero"].includes(block.type)) {
       return `<section ${attrs}><div class="pbi-live-hero"><div><p class="eyebrow" ${editableAttr(block,'eyebrow')}>${eyebrow}</p><h1 ${editableAttr(block,'title')}>${title}</h1><p ${editableAttr(block,'text')}>${text}</p>${button ? `<a class="btn" style="background:${accent}" href="#contact">${button}</a>` : ""}</div><img src="${image}" alt="Website preview image"></div>${lockedOverlay(block)}</section>`;
     }
-    if (["services","process","stats","featureGrid","pricing","productGrid","retail","trustBand","logoCloud","cmsList","analyticsPanel","automationFlow"].includes(block.type)) {
+    if (["services","process","stats","featureGrid","pricing","productGrid","retail","trustBand","logoCloud","cmsList","analyticsPanel","automationFlow","reviews","team","hours","courseList"].includes(block.type)) {
       const items = String(block.text || "").split("|").map(x => x.trim()).filter(Boolean);
       return `<section ${attrs}><div class="pbi-live-section"><p class="eyebrow">${eyebrow}</p><h2 ${editableAttr(block,'title')}>${title}</h2><div class="pbi-live-card-grid">${items.map(item => `<article><h3>${esc(item)}</h3><p>Edit this item from the inspector.</p></article>`).join("") || `<article><h3>Add item</h3><p>Use | between items.</p></article>`}</div></div>${lockedOverlay(block)}</section>`;
+    }
+    if (block.type === "salesBanner") {
+      return `<section ${attrs}><div class="pbi-live-sales-banner"><div><p class="eyebrow">${eyebrow}</p><h2 ${editableAttr(block,'title')}>${title}</h2><p ${editableAttr(block,'text')}>${text}</p></div>${button ? `<a class="btn" style="background:${accent}" href="#contact">${button}</a>` : ""}</div>${lockedOverlay(block)}</section>`;
+    }
+    if (block.type === "video") {
+      return `<section ${attrs}><div class="pbi-live-section pbi-live-video"><div><p class="eyebrow">${eyebrow}</p><h2 ${editableAttr(block,'title')}>${title}</h2><p ${editableAttr(block,'text')}>${text}</p>${button ? `<a class="btn" style="background:${accent}" href="#contact">${button}</a>` : ""}</div><div class="pbi-live-video-frame" aria-label="Video placeholder"><span>Play</span></div></div>${lockedOverlay(block)}</section>`;
+    }
+    if (block.type === "beforeAfter") {
+      const items = String(block.text || "").split("|").map(x => x.trim()).filter(Boolean);
+      return `<section ${attrs}><div class="pbi-live-section pbi-live-before-after"><div><p class="eyebrow">${eyebrow}</p><h2 ${editableAttr(block,'title')}>${title}</h2><div class="pbi-live-card-grid">${items.map((item, index) => `<article><small>${index === 0 ? "Before" : "After"}</small><h3>${esc(item)}</h3></article>`).join("")}</div></div><img class="pbi-live-wide-image" src="${image}" alt="Before and after preview"></div>${lockedOverlay(block)}</section>`;
+    }
+    if (block.type === "quoteForm") {
+      return `<section ${attrs}><div class="pbi-live-section pbi-live-quote-form" id="contact"><div><p class="eyebrow">${eyebrow}</p><h2 ${editableAttr(block,'title')}>${title}</h2><p ${editableAttr(block,'text')}>${text}</p></div><div class="pbi-live-form-preview"><span>Name</span><span>Email</span><span>What do you need?</span>${button ? `<a class="btn" style="background:${accent}" href="/contact/">${button}</a>` : ""}</div></div>${lockedOverlay(block)}</section>`;
     }
     if (block.type === "gallery") {
       const galleryMarkup = galleryImages.length > 1
@@ -1145,6 +1166,210 @@
     if (feed) feed.innerHTML = (state.collabNotes || []).map(n=>`<article><p>${esc(n.note)}</p><small>${new Date(n.created_at).toLocaleString()}</small></article>`).join("") || `<p class="muted">No notes yet.</p>`;
   }
 
+  const siteSignals = [
+    { key:"mobile-mechanic", words:["mechanic","garage","vehicle","car","van","mot","diagnostic","mobile auto"] },
+    { key:"trades", words:["plumber","electrician","builder","roofer","heating","trade","trades","repair","installation"] },
+    { key:"cleaner", words:["cleaner","cleaning","housekeeping","domestic","commercial clean"] },
+    { key:"personal-trainer", words:["trainer","fitness","gym","coach","workout","programme","program"] },
+    { key:"dog-groomer", words:["dog","groomer","grooming","pet","puppy"] },
+    { key:"restaurant", words:["restaurant","dining","reservation","menu","kitchen"] },
+    { key:"cafe", words:["cafe","coffee","brunch","bakery","cake"] },
+    { key:"salon", words:["salon","hair","beauty","wellness","treatment","nails"] },
+    { key:"holiday-let", words:["holiday let","stay","cottage","retreat","accommodation","airbnb"] },
+    { key:"shop", words:["shop","retail","store","products","ecommerce","e-commerce"] },
+    { key:"consultant", words:["consultant","advisor","advisory","coach","agency","professional"] }
+  ];
+
+  const siteProfiles = {
+    cafe: { generic:"local cafe", services:["Breakfast and brunch","Speciality coffee","Private bookings"], proof:["Fresh daily menu","Friendly local team","Easy table enquiries"], offerLabel:"Menu", app:"booking" },
+    restaurant: { generic:"local restaurant", services:["Seasonal menu","Table reservations","Private dining"], proof:["Fresh ingredients","Warm service","Easy booking route"], offerLabel:"Menu", app:"booking" },
+    trades: { generic:"local trades business", services:["Repairs and callouts","Installations","Maintenance plans"], proof:["Clear quotes","Trusted local work","Fast response"], offerLabel:"Services", app:"quoteForm" },
+    salon: { generic:"hair and beauty studio", services:["Cut and styling","Colour and treatments","Appointment packages"], proof:["Experienced stylists","Relaxed appointments","Clear treatment menu"], offerLabel:"Treatments", app:"booking" },
+    consultant: { generic:"consultancy business", services:["Discovery call","Strategy review","Implementation support"], proof:["Clear process","Commercial focus","Practical next steps"], offerLabel:"Services", app:"booking" },
+    "holiday-let": { generic:"holiday let", services:["Direct stay enquiries","Local guide","Guest information"], proof:["Comfortable spaces","Great location","Simple booking route"], offerLabel:"Stay", app:"booking" },
+    shop: { generic:"local shop", services:["Best sellers","Gift ideas","Click and collect"], proof:["Curated products","Simple checkout path","Friendly support"], offerLabel:"Shop", app:"retail" },
+    "mobile-mechanic": { generic:"mobile mechanic", services:["Diagnostics","Emergency callouts","Servicing and repairs"], proof:["Comes to you","Clear quotes","Fast local response"], offerLabel:"Services", app:"quoteForm" },
+    "dog-groomer": { generic:"dog groomer", services:["Full groom","Bath and tidy","Puppy intro"], proof:["Calm handling","Clear packages","Easy appointment requests"], offerLabel:"Packages", app:"booking" },
+    cleaner: { generic:"cleaning service", services:["Regular cleans","Deep cleans","Commercial cleaning"], proof:["Reliable slots","Clear quote route","Local references"], offerLabel:"Services", app:"quoteForm" },
+    "personal-trainer": { generic:"personal trainer", services:["Starter session","Progress programme","Ongoing coaching"], proof:["Structured plans","Progress check-ins","Flexible sessions"], offerLabel:"Programmes", app:"courseList" }
+  };
+
+  function inferTemplateFromBrief(brief){
+    const lower = String(brief || "").toLowerCase();
+    const match = siteSignals.find(signal => signal.words.some(word => lower.includes(word)));
+    return match?.key || normalise(state.templateId || "cafe");
+  }
+
+  function inferGoalFromBrief(brief, explicit){
+    if (explicit && explicit !== "auto") return explicit;
+    const lower = String(brief || "").toLowerCase();
+    if (/(shop|order|checkout|buy|product|retail)/.test(lower)) return "shop";
+    if (/(course|class|programme|program|session|signup|sign up)/.test(lower)) return "courses";
+    if (/(book|booking|appointment|reservation|table)/.test(lower)) return "bookings";
+    if (/(call|phone|emergency|urgent)/.test(lower)) return "calls";
+    return "enquiries";
+  }
+
+  function goalCopy(goal){
+    if (goal === "bookings") return { cta:"Book now", action:"book", noun:"booking", section:"booking" };
+    if (goal === "calls") return { cta:"Call today", action:"call", noun:"call", section:"quoteForm" };
+    if (goal === "shop") return { cta:"Shop now", action:"order", noun:"order", section:"retail" };
+    if (goal === "courses") return { cta:"Join a programme", action:"sign up", noun:"signup", section:"courseList" };
+    return { cta:"Send enquiry", action:"enquire", noun:"enquiry", section:"quoteForm" };
+  }
+
+  function inferLocation(brief){
+    const text = String(brief || "");
+    const match = text.match(/\b(?:in|near|around|across|for)\s+([a-z][a-z .'-]{1,31}?)(?=,|\.|$|\s+(?:called|named|with|and|for|that|who|want|needs?))/i);
+    return (match?.[1] || state.location || "").trim();
+  }
+
+  function inferBusinessName(brief, key){
+    const text = String(brief || "");
+    const named = text.match(/\b(?:called|named|for)\s+([A-Z][A-Za-z0-9 &'’.-]{2,42})(?:,|\.|$|\s+(?:in|with|that|who|needs?|wants?))/);
+    if (named?.[1]) return named[1].trim();
+    if (state.business_name && !/^new pbi website$/i.test(state.business_name)) return state.business_name;
+    return getPreset(key).businessName || siteProfiles[key]?.generic || "New PBI Website";
+  }
+
+  function generatedBlock(type, pageKey, overrides = {}){
+    const block = createBlock(type, getPreset(state.templateId), pageKey);
+    return { ...block, ...overrides, id: uid(type), type, publishable:true };
+  }
+
+  function pageDef(key, label, title, body){
+    return { key, label, title, body };
+  }
+
+  function buildFullSiteFromBrief(brief, options = {}){
+    const cleanBrief = String(brief || "").trim();
+    if (!cleanBrief) return setStatus("Add a brief first");
+    snapshot();
+    const oldPlan = currentPlan();
+    const oldProjectId = getProjectId();
+    const key = inferTemplateFromBrief(cleanBrief);
+    const profile = siteProfiles[key] || siteProfiles.cafe;
+    const goal = inferGoalFromBrief(cleanBrief, options.goal);
+    const goalInfo = goalCopy(goal);
+    const primarySection = rules.blockAllowed?.({ type: goalInfo.section }, oldPlan) ? goalInfo.section : (goal === "bookings" ? "booking" : "quoteForm");
+    const style = options.style || $("#canvasStyleDirection")?.value || "practical, local, trustworthy";
+    const location = inferLocation(cleanBrief);
+    const name = inferBusinessName(cleanBrief, key);
+    const p = getPreset(key);
+    const bg = /bold|contrast/i.test(style) ? "#fff8f1" : /soft|editorial/i.test(style) ? "#fbf7f1" : (p.background || "#fffaf4");
+    const accent = /bold|contrast/i.test(style) ? "#2b160e" : (p.accent || "#bf5c29");
+    const offerKey = goal === "shop" ? "shop" : goal === "courses" ? "programmes" : "services";
+    const offerLabel = goal === "shop" ? "Shop" : goal === "courses" ? "Programmes" : profile.offerLabel;
+    const offerBlockType = goal === "courses" ? "courseList" : (goal === "shop" && rules.blockAllowed?.({ type:"productGrid" }, oldPlan) ? "productGrid" : "services");
+    const pageDefs = [
+      pageDef("home", "Home", `${name} helps local customers ${goalInfo.action} with confidence.`, `${cleanBrief.slice(0, 150)}${cleanBrief.length > 150 ? "..." : ""}`),
+      pageDef(offerKey, offerLabel, `${offerLabel} designed for clear decisions`, `${profile.services.join(", ")} with proof and a simple next step.`),
+      pageDef("about", "About", `A more personal way to choose ${name}`, `Show the story, people and standards behind ${name}.`),
+      pageDef("proof", "Reviews", "Proof before pressure", "Reviews, results and trust signals help visitors feel ready to act."),
+      pageDef("contact", "Contact", `Ready to ${goalInfo.action}?`, `Make the ${goalInfo.noun} route simple, visible and easy to complete.`)
+    ];
+    if (oldPlan !== "starter") pageDefs.splice(4, 0, pageDef("faq", "FAQ", "Useful answers before customers act", "Handle the common questions that otherwise slow the enquiry down."));
+
+    state = projectFromPreset(key);
+    state.templateId = key;
+    state.plan = oldPlan;
+    state.package = oldPlan;
+    state.project_id = oldProjectId;
+    state.business_name = name;
+    state.project_name = `${name} Website`;
+    state.location = location;
+    state.launch_goal = goal;
+    state.brand_tone = style;
+    state.background_color = bg;
+    state.accent_color = accent;
+    state.text_color = p.text || "#24130c";
+    state.page_main_heading = pageDefs[0].title;
+    state.sub_heading = pageDefs[0].body;
+    state.tagline = location ? `${location} local website` : (p.tagline || "Built with PBI");
+    state.cta_button_text = goalInfo.cta;
+    state.heroImage = p.heroImage || state.heroImage || "/assets/demo-media/cafe-hero.jpg";
+    state.domain_lookup_input = `${domainSlug([name, location].filter(Boolean).join(" "))}.co.uk`;
+    state.subdomain_slug = domainSlug([name, location].filter(Boolean).join(" "));
+    state.seo = {
+      title: `${name}${location ? ` in ${location}` : ""} | ${offerLabel}`,
+      description: `${name} gives customers clear ${offerLabel.toLowerCase()}, proof, answers and a simple ${goalInfo.noun} route.`,
+      indexable: true,
+      ogTitle: `${name} | ${goalInfo.cta}`,
+      ogDescription: `A polished local website built around ${goalInfo.noun}s, proof and clear next steps.`
+    };
+    state.ai_director = {
+      brief: cleanBrief,
+      style,
+      goal,
+      generated_at: new Date().toISOString(),
+      template: key
+    };
+    state.pages = {};
+    state.selected_pages = pageDefs.map(page => page.key);
+    state.blocksByPage = {};
+    pageDefs.forEach(page => {
+      state.pages[page.key] = { label: page.label, title: page.title, body: page.body };
+    });
+
+    state.blocksByPage.home = [
+      generatedBlock("navBar", "home", { title:name, text:`Home | ${offerLabel} | Reviews | Contact`, button:goalInfo.cta }),
+      generatedBlock("hero", "home", { eyebrow:state.tagline, title:pageDefs[0].title, text:pageDefs[0].body, button:goalInfo.cta, image:state.heroImage, layout:"split", background:bg, accent }),
+      generatedBlock("trustBand", "home", { title:"Confidence signals near the top", text:profile.proof.join(" | "), layout:"strip", background:"#fff" }),
+      generatedBlock("services", "home", { title:`Popular ${offerLabel.toLowerCase()}`, text:profile.services.join(" | "), layout:"bento" }),
+      generatedBlock("process", "home", { title:`How customers ${goalInfo.action}`, text:`Choose what fits | Send the ${goalInfo.noun} | Get a clear next step`, layout:"timeline" }),
+      generatedBlock("reviews", "home", { title:"Reasons people choose us", text:`${profile.proof[0]} | ${profile.proof[1]} | ${profile.proof[2]}`, layout:"cards" }),
+      generatedBlock(primarySection, "home", { title:`Ready to ${goalInfo.action}?`, text:`Use this section as the main ${goalInfo.noun} path for ${name}.`, button:goalInfo.cta, layout:"spotlight" })
+    ];
+
+    state.blocksByPage[offerKey] = [
+      generatedBlock("hero", offerKey, { eyebrow:offerLabel, title:pageDefs[1].title, text:pageDefs[1].body, button:goalInfo.cta, image:state.heroImage, layout:"image-first" }),
+      generatedBlock(offerBlockType, offerKey, { title:`${offerLabel} at a glance`, text:profile.services.join(" | "), layout:goal === "shop" ? "product" : "cards" }),
+      generatedBlock("pricing", offerKey, { title:"Simple options", text:"Starter option | Recommended option | Bespoke support", layout:"cards" }),
+      generatedBlock("faq", offerKey, { title:`Questions about ${offerLabel.toLowerCase()}`, text:`What happens first? | How quickly do you reply? | Can I ask for help before deciding?`, layout:"checklist" }),
+      generatedBlock(primarySection, offerKey, { title:`Start with a ${goalInfo.noun}`, text:`Make the next step obvious for visitors who are ready.`, button:goalInfo.cta })
+    ];
+
+    state.blocksByPage.about = [
+      generatedBlock("hero", "about", { eyebrow:"About", title:pageDefs[2].title, text:pageDefs[2].body, image:state.heroImage, layout:"full-bleed" }),
+      generatedBlock("featureGrid", "about", { title:"What makes the service feel different", text:`Clear communication | Useful guidance | Follow-up that helps`, layout:"bento" }),
+      generatedBlock("team", "about", { title:"People and standards", text:"Owner-led | Local knowledge | Practical support", layout:"cards" }),
+      generatedBlock("gallery", "about", { title:"A more tangible feel", text:"Use real photos, work examples and proof so the page feels specific.", image:state.heroImage, images:p.galleryImages || [], layout:"masonry" })
+    ];
+
+    state.blocksByPage.proof = [
+      generatedBlock("hero", "proof", { eyebrow:"Proof", title:pageDefs[3].title, text:pageDefs[3].body, image:state.heroImage, layout:"split" }),
+      generatedBlock("reviews", "proof", { title:"Customer comments", text:"Clear from the start | Easy to choose | Helpful aftercare", layout:"cards" }),
+      generatedBlock("stats", "proof", { title:"Useful numbers", text:"Fast replies | Local service | Clear next steps", layout:"strip" }),
+      generatedBlock("beforeAfter", "proof", { title:"Before and after clarity", text:"Before: hard to know what to do next | After: clearer offer, proof and route to act", image:state.heroImage, layout:"split" }),
+      generatedBlock("cta", "proof", { title:`Ready to ${goalInfo.action} with confidence?`, text:"Keep the next step close to the proof.", button:goalInfo.cta })
+    ];
+
+    if (state.selected_pages.includes("faq")) {
+      state.blocksByPage.faq = [
+        generatedBlock("hero", "faq", { eyebrow:"FAQ", title:"Useful answers before customers act", text:"Reduce doubt with practical answers, then give one clear next step.", image:state.heroImage, layout:"split" }),
+        generatedBlock("faq", "faq", { title:"Common questions", text:"How do I get started? | What areas do you cover? | What happens after I enquire?", layout:"checklist" }),
+        generatedBlock("salesBanner", "faq", { title:"Need help deciding?", text:"Assisted setup and custom build support can be offered here without making the page feel pushy.", button:"Ask for help" }),
+        generatedBlock(primarySection, "faq", { title:`Send a ${goalInfo.noun}`, text:"Give customers a useful route after the answers.", button:goalInfo.cta })
+      ];
+    }
+
+    state.blocksByPage.contact = [
+      generatedBlock("hero", "contact", { eyebrow:"Contact", title:pageDefs[pageDefs.length - 1].title, text:pageDefs[pageDefs.length - 1].body, button:goalInfo.cta, image:state.heroImage, layout:"split" }),
+      generatedBlock("map", "contact", { title:location ? `Serving ${location} and nearby` : "Service area", text:"Add your town, coverage area and local search wording.", layout:"spotlight" }),
+      generatedBlock("hours", "contact", { title:"Opening and response times", text:"Monday to Friday | Weekend appointments | Urgent requests by arrangement", layout:"cards" }),
+      generatedBlock(primarySection, "contact", { title:`${goalInfo.cta}`, text:`Collect the details needed to handle the ${goalInfo.noun} properly.`, button:goalInfo.cta }),
+      generatedBlock("contact", "contact", { title:"Contact details", text:"Phone, email, address and social links can sit here.", button:"Contact" })
+    ];
+
+    activePage = "home";
+    selectedId = state.blocksByPage.home.find(block => block.type === "hero")?.id || state.blocksByPage.home[0]?.id || null;
+    enforcePlan();
+    render();
+    if (selectedId) selectBlock(selectedId);
+    setStatus("Full multi-page site generated from brief");
+    window.dispatchEvent(new CustomEvent("pbi:ai-site-generated", { detail: { state: clone(state, {}), brief: cleanBrief } }));
+  }
+
   function aiRewrite(mode){
     const block = activeBlocks().find(x => x.id === selectedId);
     if (!block || block.packageLocked) return setStatus("Select an editable block first");
@@ -1212,17 +1437,10 @@
     $("#canvasBackToBuilder")?.setAttribute("href", "/dashboard/");
     $("#canvasAiBuildBtn")?.addEventListener("click", () => {
       const brief = $("#canvasAiBrief")?.value?.trim();
-      if (!brief) return;
-      const target = activeBlocks().find(block => block.type === "hero") || activeBlocks()[0];
-      if (target && !target.packageLocked) {
-        snapshot();
-        target.title = brief.length > 58 ? brief.slice(0,58).replace(/\s+\S*$/,"") : brief;
-        target.text = `AI draft brief: ${brief}`;
-        selectedId = target.id;
-        render();
-        selectBlock(target.id);
-        setStatus("AI draft applied locally");
-      }
+      buildFullSiteFromBrief(brief, {
+        goal: $("#canvasAiGoal")?.value || "enquiries",
+        style: $("#canvasStyleDirection")?.value || ""
+      });
     });
     $("#canvasAddPageBtn")?.addEventListener("click", addPage);
     $("#canvasDuplicatePageBtn")?.addEventListener("click", duplicatePage);
@@ -1269,6 +1487,10 @@
     },
     addBlock(type) {
       addBlock(type);
+      return this.getState();
+    },
+    generateSiteFromBrief(brief, options = {}) {
+      buildFullSiteFromBrief(brief, options);
       return this.getState();
     },
     updateState(mutator, statusText) {
