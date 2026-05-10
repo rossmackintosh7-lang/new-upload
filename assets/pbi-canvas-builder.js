@@ -281,46 +281,48 @@
     const title = esc(block.title);
     const text = esc(block.text);
     const button = esc(block.button || "");
+    const buttonAria = block.buttonAriaLabel ? ` aria-label="${esc(block.buttonAriaLabel)}"` : "";
     const eyebrow = esc(block.eyebrow || block.type);
     const image = esc(block.image || state.heroImage || getPreset(state.templateId).heroImage || "/assets/demo-media/cafe-hero.jpg");
+    const imageAlt = esc(block.imageAlt || block.title || "Website preview image");
     const galleryImages = [
       block.image,
       ...(Array.isArray(block.images) ? block.images : [])
     ].filter(Boolean).filter((item, index, arr) => arr.indexOf(item) === index).slice(0, 6);
 
     if (block.type === "navBar") {
-      return `<section ${attrs}><div class="pbi-live-nav"><strong ${editableAttr(block,'title')}>${title}</strong><span ${editableAttr(block,'text')}>${text}</span>${button ? `<a class="btn" style="background:${accent}" href="#contact">${button}</a>` : ""}</div>${lockedOverlay(block)}</section>`;
+      return `<section ${attrs}><div class="pbi-live-nav"><strong ${editableAttr(block,'title')}>${title}</strong><span ${editableAttr(block,'text')}>${text}</span>${button ? `<a class="btn" style="background:${accent}" href="#contact"${buttonAria}>${button}</a>` : ""}</div>${lockedOverlay(block)}</section>`;
     }
     if (["hero","splitHero"].includes(block.type)) {
-      return `<section ${attrs}><div class="pbi-live-hero"><div><p class="eyebrow" ${editableAttr(block,'eyebrow')}>${eyebrow}</p><h1 ${editableAttr(block,'title')}>${title}</h1><p ${editableAttr(block,'text')}>${text}</p>${button ? `<a class="btn" style="background:${accent}" href="#contact">${button}</a>` : ""}</div><img src="${image}" alt="Website preview image"></div>${lockedOverlay(block)}</section>`;
+      return `<section ${attrs}><div class="pbi-live-hero"><div><p class="eyebrow" ${editableAttr(block,'eyebrow')}>${eyebrow}</p><h1 ${editableAttr(block,'title')}>${title}</h1><p ${editableAttr(block,'text')}>${text}</p>${button ? `<a class="btn" style="background:${accent}" href="#contact"${buttonAria}>${button}</a>` : ""}</div><img src="${image}" alt="${imageAlt}"></div>${lockedOverlay(block)}</section>`;
     }
     if (["services","process","stats","featureGrid","pricing","productGrid","retail","trustBand","logoCloud","cmsList","analyticsPanel","automationFlow","reviews","team","hours","courseList"].includes(block.type)) {
       const items = String(block.text || "").split("|").map(x => x.trim()).filter(Boolean);
       return `<section ${attrs}><div class="pbi-live-section"><p class="eyebrow">${eyebrow}</p><h2 ${editableAttr(block,'title')}>${title}</h2><div class="pbi-live-card-grid">${items.map(item => `<article><h3>${esc(item)}</h3><p>Edit this item from the inspector.</p></article>`).join("") || `<article><h3>Add item</h3><p>Use | between items.</p></article>`}</div></div>${lockedOverlay(block)}</section>`;
     }
     if (block.type === "salesBanner") {
-      return `<section ${attrs}><div class="pbi-live-sales-banner"><div><p class="eyebrow">${eyebrow}</p><h2 ${editableAttr(block,'title')}>${title}</h2><p ${editableAttr(block,'text')}>${text}</p></div>${button ? `<a class="btn" style="background:${accent}" href="#contact">${button}</a>` : ""}</div>${lockedOverlay(block)}</section>`;
+      return `<section ${attrs}><div class="pbi-live-sales-banner"><div><p class="eyebrow">${eyebrow}</p><h2 ${editableAttr(block,'title')}>${title}</h2><p ${editableAttr(block,'text')}>${text}</p></div>${button ? `<a class="btn" style="background:${accent}" href="#contact"${buttonAria}>${button}</a>` : ""}</div>${lockedOverlay(block)}</section>`;
     }
     if (block.type === "video") {
-      return `<section ${attrs}><div class="pbi-live-section pbi-live-video"><div><p class="eyebrow">${eyebrow}</p><h2 ${editableAttr(block,'title')}>${title}</h2><p ${editableAttr(block,'text')}>${text}</p>${button ? `<a class="btn" style="background:${accent}" href="#contact">${button}</a>` : ""}</div><div class="pbi-live-video-frame" aria-label="Video placeholder"><span>Play</span></div></div>${lockedOverlay(block)}</section>`;
+      return `<section ${attrs}><div class="pbi-live-section pbi-live-video"><div><p class="eyebrow">${eyebrow}</p><h2 ${editableAttr(block,'title')}>${title}</h2><p ${editableAttr(block,'text')}>${text}</p>${button ? `<a class="btn" style="background:${accent}" href="#contact"${buttonAria}>${button}</a>` : ""}</div><div class="pbi-live-video-frame" aria-label="Video placeholder"><span>Play</span></div></div>${lockedOverlay(block)}</section>`;
     }
     if (block.type === "beforeAfter") {
       const items = String(block.text || "").split("|").map(x => x.trim()).filter(Boolean);
-      return `<section ${attrs}><div class="pbi-live-section pbi-live-before-after"><div><p class="eyebrow">${eyebrow}</p><h2 ${editableAttr(block,'title')}>${title}</h2><div class="pbi-live-card-grid">${items.map((item, index) => `<article><small>${index === 0 ? "Before" : "After"}</small><h3>${esc(item)}</h3></article>`).join("")}</div></div><img class="pbi-live-wide-image" src="${image}" alt="Before and after preview"></div>${lockedOverlay(block)}</section>`;
+      return `<section ${attrs}><div class="pbi-live-section pbi-live-before-after"><div><p class="eyebrow">${eyebrow}</p><h2 ${editableAttr(block,'title')}>${title}</h2><div class="pbi-live-card-grid">${items.map((item, index) => `<article><small>${index === 0 ? "Before" : "After"}</small><h3>${esc(item)}</h3></article>`).join("")}</div></div><img class="pbi-live-wide-image" src="${image}" alt="${imageAlt}"></div>${lockedOverlay(block)}</section>`;
     }
     if (block.type === "quoteForm") {
-      return `<section ${attrs}><div class="pbi-live-section pbi-live-quote-form" id="contact"><div><p class="eyebrow">${eyebrow}</p><h2 ${editableAttr(block,'title')}>${title}</h2><p ${editableAttr(block,'text')}>${text}</p></div><div class="pbi-live-form-preview"><span>Name</span><span>Email</span><span>What do you need?</span>${button ? `<a class="btn" style="background:${accent}" href="/contact/">${button}</a>` : ""}</div></div>${lockedOverlay(block)}</section>`;
+      return `<section ${attrs}><div class="pbi-live-section pbi-live-quote-form" id="contact"><div><p class="eyebrow">${eyebrow}</p><h2 ${editableAttr(block,'title')}>${title}</h2><p ${editableAttr(block,'text')}>${text}</p></div><div class="pbi-live-form-preview"><span>Name</span><span>Email</span><span>What do you need?</span>${button ? `<a class="btn" style="background:${accent}" href="/contact/"${buttonAria}>${button}</a>` : ""}</div></div>${lockedOverlay(block)}</section>`;
     }
     if (block.type === "gallery") {
       const galleryMarkup = galleryImages.length > 1
-        ? `<div class="pbi-live-gallery-grid">${galleryImages.map((src, index) => `<img src="${esc(src)}" alt="Gallery preview ${index + 1}">`).join("")}</div>`
-        : `<img class="pbi-live-wide-image" src="${image}" alt="Gallery preview">`;
+        ? `<div class="pbi-live-gallery-grid">${galleryImages.map((src, index) => `<img src="${esc(src)}" alt="${esc(block.imageAlts?.[index] || block.imageAlt || `${block.title || 'Gallery'} image ${index + 1}`)}">`).join("")}</div>`
+        : `<img class="pbi-live-wide-image" src="${image}" alt="${imageAlt}">`;
       return `<section ${attrs}><div class="pbi-live-section"><p class="eyebrow">${eyebrow}</p><h2 ${editableAttr(block,'title')}>${title}</h2><p ${editableAttr(block,'text')}>${text}</p>${galleryMarkup}</div>${lockedOverlay(block)}</section>`;
     }
     if (block.type === "spacer") {
       return `<section ${attrs}><div class="pbi-live-spacer"><span ${editableAttr(block,'title')}>${title}</span></div>${lockedOverlay(block)}</section>`;
     }
-    return `<section ${attrs}><div class="pbi-live-section" id="${block.type === "contact" ? "contact" : ""}"><p class="eyebrow">${eyebrow}</p><h2 ${editableAttr(block,'title')}>${title}</h2><p ${editableAttr(block,'text')}>${text}</p>${button ? `<a class="btn" style="background:${accent}" href="/contact/">${button}</a>` : ""}</div>${lockedOverlay(block)}</section>`;
+    return `<section ${attrs}><div class="pbi-live-section" id="${block.type === "contact" ? "contact" : ""}"><p class="eyebrow">${eyebrow}</p><h2 ${editableAttr(block,'title')}>${title}</h2><p ${editableAttr(block,'text')}>${text}</p>${button ? `<a class="btn" style="background:${accent}" href="/contact/"${buttonAria}>${button}</a>` : ""}</div>${lockedOverlay(block)}</section>`;
   }
 
   function renderPages(){

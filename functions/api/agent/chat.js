@@ -66,10 +66,10 @@ const PBI_KNOWLEDGE = [
   },
   {
     topic: 'Goose',
-    keywords: ['goose', 'agent', 'assistant', 'secret agent', 'help me', 'ask', 'question'],
-    summary: 'Goose is PBI private agent. Goose can answer PBI questions, explain product routes, suggest launch fixes, help with SEO and copy, and point to the right admin or customer next step. Goose suggests changes rather than claiming to apply them.',
+    keywords: ['goose', 'agent', 'assistant', 'secret agent', 'help me', 'ask', 'question', 'autopilot', 'harmony', 'action mode'],
+    summary: 'Goose is PBI private agent. Goose can answer PBI questions, explain product routes, suggest launch fixes, help with SEO and copy, and point to the right admin or customer next step. Inside the canvas builder, Goose action mode can apply local project changes such as launch autopilot, business systems, local SEO pages, responsive sweeps, accessibility passes and customer dashboard preparation.',
     links: ['/dashboard/', '/canvas-builder/', '/admin/'],
-    actions: ['Ask Goose for the next best action', 'Ask Goose to explain a PBI feature']
+    actions: ['Ask Goose for the next best action', 'Run Goose launch autopilot', 'Ask Goose to explain a PBI feature']
   }
 ];
 
@@ -78,7 +78,8 @@ const PBI_TERMS = new Set([
   'pricing', 'price', 'billing', 'publish', 'launch', 'seo', 'google', 'stripe', 'retail',
   'admin', 'dashboard', 'project', 'projects', 'goose', 'agent', 'custom', 'assisted',
   'setup', 'support', 'logo', 'brand', 'user', 'users', 'request', 'requests', 'payment',
-  'cost', 'plan', 'plans', 'package', 'packages', 'starter', 'business', 'plus', 'subscription'
+  'cost', 'plan', 'plans', 'package', 'packages', 'starter', 'business', 'plus', 'subscription',
+  'autopilot', 'harmony', 'responsive', 'accessibility', 'business-system'
 ]);
 
 const STOP_WORDS = new Set([
@@ -216,6 +217,7 @@ function buildSystemPrompt() {
     'Answer any question that is related to PBI, Purbeck Business Innovations, the PBI website builder, customer projects, pricing, domains, publishing, templates, SEO, Stripe, admin operations, Assisted Setup, custom builds or launch support.',
     'Be warm, direct, practical and lightly characterful without being silly.',
     'Use the supplied PBI knowledge as the source of truth. If something is not in the knowledge or project/page context, say what you can infer and what you would check next.',
+    'When page context says the user is in the canvas builder, you may explain Goose action mode and recommend launch autopilot, business systems, local SEO pages, responsive sweep, accessibility pass or dashboard preparation.',
     'Do not claim that you changed data, published a site, charged a payment or updated a project unless a tool explicitly did it.',
     'If the user asks something unrelated to PBI, politely steer them back to PBI-related help.',
     'Prefer concise answers with concrete next steps and useful PBI route links.'

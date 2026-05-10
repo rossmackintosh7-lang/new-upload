@@ -74,6 +74,93 @@
     return { action: 'enquire', noun: 'enquiry', cta: 'Enquire today' };
   }
 
+  function allBlocks(state) {
+    return Object.values(state.blocksByPage || {}).flatMap((pageBlocks) => Array.isArray(pageBlocks) ? pageBlocks : []);
+  }
+
+  function selectedPages(state) {
+    const pages = state.selected_pages || state.selectedPages || Object.keys(state.pages || {});
+    return Array.isArray(pages) ? pages.filter(Boolean) : [];
+  }
+
+  function currentGoal(state) {
+    return state.launch_goal || $('#pbiSiteDirectorGoal')?.value || $('#pbiActionGoal')?.value || 'enquiries';
+  }
+
+  function maxPageCount(state) {
+    const plan = window.PBIPackageRules?.cleanPlan?.(state.plan || state.package || localStorage.getItem('pbi_plan')) || 'starter';
+    return window.PBIPackageRules?.limits?.[plan]?.maxPages || 5;
+  }
+
+  function pageAllowed(state, key) {
+    const pages = selectedPages(state);
+    return pages.includes(key) || pages.length < maxPageCount(state);
+  }
+
+  function ensurePage(state, key, label, title, body) {
+    state.pages = state.pages || {};
+    state.blocksByPage = state.blocksByPage || {};
+    state.selected_pages = selectedPages(state);
+    if (!state.selected_pages.includes(key)) {
+      if (!pageAllowed(state, key)) return false;
+      state.selected_pages.push(key);
+    }
+    state.pages[key] = {
+      ...(state.pages[key] || {}),
+      label,
+      title,
+      body
+    };
+    state.blocksByPage[key] = Array.isArray(state.blocksByPage[key]) ? state.blocksByPage[key] : [];
+    return true;
+  }
+
+  function blockId(type) {
+    return `goose-${type}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  }
+
+  function actionBlock(type, overrides = {}) {
+    return {
+      id: blockId(type),
+      type,
+      title: overrides.title || 'New section',
+      text: overrides.text || '',
+      button: overrides.button || '',
+      layout: overrides.layout || 'cards',
+      animation: overrides.animation || 'rise',
+      publishable: true,
+      visibility: overrides.visibility || 'all',
+      created_by_goose: true,
+      ...overrides
+    };
+  }
+
+  function upsertBlock(pageBlocks, type, overrides = {}) {
+    let block = pageBlocks.find((item) => item.type === type);
+    if (!block) {
+      block = actionBlock(type, overrides);
+      pageBlocks.push(block);
+    } else {
+      Object.assign(block, overrides);
+    }
+    return block;
+  }
+
+  function firstImage(state) {
+    return state.heroImage || allBlocks(state).find((block) => block.image)?.image || '/assets/demo-media/cafe-hero.jpg';
+  }
+
+  function featureFromPrompt(prompt) {
+    const lower = String(prompt || '').toLowerCase();
+    if (/shop|store|product|checkout|order|buy|retail/.test(lower)) return 'shop';
+    if (/book|booking|appointment|reservation|table|calendar|schedule/.test(lower)) return /table|menu|restaurant|cafe|café/.test(lower) ? 'menu' : 'bookings';
+    if (/course|class|programme|program|training|session|signup|sign up/.test(lower)) return 'courses';
+    if (/area|map|location|nearby|postcode|coverage|town/.test(lower)) return 'service-area';
+    if (/review|proof|testimonial|case study|before|after|result/.test(lower)) return 'proof';
+    if (/menu|dish|food|drink|coffee|restaurant|cafe|café/.test(lower)) return 'menu';
+    return 'quote';
+  }
+
   const SMART_SECTIONS = {
     'service-area': {
       type: 'map',
@@ -550,6 +637,252 @@
     flash('Audit fixes applied: proof, FAQ, contact route, service area, SEO and domain suggestion checked.');
   }
 
+  function addLocalSeoPages() {
+    update((state) => {
+      const name = businessName(state);
+      const location = state.location || briefValues().location || 'your area';
+      const goal = goalCopy(currentGoal(state));
+      const image = firstImage(state);
+
+      if (ensurePage(state, 'local-services', 'Local Services', `${name} services in ${location}`, `Clear local service information, proof and an easy ${goal.noun} route.`)) {
+        state.blocksByPage['local-services'] = [
+          actionBlock('hero', {
+            eyebrow: `${location} local services`,
+            title: `${name} services in ${location}`,
+            text: `A practical page for people searching locally, with clear services, trust proof and one obvious ${goal.noun} route.`,
+            button: goal.cta,
+            image,
+            layout: 'split'
+          }),
+          actionBlock('services', {
+            title: 'What customers can ask for',
+            text: 'Main service | Useful advice | Clear next step',
+            layout: 'bento'
+          }),
+          actionBlock('map', {
+            title: `Serving ${location} and nearby`,
+            text: 'Local coverage | Nearby towns | Response expectations',
+            button: 'Check availability',
+            layout: 'spotlight'
+          }),
+          actionBlock('faq', {
+            title: 'Local questions before enquiring',
+            text: 'Do you cover my area? | Send your postcode or town and we will confirm. | How quickly do you reply? | Most enquiries get a clear next step quickly. | What happens next? | We confirm fit, timing and the best route.',
+            layout: 'checklist'
+          }),
+          actionBlock('quoteForm', {
+            title: `Send a ${goal.noun}`,
+            text: `Give ${name} the details needed to reply properly.`,
+            button: goal.cta,
+            layout: 'spotlight'
+          })
+        ];
+      }
+
+      if (ensurePage(state, 'questions', 'Questions', `Useful questions before customers ${goal.action}`, 'A support-style page that reduces hesitation before enquiry.')) {
+        state.blocksByPage.questions = [
+          actionBlock('hero', {
+            eyebrow: 'Helpful answers',
+            title: `Questions before you ${goal.action}`,
+            text: 'Give customers a calm route through the things they need to know before acting.',
+            button: goal.cta,
+            image,
+            layout: 'image-first'
+          }),
+          actionBlock('faq', {
+            title: 'Common questions',
+            text: 'Is this right for me? | Use the enquiry route and we will confirm the best next step. | Can I speak to someone? | Yes, phone or email options can be added. | Can I get help finishing this site? | PBI Assisted Setup can polish the website before launch.',
+            layout: 'checklist'
+          }),
+          actionBlock('cta', {
+            title: 'Still deciding?',
+            text: 'Keep Assisted Setup visible for customers who want human help before launch.',
+            button: 'Ask PBI for help',
+            layout: 'centered'
+          })
+        ];
+      }
+
+      state.local_seo_pages_created_at = new Date().toISOString();
+      state.seo = state.seo || {};
+      state.seo.localPages = ['local-services', 'questions'].filter((key) => state.selected_pages.includes(key));
+    }, 'Local SEO pages created');
+    flash('Local SEO pages added with service area, FAQ, proof and enquiry routes.');
+  }
+
+  function installBusinessSystem() {
+    const appType = $('#pbiBusinessApp')?.value || (currentGoal(readState()) === 'shop' ? 'shop' : currentGoal(readState()) === 'bookings' ? 'bookings' : 'quote');
+    const app = APP_PRESETS[appType] || APP_PRESETS.quote;
+    app.blocks.forEach(ensureBlock);
+    ['reviews', 'faq', 'map'].forEach(ensureBlock);
+    update((state, context) => {
+      const goal = goalCopy(currentGoal(state));
+      const name = businessName(state);
+      state.business_apps = state.business_apps || [];
+      ['proof', appType, 'service-area'].forEach((item) => {
+        if (!state.business_apps.includes(item)) state.business_apps.push(item);
+      });
+      state.business_os = {
+        primary_app: appType,
+        goal: currentGoal(state),
+        installed_at: new Date().toISOString(),
+        modules: ['proof', 'service_area', appType, 'faq', 'follow_up']
+      };
+      const current = context.activeBlocks || [];
+      upsertBlock(current, app.blocks[0], {
+        title: app.title,
+        text: app.text,
+        button: app.button,
+        layout: 'spotlight',
+        business_app: appType
+      });
+      upsertBlock(current, 'reviews', {
+        title: 'Proof before people commit',
+        text: 'Clear communication | Practical guidance | Helpful next steps',
+        layout: 'cards',
+        business_app: 'proof'
+      });
+      upsertBlock(current, 'map', {
+        title: 'Areas covered',
+        text: 'Local area | Nearby towns | Clear response expectations',
+        button: 'Check my area',
+        layout: 'spotlight',
+        business_app: 'service-area'
+      });
+      upsertBlock(current, 'faq', {
+        title: 'Questions customers ask before acting',
+        text: `How do I get started? | Use the ${goal.noun} route and ${name} will confirm the next step. | Can I ask for help? | Yes, PBI can support Assisted Setup or custom build routes where needed.`,
+        layout: 'checklist',
+        business_app: 'faq'
+      });
+    }, 'Business system installed');
+    flash(`${app.title} installed with proof, service area and FAQ support.`);
+  }
+
+  function responsiveSweep() {
+    tuneMobile();
+    update((state) => {
+      allBlocks(state).forEach((block) => {
+        if (block.packageLocked) return;
+        block.visibility = block.visibility || 'all';
+        if (block.type === 'salesBanner' && !block.mobile_polished && block.visibility === 'all') block.visibility = 'desktop';
+        if (String(block.title || '').length > 78) block.title = truncate(block.title, 78);
+        if (String(block.text || '').length > 230) block.text = truncate(block.text, 230);
+        if (block.positionMode === 'free') block.positionMode = 'flow';
+        if (['marquee', 'parallax'].includes(block.animation)) block.animation = 'rise';
+        block.responsive_checked_at = new Date().toISOString();
+      });
+      state.responsive_system_applied_at = new Date().toISOString();
+    }, 'Responsive system applied');
+    flash('Responsive sweep completed across all pages: shorter copy, safer motion and flow layouts.');
+  }
+
+  function accessibilitySweep() {
+    update((state) => {
+      const name = businessName(state);
+      allBlocks(state).forEach((block) => {
+        if (block.packageLocked) return;
+        if (block.image && !block.imageAlt) block.imageAlt = `${block.title || name} image`;
+        if (Array.isArray(block.images)) {
+          block.imageAlts = block.imageAlts || {};
+          block.images.forEach((image, index) => {
+            if (image && !block.imageAlts[index]) block.imageAlts[index] = `${block.title || name} image ${index + 1}`;
+          });
+        }
+        if (block.button && !block.buttonAriaLabel) block.buttonAriaLabel = `${block.button} - ${block.title || name}`;
+        if (!block.headingLevel && ['hero', 'splitHero'].includes(block.type)) block.headingLevel = 1;
+        if (!block.headingLevel && block.type !== 'spacer') block.headingLevel = 2;
+        block.accessibility_checked_at = new Date().toISOString();
+      });
+      state.accessibility_checked_at = new Date().toISOString();
+      state.seo = state.seo || {};
+      state.seo.accessibilityAltText = true;
+    }, 'Accessibility pass applied');
+    flash('Accessibility pass applied: image alt text, button labels and heading metadata were filled where missing.');
+  }
+
+  function buildFeatureFromPrompt() {
+    const prompt = directorBrief();
+    if (!prompt) return flash('Describe the feature or business need first, then Goose can build the closest PBI module.');
+    const appType = featureFromPrompt(prompt);
+    const app = APP_PRESETS[appType] || APP_PRESETS.quote;
+    app.blocks.forEach(ensureBlock);
+    update((state, context) => {
+      const name = businessName(state);
+      const goal = goalCopy(currentGoal(state));
+      state.generated_features = state.generated_features || [];
+      state.generated_features.push({
+        prompt,
+        feature: appType,
+        created_at: new Date().toISOString()
+      });
+      const current = context.activeBlocks || [];
+      upsertBlock(current, app.blocks[0], {
+        title: app.title,
+        text: truncate(prompt, 190) || app.text,
+        button: app.button || goal.cta,
+        layout: 'spotlight',
+        animation: 'rise',
+        created_by_goose: true,
+        generated_feature: appType
+      });
+      if (!current.some((block) => block.type === 'cta')) {
+        current.push(actionBlock('cta', {
+          title: `Need help finishing ${name}?`,
+          text: 'Assisted Setup can polish wording, images, SEO and launch details before the site goes live.',
+          button: 'Ask PBI for help',
+          layout: 'centered'
+        }));
+      }
+    }, 'Feature built from prompt');
+    flash(`${app.title} built from the Goose prompt and added to the current page.`);
+  }
+
+  function prepareCustomerDashboard() {
+    update((state) => {
+      const goal = goalCopy(currentGoal(state));
+      state.customer_dashboard = {
+        status: 'launch_preparation',
+        next_actions: [
+          'Confirm contact details',
+          'Check the domain route',
+          `Test the ${goal.noun} route`,
+          'Run the publish check',
+          'Choose Assisted Setup if extra polish is needed'
+        ],
+        modules: state.business_apps || [],
+        updated_at: new Date().toISOString()
+      };
+      state.assisted_setup_nudge = {
+        label: 'Assisted Setup',
+        message: 'Use PBI Assisted Setup if the site needs hands-on wording, images, SEO or launch polish.',
+        href: '/custom-build/?type=assisted_setup'
+      };
+    }, 'Customer dashboard prepared');
+    flash('Customer dashboard data prepared with next actions, business modules and Assisted Setup route.');
+  }
+
+  function harmonyAutopilot() {
+    applyBrief();
+    prepareHomepage();
+    installBusinessSystem();
+    addLocalSeoPages();
+    responsiveSweep();
+    applyBrandEverywhere();
+    auditAndFixBasics();
+    accessibilitySweep();
+    prepareCustomerDashboard();
+    update((state) => {
+      state.goose_autopilot = {
+        mode: 'harmony_competitor',
+        completed_at: new Date().toISOString(),
+        summary: 'Generated a launch-focused site system with business modules, local SEO pages, proof, responsive checks, dashboard next actions and publish preparation.'
+      };
+    }, 'Goose launch autopilot completed');
+    api()?.saveProject?.();
+    flash('Goose launch autopilot completed and save was triggered.');
+  }
+
   function flash(message) {
     const box = $('[data-v2-action-result]');
     if (!box) return;
@@ -573,6 +906,14 @@
         </div>
         <button type="button" class="pbi-builder-v2-primary-action" data-v2-apply="publish">Prepare publish</button>
       </div>
+      <div class="pbi-builder-v2-harmony-actions" aria-label="Goose action mode">
+        <button type="button" data-v2-apply="harmony-autopilot"><strong>Goose launch autopilot</strong><span>Business system, local SEO, mobile, proof and publish prep.</span></button>
+        <button type="button" data-v2-apply="business-system"><strong>Install business system</strong><span>Quote, booking, shop or course flow with proof.</span></button>
+        <button type="button" data-v2-apply="local-seo-pages"><strong>Create local SEO pages</strong><span>Service area and questions pages for launch.</span></button>
+        <button type="button" data-v2-apply="responsive-sweep"><strong>Responsive sweep</strong><span>Fix long text, motion and mobile layout risk.</span></button>
+        <button type="button" data-v2-apply="accessibility-sweep"><strong>Accessibility pass</strong><span>Alt text, labels and heading metadata.</span></button>
+        <button type="button" data-v2-apply="customer-dashboard"><strong>Prepare customer dashboard</strong><span>Status, next actions and support route.</span></button>
+      </div>
       <div class="pbi-builder-v2-director">
         <textarea id="pbiSiteDirectorPrompt" class="textarea" placeholder="Example: mobile mechanic in Poole, urgent callouts, quote requests, trust proof, service area and simple booking route."></textarea>
         <div class="pbi-builder-v2-director-controls">
@@ -584,6 +925,7 @@
             <option value="courses">Course signups</option>
           </select>
           <button type="button" data-v2-apply="full-site">Generate full site</button>
+          <button type="button" data-v2-apply="feature-from-prompt">Build feature</button>
           <button type="button" data-v2-apply="redesign">Redesign page</button>
           <button type="button" data-v2-apply="brand">Apply brand everywhere</button>
         </div>
@@ -671,10 +1013,17 @@
           if (action === 'publish') preparePublish();
           if (action === 'full-site') generateFullSite();
           if (action === 'redesign') redesignCurrentPage();
+          if (action === 'feature-from-prompt') buildFeatureFromPrompt();
           if (action === 'brand') applyBrandEverywhere();
           if (action === 'business-app') addBusinessApp();
           if (action === 'mobile') tuneMobile();
           if (action === 'audit') auditAndFixBasics();
+          if (action === 'harmony-autopilot') harmonyAutopilot();
+          if (action === 'business-system') installBusinessSystem();
+          if (action === 'local-seo-pages') addLocalSeoPages();
+          if (action === 'responsive-sweep') responsiveSweep();
+          if (action === 'accessibility-sweep') accessibilitySweep();
+          if (action === 'customer-dashboard') prepareCustomerDashboard();
           if (action === 'selected-improve') improveSelectedSection();
           if (action === 'selected-premium') premiumSelectedSection();
           if (action === 'selected-convert') conversionSelectedSection();
@@ -696,6 +1045,17 @@
     });
     document.addEventListener('click', () => window.setTimeout(refreshSelectedLabel, 100), true);
     window.addEventListener('pbi:builder-v2-updated', refreshSelectedLabel);
+    window.addEventListener('pbi:goose-command', (event) => {
+      const command = event.detail?.command;
+      if (command === 'autopilot') harmonyAutopilot();
+      if (command === 'business-system') installBusinessSystem();
+      if (command === 'local-seo') addLocalSeoPages();
+      if (command === 'responsive') responsiveSweep();
+      if (command === 'accessibility') accessibilitySweep();
+      if (command === 'feature') buildFeatureFromPrompt();
+      if (command === 'dashboard') prepareCustomerDashboard();
+      refreshSelectedLabel();
+    });
   }
 
   function ready() {

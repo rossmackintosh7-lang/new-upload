@@ -146,6 +146,10 @@ function blockImage(block = {}, env = {}) {
   return assetUrl(block.image || block.backgroundImage || block.media?.url || block.photo || '', env);
 }
 
+function imageAlt(block = {}, fallback = 'Business image') {
+  return plainText(block.imageAlt || block.alt || block.media?.alt || block.title || fallback);
+}
+
 function listItems(block = {}) {
   const raw = block.items || block.services || block.features || block.steps || block.faqs || block.products || block.gallery || [];
   if (!Array.isArray(raw)) return [];
@@ -163,7 +167,8 @@ function renderButton(block = {}) {
   const label = plainText(block.button || block.buttonText || block.cta || block.ctaText || block.action || '');
   if (!label) return '';
   const href = String(block.href || block.url || block.link || '#contact').trim() || '#contact';
-  return `<a class="pbi-site-btn" href="${esc(href)}">${esc(label)}</a>`;
+  const aria = block.buttonAriaLabel ? ` aria-label="${esc(plainText(block.buttonAriaLabel))}"` : '';
+  return `<a class="pbi-site-btn" href="${esc(href)}"${aria}>${esc(label)}</a>`;
 }
 
 function renderCards(items, env) {
@@ -200,7 +205,7 @@ function renderBlock(block = {}, index = 0, env = {}) {
         ${text ? `<p class="pbi-site-lede">${esc(text)}</p>` : ''}
         ${button}
       </div>
-      ${image ? `<img class="pbi-site-hero-image" src="${esc(image)}" alt="${esc(title || 'Business image')}">` : ''}
+      ${image ? `<img class="pbi-site-hero-image" src="${esc(image)}" alt="${esc(imageAlt(block, title || 'Business image'))}">` : ''}
     </section>`;
   }
 
@@ -211,7 +216,7 @@ function renderBlock(block = {}, index = 0, env = {}) {
       ${text ? `<p>${esc(text)}</p>` : ''}
       ${button}
     </div>
-    ${image ? `<img class="pbi-site-wide-image" src="${esc(image)}" alt="${esc(title || 'Business image')}" loading="lazy">` : ''}
+    ${image ? `<img class="pbi-site-wide-image" src="${esc(image)}" alt="${esc(imageAlt(block, title || 'Business image'))}" loading="lazy">` : ''}
     ${renderCards(items, env)}
   </section>`;
 }

@@ -24,7 +24,8 @@
   const GOOSE_PROMPTS = {
     missing: 'Review this PBI canvas project and tell me the most important things missing before launch. Focus on content, SEO, trust, conversion, domain and publish readiness.',
     seo: 'Suggest stronger local SEO improvements for this PBI canvas project, including title, meta description, useful sections and local landing page ideas.',
-    assisted: 'Should this PBI project stay self-serve, use Assisted Setup, or move to a custom build? Give a practical recommendation and why.'
+    assisted: 'Should this PBI project stay self-serve, use Assisted Setup, or move to a custom build? Give a practical recommendation and why.',
+    harmony: 'Compare this PBI project to a top AI website builder launch experience. Tell me the exact missing pieces Goose should apply next: business system, mobile, SEO pages, domains, proof, dashboard or Assisted Setup.'
   };
 
   function readState() {
@@ -82,6 +83,40 @@
       (state.seo?.title && state.seo?.description) ||
       (state.page_main_heading && state.sub_heading) ||
       (state.pages?.home?.title && state.pages?.home?.body)
+    );
+  }
+
+  function hasResponsiveSystem(state) {
+    const blocks = allBlocks(state);
+    return Boolean(
+      state.responsive_system_applied_at ||
+      state.mobile_polish_applied_at ||
+      (blocks.length && blocks.every((block) => block.visibility && block.positionMode !== 'free'))
+    );
+  }
+
+  function hasImages(state) {
+    const heroBlocks = allBlocks(state).filter((block) => ['hero', 'splitHero', 'gallery'].includes(block.type));
+    if (!heroBlocks.length) return false;
+    return heroBlocks.some((block) => block.image || block.images?.length || state.heroImage);
+  }
+
+  function hasBusinessSystem(state) {
+    return Boolean(state.business_os?.installed_at || state.business_os?.primary_app || (Array.isArray(state.business_apps) && state.business_apps.length));
+  }
+
+  function hasAccessibilitySystem(state) {
+    return Boolean(
+      state.accessibility_checked_at ||
+      allBlocks(state).some((block) => block.imageAlt || block.buttonAriaLabel || block.accessibility_checked_at)
+    );
+  }
+
+  function hasAssistedRoute(state) {
+    const blocks = allBlocks(state);
+    return Boolean(
+      state.assisted_setup_nudge ||
+      blocks.some((block) => /assisted setup|custom build|pbi for help/i.test(`${block.title || ''} ${block.text || ''} ${block.button || ''}`))
     );
   }
 
@@ -145,6 +180,46 @@
         tab: 'domain'
       },
       {
+        key: 'business-system',
+        label: 'Business system',
+        ok: hasBusinessSystem(state),
+        detail: 'Top builders ship with useful business flows, not just page sections.',
+        action: 'Install business system',
+        command: 'business-system'
+      },
+      {
+        key: 'responsive',
+        label: 'Responsive system',
+        ok: hasResponsiveSystem(state),
+        detail: 'The project needs a mobile/tablet pass for long text, motion, visibility and flow.',
+        action: 'Responsive sweep',
+        command: 'responsive'
+      },
+      {
+        key: 'accessibility',
+        label: 'Accessibility pass',
+        ok: hasAccessibilitySystem(state),
+        detail: 'Top builders help with alt text, button labels, heading clarity and accessible publishing basics.',
+        action: 'Accessibility pass',
+        command: 'accessibility'
+      },
+      {
+        key: 'images',
+        label: 'Real images',
+        ok: hasImages(state),
+        detail: 'Pages need specific real-life images rather than generic placeholders.',
+        action: 'Open media',
+        tab: 'media'
+      },
+      {
+        key: 'support-route',
+        label: 'Help route',
+        ok: hasAssistedRoute(state),
+        detail: 'PBI should gently surface Assisted Setup or custom build help when needed.',
+        action: 'Prepare dashboard',
+        command: 'dashboard'
+      },
+      {
         key: 'launch',
         label: 'Publish route',
         ok: Boolean(state.plan || state.package || localStorage.getItem('pbi_plan')),
@@ -176,6 +251,12 @@
       custom_domain: state.custom_domain || state.domain_registration?.name || '',
       readiness: assessment
     };
+  }
+
+  function runGooseCommand(command) {
+    window.dispatchEvent(new CustomEvent('pbi:goose-command', { detail: { command } }));
+    setStatus(`Goose command started: ${command.replace(/-/g, ' ')}`);
+    window.setTimeout(() => refresh(), 500);
   }
 
   function mount() {
@@ -214,8 +295,22 @@
             <button type="button" data-v2-goose="missing">What is missing?</button>
             <button type="button" data-v2-goose="seo">SEO next move</button>
             <button type="button" data-v2-goose="assisted">Self-serve or help?</button>
+            <button type="button" data-v2-goose="harmony">Compete with Harmony</button>
           </div>
           <div class="pbi-builder-v2-goose-reply" data-v2-goose-reply>Goose is ready when you need a second pair of eyes.</div>
+        </article>
+
+        <article class="pbi-builder-v2-card pbi-builder-v2-agent-mode">
+          <h2>Goose action mode</h2>
+          <p>Use these when you want the builder to behave more like a launch agent than a blank editor.</p>
+          <div class="pbi-builder-v2-command-list">
+            <button type="button" data-v2-command="autopilot"><strong>Make launch-ready</strong><span>Business system, SEO pages, mobile, proof and publish prep.</span></button>
+            <button type="button" data-v2-command="business-system"><strong>Add business system</strong><span>Quote, booking, shop, course or service-area flow.</span></button>
+            <button type="button" data-v2-command="feature"><strong>Build feature from prompt</strong><span>Turn the Goose brief into the closest business module.</span></button>
+            <button type="button" data-v2-command="local-seo"><strong>Add local SEO pages</strong><span>Service area and questions pages with enquiry route.</span></button>
+            <button type="button" data-v2-command="responsive"><strong>Fix responsive risk</strong><span>Shorten text, tame motion and protect mobile layout.</span></button>
+            <button type="button" data-v2-command="accessibility"><strong>Accessibility pass</strong><span>Fill alt text, labels and heading metadata.</span></button>
+          </div>
         </article>
 
         <article class="pbi-builder-v2-card">
@@ -300,6 +395,7 @@
     else if (check.tab) openTab(check.tab);
     else if (check.domAction) runDomAction(check.domAction);
     else if (check.goose) askGoose(check.goose);
+    else if (check.command) runGooseCommand(check.command);
   }
 
   function renderAssessment(shell, state, assessment) {
@@ -393,9 +489,14 @@
       button.addEventListener('click', () => askGoose(button.dataset.v2Goose));
     });
 
+    $$('[data-v2-command]', shell).forEach((button) => {
+      button.addEventListener('click', () => runGooseCommand(button.dataset.v2Command));
+    });
+
     document.addEventListener('click', () => window.setTimeout(() => refresh(shell), 150), true);
     document.addEventListener('input', () => window.setTimeout(() => refresh(shell), 220), true);
     window.addEventListener('storage', () => refresh(shell));
+    window.addEventListener('pbi:builder-v2-updated', () => refresh(shell));
     window.setInterval(() => refresh(shell), 4500);
   }
 
