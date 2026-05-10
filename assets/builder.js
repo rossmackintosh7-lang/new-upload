@@ -238,7 +238,7 @@
   function domainStatusText(domain) {
     if (domain?.available === true) return `Available • ${formatDomainPrice(domain)}`;
     if (domain?.available === false) return domain.message || 'Already registered';
-    return domain?.message || 'Manual review required';
+    return domain?.message || 'Automatic registrar confirmation after checkout';
   }
 
   function domainCanBeSaved(domain) {
@@ -249,15 +249,16 @@
   }
 
   function normaliseSelectedDomain(domain) {
-    const manualReview = domain.available !== true;
+    const status = String(domain.status || '').toLowerCase();
+    const blocked = domain.available === false || ['invalid', 'registered', 'taken', 'unavailable'].includes(status);
     return {
       ...domain,
-      available: domain.available === true ? true : null,
-      status: manualReview ? (domain.status || 'manual_review') : (domain.status || 'available'),
-      requires_manual_review: manualReview,
-      message: manualReview
-        ? (domain.message || 'Could not confirm automatically. PBI will review this domain manually before registration.')
-        : (domain.message || 'Available')
+      available: blocked ? false : true,
+      status: blocked ? (domain.status || 'invalid') : (status === 'manual_review' ? 'saved_for_registration' : (domain.status || 'saved_for_registration')),
+      requires_manual_review: false,
+      message: blocked
+        ? (domain.message || 'This domain cannot be registered.')
+        : (domain.message || 'Saved for automatic registrar check after checkout.')
     };
   }
 
@@ -285,7 +286,7 @@
       : '<p class="muted">No automatically registrable suggestions came back. Try another name or extension.</p>';
 
     const hasSelectable = domainCanBeSaved(requested) || suggestions.some((domain) => domainCanBeSaved(domain));
-    setDomainHtml(`${requestedHtml}${suggestionsHtml}<p class="small-note muted">Selecting or reviewing a domain saves it against this project. Confirmed domains can go to the Domain Registration Agent after checkout; manual-review domains are queued for PBI to check before registration.</p>`, hasSelectable ? 'success' : 'info');
+    setDomainHtml(`${requestedHtml}${suggestionsHtml}<p class="small-note muted">Choosing a domain saves it against this project. The domain price is added at checkout, then the Domain Registration Agent completes the final registrar check after payment.</p>`, hasSelectable ? 'success' : 'info');
 
     els.domainResult.querySelectorAll('.domainSelectBtn').forEach((button) => {
       button.addEventListener('click', () => {
@@ -303,7 +304,7 @@
 
         syncStateToInputs();
         renderPreview();
-        setDomainMessage(`${state.domainRegistration.name} selected${state.domainRegistration.requires_manual_review ? ' for PBI confirmation' : ''}. Save the project, then continue to payment when ready.`, 'success');
+        setDomainMessage(`${state.domainRegistration.name} selected for automatic registration after checkout. Save the project, then continue to payment when ready.`, 'success');
       });
     });
   }

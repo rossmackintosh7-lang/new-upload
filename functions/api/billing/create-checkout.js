@@ -16,17 +16,16 @@ function normaliseCheckoutDomain(domain, fallbackName = '') {
   if (!name) return null;
 
   const blocked = domain?.available === false || domain?.status === 'invalid';
-  const manualReview = domain?.available !== true;
   return {
     ...(domain || {}),
     name,
-    available: domain?.available === true ? true : null,
-    status: manualReview ? (domain?.status || 'manual_review') : (domain?.status || 'available'),
-    requires_manual_review: manualReview,
+    available: blocked ? domain?.available : true,
+    status: blocked ? (domain?.status || 'invalid') : (domain?.status === 'manual_review' ? 'saved_for_registration' : (domain?.status || 'saved_for_registration')),
+    requires_manual_review: false,
     checkout_blocked: blocked,
-    message: manualReview
-      ? (domain?.message || 'This domain is saved for PBI confirmation before registration.')
-      : (domain?.message || 'Available')
+    message: blocked
+      ? (domain?.message || 'This domain cannot be registered.')
+      : (domain?.message || 'Saved for automatic registration after checkout.')
   };
 }
 
@@ -124,7 +123,7 @@ export async function onRequestPost({ request, env }) {
   ).slice(0, 253);
 
   if (domainOption === 'register_new' && !canCheckoutWithDomain(selectedDomainRegistration)) {
-    return error('Choose and save an available or manually confirmable domain before registering a new domain at checkout.', 400);
+    return error('Choose and save a domain before registering a new domain at checkout.', 400);
   }
 
   const selectedDomainBilling = selectedDomainRegistration?.name

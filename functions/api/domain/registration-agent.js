@@ -73,17 +73,18 @@ async function confirmDomainAvailable(domainName) {
   const rdapRegistered = rdap.ok && rdap.status !== 404;
   const dnsAnswers = Array.isArray(dns.body?.Answer) ? dns.body.Answer.filter(Boolean) : [];
   const dnsChecked = dns.ok || Number.isInteger(dns.body?.Status);
-  const available = rdapAvailable && dnsChecked && dnsAnswers.length === 0;
+  const dnsClear = dnsChecked && dnsAnswers.length === 0;
+  const available = (rdapAvailable && dnsClear) || (!rdapRegistered && dnsClear);
 
   return {
     available,
     checked_at: new Date().toISOString(),
-    confidence: available ? 'high' : 'manual',
+    confidence: rdapAvailable && dnsClear ? 'high' : (available ? 'medium' : 'provider_final_check'),
     rdap_status: rdap.status,
     dns_status: dns.body?.Status ?? null,
     dns_answer_count: dnsAnswers.length,
     message: available
-      ? 'Final public RDAP and DNS checks still show the domain as available.'
+      ? 'Final public checks passed for automatic registration handoff.'
       : (rdapRegistered || dnsAnswers.length ? 'The domain now appears to be registered or active in DNS.' : 'The agent could not safely reconfirm availability.')
   };
 }
@@ -238,6 +239,13 @@ async function submitAutomaticRegistration(env, payload, domain) {
   return callRegistrationWebhook(env, payload);
 }
 
+function registrarAutomationConfigured(env = {}) {
+  return Boolean(
+    String(env.DOMAIN_REGISTRATION_AGENT_URL || env.DOMAIN_REGISTRATION_WEBHOOK_URL || '').trim() ||
+    (autoRegisterEnabled(env) && cloudflareRegistrarConfigured(env))
+  );
+}
+
 async function queueSupportRequest(env, { project, user, domain, agent }) {
   const id = crypto.randomUUID();
   const message = `Domain registration required for ${domain.name}. Status: ${agent.status}.`;
@@ -323,21 +331,29 @@ export async function onRequestPost({ request, env }) {
 
   const domain = selectedDomain(body, data, project);
   if (!domain.name) return error('No selected domain was found for this project.');
-  let manualRegistrationOnly = domain.available !== true || domain.requires_manual_review === true || domain.status === 'manual_review';
+  const automaticConfigured = registrarAutomationConfigured(env);
+  let manualRegistrationOnly = domain.available === false || ['invalid', 'registered', 'taken'].includes(String(domain.status || '').toLowerCase());
   if (manualRegistrationOnly) {
     domain.available = null;
     domain.status = domain.status || 'manual_review';
     domain.requires_manual_review = true;
-    domain.message = domain.message || 'This domain could not be confirmed automatically and needs PBI manual review before registration.';
+    domain.message = domain.message || 'This domain could not be confirmed by the registrar and needs PBI review before registration.';
   } else {
     const availability = await confirmDomainAvailable(domain.name);
     domain.availability_confirmation = availability;
-    if (!availability.available) {
+    if (!availability.available && !automaticConfigured) {
       manualRegistrationOnly = true;
       domain.available = null;
       domain.status = 'manual_review';
       domain.requires_manual_review = true;
-      domain.message = 'The final availability check could not confirm this domain, so it has been queued for manual review before registration.';
+      domain.message = 'The final availability check could not confirm this domain, so it has been queued for registrar review before registration.';
+    } else {
+      domain.available = true;
+      domain.status = availability.available ? 'available' : 'automatic_final_check_pending';
+      domain.requires_manual_review = false;
+      domain.message = availability.available
+        ? availability.message
+        : 'Automatic registrar workflow will run the final provider check before purchase.';
     }
   }
   domain.requires_final_confirmation = !manualRegistrationOnly;
@@ -408,10 +424,10 @@ export async function onRequestPost({ request, env }) {
     order_id: registration.order_id || orderPayload.order_id,
     registrar: registration.registrar || '',
     message: manualRegistrationOnly
-      ? 'This domain needs manual review before registration. It has been saved and queued for PBI to check.'
+      ? 'This domain needs PBI review before registration. It has been saved for follow-up.'
       : (registration.configured
-      ? (registration.ok ? registration.message : `${registration.message}. A manual registration task has been queued.`)
-      : 'No automatic registrar is configured for this domain yet, so this has been queued for manual registration.'),
+      ? (registration.ok ? registration.message : `${registration.message}. A registrar follow-up task has been queued.`)
+      : 'No automatic registrar is configured for this domain yet, so this has been saved for registrar follow-up.'),
     webhook_response: registration.response || null
   };
 

@@ -474,17 +474,17 @@
   }
 
   function domainStatusLabel(domain){
-    if (domain?.available === true) return "Available";
-    if (domain?.available === false) return "Taken";
+    if (domain?.available === true) return domain?.source === "cloudflare_registrar" ? "Registrar checked" : "Auto checked";
+    if (domain?.available === false) return "Unavailable";
     if (domain?.status === "invalid") return "Invalid";
-    return "Manual check";
+    return "Auto final check";
   }
 
   function domainStatusClass(domain){
     if (domain?.available === true) return "available";
     if (domain?.available === false) return "taken";
     if (domain?.status === "invalid") return "invalid";
-    return "review";
+    return "available";
   }
 
   function domainCanBeSaved(domain){
@@ -495,23 +495,32 @@
   }
 
   function normaliseSelectedDomain(domain){
-    const manualReview = domain.available !== true;
+    const status = String(domain.status || "").toLowerCase();
+    const blocked = domain.available === false || ["invalid", "registered", "taken", "unavailable"].includes(status);
     return {
       ...domain,
-      available: domain.available === true ? true : null,
-      status: manualReview ? (domain.status || "manual_review") : (domain.status || "available"),
-      requires_manual_review: manualReview,
-      message: manualReview
-        ? (domain.message || "Could not confirm automatically. PBI will confirm this domain before registration.")
-        : (domain.message || "Available")
+      available: blocked ? false : true,
+      status: blocked ? (domain.status || "invalid") : (status === "manual_review" ? "saved_for_registration" : (domain.status || "saved_for_registration")),
+      requires_manual_review: false,
+      message: blocked
+        ? (domain.message || "This domain cannot be registered.")
+        : (domain.message || "Saved for automatic registrar check after checkout.")
     };
   }
 
   function domainCardMessage(domain){
-    if (domain?.available === true) return domain.message || "Available for registration. Save it to this project before checkout.";
+    if (domain?.available === true) return domain.message || "Automatic pre-check passed. Save it to add the domain price at checkout.";
     if (domain?.available === false) return "Already registered or unavailable.";
     if (domain?.status === "invalid") return domain.message || "Enter a valid domain name.";
-    return "Could not confirm automatically. Save it for PBI confirmation before registration.";
+    return "Save this domain for automatic registrar confirmation after checkout.";
+  }
+
+  function domainConfidenceLabel(domain){
+    const confidence = String(domain?.confidence || "").toLowerCase();
+    if (confidence === "high") return "high confidence";
+    if (confidence === "medium") return "medium confidence";
+    if (confidence === "low") return "low confidence";
+    return "registrar final check";
   }
 
   function renderDomainCard(domain, featured=false){
@@ -524,7 +533,7 @@
         <div>
           <strong>${esc(domain.name)}</strong>
           <span>${esc(domainCardMessage(domain))}</span>
-          <small>${esc(domainPriceLabel(domain))} · ${esc(domain.confidence || "manual")} confidence</small>
+          <small>${esc(domainPriceLabel(domain))} · ${esc(domainConfidenceLabel(domain))}</small>
         </div>
         <div class="pbi-domain-card-actions">
           <span class="pbi-domain-state">${esc(domainStatusLabel(domain))}</span>
@@ -560,7 +569,7 @@
       current.innerHTML = `
         <strong>${esc(domainModeLabel(mode))}</strong>
         <span>${selectedName ? esc(selectedName) : "No custom domain selected yet"}</span>
-        ${activeDomain?.name ? `<small>${esc(activeDomain.requires_manual_review ? "PBI confirmation before registration" : domainPriceLabel(activeDomain))}</small>` : ""}
+        ${activeDomain?.name ? `<small>${esc(domainPriceLabel(activeDomain))} · automatic registrar check after payment</small>` : ""}
         <div class="pbi-domain-current-actions">
           ${pending ? `<button class="btn" id="canvasDomainSaveBtn" type="button">Save selected domain</button>` : ""}
           ${saved && !pending ? `<span class="pbi-domain-saved-note">Saved to project</span>` : ""}
@@ -646,7 +655,7 @@
   }
 
   function selectCheckedDomain(domain){
-    if (!domainCanBeSaved(domain)) return setStatus("Choose an available or manually confirmable domain");
+    if (!domainCanBeSaved(domain)) return setStatus("Choose an available domain");
     const selectedDomain = normaliseSelectedDomain(domain);
     snapshot();
     state.pending_domain_registration = selectedDomain;

@@ -187,10 +187,11 @@
   function directorBrief() {
     const brief = $('#pbiSiteDirectorPrompt')?.value.trim() || '';
     const basic = briefValues();
+    const state = readState();
     const parts = [
       brief,
-      basic.business ? `Business: ${basic.business}` : '',
-      basic.location ? `Area: ${basic.location}` : '',
+      basic.business ? `Business: ${basic.business}` : `Business: ${businessName(state)}`,
+      basic.location ? `Area: ${basic.location}` : (state.location ? `Area: ${state.location}` : ''),
       `Goal: ${$('#pbiSiteDirectorGoal')?.value || basic.goal}`,
       `Tone: ${basic.tone}`
     ].filter(Boolean);
@@ -376,19 +377,31 @@
   function wire(panel) {
     $$('[data-v2-apply]', panel).forEach((button) => {
       button.addEventListener('click', () => {
+        if (button.dataset.busy === '1') return;
         const action = button.dataset.v2Apply;
-        if (action === 'brief') applyBrief();
-        if (action === 'homepage') prepareHomepage();
-        if (action === 'seo') writeSeoBasics();
-        if (action === 'faq') addFaq();
-        if (action === 'publish') preparePublish();
-        if (action === 'full-site') generateFullSite();
-        if (action === 'redesign') redesignCurrentPage();
-        if (action === 'brand') applyBrandEverywhere();
-        if (action === 'business-app') addBusinessApp();
-        if (action === 'mobile') tuneMobile();
-        if (action === 'audit') auditAndFixBasics();
-        window.dispatchEvent(new CustomEvent('pbi:builder-v2-action', { detail: { action } }));
+        button.dataset.busy = '1';
+        button.disabled = true;
+        try {
+          if (action === 'brief') applyBrief();
+          if (action === 'homepage') prepareHomepage();
+          if (action === 'seo') writeSeoBasics();
+          if (action === 'faq') addFaq();
+          if (action === 'publish') preparePublish();
+          if (action === 'full-site') generateFullSite();
+          if (action === 'redesign') redesignCurrentPage();
+          if (action === 'brand') applyBrandEverywhere();
+          if (action === 'business-app') addBusinessApp();
+          if (action === 'mobile') tuneMobile();
+          if (action === 'audit') auditAndFixBasics();
+          window.dispatchEvent(new CustomEvent('pbi:builder-v2-action', { detail: { action } }));
+        } catch (err) {
+          flash(err?.message || 'That action could not be applied.');
+        } finally {
+          window.setTimeout(() => {
+            button.dataset.busy = '0';
+            button.disabled = false;
+          }, 350);
+        }
       });
     });
   }

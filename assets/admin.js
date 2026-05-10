@@ -518,7 +518,7 @@
 
     if (customDomain) customDomain.value = domain.name || '';
     if (domainOption) domainOption.value = 'register_new';
-    if (status) status.value = domain.available === true ? 'available_checked' : 'manual_review';
+    if (status) status.value = domain.available === false || domain.status === 'invalid' ? 'needs_attention' : 'saved_for_automatic_registration';
     if (message) message.value = domain.message || '';
 
     if (jsonBox) {
@@ -527,7 +527,7 @@
         data.domain_option = 'register_new';
         data.custom_domain = domain.name || '';
         data.domain_registration = domain;
-        data.domain_registration_status = domain.available === true ? 'available_checked' : 'manual_review';
+        data.domain_registration_status = domain.available === false || domain.status === 'invalid' ? 'needs_attention' : 'saved_for_automatic_registration';
         data.domain_registration_message = domain.message || '';
         jsonBox.value = JSON.stringify(data, null, 2);
       } catch {

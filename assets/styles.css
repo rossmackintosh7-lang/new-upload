@@ -1175,3 +1175,98 @@ body.pbi-pricing-cohesion-page .pbi-pricing-page .section:first-of-type{
     grid-template-columns: 1fr;
   }
 }
+
+/* Homepage template cards: stop the legacy grid link rule from turning
+   nested action buttons into giant cards. */
+body.pbi-home-page .pbi-home-template-showcase{
+  position: relative;
+  z-index: 1;
+}
+body.pbi-home-page .pbi-home-template-grid{
+  align-items: stretch;
+}
+body.pbi-home-page .pbi-home-template-grid .pbi-premium-template-card{
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  overflow: hidden;
+  border-radius: 24px;
+  background: rgba(255,250,245,.9);
+  border: 1px solid rgba(105,74,49,.16);
+  box-shadow: 0 14px 45px rgba(98,50,26,.08);
+}
+body.pbi-home-page .pbi-home-template-grid .pbi-premium-template-image{
+  display: block;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+}
+body.pbi-home-page .pbi-home-template-grid .pbi-premium-template-image img{
+  width: 100%;
+  height: 100%;
+  min-height: 0 !important;
+  object-fit: cover;
+  display: block;
+}
+body.pbi-home-page .pbi-home-template-grid .pbi-premium-template-copy{
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px;
+}
+body.pbi-home-page .pbi-home-template-grid .pbi-premium-template-copy h2{
+  font-family: Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size: clamp(34px,3.2vw,54px);
+  line-height: .94;
+  letter-spacing: -.06em;
+  margin: 0;
+}
+body.pbi-home-page .pbi-home-template-grid .pbi-premium-template-copy p:not(.eyebrow){
+  margin: 0;
+  color: #4f3a2e;
+  line-height: 1.45;
+}
+body.pbi-home-page .pbi-home-template-grid .pbi-premium-template-copy > .row{
+  display: grid !important;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 10px;
+  align-items: stretch;
+  margin-top: auto;
+}
+body.pbi-home-page .pbi-home-template-grid .pbi-premium-template-copy > .row .btn,
+body.pbi-home-page .pbi-home-template-grid .pbi-premium-template-copy > .row .btn-ghost{
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  padding: 12px 14px !important;
+  border-radius: 999px !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  white-space: nowrap;
+  overflow: visible !important;
+}
+body.pbi-home-page .pbi-home-template-grid .pbi-premium-template-copy > .row .btn-ghost{
+  background: rgba(255,250,245,.86) !important;
+  border: 1px solid rgba(138,67,29,.18) !important;
+  box-shadow: none !important;
+  color: var(--pbi-text,#2f1b12) !important;
+}
+body.pbi-home-page .pbi-home-template-grid .pbi-premium-template-copy > .row .btn{
+  background: linear-gradient(135deg,var(--pbi-orange,#c86f3d),#a64e21) !important;
+  border: 1px solid transparent !important;
+  box-shadow: 0 12px 24px rgba(170,82,31,.18) !important;
+  color: #fffaf5 !important;
+}
+
+@media(max-width:520px){
+  body.pbi-home-page .pbi-home-template-grid .pbi-premium-template-copy > .row{
+    grid-template-columns: 1fr;
+  }
+}

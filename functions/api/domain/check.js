@@ -180,14 +180,14 @@ function registrarAvailability(item = {}) {
   }
 
   if (supported === false || reason.includes('unsupported') || reason.includes('not_supported') || reason.includes('not supported')) {
-    return { available: null, status: 'manual_review', confidence: 'manual', registrable: false, premium, reason };
+    return { available: null, status: 'provider_final_check_required', confidence: 'final_check', registrable: false, premium, reason };
   }
 
   if ((direct === true || registrable === true) && registrable !== false && !premium) {
     return { available: true, status: 'available', confidence: 'high', registrable: true, premium, reason };
   }
 
-  return { available: null, status: premium ? 'manual_review' : 'manual_review', confidence: 'manual', registrable: false, premium, reason };
+  return { available: null, status: 'provider_final_check_required', confidence: premium ? 'premium_final_check' : 'final_check', registrable: false, premium, reason };
 }
 
 async function lookupCloudflareRegistrar(domain, env) {
@@ -238,6 +238,10 @@ async function fetchJson(url, options = {}, timeoutMs = 4500) {
 
 async function lookupRdap(domain) {
   const endpoints = [`https://rdap.org/domain/${encodeURIComponent(domain)}`];
+  const suffix = suffixKey(domain);
+  if (suffix === 'uk' || suffix.endsWith('.uk')) {
+    endpoints.push(`https://rdap.nominet.uk/uk/domain/${encodeURIComponent(domain)}`);
+  }
   if (isAuDomain(domain)) endpoints.push(`https://rdap.cctld.au/rdap/domain/${encodeURIComponent(domain)}`);
 
   let last = null;
@@ -292,10 +296,11 @@ async function lookupDns(domain) {
 }
 
 function resultMessage({ available, rdap, dns }) {
-  if (available === true) return 'Looks available from live RDAP and DNS checks. Final registrar confirmation happens at checkout.';
+  if (available === true && rdap?.registered === false && dns?.checked) return 'Automatic live checks show this domain is available. The dynamic first-year price can be added at checkout.';
+  if (available === true) return 'Automatic public pre-check passed. The registrar agent will run the final purchase check after payment.';
   if (available === false && rdap?.registered) return 'Already registered according to live RDAP records.';
   if (available === false && dns?.has_records) return 'Already has live DNS records, so treat it as taken or owned elsewhere.';
-  return 'Could not confirm automatically. Save it for PBI confirmation before registration.';
+  return 'Automatic pre-check could not complete from the public records, but the registrar agent will complete the final check after checkout.';
 }
 
 async function checkOne(domain, env) {
@@ -339,8 +344,8 @@ async function checkOne(domain, env) {
 
   const [rdap, dns] = await Promise.all([lookupRdap(domain), lookupDns(domain)]);
   let available = null;
-  let status = 'manual_review';
-  let confidence = 'manual';
+  let status = 'provider_final_check_required';
+  let confidence = 'final_check';
 
   if (rdap.registered === true || dns.has_records) {
     available = false;
@@ -353,6 +358,10 @@ async function checkOne(domain, env) {
   } else if (rdap.registered === false) {
     available = true;
     status = 'available';
+    confidence = 'medium';
+  } else if (dns.checked && !dns.has_records && pricingFor(domain, env).registration_cost) {
+    available = true;
+    status = 'available_public_check';
     confidence = 'medium';
   }
 
@@ -374,7 +383,7 @@ async function checkOne(domain, env) {
       premium: Boolean(registrar.premium),
       reason: registrar.reason || registrar.error || ''
     } : null,
-    automation_supported: available === true && !registrarUnsupported,
+    automation_supported: available === true,
     requires_final_confirmation: available === true
   };
 }
