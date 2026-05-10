@@ -2,6 +2,7 @@ import { ensureCoreTables } from '../../_lib/auth.js';
 import { validateProjectForPublish, cleanPlan } from '../../_lib/package-rules.js';
 import { createAdminNotification, ensurePbiOpsTables, uniqueSlug } from '../admin/_shared.js';
 import { runDomainRegistrationWorkflow } from '../domain/registration-agent.js';
+import { takeProjectDown } from './_cancellation.js';
 
 function parseData(project) {
   try {
@@ -249,13 +250,26 @@ export async function syncStripeBillingStatus(env, { subscription = '', customer
   const where = sub ? 'stripe_subscription_id = ?' : 'stripe_customer_id = ?';
   const value = sub || cust;
   const project = await env.DB.prepare(`
-    SELECT id, user_id, name
+    SELECT id, user_id, name, status, published, billing_status, data_json
     FROM projects
     WHERE ${where}
     LIMIT 1
   `).bind(value).first();
 
   if (!project) return { ok: true, skipped: true, message: 'No matching project for billing sync.' };
+
+  if (billingStatus === 'cancelled' || published === false) {
+    await takeProjectDown(env, project, eventType || 'stripe');
+    await createAdminNotification(env, {
+      type: 'stripe_billing',
+      title: 'Website taken down after subscription cancellation',
+      message: `${project.name || project.id} has been unpublished because Stripe reported the subscription as cancelled${eventType ? ` from ${eventType}` : ''}.`,
+      priority: 'high',
+      project_id: project.id,
+      body: { subscription: sub, customer: cust, billing_status: 'cancelled', event_type: eventType, public_site_status: 'suspended' }
+    });
+    return { ok: true, project_id: project.id, billing_status: 'cancelled', published: false, suspended: true };
+  }
 
   const publishSql = published === null ? '' : ', published = ?, status = ?';
   const bindValues = published === null

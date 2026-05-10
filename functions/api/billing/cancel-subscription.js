@@ -1,11 +1,10 @@
 import { json, error, readBody, getUserFromSession } from '../projects/_shared.js';
+import { takeProjectDown } from './_cancellation.js';
 
 function parseJson(value, fallback = {}) {
   try { return typeof value === 'string' ? JSON.parse(value || '{}') : (value || fallback); }
   catch { return fallback; }
 }
-
-function stringify(value) { try { return JSON.stringify(value || {}); } catch { return '{}'; } }
 
 async function cancelStripeSubscription(env, subscriptionId) {
   if (!subscriptionId) return { skipped: true, reason: 'No Stripe subscription id stored.' };
@@ -18,39 +17,6 @@ async function cancelStripeSubscription(env, subscriptionId) {
   const result = await response.json().catch(() => ({}));
   if (!response.ok) return { ok: false, error: result.error?.message || `Stripe cancellation failed with status ${response.status}.` };
   return { ok: true, subscription: result };
-}
-
-async function takeProjectDown(env, project, cancelledBy = 'customer') {
-  const data = parseJson(project.data_json, {});
-  const now = new Date().toISOString();
-  const nextData = {
-    ...data,
-    website_subscription_status: 'cancelled',
-    stripe_subscription_status: 'cancelled',
-    cancelled_at: now,
-    cancelled_by: cancelledBy,
-    service_stopped: true,
-    service_stopped_at: now,
-    domain_management: data.domain_management
-      ? { ...data.domain_management, status: 'cancelled', active: false, cancelled_at: now }
-      : data.domain_management
-  };
-
-  await env.DB.prepare(`
-    UPDATE projects
-    SET billing_status = 'cancelled', published = 0, status = 'cancelled', data_json = ?, updated_at = datetime('now')
-    WHERE id = ?
-  `).bind(stringify(nextData), project.id).run();
-
-  try {
-    await env.DB.prepare(`UPDATE project_canvas SET status = 'cancelled', published_json = NULL, updated_at = datetime('now') WHERE project_id = ?`).bind(project.id).run();
-  } catch (_) {}
-
-  try {
-    await env.DB.prepare(`UPDATE project_cms_entries SET status = 'draft', updated_at = datetime('now') WHERE project_id = ?`).bind(project.id).run();
-  } catch (_) {}
-
-  return nextData;
 }
 
 export async function onRequestPost({ request, env }) {

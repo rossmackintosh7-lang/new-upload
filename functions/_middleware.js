@@ -1,3 +1,5 @@
+import { findProjectByCustomDomain, isPbiPlatformHost, renderProjectResponse } from './_lib/site-renderer.js';
+
 const SEO_HOME_SECTION = `
 <section class="section pbi-google-seo-section" id="google-seo-ready">
   <div class="container two-column">
@@ -68,9 +70,22 @@ function shouldLoadSecretAgent(pathname) {
   return pathname.startsWith('/dashboard/') || pathname.startsWith('/admin/') || pathname.startsWith('/projects/') || pathname.startsWith('/canvas-builder/');
 }
 
+async function maybeServeCustomerDomain(context, url) {
+  if (!context.env?.DB || isPbiPlatformHost(url.hostname)) return null;
+  if (url.pathname.startsWith('/assets/') || url.pathname.startsWith('/api/') || url.pathname === '/favicon.ico') return null;
+
+  const project = await findProjectByCustomDomain(context.env, url.hostname);
+  if (!project) return null;
+  return renderProjectResponse(project, context.env);
+}
+
 export async function onRequest(context) {
-  const response = await context.next();
   const url = new URL(context.request.url);
+
+  const customerDomainResponse = await maybeServeCustomerDomain(context, url);
+  if (customerDomainResponse) return customerDomainResponse;
+
+  const response = await context.next();
   const contentType = response.headers.get('content-type') || '';
 
   if (!contentType.includes('text/html')) {
