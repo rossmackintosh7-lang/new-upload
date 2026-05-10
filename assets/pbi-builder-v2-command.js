@@ -16,6 +16,8 @@
     { type: 'testimonial', label: 'Testimonial', note: 'Adds third-party confidence' },
     { type: 'faq', label: 'FAQ', note: 'Handles hesitation before enquiry' },
     { type: 'booking', label: 'Booking CTA', note: 'Makes the next step obvious' },
+    { type: 'quoteForm', label: 'Quote flow', note: 'Collects job details and urgency' },
+    { type: 'map', label: 'Service area', note: 'Clarifies local coverage' },
     { type: 'retail', label: 'Retail strip', note: 'Product-led route for shops' }
   ];
 
@@ -185,13 +187,13 @@
     const shell = document.createElement('section');
     shell.id = 'pbiBuilderV2Command';
     shell.className = 'pbi-builder-v2-command';
-    shell.setAttribute('aria-label', 'Builder V2 launch command centre');
+    shell.setAttribute('aria-label', 'Builder launch command centre');
     shell.innerHTML = `
       <div class="pbi-builder-v2-head">
         <div>
-          <p class="eyebrow">Builder V2</p>
+          <p class="eyebrow">Builder V3</p>
           <h1>Launch command centre</h1>
-          <p>PBI should help local businesses actually launch, not just design. Use this layer to add missing sections, ask Goose, check domains, save and publish from one place.</p>
+          <p>PBI should help local businesses actually launch, not just design. Add missing sections, ask Goose, tune selected blocks, check domains, save and publish from one place.</p>
         </div>
         <div class="pbi-builder-v2-score" aria-live="polite">
           <strong data-v2-score>0%</strong>

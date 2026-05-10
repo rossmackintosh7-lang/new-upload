@@ -70,7 +70,121 @@
     if (goal === 'bookings') return { action: 'book', noun: 'booking', cta: 'Book now' };
     if (goal === 'calls') return { action: 'call', noun: 'call', cta: 'Call today' };
     if (goal === 'shop') return { action: 'buy', noun: 'order', cta: 'Shop now' };
+    if (goal === 'courses') return { action: 'sign up', noun: 'signup', cta: 'Join a programme' };
     return { action: 'enquire', noun: 'enquiry', cta: 'Enquire today' };
+  }
+
+  const SMART_SECTIONS = {
+    'service-area': {
+      type: 'map',
+      title: 'Areas we cover',
+      text: 'Local customers | Nearby towns | Clear response expectations',
+      button: 'Check availability',
+      layout: 'spotlight'
+    },
+    'social-proof': {
+      type: 'reviews',
+      title: 'Proof before pressure',
+      text: 'Clear communication | Helpful advice | Easy next steps',
+      layout: 'cards'
+    },
+    'comparison': {
+      type: 'featureGrid',
+      title: 'Why choose this route',
+      text: 'Clear offer :: Visitors understand what is available quickly | Useful proof :: Trust is visible before the enquiry | Simple action :: One obvious next step',
+      layout: 'bento'
+    },
+    'offer-strip': {
+      type: 'salesBanner',
+      title: 'Ready to get started this week?',
+      text: 'Use this section for availability, a seasonal offer or a practical next step.',
+      button: 'Ask now',
+      layout: 'strip'
+    },
+    'local-seo': {
+      type: 'services',
+      title: 'Useful local services',
+      text: 'Main service near you | Fast enquiry route | Clear local support',
+      layout: 'cards'
+    },
+    'assisted-route': {
+      type: 'cta',
+      title: 'Need help finishing this properly?',
+      text: 'Assisted Setup can polish wording, pages, images, domains and launch readiness before the site goes live.',
+      button: 'Ask PBI for help',
+      layout: 'centered'
+    }
+  };
+
+  const APP_PRESETS = {
+    quote: {
+      blocks: ['quoteForm', 'services', 'faq'],
+      title: 'Quote request flow',
+      text: 'Collect the job details, location and timing so customers get a clear reply.',
+      button: 'Request a quote'
+    },
+    bookings: {
+      blocks: ['booking', 'hours', 'map'],
+      title: 'Booking flow',
+      text: 'Show availability, opening times and a simple appointment route.',
+      button: 'Book now'
+    },
+    shop: {
+      blocks: ['productGrid', 'retail', 'pricing'],
+      title: 'Shop starter flow',
+      text: 'Feature products, collections and a clear checkout path.',
+      button: 'Shop now'
+    },
+    courses: {
+      blocks: ['courseList', 'booking', 'faq'],
+      title: 'Programme signup flow',
+      text: 'Show sessions, expectations and a consultation or signup route.',
+      button: 'Join a programme'
+    },
+    proof: {
+      blocks: ['reviews', 'beforeAfter', 'stats'],
+      title: 'Proof stack',
+      text: 'Show reviews, results and confidence signals before asking people to enquire.',
+      button: 'See proof'
+    },
+    menu: {
+      blocks: ['services', 'hours', 'booking'],
+      title: 'Menu and reservation flow',
+      text: 'Show popular choices, opening times and an obvious table booking route.',
+      button: 'Book a table'
+    },
+    'service-area': {
+      blocks: ['map', 'stats', 'quoteForm'],
+      title: 'Service area flow',
+      text: 'Make coverage, response expectations and the enquiry route obvious.',
+      button: 'Check my area'
+    }
+  };
+
+  function truncate(value, max) {
+    const text = String(value || '').replace(/\s+/g, ' ').trim();
+    if (text.length <= max) return text;
+    return `${text.slice(0, max - 1).replace(/\s+\S*$/, '')}.`;
+  }
+
+  function selectedBlock() {
+    return api()?.getSelectedBlock?.() || null;
+  }
+
+  function updateSelected(mutator, status) {
+    const builder = api();
+    const block = selectedBlock();
+    if (!builder?.updateSelectedBlock || !block) {
+      flash('Select a section on the canvas first, then run this action.');
+      return false;
+    }
+    builder.updateSelectedBlock(mutator, status);
+    return true;
+  }
+
+  function selectedSectionLabel(block) {
+    if (!block) return 'No section selected';
+    return `${block.title || block.type || 'Selected section'} (${block.type || 'section'})`;
   }
 
   function applyBrief() {
@@ -107,6 +221,126 @@
       }
     }, 'Site brief applied');
     flash('Site brief applied. The hero, SEO basics and domain suggestion now follow that direction.');
+  }
+
+  function improveSelectedSection() {
+    const block = selectedBlock();
+    const brief = briefValues();
+    const goal = goalCopy($('#pbiSiteDirectorGoal')?.value || brief.goal);
+    const ok = updateSelected((target, state) => {
+      const name = brief.business || businessName(state);
+      const location = brief.location || state.location || '';
+      target.animation = target.animation && target.animation !== 'none' ? target.animation : 'rise';
+      target.padding = target.padding || 'comfortable';
+      target.align = target.align || 'left';
+
+      if (['hero', 'splitHero'].includes(target.type)) {
+        target.eyebrow = location ? `${location} local service` : 'Local business website';
+        target.title = truncate(`${name} helps customers ${goal.action} with confidence.`, 76);
+        target.text = truncate(`A clearer website section with useful proof, simple next steps and a direct ${goal.noun} route.`, 150);
+        target.button = goal.cta;
+        target.layout = target.layout === 'fullBleed' ? 'fullBleed' : 'split';
+      } else if (target.type === 'services') {
+        target.title = 'Services made easy to choose';
+        target.text = 'Clear main service | Helpful guidance | Simple next step';
+        target.layout = 'cards';
+      } else if (['quoteForm', 'booking', 'contact', 'cta'].includes(target.type)) {
+        target.title = `Ready to ${goal.action}?`;
+        target.text = location ? `Send a ${goal.noun} from ${location} and get a clear reply.` : `Send a ${goal.noun} and get a clear reply.`;
+        target.button = goal.cta;
+        target.layout = 'spotlight';
+      } else if (target.type === 'faq') {
+        target.title = 'Useful answers before customers act';
+        target.text = `How do I get started? | Use the ${goal.noun} route and we will confirm the next step. | What areas do you cover? | This page can be tailored around the service area. | Can I ask for help? | Yes, support is available before launch.`;
+        target.layout = 'checklist';
+      } else if (['reviews', 'testimonial', 'trustBand', 'stats'].includes(target.type)) {
+        target.title = 'Proof before pressure';
+        target.text = 'Clear communication | Helpful guidance | Easy next steps';
+        target.layout = target.type === 'testimonial' ? 'spotlight' : 'cards';
+      } else {
+        target.title = truncate(target.title || 'A clearer section', 70);
+        target.text = truncate(target.text || `Use this section to help visitors understand the offer and ${goal.action}.`, 170);
+      }
+      target.ai_improved_at = new Date().toISOString();
+    }, 'Selected section improved');
+    if (ok) flash(`${selectedSectionLabel(block)} improved with clearer copy, CTA and layout.`);
+  }
+
+  function premiumSelectedSection() {
+    const block = selectedBlock();
+    const ok = updateSelected((target, state) => {
+      const accent = state.accent_color || target.accent || '#b76233';
+      const bg = state.background_color || '#fffaf4';
+      target.accent = accent;
+      target.background = ['salesBanner'].includes(target.type) ? accent : (target.background || bg);
+      target.padding = 'spacious';
+      target.animation = ['services', 'reviews', 'featureGrid', 'productGrid'].includes(target.type) ? 'stagger' : 'rise';
+      if (['services', 'featureGrid', 'reviews', 'team', 'productGrid', 'courseList'].includes(target.type)) target.layout = 'bento';
+      else if (['hero', 'splitHero'].includes(target.type)) target.layout = 'image-first';
+      else if (target.type === 'process') target.layout = 'timeline';
+      else if (target.type === 'faq') target.layout = 'checklist';
+      else target.layout = target.layout || 'spotlight';
+      target.premium_polished_at = new Date().toISOString();
+    }, 'Selected section polished');
+    if (ok) flash(`${selectedSectionLabel(block)} now has a stronger premium layout, spacing and motion.`);
+  }
+
+  function conversionSelectedSection() {
+    const block = selectedBlock();
+    const goal = goalCopy($('#pbiSiteDirectorGoal')?.value || briefValues().goal);
+    const ok = updateSelected((target) => {
+      target.title = `Ready to ${goal.action}?`;
+      target.text = `Give visitors one obvious ${goal.noun} route, remove doubt, and make the next step easy.`;
+      target.button = goal.cta;
+      target.layout = ['hero', 'splitHero'].includes(target.type) ? 'split' : 'spotlight';
+      target.animation = 'rise';
+      target.conversion_tuned_at = new Date().toISOString();
+    }, 'Conversion route improved');
+    if (ok) flash(`${selectedSectionLabel(block)} tuned around a clearer ${goal.noun} route.`);
+  }
+
+  function mobileSelectedSection() {
+    const block = selectedBlock();
+    const ok = updateSelected((target) => {
+      target.title = truncate(target.title, 58);
+      target.text = truncate(target.text, 145);
+      if (['hero', 'splitHero'].includes(target.type)) target.layout = 'split';
+      if (target.animation === 'parallax' || target.animation === 'marquee') target.animation = 'rise';
+      target.positionMode = 'flow';
+      target.mobile_polished = true;
+      target.visibility = target.visibility || 'all';
+    }, 'Selected section made mobile-safe');
+    if (ok) {
+      api()?.setDevice?.('mobile');
+      flash(`${selectedSectionLabel(block)} shortened and made safer for mobile preview.`);
+    }
+  }
+
+  function setSelectedVisibility(value) {
+    const block = selectedBlock();
+    const ok = updateSelected((target) => {
+      target.visibility = value;
+    }, value === 'all' ? 'Section visible everywhere' : `Section set to ${value} only`);
+    if (ok) flash(`${selectedSectionLabel(block)} visibility set to ${value === 'all' ? 'all devices' : `${value} only`}.`);
+  }
+
+  function addSmartSection(key) {
+    const section = SMART_SECTIONS[key];
+    const builder = api();
+    if (!section || !builder?.addBlock) return;
+    builder.addBlock(section.type);
+    updateSelected((target, state) => {
+      const brief = briefValues();
+      const name = brief.business || businessName(state);
+      target.title = section.title.replace('this route', name);
+      target.text = section.text;
+      target.button = section.button || target.button || '';
+      target.layout = section.layout || target.layout || 'cards';
+      target.animation = ['reviews', 'featureGrid', 'services'].includes(target.type) ? 'stagger' : 'rise';
+      target.smart_section = key;
+      target.created_by_goose = true;
+    }, 'Smart section added');
+    flash(`${section.title} added to the current page.`);
   }
 
   function prepareHomepage() {
@@ -256,19 +490,23 @@
 
   function addBusinessApp() {
     const appType = $('#pbiBusinessApp')?.value || 'quote';
-    const appBlocks = {
-      quote: ['quoteForm', 'faq'],
-      bookings: ['booking', 'hours'],
-      shop: ['productGrid', 'retail'],
-      courses: ['courseList', 'booking'],
-      proof: ['reviews', 'beforeAfter']
-    }[appType] || ['quoteForm'];
-    appBlocks.forEach(ensureBlock);
-    update((state) => {
+    const app = APP_PRESETS[appType] || APP_PRESETS.quote;
+    app.blocks.forEach(ensureBlock);
+    update((state, context) => {
       state.business_apps = state.business_apps || [];
       if (!state.business_apps.includes(appType)) state.business_apps.push(appType);
+      const current = context.activeBlocks || [];
+      app.blocks.forEach((type, index) => {
+        const block = current.find((item) => item.type === type);
+        if (!block) return;
+        block.title = index === 0 ? app.title : block.title;
+        block.text = index === 0 ? app.text : block.text;
+        block.button = block.button || app.button || '';
+        block.layout = index === 0 ? 'spotlight' : (block.layout || 'cards');
+        block.business_app = appType;
+      });
     }, 'Business app inserted');
-    flash('Business app inserted into the current page.');
+    flash(`${app.title} inserted with supporting sections.`);
   }
 
   function tuneMobile() {
@@ -276,23 +514,40 @@
       Object.values(state.blocksByPage || {}).flat().forEach((block) => {
         if (block.packageLocked) return;
         if (['hero', 'splitHero'].includes(block.type)) block.layout = 'split';
-        if (String(block.title || '').length > 86) block.title = String(block.title).slice(0, 82).replace(/\s+\S*$/, '') + '.';
+        if (String(block.title || '').length > 72) block.title = truncate(block.title, 72);
+        if (String(block.text || '').length > 210) block.text = truncate(block.text, 210);
         if (!block.animation || block.animation === 'parallax') block.animation = 'rise';
+        if (block.positionMode === 'free') block.positionMode = 'flow';
+        block.visibility = block.visibility || 'all';
+        block.mobile_safe = true;
       });
       state.mobile_polish_applied_at = new Date().toISOString();
     }, 'Mobile polish applied');
+    api()?.setDevice?.('mobile');
     flash('Mobile polish applied: shorter headings, safer hero layouts and lighter motion.');
   }
 
   function auditAndFixBasics() {
-    ['trustBand', 'reviews', 'faq', 'contact'].forEach(ensureBlock);
+    ['trustBand', 'reviews', 'faq', 'contact', 'map'].forEach(ensureBlock);
     writeSeoBasics();
-    update((state) => {
+    update((state, context) => {
       if (!state.domain_lookup_input) state.domain_lookup_input = `${cleanSlug(businessName(state))}.co.uk`;
       if (!state.launch_goal) state.launch_goal = $('#pbiSiteDirectorGoal')?.value || briefValues().goal;
+      const current = context.activeBlocks || [];
+      const contact = current.find((block) => ['contact', 'booking', 'quoteForm'].includes(block.type));
+      if (contact) {
+        const goal = goalCopy(state.launch_goal);
+        contact.title = `Ready to ${goal.action}?`;
+        contact.button = goal.cta;
+        contact.layout = contact.layout || 'spotlight';
+      }
+      current.forEach((block) => {
+        if (!block.visibility) block.visibility = 'all';
+        if (!block.animation || block.animation === 'parallax') block.animation = 'rise';
+      });
       state.ai_audit_fixed_at = new Date().toISOString();
     }, 'Audit fixes applied');
-    flash('Audit fixes applied: proof, FAQ, contact route, SEO and domain suggestion checked.');
+    flash('Audit fixes applied: proof, FAQ, contact route, service area, SEO and domain suggestion checked.');
   }
 
   function flash(message) {
@@ -339,11 +594,33 @@
             <option value="shop">Shop flow</option>
             <option value="courses">Course flow</option>
             <option value="proof">Proof stack</option>
+            <option value="menu">Menu / reservations</option>
+            <option value="service-area">Service area</option>
           </select>
           <button type="button" data-v2-apply="business-app">Add business app</button>
           <button type="button" data-v2-apply="mobile">Improve mobile</button>
           <button type="button" data-v2-apply="audit">Audit & fix basics</button>
         </div>
+      </div>
+      <div class="pbi-builder-v2-selected-tools">
+        <div>
+          <p class="eyebrow">Selected section</p>
+          <strong data-v2-selected-label>${esc(selectedSectionLabel(selectedBlock()))}</strong>
+        </div>
+        <button type="button" data-v2-apply="selected-improve">Improve selected</button>
+        <button type="button" data-v2-apply="selected-premium">Premium polish</button>
+        <button type="button" data-v2-apply="selected-convert">Sharpen CTA</button>
+        <button type="button" data-v2-apply="selected-mobile">Mobile safe</button>
+        <button type="button" data-v2-apply="selected-desktop">Desktop only</button>
+        <button type="button" data-v2-apply="selected-show-all">Show all</button>
+      </div>
+      <div class="pbi-builder-v2-smart-sections">
+        ${Object.entries(SMART_SECTIONS).map(([key, section]) => `
+          <button type="button" data-v2-apply="smart-${esc(key)}">
+            <strong>${esc(section.title)}</strong>
+            <span>${esc(section.type)}</span>
+          </button>
+        `).join('')}
       </div>
       <div class="pbi-builder-v2-brief">
         <input id="pbiActionBusiness" class="input" placeholder="Business name" value="${esc(businessName(state) === 'this business' ? '' : businessName(state))}">
@@ -353,6 +630,7 @@
           <option value="bookings">Bookings</option>
           <option value="calls">Phone calls</option>
           <option value="shop">Shop orders</option>
+          <option value="courses">Course signups</option>
         </select>
         <select id="pbiActionTone" class="select">
           <option value="practical">Practical</option>
@@ -375,6 +653,10 @@
   }
 
   function wire(panel) {
+    const refreshSelectedLabel = () => {
+      const label = $('[data-v2-selected-label]', panel);
+      if (label) label.textContent = selectedSectionLabel(selectedBlock());
+    };
     $$('[data-v2-apply]', panel).forEach((button) => {
       button.addEventListener('click', () => {
         if (button.dataset.busy === '1') return;
@@ -393,7 +675,15 @@
           if (action === 'business-app') addBusinessApp();
           if (action === 'mobile') tuneMobile();
           if (action === 'audit') auditAndFixBasics();
+          if (action === 'selected-improve') improveSelectedSection();
+          if (action === 'selected-premium') premiumSelectedSection();
+          if (action === 'selected-convert') conversionSelectedSection();
+          if (action === 'selected-mobile') mobileSelectedSection();
+          if (action === 'selected-desktop') setSelectedVisibility('desktop');
+          if (action === 'selected-show-all') setSelectedVisibility('all');
+          if (action.startsWith('smart-')) addSmartSection(action.replace(/^smart-/, ''));
           window.dispatchEvent(new CustomEvent('pbi:builder-v2-action', { detail: { action } }));
+          refreshSelectedLabel();
         } catch (err) {
           flash(err?.message || 'That action could not be applied.');
         } finally {
@@ -404,6 +694,8 @@
         }
       });
     });
+    document.addEventListener('click', () => window.setTimeout(refreshSelectedLabel, 100), true);
+    window.addEventListener('pbi:builder-v2-updated', refreshSelectedLabel);
   }
 
   function ready() {

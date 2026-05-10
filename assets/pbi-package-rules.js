@@ -110,6 +110,12 @@ window.PBIPackageRules = (() => {
     if (!liveBlocks.some((b) => ['contact','booking'].includes(b.type))) issues.push('Add a contact or booking section before publishing.');
     if (liveBlocks.some((b) => !String(b.title || '').trim())) issues.push('Some live sections have missing titles.');
     if (liveBlocks.some((b) => b.image && !String(b.image).trim())) warnings.push('One or more image fields are blank.');
+    if (!liveBlocks.some((b) => ['services','featureGrid','productGrid','courseList'].includes(b.type))) warnings.push('Add a clear services, products or programmes section.');
+    if (!liveBlocks.some((b) => ['trustBand','reviews','testimonial','stats','beforeAfter'].includes(b.type))) warnings.push('Add visible proof such as reviews, trust signals or results.');
+    if (!liveBlocks.some((b) => ['faq','process'].includes(b.type))) warnings.push('Add FAQ or process content to reduce customer hesitation.');
+    if (!checked.domain_option && !checked.custom_domain && !checked.domain_registration?.name && !checked.subdomain_slug) warnings.push('Choose a domain route before publish.');
+    if ((checked.selected_pages || []).length < 3) warnings.push('A stronger launch usually needs at least home, services and contact pages.');
+    if (liveBlocks.some((b) => ['hero','splitHero'].includes(b.type) && String(b.title || '').length > 82)) warnings.push('Shorten long hero headings so they fit better on mobile.');
     if (!checked.seo?.title && !checked.seo_title) warnings.push('SEO title is missing.');
     if (!checked.seo?.description && !checked.seo_description) warnings.push('SEO description is missing.');
     if (checked.packageWarnings?.length) warnings.push('Package rules were applied before publish.');

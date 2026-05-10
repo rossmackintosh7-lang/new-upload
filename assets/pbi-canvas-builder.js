@@ -276,7 +276,8 @@
     const freeClass = block.positionMode === "free" && isPremium() && !block.packageLocked ? " freeform" : "";
     const lockedClass = block.packageLocked ? " package-locked" : "";
     const layoutClass = ` layout-${classToken(block.layout)}`;
-    const attrs = `class="pbi-canvas-render-block${selectedClass}${freeClass}${lockedClass}${layoutClass}" draggable="${previewMode ? "false" : "true"}" data-block-id="${esc(block.id)}" data-kind="${esc(block.type)}" data-layout="${esc(block.layout || "standard")}" tabindex="0" style="${blockStyle(block)}"`;
+    const visibilityClass = ` visibility-${classToken(block.visibility || "all")}`;
+    const attrs = `class="pbi-canvas-render-block${selectedClass}${freeClass}${lockedClass}${layoutClass}${visibilityClass}" draggable="${previewMode ? "false" : "true"}" data-block-id="${esc(block.id)}" data-kind="${esc(block.type)}" data-layout="${esc(block.layout || "standard")}" data-visibility="${esc(block.visibility || "all")}" tabindex="0" style="${blockStyle(block)}"`;
     const title = esc(block.title);
     const text = esc(block.text);
     const button = esc(block.button || "");
@@ -816,6 +817,7 @@
     $("#inspectorY") && ($("#inspectorY").value = block.y || 40);
     $("#inspectorRotate") && ($("#inspectorRotate").value = block.rotate || 0);
     $("#inspectorZ") && ($("#inspectorZ").value = block.z || 5);
+    $("#inspectorVisibility") && ($("#inspectorVisibility").value = block.visibility || "all");
     renderLayers();
     setStatus("Block selected");
   }
@@ -844,7 +846,8 @@
       x: Number($("#inspectorX")?.value || block.x || 40),
       y: Number($("#inspectorY")?.value || block.y || 40),
       rotate: Number($("#inspectorRotate")?.value || block.rotate || 0),
-      z: Number($("#inspectorZ")?.value || block.z || 5)
+      z: Number($("#inspectorZ")?.value || block.z || 5),
+      visibility: $("#inspectorVisibility")?.value || block.visibility || "all"
     });
     render();
     selectBlock(block.id);
@@ -1494,6 +1497,13 @@
     getActivePage() {
       return activePage;
     },
+    getSelectedBlockId() {
+      return selectedId;
+    },
+    getSelectedBlock() {
+      const block = activeBlocks().find((item) => item.id === selectedId);
+      return block ? JSON.parse(JSON.stringify(block)) : null;
+    },
     addBlock(type) {
       addBlock(type);
       return this.getState();
@@ -1517,6 +1527,29 @@
       setStatus(statusText || "Builder updated");
       window.dispatchEvent(new CustomEvent("pbi:builder-v2-updated", { detail: { state: this.getState() } }));
       return this.getState();
+    },
+    updateSelectedBlock(mutator, statusText) {
+      const block = activeBlocks().find((item) => item.id === selectedId);
+      if (!block || block.packageLocked || typeof mutator !== "function") return this.getState();
+      snapshot();
+      const result = mutator(block, state, {
+        activePage,
+        activeBlocks: activeBlocks(),
+        currentPlan: currentPlan()
+      });
+      if (result) Object.assign(block, result);
+      enforcePlan();
+      persist();
+      render();
+      selectBlock(block.id);
+      setStatus(statusText || "Selected block updated");
+      window.dispatchEvent(new CustomEvent("pbi:builder-v2-updated", { detail: { state: this.getState(), selectedBlock: this.getSelectedBlock() } }));
+      return this.getState();
+    },
+    setDevice(device) {
+      const name = ["desktop", "tablet", "mobile"].includes(String(device)) ? String(device) : "desktop";
+      document.querySelector(`[data-device="${name}"]`)?.click();
+      return name;
     },
     saveProject,
     saveVersion,
