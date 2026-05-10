@@ -19,6 +19,18 @@ Required/optional domain payment env vars:
 
 Important: when `DOMAIN_AUTO_REGISTER=true`, the Domain Registration Agent will attempt to register the selected domain after successful payment/publish. Successful registrations are billable and normally non-refundable.
 
+## Stripe webhook automation
+
+PBI publishes paid projects and starts the domain registration workflow from the Stripe webhook, not just from the browser success page.
+
+Required Stripe setup:
+
+- Add a Stripe webhook endpoint pointing to `https://www.purbeckbusinessinnovations.co.uk/api/billing/webhook`
+- Subscribe it to `checkout.session.completed`, `invoice.paid`, `invoice.payment_failed`, and `customer.subscription.deleted`
+- Add the endpoint signing secret to Cloudflare Pages as `STRIPE_WEBHOOK_SECRET`
+
+The browser payment success page remains as a fallback/status screen, but real provisioning should be driven by the webhook.
+
 
 ## Domain billing env vars
 

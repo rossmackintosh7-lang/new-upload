@@ -181,7 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function publishAfterPayment() {
     if (!projectId) return;
-    showMessage('Checking payment and publishing your website...', 'info');
+    showMessage('Payment received. PBI is checking the automatic publish and domain registration workflow...', 'info');
 
     try {
       const data = await api('/api/projects/publish', { method: 'POST', body: JSON.stringify({ project_id: projectId, plan: selectedPlan, stripe_session_id: stripeSessionId, domain_option: selectedDomainOption() }) });
@@ -200,7 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function runDomainRegistrationAgent(liveUrl) {
     const domain = selectedDomainRegistration();
-    showMessage(`Your website is live: ${liveUrl}. Starting Domain Registration Agent for ${domain.name}...`, 'info');
+    showMessage(`Your website is live: ${liveUrl}. Checking automatic registration for ${domain.name}...`, 'info');
     try {
       const result = await api('/api/domain/registration-agent', {
         method: 'POST',
@@ -214,7 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       const suffix = result.actual_purchase_attempted
         ? 'The domain registration automation has been started.'
-        : 'The domain registration has been queued because the registrar connection still needs attention.';
+        : 'The domain registration request is saved for the registrar workflow.';
       showMessage(`Your website is live: ${liveUrl}. ${suffix} ${result.message || ''}`.trim(), 'success');
     } catch (error) {
       showMessage(`Your website is live: ${liveUrl}. Domain registration still needs attention: ${error.message || 'Domain agent could not start.'}`, 'error');

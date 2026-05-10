@@ -186,10 +186,12 @@ export async function onRequestPost({ request, env }) {
   params.append('metadata[user_id]', auth.user.id);
   params.append('metadata[plan]', plan);
   params.append('metadata[domain_option]', domainOption);
+  params.append('metadata[pbi_auto_provision]', 'true');
   params.append('subscription_data[metadata][project_id]', projectId);
   params.append('subscription_data[metadata][user_id]', auth.user.id);
   params.append('subscription_data[metadata][plan]', plan);
   params.append('subscription_data[metadata][domain_option]', domainOption);
+  params.append('subscription_data[metadata][pbi_auto_provision]', 'true');
   if (selectedDomainRegistration?.name) {
     params.append('metadata[domain_name]', selectedDomainRegistration.name);
     params.append('metadata[domain_registration_amount_minor]', String(selectedDomainBilling?.amount_minor || ''));

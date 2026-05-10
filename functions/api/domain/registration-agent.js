@@ -252,7 +252,7 @@ async function queueSupportRequest(env, { project, user, domain, agent }) {
   await env.DB.prepare(`
     INSERT INTO support_requests (id, project_id, user_id, email, type, message, status, body_json, created_at, updated_at)
     VALUES (?, ?, ?, ?, 'domain_registration', ?, 'new', ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-  `).bind(id, project.id, user.id, user.email || '', message, JSON.stringify({ domain, agent })).run();
+  `).bind(id, project.id, user?.id || project.user_id || '', user?.email || '', message, JSON.stringify({ domain, agent })).run();
   return id;
 }
 
@@ -268,7 +268,7 @@ async function updateProject(env, project, data, domain, agent, stripe = {}) {
     domain_management: {
       ...(data.domain_management || {}),
       status: agent.status,
-      active: ['registration_in_progress', 'submitted_to_registration_agent', 'queued_for_manual_registration'].includes(agent.status),
+      active: ['registration_in_progress', 'submitted_to_registration_agent', 'queued_for_registrar_follow_up', 'registered', 'completed'].includes(agent.status),
       domain_name: domain.name,
       agent_order_id: agent.order_id || '',
       current_period_start: new Date().toISOString()
@@ -300,53 +300,68 @@ async function updateProject(env, project, data, domain, agent, stripe = {}) {
   return nextData;
 }
 
-export async function onRequestPost({ request, env }) {
+function domainAgentAlreadyStarted(data, domainName) {
+  const agent = data.domain_registration_agent || {};
+  const status = String(agent.status || data.domain_registration_status || '').toLowerCase();
+  const sameDomain = cleanDomain(agent.domain_name || data.domain_registration?.name || data.custom_domain || '') === cleanDomain(domainName);
+  const activeStatuses = new Set([
+    'registration_in_progress',
+    'submitted_to_registration_agent',
+    'registered',
+    'completed'
+  ]);
+
+  return sameDomain && (agent.actual_purchase_attempted || agent.order_id) && activeStatuses.has(status);
+}
+
+export async function runDomainRegistrationWorkflow(env, { project, user = {}, body = {}, data: suppliedData = null, stripe: suppliedStripe = null, skipPaymentCheck = false } = {}) {
+  if (!project?.id) throw new Error('Project is required.');
   await ensureCoreTables(env);
   await ensurePbiOpsTables(env);
-  const auth = await requireUser(env, request);
-  if (!auth.ok) return auth.response;
 
-  const body = await request.json().catch(() => ({}));
-  const projectId = String(body.project_id || body.project || '').trim();
-  if (!projectId) return error('Project id is required.');
-
-  const project = await env.DB.prepare(`
-    SELECT id, user_id, name, billing_status, domain_option, custom_domain, data_json, stripe_session_id, stripe_customer_id, stripe_subscription_id
-    FROM projects
-    WHERE id = ? AND user_id = ?
-    LIMIT 1
-  `).bind(projectId, auth.user.id).first();
-  if (!project) return error('Project not found.', 404);
-
-  const data = parseData(project);
+  const data = suppliedData || parseData(project);
   const domainOption = String(body.domain_option || data.domain_option || project.domain_option || '').trim();
   if (domainOption !== 'register_new') {
-    return json({
+    return {
       ok: true,
       skipped: true,
       status: 'not_required',
       message: 'Domain Registration Agent only runs when the project is set to register a new domain.'
-    });
+    };
   }
 
   const domain = selectedDomain(body, data, project);
-  if (!domain.name) return error('No selected domain was found for this project.');
+  if (!domain.name) throw new Error('No selected domain was found for this project.');
+
+  if (domainAgentAlreadyStarted(data, domain.name)) {
+    const agent = data.domain_registration_agent || {};
+    return {
+      ok: true,
+      skipped: true,
+      domain: data.domain_registration || domain,
+      agent,
+      actual_purchase_attempted: Boolean(agent.actual_purchase_attempted),
+      registrar_connected: Boolean(agent.registrar_connected),
+      message: agent.message || 'Domain registration has already been started for this project.'
+    };
+  }
+
   const automaticConfigured = registrarAutomationConfigured(env);
   let manualRegistrationOnly = domain.available === false || ['invalid', 'registered', 'taken'].includes(String(domain.status || '').toLowerCase());
   if (manualRegistrationOnly) {
     domain.available = null;
-    domain.status = domain.status || 'manual_review';
+    domain.status = domain.status || 'registrar_follow_up';
     domain.requires_manual_review = true;
-    domain.message = domain.message || 'This domain could not be confirmed by the registrar and needs PBI review before registration.';
+    domain.message = domain.message || 'This domain needs registrar follow-up before registration.';
   } else {
     const availability = await confirmDomainAvailable(domain.name);
     domain.availability_confirmation = availability;
     if (!availability.available && !automaticConfigured) {
       manualRegistrationOnly = true;
       domain.available = null;
-      domain.status = 'manual_review';
+      domain.status = 'registrar_follow_up';
       domain.requires_manual_review = true;
-      domain.message = 'The final availability check could not confirm this domain, so it has been queued for registrar review before registration.';
+      domain.message = 'The final availability check could not confirm this domain, so it has been queued for registrar follow-up before registration.';
     } else {
       domain.available = true;
       domain.status = availability.available ? 'available' : 'automatic_final_check_pending';
@@ -358,28 +373,28 @@ export async function onRequestPost({ request, env }) {
   }
   domain.requires_final_confirmation = !manualRegistrationOnly;
 
-  let stripe = { active: isPaid(project), session_id: String(body.stripe_session_id || project.stripe_session_id || '') };
-  if (!stripe.active && stripe.session_id) {
+  let stripe = suppliedStripe || { active: isPaid(project), session_id: String(body.stripe_session_id || project.stripe_session_id || '') };
+  if (!skipPaymentCheck && !stripe.active && stripe.session_id) {
     const verified = await verifyStripeCheckout(env, stripe.session_id, project.id);
-    if (verified.error) return error(verified.error, 400);
+    if (verified.error) throw new Error(verified.error);
     stripe = { ...stripe, ...verified, session_id: stripe.session_id };
   }
 
   const requiresPayment = String(env.PBI_REQUIRE_PAYMENT_TO_PUBLISH || 'true').toLowerCase() !== 'false';
   if (requiresPayment && !stripe.active) {
-    return json({
+    return {
       ok: false,
       payment_required: true,
       status: 'waiting_for_payment',
       message: 'Payment must be active before the Domain Registration Agent can start.'
-    }, 402);
+    };
   }
 
   const orderPayload = {
     order_id: crypto.randomUUID(),
     project_id: project.id,
     project_name: project.name,
-    customer_email: auth.user.email || '',
+    customer_email: user?.email || '',
     domain,
     domain_billing: domain.checkout_pricing || data.domain_billing || null,
     live_url: body.live_url || data.live_url || '',
@@ -399,9 +414,9 @@ export async function onRequestPost({ request, env }) {
     } else if (registrarCheck.checked && registrarCheck.unavailable) {
       manualRegistrationOnly = true;
       domain.available = null;
-      domain.status = 'manual_review';
+      domain.status = 'registrar_follow_up';
       domain.requires_manual_review = true;
-      domain.message = 'The final registrar check says this domain is no longer available, so PBI must review it before registration.';
+      domain.message = 'The final registrar check says this domain is no longer available, so the registrar workflow has been stopped for follow-up.';
     } else if (registrarCheck.checked) {
       domain.cloudflare_registrable = false;
     }
@@ -418,39 +433,69 @@ export async function onRequestPost({ request, env }) {
     requested_at: orderPayload.requested_at,
     registrar_connected: automaticSubmitted,
     actual_purchase_attempted: automaticSubmitted,
-    status: manualRegistrationOnly ? 'queued_for_manual_registration' : (registration.configured
-      ? (registration.ok ? (registration.registrar === 'cloudflare' ? 'registration_in_progress' : 'submitted_to_registration_agent') : 'automation_failed_manual_queue')
-      : 'queued_for_manual_registration'),
+    status: manualRegistrationOnly ? 'queued_for_registrar_follow_up' : (registration.configured
+      ? (registration.ok ? (registration.registrar === 'cloudflare' ? 'registration_in_progress' : 'submitted_to_registration_agent') : 'automation_failed_registrar_follow_up')
+      : 'queued_for_registrar_follow_up'),
     order_id: registration.order_id || orderPayload.order_id,
     registrar: registration.registrar || '',
     message: manualRegistrationOnly
-      ? 'This domain needs PBI review before registration. It has been saved for follow-up.'
+      ? 'This domain needs registrar follow-up before registration. It has been saved for follow-up.'
       : (registration.configured
       ? (registration.ok ? registration.message : `${registration.message}. A registrar follow-up task has been queued.`)
       : 'No automatic registrar is configured for this domain yet, so this has been saved for registrar follow-up.'),
     webhook_response: registration.response || null
   };
 
-  const requestId = await queueSupportRequest(env, { project, user: auth.user, domain, agent });
+  const requestId = await queueSupportRequest(env, { project, user, domain, agent });
   agent.support_request_id = requestId;
   await createAdminNotification(env, {
     type: 'domain_registration',
     title: registration.ok ? 'Domain registration automation started' : 'Domain registration needs action',
     message: `${domain.name} for ${project.name || project.id}: ${agent.message}`,
     priority: registration.ok ? 'normal' : 'high',
-    customer_email: auth.user.email || '',
+    customer_email: user?.email || '',
     project_id: project.id,
     request_id: requestId,
     body: { domain, agent }
   });
   await updateProject(env, project, data, domain, agent, stripe);
 
-  return json({
+  return {
     ok: true,
     domain,
     agent,
     actual_purchase_attempted: agent.actual_purchase_attempted,
     registrar_connected: agent.registrar_connected,
     message: agent.message
-  });
+  };
+}
+
+export async function onRequestPost({ request, env }) {
+  await ensureCoreTables(env);
+  await ensurePbiOpsTables(env);
+  const auth = await requireUser(env, request);
+  if (!auth.ok) return auth.response;
+
+  const body = await request.json().catch(() => ({}));
+  const projectId = String(body.project_id || body.project || '').trim();
+  if (!projectId) return error('Project id is required.');
+
+  const project = await env.DB.prepare(`
+    SELECT id, user_id, name, billing_status, domain_option, custom_domain, data_json, stripe_session_id, stripe_customer_id, stripe_subscription_id
+    FROM projects
+    WHERE id = ? AND user_id = ?
+    LIMIT 1
+  `).bind(projectId, auth.user.id).first();
+  if (!project) return error('Project not found.', 404);
+
+  try {
+    const result = await runDomainRegistrationWorkflow(env, {
+      project,
+      user: auth.user,
+      body
+    });
+    return json(result, result.payment_required ? 402 : 200);
+  } catch (err) {
+    return error(err?.message || 'Domain Registration Agent could not start.', 400);
+  }
 }
