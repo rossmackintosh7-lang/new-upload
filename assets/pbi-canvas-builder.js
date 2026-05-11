@@ -452,8 +452,15 @@
     }
     const result = rules.checklist ? rules.checklist(state) : { ok:true, issues:[], warnings:[], score:100 };
     box.innerHTML = `
-      <div><strong>Launch readiness: ${result.score || 100}%</strong><span>${result.ok ? "Ready for payment check" : "Needs attention before publish"}</span></div>
-      <button type="button" class="btn-ghost" id="pbiRunChecklistBtn">Run checklist</button>
+      <div class="pbi-readiness-score">
+        <strong>${result.score || 100}%</strong>
+        <span>${result.ok ? "Ready" : "Check"}</span>
+      </div>
+      <div class="pbi-readiness-copy">
+        <strong>Launch readiness</strong>
+        <span>${result.ok ? "Ready for payment check" : "Needs attention before publish"}</span>
+      </div>
+      <button type="button" class="btn-ghost" id="pbiRunChecklistBtn">Checklist</button>
     `;
     $("#pbiRunChecklistBtn")?.addEventListener("click", () => showChecklist(result));
   }

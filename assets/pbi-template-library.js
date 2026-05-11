@@ -1,7 +1,6 @@
 (function(){
   const presets = window.PBITemplatePresets?.all?.() || [];
   const grid = document.getElementById('templateGrid');
-  if(!grid) return;
 
   const esc = (value) => String(value || '').replace(/[&<>"']/g, (char) => ({
     '&': '&amp;',
@@ -10,6 +9,34 @@
     '"': '&quot;',
     "'": '&#039;'
   }[char]));
+
+  function canvasUrlFor(id) {
+    return `/canvas-builder/?preset=${encodeURIComponent(id)}&template=${encodeURIComponent(id)}`;
+  }
+
+  function signupUrlFor(id) {
+    const next = canvasUrlFor(id);
+    return `/signup/?template_preset=${encodeURIComponent(id)}&next=${encodeURIComponent(next)}`;
+  }
+
+  async function routeTemplateUse(event, id) {
+    event.preventDefault();
+    localStorage.setItem('pbi_selected_template', id);
+    const target = canvasUrlFor(id);
+    const link = event.currentTarget;
+    const original = link.textContent;
+    link.textContent = 'Opening...';
+
+    try {
+      const response = await fetch('/api/auth/me', { credentials: 'include' });
+      const data = await response.json().catch(() => ({}));
+      window.location.href = data.authenticated ? target : signupUrlFor(id);
+    } catch (_) {
+      window.location.href = signupUrlFor(id);
+    } finally {
+      link.textContent = original;
+    }
+  }
 
   function card(p){
     const img = p.heroImage || (p.galleryImages && p.galleryImages[0]) || '/assets/demo-media/cafe-hero.jpg';
@@ -22,7 +49,7 @@
       .map((key) => p.pages?.[key]?.label || key)
       .slice(0, 5)
       .join(' / ');
-    const templateUrl = `/canvas-builder/?preset=${encodeURIComponent(p.id)}&template=${encodeURIComponent(p.id)}`;
+    const templateUrl = canvasUrlFor(p.id);
     const route = p.route || '/examples/';
     return `
       <article class="pbi-premium-template-card" data-category="${esc(cat)}">
@@ -47,9 +74,14 @@
       </article>`;
   }
 
-  grid.innerHTML = presets.map(card).join('') || '<article class="pbi-project-card"><h3>No templates found</h3><p>Open a blank canvas instead.</p><a class="btn" href="/canvas-builder/">Open Canvas Builder</a></article>';
+  if (grid) {
+    grid.innerHTML = presets.map(card).join('') || '<article class="pbi-project-card"><h3>No templates found</h3><p>Open a blank canvas instead.</p><a class="btn" href="/canvas-builder/">Open Canvas Builder</a></article>';
+  }
+
   document.querySelectorAll('[data-use-template]').forEach((a) => {
-    a.addEventListener('click', () => localStorage.setItem('pbi_selected_template', a.dataset.useTemplate));
+    if (a.dataset.templateRouteBound) return;
+    a.dataset.templateRouteBound = '1';
+    a.addEventListener('click', (event) => routeTemplateUse(event, a.dataset.useTemplate));
   });
   document.querySelectorAll('#templateFilters [data-filter]').forEach((btn) => {
     btn.addEventListener('click', () => {

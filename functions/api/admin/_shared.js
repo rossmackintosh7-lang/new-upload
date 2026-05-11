@@ -111,6 +111,8 @@ export async function ensurePbiOpsTables(env) {
   await env.DB.prepare(`CREATE TABLE IF NOT EXISTS project_sections (id TEXT PRIMARY KEY,project_id TEXT NOT NULL,section_order INTEGER DEFAULT 0,section_type TEXT NOT NULL,title TEXT,text TEXT,button TEXT,image TEXT,layout TEXT DEFAULT 'standard',background TEXT DEFAULT '#fff8f1',accent TEXT DEFAULT '#bf5c29',padding TEXT DEFAULT 'comfortable',align TEXT DEFAULT 'left',hidden INTEGER DEFAULT 0,body_json TEXT,created_at TEXT DEFAULT CURRENT_TIMESTAMP,updated_at TEXT DEFAULT CURRENT_TIMESTAMP)`).run();
   await env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_project_sections_project_id ON project_sections(project_id)`).run();
   await env.DB.prepare(`CREATE TABLE IF NOT EXISTS admin_audit_log (id TEXT PRIMARY KEY,admin_email TEXT,action TEXT NOT NULL,project_id TEXT,request_id TEXT,body_json TEXT,created_at TEXT DEFAULT CURRENT_TIMESTAMP)`).run();
+  await env.DB.prepare(`CREATE TABLE IF NOT EXISTS admin_coupons (id TEXT PRIMARY KEY,stripe_coupon_id TEXT,stripe_promotion_code_id TEXT,code TEXT UNIQUE,name TEXT,percent_off REAL,amount_off INTEGER,currency TEXT,duration TEXT,duration_in_months INTEGER,max_redemptions INTEGER,redeem_by TEXT,created_by TEXT,body_json TEXT,created_at TEXT DEFAULT CURRENT_TIMESTAMP)`).run();
+  await env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_admin_coupons_created_at ON admin_coupons(created_at)`).run();
 }
 
 export async function createAdminNotification(env, payload = {}) {

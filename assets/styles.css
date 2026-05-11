@@ -1973,11 +1973,67 @@ body.pbi-canvas-page .pbi-canvas-inspector h2{
   top:70px;
   right:18px;
   z-index:150;
-  width:min(360px,calc(100vw - 110px));
-  border-radius:12px;
-  background:rgba(255,255,255,.95);
+  width:min(318px,calc(100vw - 110px));
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr) auto;
+  align-items:center;
+  gap:10px;
+  padding:10px;
+  border-radius:14px;
+  background:rgba(255,255,255,.98);
   border:1px solid var(--pbi-editor-border);
   box-shadow:0 12px 34px rgba(15,23,42,.13);
+}
+#pbiReadinessBox .pbi-readiness-score{
+  display:grid;
+  place-items:center;
+  min-width:58px;
+  min-height:50px;
+  border-radius:12px;
+  background:#eef7ed;
+  color:#345f31;
+  border:1px solid #cfe5cc;
+}
+#pbiReadinessBox .pbi-readiness-score strong,
+#pbiReadinessBox .pbi-readiness-score span,
+#pbiReadinessBox .pbi-readiness-copy strong,
+#pbiReadinessBox .pbi-readiness-copy span{
+  display:block;
+  margin:0;
+  line-height:1.1;
+  letter-spacing:0;
+}
+#pbiReadinessBox .pbi-readiness-score strong{
+  font-size:18px;
+  font-weight:950;
+}
+#pbiReadinessBox .pbi-readiness-score span{
+  font-size:10px;
+  font-weight:950;
+  text-transform:uppercase;
+}
+#pbiReadinessBox .pbi-readiness-copy{
+  min-width:0;
+}
+#pbiReadinessBox .pbi-readiness-copy strong{
+  color:var(--pbi-editor-text);
+  font-size:13px;
+  font-weight:950;
+}
+#pbiReadinessBox .pbi-readiness-copy span{
+  color:var(--pbi-editor-muted);
+  font-size:12px;
+  font-weight:800;
+}
+#pbiReadinessBox #pbiRunChecklistBtn{
+  min-height:34px!important;
+  padding:8px 10px!important;
+  border-radius:8px!important;
+  background:#fff!important;
+  color:var(--pbi-editor-text)!important;
+  border:1px solid var(--pbi-editor-border)!important;
+  box-shadow:none!important;
+  font:900 12px/1 Inter,ui-sans-serif,system-ui!important;
 }
 body.pbi-preview-mode .pbi-wix-side-rail,
 body.pbi-preview-mode .pbi-wix-floating-toolbar,
