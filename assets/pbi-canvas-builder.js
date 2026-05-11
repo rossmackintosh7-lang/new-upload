@@ -277,7 +277,7 @@
     const lockedClass = block.packageLocked ? " package-locked" : "";
     const layoutClass = ` layout-${classToken(block.layout)}`;
     const visibilityClass = ` visibility-${classToken(block.visibility || "all")}`;
-    const attrs = `class="pbi-canvas-render-block${selectedClass}${freeClass}${lockedClass}${layoutClass}${visibilityClass}" draggable="${previewMode ? "false" : "true"}" data-block-id="${esc(block.id)}" data-kind="${esc(block.type)}" data-layout="${esc(block.layout || "standard")}" data-visibility="${esc(block.visibility || "all")}" tabindex="0" style="${blockStyle(block)}"`;
+    const attrs = `class="pbi-canvas-render-block${selectedClass}${freeClass}${lockedClass}${layoutClass}${visibilityClass}" draggable="${previewMode || freeClass ? "false" : "true"}" data-block-id="${esc(block.id)}" data-kind="${esc(block.type)}" data-layout="${esc(block.layout || "standard")}" data-visibility="${esc(block.visibility || "all")}" tabindex="0" style="${blockStyle(block)}"`;
     const title = esc(block.title);
     const text = esc(block.text);
     const button = esc(block.button || "");
@@ -327,19 +327,21 @@
 
   function renderPages(){
     const list = $("#canvasPagesList");
-    if (!list) return;
     const locked = state.lockedPages || [];
-    list.innerHTML = [
-      ...state.selected_pages.map(key => `<button type="button" class="${key===activePage ? "active" : ""}" data-page="${esc(key)}">${esc(state.pages?.[key]?.label || key)}</button>`),
-      ...locked.map(key => `<button type="button" class="pbi-locked" title="Upgrade package to unlock this page">${esc(state.pages?.[key]?.label || key)} 🔒</button>`)
-    ].join("");
-    $$("button[data-page]", list).forEach(btn => {
-      btn.addEventListener("click", () => {
-        activePage = btn.dataset.page;
-        selectedId = null;
-        render();
+    if (list) {
+      list.innerHTML = [
+        ...state.selected_pages.map(key => `<button type="button" class="${key===activePage ? "active" : ""}" data-page="${esc(key)}">${esc(state.pages?.[key]?.label || key)}</button>`),
+        ...locked.map(key => `<button type="button" class="pbi-locked" title="Upgrade package to unlock this page">${esc(state.pages?.[key]?.label || key)} locked</button>`)
+      ].join("");
+      $$("button[data-page]", list).forEach(btn => {
+        btn.addEventListener("click", () => {
+          activePage = btn.dataset.page;
+          selectedId = null;
+          render();
+        });
       });
-    });
+    }
+    syncEditorPageSelect();
   }
 
   function renderLayers(){
@@ -741,6 +743,9 @@
     renderReadiness();
     refreshTemplateButtons();
     applyGate();
+    syncEditorPageSelect();
+    const selectedBlock = activeBlocks().find(x => x.id === selectedId);
+    if (selectedBlock) refreshFloatingToolbar(selectedBlock); else hideFloatingToolbar();
     persist();
     setStatus("Autosaved locally");
   }
@@ -760,6 +765,41 @@
         const dragged = event.dataTransfer?.getData("application/x-pbi-block-id");
         if (dragged && dragged !== el.dataset.blockId) reorderBlockBefore(dragged, el.dataset.blockId);
       });
+      const block = activeBlocks().find(x => x.id === el.dataset.blockId);
+      if (block?.positionMode === "free" && isPremium() && !block.packageLocked) {
+        el.addEventListener("pointerdown", (event) => {
+          if (previewMode || event.button !== 0) return;
+          if (event.target.closest('[contenteditable="true"], a, button, input, textarea, select')) return;
+          event.preventDefault();
+          selectBlock(el.dataset.blockId);
+          snapshot();
+          const startX = event.clientX;
+          const startY = event.clientY;
+          const originX = Number(block.x) || 40;
+          const originY = Number(block.y) || 40;
+          el.setPointerCapture?.(event.pointerId);
+          const onMove = (moveEvent) => {
+            const nextX = Math.max(0, Math.round(originX + moveEvent.clientX - startX));
+            const nextY = Math.max(0, Math.round(originY + moveEvent.clientY - startY));
+            block.x = nextX;
+            block.y = nextY;
+            el.style.left = `${nextX}px`;
+            el.style.top = `${nextY}px`;
+            $("#inspectorX") && ($("#inspectorX").value = nextX);
+            $("#inspectorY") && ($("#inspectorY").value = nextY);
+          };
+          const onUp = () => {
+            el.releasePointerCapture?.(event.pointerId);
+            el.removeEventListener("pointermove", onMove);
+            el.removeEventListener("pointerup", onUp);
+            persist();
+            renderLayers();
+            setStatus("Freeform position updated");
+          };
+          el.addEventListener("pointermove", onMove);
+          el.addEventListener("pointerup", onUp, { once:true });
+        });
+      }
     });
 
     $$("[data-inline-field]", drop).forEach(el => {
@@ -821,6 +861,7 @@
     $("#inspectorZ") && ($("#inspectorZ").value = block.z || 5);
     $("#inspectorVisibility") && ($("#inspectorVisibility").value = block.visibility || "all");
     renderLayers();
+    refreshFloatingToolbar(block);
     setStatus("Block selected");
   }
 
@@ -1397,6 +1438,296 @@
     setStatus(`AI ${mode} polish applied locally`);
   }
 
+  function syncEditorPageSelect(){
+    const select = $("#pbiEditorPageSelect");
+    if (!select || !state?.selected_pages) return;
+    const markup = state.selected_pages.map((key) => {
+      const label = state.pages?.[key]?.label || key;
+      return `<option value="${esc(key)}">${esc(label)}</option>`;
+    }).join("");
+    if (select.dataset.optionsMarkup !== markup) {
+      select.innerHTML = markup;
+      select.dataset.optionsMarkup = markup;
+    }
+    select.value = activePage;
+  }
+
+  function closeEditorMenus(){
+    $$("details.pbi-wix-menu[open]").forEach((menu) => menu.removeAttribute("open"));
+  }
+
+  function titleForPanel(key){
+    return {
+      add:"Add elements",
+      pages:"Pages",
+      templates:"Templates",
+      layers:"Layers",
+      cms:"CMS database",
+      collab:"Collaboration",
+      domain:"Domains",
+      inspector:"Inspector",
+      goose:"Goose"
+    }[key] || "Tools";
+  }
+
+  function panelForKey(key){
+    if (key === "domain") return $(".pbi-studio-domain-topper");
+    if (key === "inspector") return $(".pbi-canvas-inspector");
+    if (key === "goose") return $("#pbiBuilderV2Command") || $(".pbi-builder-v2-command");
+    return $(".pbi-canvas-palette");
+  }
+
+  function tabForPanel(key, explicit){
+    return explicit || {
+      add:"blocks",
+      pages:"pages",
+      templates:"templates",
+      layers:"layers",
+      cms:"cms",
+      collab:"collab"
+    }[key] || "";
+  }
+
+  function makeElementDraggable(el, handle, storageKey){
+    if (!el || !handle || handle.dataset.dragReady === "1") return;
+    handle.dataset.dragReady = "1";
+    handle.addEventListener("pointerdown", (event) => {
+      if (event.target.closest("button,a,input,select,textarea")) return;
+      event.preventDefault();
+      const rect = el.getBoundingClientRect();
+      const startX = event.clientX;
+      const startY = event.clientY;
+      const originX = rect.left;
+      const originY = rect.top;
+      el.style.left = `${originX}px`;
+      el.style.top = `${originY}px`;
+      el.style.right = "auto";
+      el.style.bottom = "auto";
+      const onMove = (moveEvent) => {
+        const nextX = Math.max(8, Math.min(window.innerWidth - 80, originX + moveEvent.clientX - startX));
+        const nextY = Math.max(60, Math.min(window.innerHeight - 80, originY + moveEvent.clientY - startY));
+        el.style.left = `${nextX}px`;
+        el.style.top = `${nextY}px`;
+      };
+      const onUp = () => {
+        document.removeEventListener("pointermove", onMove);
+        document.removeEventListener("pointerup", onUp);
+        try {
+          localStorage.setItem(storageKey, JSON.stringify({ left: el.style.left, top: el.style.top }));
+        } catch {}
+      };
+      document.addEventListener("pointermove", onMove);
+      document.addEventListener("pointerup", onUp, { once:true });
+    });
+  }
+
+  function prepareFloatingPanel(panel, key){
+    if (!panel || panel.dataset.editorPanelReady === "1") return;
+    panel.dataset.editorPanelReady = "1";
+    panel.classList.add("pbi-editor-floating-panel");
+    const head = document.createElement("div");
+    head.className = "pbi-editor-floating-panel-head";
+    head.innerHTML = `<span class="pbi-editor-floating-panel-title">${esc(titleForPanel(key))}</span><button type="button" class="pbi-editor-floating-panel-close" aria-label="Close panel">x</button>`;
+    panel.prepend(head);
+    head.querySelector("button")?.addEventListener("click", () => panel.classList.remove("pbi-editor-panel-open"));
+    makeElementDraggable(panel, head, `pbi_editor_panel_${key}_position`);
+    try {
+      const saved = JSON.parse(localStorage.getItem(`pbi_editor_panel_${key}_position`) || "null");
+      if (saved?.left && saved?.top) {
+        panel.style.left = saved.left;
+        panel.style.top = saved.top;
+        panel.style.right = "auto";
+      }
+    } catch {}
+  }
+
+  function openEditorPanel(key, options = {}){
+    const panel = panelForKey(key);
+    if (!panel) return;
+    prepareFloatingPanel(panel, key);
+    const panelTitle = $(".pbi-editor-floating-panel-title", panel);
+    if (panelTitle) panelTitle.textContent = titleForPanel(key);
+    const tab = tabForPanel(key, options.tab);
+    if (tab) {
+      const tabButton = $(`[data-studio-tab="${tab}"]`);
+      if (tabButton && !tabButton.classList.contains("pbi-locked")) tabButton.click();
+    }
+    $$(".pbi-editor-floating-panel").forEach((item) => {
+      if (item !== panel && options.keepOthers !== true) item.classList.remove("pbi-editor-panel-open");
+    });
+    panel.classList.add("pbi-editor-panel-open");
+    $$("[data-editor-panel]").forEach((button) => {
+      button.classList.toggle("active", button.dataset.editorPanel === key);
+      button.setAttribute("aria-expanded", button.dataset.editorPanel === key ? "true" : "false");
+    });
+    closeEditorMenus();
+  }
+
+  function closeAllEditorPanels(){
+    $$(".pbi-editor-floating-panel").forEach((panel) => panel.classList.remove("pbi-editor-panel-open"));
+    $$("[data-editor-panel]").forEach((button) => {
+      button.classList.remove("active");
+      button.setAttribute("aria-expanded", "false");
+    });
+  }
+
+  function ensureFloatingToolbar(){
+    let toolbar = $("#pbiWixFloatingToolbar");
+    if (toolbar) return toolbar;
+    toolbar = document.createElement("div");
+    toolbar.id = "pbiWixFloatingToolbar";
+    toolbar.className = "pbi-wix-floating-toolbar";
+    toolbar.innerHTML = `
+      <div class="pbi-wix-floating-handle" aria-label="Move toolbar">::</div>
+      <strong class="pbi-wix-floating-title" data-floating-title>Selected block</strong>
+      <select data-floating-field="layout" aria-label="Layout">
+        <option value="standard">Standard</option>
+        <option value="split">Split</option>
+        <option value="centered">Centered</option>
+        <option value="cards">Cards</option>
+        <option value="fullBleed">Full bleed</option>
+        <option value="masonry">Masonry</option>
+        <option value="spotlight">Spotlight</option>
+        <option value="bento">Bento</option>
+      </select>
+      <select data-floating-field="animation" aria-label="Motion">
+        <option value="none">No motion</option>
+        <option value="fade">Fade</option>
+        <option value="rise">Rise</option>
+        <option value="scale">Scale</option>
+        <option value="slide">Slide</option>
+        <option value="float">Float</option>
+        <option value="reveal">Reveal</option>
+        <option value="parallax">Parallax</option>
+        <option value="stagger">Stagger</option>
+      </select>
+      <select data-floating-field="positionMode" aria-label="Position mode">
+        <option value="flow">Flow</option>
+        <option value="free">Freeform</option>
+      </select>
+      <button type="button" data-floating-action="duplicate">Duplicate</button>
+      <button type="button" data-floating-action="inspector">Inspector</button>
+      <button type="button" class="danger" data-floating-action="delete">Delete</button>
+    `;
+    document.body.appendChild(toolbar);
+    makeElementDraggable(toolbar, $(".pbi-wix-floating-handle", toolbar), "pbi_editor_selected_toolbar_position");
+    try {
+      const saved = JSON.parse(localStorage.getItem("pbi_editor_selected_toolbar_position") || "null");
+      if (saved?.left && saved?.top) {
+        toolbar.style.left = saved.left;
+        toolbar.style.top = saved.top;
+      }
+    } catch {}
+    $$("[data-floating-field]", toolbar).forEach((control) => {
+      control.addEventListener("change", () => updateSelectedFromFloatingToolbar(control.dataset.floatingField, control.value));
+    });
+    $$("[data-floating-action]", toolbar).forEach((button) => {
+      button.addEventListener("click", () => {
+        if (button.dataset.floatingAction === "duplicate") duplicateSelected();
+        if (button.dataset.floatingAction === "delete" && selectedId) deleteBlock(selectedId);
+        if (button.dataset.floatingAction === "inspector") openEditorPanel("inspector", { keepOthers:true });
+      });
+    });
+    return toolbar;
+  }
+
+  function updateSelectedFromFloatingToolbar(field, value){
+    const block = activeBlocks().find(x => x.id === selectedId);
+    if (!block || block.packageLocked) return;
+    if (field === "positionMode" && value === "free" && !isPremium()) {
+      showFreeformGuide(true);
+      refreshFloatingToolbar(block);
+      return;
+    }
+    snapshot();
+    block[field] = value;
+    render();
+    selectBlock(block.id);
+    setStatus(`${field === "positionMode" ? "Position" : field} updated`);
+  }
+
+  function refreshFloatingToolbar(block){
+    const toolbar = ensureFloatingToolbar();
+    if (!block || block.packageLocked || previewMode) {
+      toolbar.classList.remove("open");
+      return;
+    }
+    $("[data-floating-title]", toolbar).textContent = block.title || block.type || "Selected block";
+    const layout = $('[data-floating-field="layout"]', toolbar);
+    const animation = $('[data-floating-field="animation"]', toolbar);
+    const positionMode = $('[data-floating-field="positionMode"]', toolbar);
+    if (layout) layout.value = block.layout || "standard";
+    if (animation) animation.value = block.animation || "none";
+    if (positionMode) positionMode.value = block.positionMode || "flow";
+    toolbar.classList.add("open");
+  }
+
+  function hideFloatingToolbar(){
+    $("#pbiWixFloatingToolbar")?.classList.remove("open");
+  }
+
+  function setupEditorShell(){
+    document.body.classList.add("pbi-wix-editor-ready");
+    [
+      ["add", $(".pbi-canvas-palette")],
+      ["domain", $(".pbi-studio-domain-topper")],
+      ["inspector", $(".pbi-canvas-inspector")]
+    ].forEach(([key, panel]) => prepareFloatingPanel(panel, key));
+    ensureFloatingToolbar();
+    syncEditorPageSelect();
+
+    $("#pbiEditorPageSelect")?.addEventListener("change", (event) => {
+      if (!event.target.value || event.target.value === activePage) return;
+      activePage = event.target.value;
+      selectedId = null;
+      render();
+      setStatus(`${state.pages?.[activePage]?.label || activePage} page selected`);
+    });
+
+    $$("[data-editor-panel]").forEach((button) => {
+      button.addEventListener("click", () => openEditorPanel(button.dataset.editorPanel, { tab: button.dataset.editorTab }));
+    });
+
+    $$("[data-toolbar-add]").forEach((button) => {
+      button.addEventListener("click", () => {
+        addBlock(button.dataset.toolbarAdd);
+        closeEditorMenus();
+      });
+    });
+
+    $$("[data-toolbar-action]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const action = button.dataset.toolbarAction;
+        if (action === "duplicate-page") duplicatePage();
+        if (action === "delete-page") deletePage();
+        if (action === "theme") $("#canvasThemeBtn")?.click();
+        if (action === "freeform-guide") showFreeformGuide(false);
+        closeEditorMenus();
+      });
+    });
+
+    $$("[data-toolbar-goose]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const action = button.dataset.toolbarGoose;
+        const target = document.querySelector(`[data-v2-apply="${action}"]`);
+        if (target) {
+          target.click();
+          closeEditorMenus();
+          return;
+        }
+        if (action === "full-site") {
+          openEditorPanel("add", { tab:"blocks" });
+          $("#canvasAiBrief")?.focus();
+          setStatus("Add a brief, then Generate full multi-page site");
+        }
+      });
+    });
+
+    document.addEventListener("click", (event) => {
+      if (!event.target.closest(".pbi-wix-menu")) closeEditorMenus();
+    });
+  }
+
   function wireEvents(){
     $$("[data-studio-tab]").forEach(btn => {
       btn.addEventListener("click", () => {
@@ -1483,9 +1814,8 @@
     $$("[data-domain-mode]").forEach(btn => btn.addEventListener("click", () => setDomainMode(btn.dataset.domainMode)));
     $$("[data-canvas-ai]").forEach(btn => btn.addEventListener("click", () => aiRewrite(btn.dataset.canvasAi)));
     $$("[data-device]").forEach(btn => btn.addEventListener("click", () => {
-      $$("[data-device]").forEach(b=>b.classList.remove("active"));
-      btn.classList.add("active");
       const device = btn.dataset.device || "desktop";
+      $$("[data-device]").forEach(b=>b.classList.toggle("active", b.dataset.device === device));
       $("#canvasDevice")?.classList.remove("desktop","tablet","mobile");
       $("#canvasDevice")?.classList.add(device);
       setStatus(`${device} preview`);
@@ -1557,13 +1887,14 @@
     saveVersion,
     openTab(tab) {
       if (tab === "domain") {
-        document.querySelector("#canvasDomainPanel")?.scrollIntoView({ behavior:"smooth", block:"start" });
+        openEditorPanel("domain");
         return;
       }
-      document.querySelector(`[data-studio-tab="${tab}"]`)?.click();
+      openEditorPanel(tab, { tab });
     }
   };
 
   wireEvents();
+  setupEditorShell();
   render();
 })();

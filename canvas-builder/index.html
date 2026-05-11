@@ -14,22 +14,94 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Framer-Level Visual Studio • PBI</title>
   <meta name="description" content="PBI visual website studio with freeform positioning, multi-page editing, advanced animations, CMS database tools, collaborative editing, AI generation and build-free pay-at-publish export.">
-  <link rel="stylesheet" href="/assets/styles.css?v=20260510-harmony-agent">
+  <link rel="stylesheet" href="/assets/styles.css?v=20260511-wix-canvas-shell">
   <link rel="stylesheet" href="/assets/pbi-trust-polish.css">
 </head>
 <body class="pbi-canvas-page pbi-framer-studio-page">
-  <header class="pbi-canvas-topbar pbi-studio-topbar">
-    <a href="/dashboard/" class="pbi-canvas-brand"><img src="/assets/pbi-brand-logo-20260505.png" alt="PBI logo"><span>Visual Studio</span></a>
-    <div class="pbi-canvas-top-actions">
-      <button class="btn-ghost" id="canvasUndoBtn" type="button">Undo</button>
-      <button class="btn-ghost" id="canvasRedoBtn" type="button">Redo</button>
-      <button class="btn-ghost" id="canvasSaveVersionBtn" type="button">Save version</button>
-      <button class="btn-ghost" id="canvasPreviewBtn" type="button">Preview mode</button>
-      <button class="btn-ghost" id="canvasExportBtn" type="button">Save to project</button>
-      <button class="btn" id="canvasPublishBtn" type="button">Publish live</button>
-      <a class="btn-ghost" id="canvasBackToBuilder" href="/builder/">Back to builder</a>
+  <header class="pbi-canvas-topbar pbi-studio-topbar pbi-wix-editor-topbar">
+    <a href="/dashboard/" class="pbi-canvas-brand pbi-wix-brand"><img src="/assets/pbi-brand-logo-20260505.png" alt="PBI logo"><span>Visual Studio</span></a>
+    <div class="pbi-wix-page-control">
+      <label for="pbiEditorPageSelect">Page</label>
+      <select id="pbiEditorPageSelect" aria-label="Current page"></select>
+    </div>
+    <div class="pbi-wix-device-control" role="group" aria-label="Preview size">
+      <button class="active" data-device="desktop" type="button" aria-label="Desktop preview">Desktop</button>
+      <button data-device="tablet" type="button" aria-label="Tablet preview">Tablet</button>
+      <button data-device="mobile" type="button" aria-label="Mobile preview">Mobile</button>
+    </div>
+    <nav class="pbi-wix-menu-bar" aria-label="Editor toolbar">
+      <details class="pbi-wix-menu">
+        <summary>Site</summary>
+        <div class="pbi-wix-menu-panel">
+          <button type="button" data-editor-panel="add" data-editor-tab="blocks">Add blocks</button>
+          <button type="button" data-editor-panel="templates" data-editor-tab="templates">Template library</button>
+          <button type="button" id="canvasSaveVersionBtn">Save version</button>
+          <button type="button" id="canvasExportBtn">Save to project</button>
+          <a id="canvasBackToBuilder" href="/builder/">Dashboard</a>
+        </div>
+      </details>
+      <details class="pbi-wix-menu">
+        <summary>Pages</summary>
+        <div class="pbi-wix-menu-panel">
+          <button type="button" data-editor-panel="pages" data-editor-tab="pages">Manage pages</button>
+          <button type="button" data-toolbar-action="duplicate-page">Duplicate current page</button>
+          <button type="button" data-toolbar-action="delete-page">Delete current page</button>
+        </div>
+      </details>
+      <details class="pbi-wix-menu">
+        <summary>Add</summary>
+        <div class="pbi-wix-menu-panel">
+          <button type="button" data-editor-panel="add" data-editor-tab="blocks">Sections and blocks</button>
+          <button type="button" data-toolbar-add="hero">Hero</button>
+          <button type="button" data-toolbar-add="services">Services</button>
+          <button type="button" data-toolbar-add="gallery">Gallery</button>
+          <button type="button" data-toolbar-add="contact">Contact</button>
+        </div>
+      </details>
+      <details class="pbi-wix-menu">
+        <summary>Design</summary>
+        <div class="pbi-wix-menu-panel">
+          <button type="button" data-editor-panel="inspector">Inspector</button>
+          <button type="button" data-toolbar-action="theme">Apply brand theme</button>
+          <button type="button" data-toolbar-action="freeform-guide">Freeform guide</button>
+        </div>
+      </details>
+      <details class="pbi-wix-menu">
+        <summary>Tools</summary>
+        <div class="pbi-wix-menu-panel">
+          <button type="button" data-editor-panel="domain">Domains</button>
+          <button type="button" data-editor-panel="layers" data-editor-tab="layers">Layers</button>
+          <button type="button" data-editor-panel="cms" data-editor-tab="cms">CMS</button>
+          <button type="button" data-editor-panel="collab" data-editor-tab="collab">Collab</button>
+        </div>
+      </details>
+      <details class="pbi-wix-menu">
+        <summary>Goose</summary>
+        <div class="pbi-wix-menu-panel">
+          <button type="button" data-editor-panel="goose">Open Goose panel</button>
+          <button type="button" data-toolbar-goose="full-site">Generate full site</button>
+          <button type="button" data-toolbar-goose="audit">Audit and fix basics</button>
+          <button type="button" data-toolbar-goose="mobile">Improve mobile</button>
+          <button type="button" data-editor-panel="add">Open AI brief</button>
+        </div>
+      </details>
+    </nav>
+    <div class="pbi-canvas-top-actions pbi-wix-action-strip">
+      <button class="pbi-wix-icon-btn" id="canvasUndoBtn" type="button" aria-label="Undo">Undo</button>
+      <button class="pbi-wix-icon-btn" id="canvasRedoBtn" type="button" aria-label="Redo">Redo</button>
+      <button class="pbi-wix-icon-btn" id="canvasPreviewBtn" type="button" aria-label="Preview">Preview</button>
+      <button class="btn" id="canvasPublishBtn" type="button">Publish</button>
     </div>
   </header>
+
+  <nav class="pbi-wix-side-rail" aria-label="Editor quick tools">
+    <button type="button" data-editor-panel="pages" data-editor-tab="pages" title="Pages"><span>Pages</span></button>
+    <button type="button" data-editor-panel="add" data-editor-tab="blocks" title="Add"><span>Add</span></button>
+    <button type="button" data-editor-panel="templates" data-editor-tab="templates" title="Templates"><span>Templates</span></button>
+    <button type="button" data-editor-panel="domain" title="Domains"><span>Domains</span></button>
+    <button type="button" data-editor-panel="layers" data-editor-tab="layers" title="Layers"><span>Layers</span></button>
+    <button type="button" data-editor-panel="inspector" title="Inspector"><span>Inspector</span></button>
+  </nav>
 
   <main class="pbi-canvas-app pbi-framer-studio">
     <section class="pbi-studio-domain-topper" aria-labelledby="canvasDomainTitle">
@@ -333,10 +405,10 @@
   </main>
 
   <script src="/assets/template-presets.js?v=20260509-real-photo-templates" defer></script>
-  <script src="/assets/pbi-package-rules.js?v=20260510-harmony-agent" defer></script>
-  <script src="/assets/pbi-canvas-builder.js?v=20260510-harmony-agent" defer></script>
-  <script src="/assets/pbi-builder-v2-command.js?v=20260510-harmony-agent" defer></script>
-  <script src="/assets/pbi-builder-v2-actions.js?v=20260510-harmony-agent" defer></script>
+  <script src="/assets/pbi-package-rules.js?v=20260511-wix-canvas-shell" defer></script>
+  <script src="/assets/pbi-canvas-builder.js?v=20260511-wix-canvas-shell" defer></script>
+  <script src="/assets/pbi-builder-v2-command.js?v=20260511-wix-canvas-shell" defer></script>
+  <script src="/assets/pbi-builder-v2-actions.js?v=20260511-wix-canvas-shell" defer></script>
   <script src="/assets/pbi-editor-polish.js" defer></script>
   <script src="/assets/pbi-request-capture.js" defer></script>
 </body>

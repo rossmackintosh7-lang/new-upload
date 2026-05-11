@@ -367,6 +367,11 @@
   }
 
   function openTab(tab) {
+    const builder = api();
+    if (builder?.openTab) {
+      builder.openTab(tab);
+      return true;
+    }
     if (tab === 'domain') {
       $('#canvasDomainPanel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       setStatus('Domain checker opened');
