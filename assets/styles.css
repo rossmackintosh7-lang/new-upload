@@ -1435,3 +1435,639 @@ body.pbi-home-page .pbi-home-template-grid .pbi-premium-template-copy > .row .bt
     grid-template-columns: 1fr;
   }
 }
+
+/* Wix-style canvas editor shell for PBI Visual Studio. */
+body.pbi-canvas-page{
+  --pbi-editor-blue:#1473e6;
+  --pbi-editor-ui:#ffffff;
+  --pbi-editor-rail:#f6f8fa;
+  --pbi-editor-border:#dce3ea;
+  --pbi-editor-text:#20242a;
+  --pbi-editor-muted:#66717f;
+  background:#eef1f4!important;
+  overflow-x:hidden;
+}
+body.pbi-canvas-page::before,
+body.pbi-canvas-page::after{
+  content:none!important;
+}
+.pbi-wix-editor-topbar{
+  min-height:58px!important;
+  height:auto!important;
+  display:grid!important;
+  grid-template-columns:auto auto auto minmax(360px,1fr) auto!important;
+  align-items:center!important;
+  gap:10px!important;
+  padding:7px 12px!important;
+  background:var(--pbi-editor-ui)!important;
+  border-bottom:1px solid var(--pbi-editor-border)!important;
+  box-shadow:0 1px 8px rgba(15,23,42,.08)!important;
+  position:sticky!important;
+  top:0!important;
+  z-index:220!important;
+  backdrop-filter:none!important;
+}
+.pbi-wix-brand{
+  max-width:none!important;
+  gap:8px!important;
+  padding-right:8px;
+}
+.pbi-wix-brand img{
+  max-width:34px!important;
+  max-height:34px!important;
+}
+.pbi-wix-brand span{
+  color:var(--pbi-editor-text)!important;
+  font-size:14px!important;
+  font-weight:900!important;
+  white-space:nowrap;
+}
+.pbi-wix-page-control,
+.pbi-wix-device-control,
+.pbi-wix-action-strip{
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.pbi-wix-page-control{
+  min-height:38px;
+  padding:0 8px;
+  border:1px solid var(--pbi-editor-border);
+  border-radius:7px;
+  background:#f8fafc;
+}
+.pbi-wix-page-control label{
+  color:var(--pbi-editor-muted);
+  font-size:12px;
+  font-weight:800;
+}
+.pbi-wix-page-control select{
+  width:112px!important;
+  min-height:30px;
+  padding:4px 22px 4px 6px!important;
+  border:0!important;
+  background:transparent!important;
+  border-radius:5px!important;
+  color:var(--pbi-editor-text)!important;
+  font-size:13px!important;
+  font-weight:850!important;
+}
+.pbi-wix-device-control{
+  border-left:1px solid var(--pbi-editor-border);
+  border-right:1px solid var(--pbi-editor-border);
+  padding:0 8px;
+}
+.pbi-wix-device-control button,
+.pbi-wix-icon-btn{
+  appearance:none;
+  min-height:34px!important;
+  border:1px solid transparent!important;
+  border-radius:7px!important;
+  background:transparent!important;
+  color:var(--pbi-editor-text)!important;
+  padding:7px 9px!important;
+  font:800 12px/1 Inter,ui-sans-serif,system-ui!important;
+  box-shadow:none!important;
+}
+.pbi-wix-device-control button.active,
+.pbi-wix-icon-btn:hover{
+  background:#eef5ff!important;
+  border-color:#c8ddff!important;
+  color:#0f58b7!important;
+}
+.pbi-wix-menu-bar{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+  min-width:0;
+}
+.pbi-wix-menu{
+  position:relative;
+}
+.pbi-wix-menu summary{
+  list-style:none;
+  cursor:pointer;
+  border:1px solid transparent;
+  border-radius:7px;
+  padding:9px 11px;
+  color:var(--pbi-editor-text);
+  font:850 13px/1 Inter,ui-sans-serif,system-ui;
+}
+.pbi-wix-menu summary::-webkit-details-marker{display:none;}
+.pbi-wix-menu[open] summary,
+.pbi-wix-menu summary:hover{
+  background:#f6f8fa;
+  border-color:var(--pbi-editor-border);
+}
+.pbi-wix-menu-panel{
+  position:absolute;
+  top:calc(100% + 10px);
+  left:0;
+  z-index:260;
+  display:grid;
+  gap:5px;
+  width:218px;
+  padding:8px;
+  border:1px solid var(--pbi-editor-border);
+  border-radius:12px;
+  background:#fff;
+  box-shadow:0 18px 48px rgba(15,23,42,.18);
+}
+.pbi-wix-menu-panel button,
+.pbi-wix-menu-panel a{
+  appearance:none;
+  display:flex!important;
+  align-items:center;
+  justify-content:flex-start;
+  width:100%;
+  min-height:36px!important;
+  padding:8px 10px!important;
+  border:0!important;
+  border-radius:8px!important;
+  background:transparent!important;
+  color:var(--pbi-editor-text)!important;
+  box-shadow:none!important;
+  text-decoration:none!important;
+  text-align:left!important;
+  font:800 13px/1.2 Inter,ui-sans-serif,system-ui!important;
+}
+.pbi-wix-menu-panel button:hover,
+.pbi-wix-menu-panel a:hover{
+  background:#f0f6ff!important;
+  color:#0f58b7!important;
+}
+.pbi-wix-action-strip{
+  justify-content:flex-end!important;
+  flex-wrap:nowrap!important;
+  gap:6px!important;
+}
+.pbi-wix-action-strip .btn,
+.pbi-wix-action-strip #canvasPublishBtn{
+  min-height:38px!important;
+  padding:9px 16px!important;
+  border-radius:8px!important;
+  background:var(--pbi-editor-blue)!important;
+  border:1px solid transparent!important;
+  color:#fff!important;
+  box-shadow:none!important;
+  font-size:13px!important;
+}
+.pbi-plan-control{
+  border-radius:8px!important;
+  background:#f8fafc!important;
+  border-color:var(--pbi-editor-border)!important;
+  padding:3px!important;
+}
+.pbi-plan-control span{
+  color:var(--pbi-editor-muted)!important;
+  letter-spacing:0!important;
+  text-transform:none!important;
+  font-size:11px!important;
+}
+.pbi-plan-control button{
+  min-height:30px!important;
+  border-radius:6px!important;
+  padding:7px 9px!important;
+  font-size:12px!important;
+}
+#pbiNewProjectBtn{
+  min-height:34px!important;
+  border-radius:7px!important;
+  padding:7px 10px!important;
+  background:#f8fafc!important;
+  border-color:var(--pbi-editor-border)!important;
+  box-shadow:none!important;
+}
+.pbi-wix-side-rail{
+  position:fixed;
+  top:82px;
+  left:12px;
+  z-index:190;
+  display:grid;
+  gap:12px;
+  padding:10px 8px;
+  border:1px solid var(--pbi-editor-border);
+  border-radius:28px;
+  background:#fff;
+  box-shadow:0 14px 38px rgba(15,23,42,.16);
+}
+.pbi-wix-side-rail button{
+  appearance:none;
+  width:46px;
+  height:46px;
+  border:1px solid var(--pbi-editor-border);
+  border-radius:50%;
+  background:#fff;
+  color:var(--pbi-editor-text);
+  cursor:pointer;
+  position:relative;
+  font:900 15px/1 Inter,ui-sans-serif,system-ui;
+}
+.pbi-wix-side-rail button::before{
+  content:attr(title);
+  position:absolute;
+  left:56px;
+  top:50%;
+  transform:translateY(-50%);
+  min-width:max-content;
+  padding:7px 9px;
+  border-radius:8px;
+  background:#20242a;
+  color:#fff;
+  opacity:0;
+  pointer-events:none;
+  font-size:12px;
+  font-weight:800;
+  transition:opacity .14s ease;
+}
+.pbi-wix-side-rail button:hover::before{opacity:1;}
+.pbi-wix-side-rail button span{
+  position:absolute;
+  width:1px;
+  height:1px;
+  overflow:hidden;
+  clip:rect(0 0 0 0);
+}
+.pbi-wix-side-rail button[title="Pages"]::after{content:"P";}
+.pbi-wix-side-rail button[title="Add"]::after{content:"+";font-size:25px;}
+.pbi-wix-side-rail button[title="Templates"]::after{content:"T";}
+.pbi-wix-side-rail button[title="Domains"]::after{content:"D";}
+.pbi-wix-side-rail button[title="Layers"]::after{content:"L";}
+.pbi-wix-side-rail button[title="Inspector"]::after{content:"I";}
+.pbi-wix-side-rail button:hover,
+.pbi-wix-side-rail button.active{
+  border-color:#b9d5ff;
+  background:#eef5ff;
+  color:#0f58b7;
+}
+body.pbi-canvas-page .pbi-canvas-app,
+body.pbi-canvas-page .pbi-framer-studio{
+  display:block!important;
+  min-height:calc(100vh - 58px)!important;
+  padding:18px 28px 46px 92px!important;
+  background:#eef1f4!important;
+}
+body.pbi-canvas-page .pbi-canvas-stage-wrap{
+  min-width:0;
+}
+body.pbi-canvas-page .pbi-studio-toolbar{
+  position:fixed;
+  left:50%;
+  bottom:18px;
+  transform:translateX(-50%);
+  z-index:150;
+  width:min(760px,calc(100vw - 170px));
+  min-height:54px;
+  align-items:center;
+  border-radius:14px;
+  padding:10px 14px;
+  background:rgba(255,255,255,.94);
+  border-color:var(--pbi-editor-border);
+  box-shadow:0 14px 42px rgba(15,23,42,.18);
+}
+body.pbi-canvas-page .pbi-studio-toolbar > div:first-child{
+  min-width:0;
+}
+body.pbi-canvas-page .pbi-studio-toolbar strong{
+  display:block;
+  max-width:380px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+body.pbi-canvas-page .pbi-canvas-help-text{
+  display:none;
+}
+body.pbi-canvas-page .pbi-studio-toolbar-actions{
+  margin-left:auto;
+}
+body.pbi-canvas-page .pbi-studio-toolbar-actions .btn-ghost,
+body.pbi-canvas-page .pbi-studio-toolbar-actions a,
+body.pbi-canvas-page .pbi-studio-toolbar-actions #canvasThemeBtn,
+body.pbi-canvas-page .pbi-studio-toolbar-actions #canvasFreeformGuideBtn{
+  display:none!important;
+}
+body.pbi-canvas-page .pbi-device-switcher{
+  display:none!important;
+}
+body.pbi-canvas-page .pbi-canvas-device{
+  width:min(1240px,100%);
+  min-height:calc(100vh - 160px);
+  margin:0 auto;
+  padding:34px 36px 92px;
+  border:0;
+  border-radius:0;
+  background:#dfe4ea;
+  box-shadow:inset 0 0 0 1px #d2d9e1;
+}
+body.pbi-canvas-page .pbi-canvas-device.tablet{
+  max-width:840px;
+}
+body.pbi-canvas-page .pbi-canvas-device.mobile{
+  max-width:430px;
+}
+body.pbi-canvas-page .pbi-canvas-dropzone{
+  min-height:920px;
+  margin:0 auto;
+  padding:42px;
+  border:0;
+  border-radius:0;
+  background:#fffaf4;
+  box-shadow:0 8px 28px rgba(15,23,42,.14);
+}
+body.pbi-canvas-page .pbi-canvas-render-block{
+  position:relative;
+  cursor:pointer;
+  transition:outline-color .16s ease, box-shadow .16s ease;
+}
+body.pbi-canvas-page .pbi-canvas-render-block:hover{
+  outline:1px solid rgba(20,115,230,.38);
+}
+body.pbi-canvas-page .pbi-canvas-render-block.selected{
+  outline:2px solid var(--pbi-editor-blue)!important;
+  box-shadow:0 0 0 5px rgba(20,115,230,.08)!important;
+}
+body.pbi-canvas-page .pbi-canvas-render-block.selected::before{
+  content:attr(data-kind);
+  position:absolute;
+  top:-30px;
+  left:0;
+  z-index:3;
+  border-radius:6px 6px 0 0;
+  background:var(--pbi-editor-blue);
+  color:#fff;
+  padding:6px 9px;
+  font-size:12px;
+  font-weight:900;
+  text-transform:capitalize;
+}
+.pbi-editor-floating-panel{
+  position:fixed!important;
+  top:78px;
+  left:86px;
+  z-index:205!important;
+  width:min(392px,calc(100vw - 118px));
+  max-height:calc(100vh - 100px)!important;
+  display:none!important;
+  overflow:auto!important;
+  border-radius:14px!important;
+  border:1px solid var(--pbi-editor-border)!important;
+  background:#fff!important;
+  box-shadow:0 20px 56px rgba(15,23,42,.22)!important;
+}
+.pbi-editor-floating-panel.pbi-editor-panel-open{
+  display:block!important;
+}
+.pbi-editor-floating-panel .pbi-canvas-panel-head{
+  padding-top:0;
+}
+.pbi-editor-floating-panel-head{
+  position:sticky;
+  top:0;
+  z-index:3;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  min-height:42px;
+  margin:-18px -18px 14px;
+  padding:8px 10px;
+  border-bottom:1px solid var(--pbi-editor-border);
+  background:#f8fafc;
+  cursor:grab;
+}
+.pbi-editor-floating-panel-head:active{
+  cursor:grabbing;
+}
+.pbi-editor-floating-panel-title{
+  color:var(--pbi-editor-text);
+  font-size:13px;
+  font-weight:900;
+}
+.pbi-editor-floating-panel-close{
+  appearance:none;
+  width:28px;
+  height:28px;
+  border:0;
+  border-radius:7px;
+  background:transparent;
+  color:var(--pbi-editor-muted);
+  font-size:20px;
+  line-height:1;
+  cursor:pointer;
+}
+.pbi-editor-floating-panel-close:hover{
+  background:#eef1f4;
+  color:var(--pbi-editor-text);
+}
+body.pbi-canvas-page .pbi-canvas-palette.pbi-editor-floating-panel{
+  left:86px;
+  padding:18px!important;
+}
+body.pbi-canvas-page .pbi-studio-domain-topper.pbi-editor-floating-panel{
+  width:min(940px,calc(100vw - 128px));
+  padding:18px!important;
+}
+body.pbi-canvas-page .pbi-studio-domain-topper.pbi-editor-floating-panel .pbi-domain-panel{
+  grid-template-columns:1fr!important;
+}
+body.pbi-canvas-page .pbi-canvas-inspector.pbi-editor-floating-panel{
+  left:auto;
+  right:18px;
+  width:min(360px,calc(100vw - 118px));
+  padding:18px!important;
+}
+body.pbi-canvas-page .pbi-builder-v2-command{
+  position:fixed;
+  top:78px;
+  left:86px;
+  z-index:205;
+  display:none;
+  width:min(760px,calc(100vw - 118px));
+  max-height:calc(100vh - 100px);
+  margin:0!important;
+  overflow:auto;
+  border-radius:14px;
+  background:#fff;
+  border:1px solid var(--pbi-editor-border);
+  box-shadow:0 20px 56px rgba(15,23,42,.22);
+}
+body.pbi-canvas-page .pbi-builder-v2-command.pbi-editor-panel-open{
+  display:block;
+}
+body.pbi-canvas-page .pbi-builder-v2-command.pbi-editor-floating-panel{
+  width:min(760px,calc(100vw - 118px));
+}
+body.pbi-canvas-page .pbi-studio-tabs-six{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+}
+body.pbi-canvas-page .pbi-canvas-panel-head h2,
+body.pbi-canvas-page .pbi-canvas-inspector h2{
+  font-size:2rem;
+  letter-spacing:-.04em;
+}
+.pbi-wix-floating-toolbar{
+  position:fixed;
+  top:132px;
+  left:360px;
+  z-index:230;
+  display:none;
+  align-items:center;
+  gap:8px;
+  max-width:calc(100vw - 420px);
+  padding:8px;
+  border:1px solid var(--pbi-editor-border);
+  border-radius:12px;
+  background:#fff;
+  box-shadow:0 18px 48px rgba(15,23,42,.18);
+}
+.pbi-wix-floating-toolbar.open{
+  display:flex;
+}
+.pbi-wix-floating-handle{
+  display:grid;
+  place-items:center;
+  width:30px;
+  height:40px;
+  border-radius:8px;
+  background:#f6f8fa;
+  color:#7c8794;
+  cursor:grab;
+  font-weight:900;
+  line-height:.72;
+}
+.pbi-wix-floating-handle:active{
+  cursor:grabbing;
+}
+.pbi-wix-floating-title{
+  max-width:160px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color:var(--pbi-editor-text);
+  font-size:13px;
+  font-weight:900;
+}
+.pbi-wix-floating-toolbar select,
+.pbi-wix-floating-toolbar button{
+  width:auto!important;
+  min-height:38px!important;
+  border:1px solid var(--pbi-editor-border)!important;
+  border-radius:8px!important;
+  background:#fff!important;
+  color:var(--pbi-editor-text)!important;
+  padding:8px 10px!important;
+  font:800 12px/1 Inter,ui-sans-serif,system-ui!important;
+  box-shadow:none!important;
+}
+.pbi-wix-floating-toolbar button:hover,
+.pbi-wix-floating-toolbar select:hover{
+  border-color:#b9d5ff!important;
+  background:#f0f6ff!important;
+}
+.pbi-wix-floating-toolbar .danger{
+  color:#8a251a!important;
+}
+#pbiReadinessBox.pbi-readiness-box{
+  position:fixed;
+  top:70px;
+  right:18px;
+  z-index:150;
+  width:min(360px,calc(100vw - 110px));
+  border-radius:12px;
+  background:rgba(255,255,255,.95);
+  border:1px solid var(--pbi-editor-border);
+  box-shadow:0 12px 34px rgba(15,23,42,.13);
+}
+body.pbi-preview-mode .pbi-wix-side-rail,
+body.pbi-preview-mode .pbi-wix-floating-toolbar,
+body.pbi-preview-mode .pbi-editor-floating-panel,
+body.pbi-preview-mode #pbiReadinessBox,
+body.pbi-preview-mode .pbi-studio-toolbar{
+  display:none!important;
+}
+@media(max-width:1180px){
+  .pbi-wix-editor-topbar{
+    grid-template-columns:auto auto 1fr!important;
+    overflow-x:auto;
+  }
+  .pbi-wix-device-control{display:none;}
+  .pbi-wix-menu-bar{
+    justify-content:flex-start;
+    overflow:visible;
+  }
+  .pbi-wix-action-strip{
+    grid-column:1/-1;
+    justify-content:flex-start!important;
+    overflow-x:auto;
+  }
+  body.pbi-canvas-page .pbi-canvas-app,
+  body.pbi-canvas-page .pbi-framer-studio{
+    padding-left:82px!important;
+  }
+  .pbi-wix-floating-toolbar{
+    left:88px;
+    max-width:calc(100vw - 108px);
+    flex-wrap:wrap;
+  }
+}
+@media(max-width:680px){
+  .pbi-wix-editor-topbar{
+    grid-template-columns:1fr!important;
+    align-items:start!important;
+  }
+  .pbi-wix-page-control,
+  .pbi-wix-menu-bar,
+  .pbi-wix-action-strip{
+    width:100%;
+    overflow-x:auto;
+    justify-content:flex-start!important;
+  }
+  .pbi-wix-side-rail{
+    top:auto;
+    left:10px;
+    right:10px;
+    bottom:10px;
+    grid-auto-flow:column;
+    grid-template-columns:repeat(6,1fr);
+    border-radius:18px;
+  }
+  .pbi-wix-side-rail button{
+    width:40px;
+    height:40px;
+    margin:auto;
+  }
+  .pbi-wix-side-rail button::before{
+    display:none;
+  }
+  body.pbi-canvas-page .pbi-canvas-app,
+  body.pbi-canvas-page .pbi-framer-studio{
+    padding:10px 10px 76px!important;
+  }
+  body.pbi-canvas-page .pbi-canvas-device{
+    padding:12px;
+  }
+  body.pbi-canvas-page .pbi-canvas-dropzone{
+    padding:14px;
+    min-height:620px;
+  }
+  .pbi-editor-floating-panel,
+  body.pbi-canvas-page .pbi-canvas-inspector.pbi-editor-floating-panel,
+  body.pbi-canvas-page .pbi-studio-domain-topper.pbi-editor-floating-panel{
+    top:214px!important;
+    left:10px!important;
+    right:10px!important;
+    width:auto!important;
+    max-height:calc(100vh - 300px)!important;
+  }
+  .pbi-wix-floating-toolbar{
+    top:120px;
+    left:10px;
+    right:10px;
+    max-width:none;
+  }
+  body.pbi-canvas-page .pbi-studio-toolbar,
+  #pbiReadinessBox.pbi-readiness-box{
+    display:none!important;
+  }
+}
