@@ -1,1 +1,177 @@
-<!doctype html><html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PBI Admin - Command Centre</title><meta name="robots" content="noindex,nofollow"><link rel="stylesheet" href="/assets/styles.css?v=20260508-domain-logo"><link rel="stylesheet" href="/assets/pbi-premium-flow.css"><link rel="stylesheet" href="/assets/pbi-admin-v2.css?v=20260508-domain-logo"></head><body class="pbi-admin-body pbi-admin-premium"><aside class="pbi-admin-sidebar"><a class="pbi-admin-logo" href="/admin/"><img src="/assets/pbi-header-logo-no-bg-20260502c.png?v=20260502c" alt="PBI"><span>Admin</span></a><nav><a href="/admin/" class="active">Command Centre</a><a href="/admin/users/">User Manager</a><a href="/admin/requests/">Requests</a><a href="/admin/projects/">Projects</a><a href="/admin/notifications/">Notifications</a><a href="/projects/">Customer Projects</a><a href="/dashboard/">Dashboard</a><a href="/account/billing/">Billing</a></nav></aside><main class="pbi-admin-main"><header class="pbi-admin-header"><div><p class="eyebrow">PBI Admin</p><h1>Command Centre</h1><p>Today's priorities, launch queue, billing pulse and Goose's admin brief.</p></div><div class="row"><a class="btn" href="/login/?next=/admin/">Login</a><a class="btn-ghost" href="/admin/users/">User Manager</a></div></header><section class="pbi-admin-kpi-grid" id="adminKpiGrid"></section><section class="pbi-admin-grid wide-left pbi-control-room"><div class="pbi-admin-panel"><div class="pbi-admin-panel-head"><div><p class="eyebrow">Today</p><h2>Priorities</h2></div><button class="btn-ghost" id="adminRefreshSummary" type="button">Refresh</button></div><div id="adminPriorityList" class="pbi-priority-list"><p>Loading priorities...</p></div></div><div class="pbi-admin-panel pbi-goose-brief"><div class="pbi-goose-brief-head"><img id="adminGooseMood" src="/assets/goose/goose-profile.png" alt="Goose"><div><p class="eyebrow">Goose</p><h2>Admin brief</h2></div></div><div id="adminGooseBrief"><p>Loading Goose's brief...</p></div></div></section><section class="pbi-admin-grid"><div class="pbi-admin-panel"><h2>Launch queue</h2><div id="adminLaunchQueue" class="pbi-admin-list"><p>Loading projects...</p></div></div><div class="pbi-admin-panel"><h2>Billing & publish pulse</h2><div id="adminBillingPulse"><p>Loading billing status...</p></div></div></section><section class="pbi-admin-panel"><div class="pbi-admin-panel-head"><div><p class="eyebrow">Find anything</p><h2>Universal search</h2></div><input id="adminGlobalSearch" placeholder="Search email, project, request or alert"></div><div id="adminGlobalSearchResults" class="pbi-admin-list"><p>Start typing to search recent admin records.</p></div></section><section class="pbi-admin-grid"><div class="pbi-admin-panel"><h2>Latest users</h2><div id="adminLatestUsers" class="pbi-admin-list"><p>Loading...</p></div></div><div class="pbi-admin-panel"><h2>Latest projects</h2><div id="adminLatestProjects" class="pbi-admin-list"><p>Loading...</p></div></div></section><section class="pbi-admin-panel"><h2>Quick actions</h2><div class="pbi-admin-quick-grid"><a href="/admin/requests/">Requests inbox</a><a href="/admin/projects/">Admin projects</a><a href="/admin/users/">User manager</a><a href="/admin/notifications/">Notifications</a><a href="/canvas-builder/">Unified canvas builder</a><a href="/templates/">Combined templates</a><a href="/account/billing/">Billing</a><a href="/login/?next=/admin/">Admin login</a></div></section></main><script src="/assets/pbi-admin-v2.js" defer></script></body></html>
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>PBI Admin - Command Centre</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="stylesheet" href="/assets/styles.css?v=20260511-admin-coupons">
+  <link rel="stylesheet" href="/assets/pbi-premium-flow.css">
+  <link rel="stylesheet" href="/assets/pbi-admin-v2.css?v=20260511-admin-coupons">
+</head>
+<body class="pbi-admin-body pbi-admin-premium">
+  <aside class="pbi-admin-sidebar">
+    <a class="pbi-admin-logo" href="/admin/">
+      <img src="/assets/pbi-header-logo-no-bg-20260502c.png?v=20260502c" alt="PBI">
+      <span>Admin</span>
+    </a>
+    <nav>
+      <a href="/admin/" class="active">Command Centre</a>
+      <a href="/admin/users/">User Manager</a>
+      <a href="/admin/requests/">Requests</a>
+      <a href="/admin/projects/">Projects</a>
+      <a href="/admin/notifications/">Notifications</a>
+      <a href="/projects/">Customer Projects</a>
+      <a href="/dashboard/">Dashboard</a>
+      <a href="/account/billing/">Billing</a>
+    </nav>
+  </aside>
+
+  <main class="pbi-admin-main">
+    <header class="pbi-admin-header">
+      <div>
+        <p class="eyebrow">PBI Admin</p>
+        <h1>Command Centre</h1>
+        <p>Priorities, launch queue, billing pulse, coupons, domains and Goose's admin brief.</p>
+      </div>
+      <div class="row">
+        <a class="btn" href="/login/?next=/admin/">Login</a>
+        <a class="btn-ghost" href="/admin/users/">User Manager</a>
+      </div>
+    </header>
+
+    <section class="pbi-admin-kpi-grid" id="adminKpiGrid"></section>
+
+    <section class="pbi-admin-grid wide-left pbi-control-room">
+      <div class="pbi-admin-panel">
+        <div class="pbi-admin-panel-head">
+          <div>
+            <p class="eyebrow">Today</p>
+            <h2>Priorities</h2>
+          </div>
+          <button class="btn-ghost" id="adminRefreshSummary" type="button">Refresh</button>
+        </div>
+        <div id="adminPriorityList" class="pbi-priority-list"><p>Loading priorities...</p></div>
+      </div>
+
+      <div class="pbi-admin-panel pbi-goose-brief">
+        <div class="pbi-goose-brief-head">
+          <img id="adminGooseMood" src="/assets/goose/goose-profile.png" alt="Goose">
+          <div>
+            <p class="eyebrow">Goose</p>
+            <h2>Admin brief</h2>
+          </div>
+        </div>
+        <div id="adminGooseBrief"><p>Loading Goose's brief...</p></div>
+      </div>
+    </section>
+
+    <section class="pbi-admin-grid">
+      <div class="pbi-admin-panel">
+        <h2>Launch queue</h2>
+        <div id="adminLaunchQueue" class="pbi-admin-list"><p>Loading projects...</p></div>
+      </div>
+      <div class="pbi-admin-panel">
+        <h2>Billing & publish pulse</h2>
+        <div id="adminBillingPulse"><p>Loading billing status...</p></div>
+      </div>
+    </section>
+
+    <section class="pbi-admin-grid wide-left">
+      <div class="pbi-admin-panel">
+        <div class="pbi-admin-panel-head">
+          <div>
+            <p class="eyebrow">Operations</p>
+            <h2>What needs attention</h2>
+          </div>
+          <a class="btn-ghost" href="/admin/projects/">Open projects</a>
+        </div>
+        <div id="adminOpsSnapshot" class="pbi-admin-op-grid"><p>Loading operational snapshot...</p></div>
+      </div>
+
+      <div class="pbi-admin-panel pbi-admin-coupon-panel">
+        <div class="pbi-admin-panel-head">
+          <div>
+            <p class="eyebrow">Stripe</p>
+            <h2>Generate coupon</h2>
+          </div>
+          <button class="btn-ghost" id="adminGenerateCouponCode" type="button">Generate code</button>
+        </div>
+        <form id="adminCouponForm" class="pbi-admin-coupon-form">
+          <label>Coupon code<input id="adminCouponCode" placeholder="PBI-LAUNCH10" autocomplete="off"></label>
+          <label>Display name<input id="adminCouponName" placeholder="Launch discount"></label>
+          <label>Percent off<input id="adminCouponPercent" type="number" min="1" max="100" step="1" value="10"></label>
+          <label>Amount off<input id="adminCouponAmount" type="number" min="0" step="0.01" placeholder="Leave blank for percent"></label>
+          <label>Currency<input id="adminCouponCurrency" value="gbp"></label>
+          <label>Duration<select id="adminCouponDuration"><option value="once">Once</option><option value="forever">Forever</option><option value="repeating">Repeating</option></select></label>
+          <label>Months<input id="adminCouponMonths" type="number" min="1" max="24" value="3"></label>
+          <label>Max uses<input id="adminCouponMax" type="number" min="0" placeholder="Optional"></label>
+          <label>Redeem by<input id="adminCouponRedeemBy" type="date"></label>
+          <button class="btn" type="submit">Create Stripe coupon</button>
+        </form>
+        <div id="adminCouponResult" class="notice" style="display:none"></div>
+      </div>
+    </section>
+
+    <section class="pbi-admin-panel">
+      <div class="pbi-admin-panel-head">
+        <div>
+          <p class="eyebrow">Discounts</p>
+          <h2>Recent coupons</h2>
+        </div>
+        <button class="btn-ghost" id="adminRefreshCoupons" type="button">Refresh coupons</button>
+      </div>
+      <div id="adminCouponList" class="pbi-admin-list"><p>Loading coupons...</p></div>
+    </section>
+
+    <section class="pbi-admin-panel">
+      <div class="pbi-admin-panel-head">
+        <div>
+          <p class="eyebrow">Find anything</p>
+          <h2>Universal search</h2>
+        </div>
+        <input id="adminGlobalSearch" placeholder="Search email, project, request or alert">
+      </div>
+      <div id="adminGlobalSearchResults" class="pbi-admin-list"><p>Start typing to search recent admin records.</p></div>
+    </section>
+
+    <section class="pbi-admin-grid">
+      <div class="pbi-admin-panel">
+        <h2>Latest requests</h2>
+        <div id="adminLatestRequests" class="pbi-admin-list"><p>Loading...</p></div>
+      </div>
+      <div class="pbi-admin-panel">
+        <h2>Latest alerts</h2>
+        <div id="adminLatestNotifications" class="pbi-admin-list"><p>Loading...</p></div>
+      </div>
+    </section>
+
+    <section class="pbi-admin-grid">
+      <div class="pbi-admin-panel">
+        <h2>Latest users</h2>
+        <div id="adminLatestUsers" class="pbi-admin-list"><p>Loading...</p></div>
+      </div>
+      <div class="pbi-admin-panel">
+        <h2>Latest projects</h2>
+        <div id="adminLatestProjects" class="pbi-admin-list"><p>Loading...</p></div>
+      </div>
+    </section>
+
+    <section class="pbi-admin-panel">
+      <h2>Quick actions</h2>
+      <div class="pbi-admin-quick-grid">
+        <a href="/admin/requests/">Requests inbox</a>
+        <a href="/admin/projects/">Admin projects</a>
+        <a href="/admin/users/">User manager</a>
+        <a href="/admin/notifications/">Notifications</a>
+        <a href="/canvas-builder/">Unified canvas builder</a>
+        <a href="/templates/">Combined templates</a>
+        <a href="/account/billing/">Billing</a>
+        <a href="/login/?next=/admin/">Admin login</a>
+      </div>
+    </section>
+  </main>
+
+  <script src="/assets/pbi-admin-v2.js?v=20260511-admin-coupons" defer></script>
+</body>
+</html>

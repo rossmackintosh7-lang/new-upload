@@ -72,9 +72,12 @@ document.addEventListener('DOMContentLoaded', () => {
         throw new Error(result.error || result.message || `Login failed with status ${response.status}`);
       }
 
-      showMessage('Login successful. Taking you to your dashboard...', 'success');
+      const params = new URLSearchParams(window.location.search);
+      const next = params.get('next') || '/dashboard/';
+      const safeNext = next.startsWith('/') && !next.startsWith('//') ? next : '/dashboard/';
+      showMessage('Login successful. Opening your selected page...', 'success');
 
-      window.location.href = '/dashboard/';
+      window.location.href = safeNext;
     } catch (err) {
       console.error('Login failed:', err);
       showMessage(err.message || 'Login failed. Please check your details.', 'error');

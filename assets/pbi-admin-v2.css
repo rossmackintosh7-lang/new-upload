@@ -305,6 +305,59 @@ body.pbi-admin-body::after{
   text-decoration:none;
   font-weight:850;
 }
+.pbi-admin-body .pbi-admin-op-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+  margin-top:12px;
+}
+.pbi-admin-body .pbi-admin-op-card{
+  display:grid;
+  gap:6px;
+  min-height:128px;
+  padding:16px;
+  border:1px solid rgba(55,31,18,.12);
+  border-radius:18px;
+  background:#fff;
+  color:#21130d;
+  text-decoration:none;
+}
+.pbi-admin-body .pbi-admin-op-card strong{
+  font-size:1.65rem;
+  line-height:1;
+}
+.pbi-admin-body .pbi-admin-op-card span{
+  font-weight:950;
+}
+.pbi-admin-body .pbi-admin-op-card small{
+  color:#6f5b50;
+  line-height:1.35;
+}
+.pbi-admin-body .pbi-admin-coupon-form{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+  margin-top:12px;
+}
+.pbi-admin-body .pbi-admin-coupon-form label{
+  display:grid;
+  gap:6px;
+  color:#6f5b50;
+  font-size:12px;
+  font-weight:950;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+.pbi-admin-body .pbi-admin-coupon-form button[type="submit"]{
+  grid-column:1/-1;
+  justify-self:start;
+}
+.pbi-admin-body .pbi-admin-coupon-panel .notice{
+  margin-top:12px;
+}
+.pbi-admin-body .pbi-coupon-row strong{
+  letter-spacing:.06em;
+}
 .pbi-admin-body .btn,
 .pbi-admin-body .btn-ghost,
 .pbi-admin-body button{
@@ -344,6 +397,8 @@ body.pbi-admin-body::after{
   .pbi-admin-body .pbi-admin-sidebar{position:static;height:auto}
   .pbi-admin-body .pbi-admin-kpi-grid,
   .pbi-admin-body .pbi-admin-grid,
-  .pbi-admin-body .pbi-admin-grid.wide-left{grid-template-columns:1fr}
+  .pbi-admin-body .pbi-admin-grid.wide-left,
+  .pbi-admin-body .pbi-admin-op-grid,
+  .pbi-admin-body .pbi-admin-coupon-form{grid-template-columns:1fr}
   .pbi-admin-body .sticky-panel{position:static}
 }

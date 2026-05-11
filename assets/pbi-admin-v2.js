@@ -69,6 +69,8 @@
       <article><strong>${Number(stats.past_due_billing || 0)}</strong><span>Payment issues</span></article>
       <article><strong>${Number(stats.total_users || 0)}</strong><span>Total users</span></article>
       <article><strong>${Number(stats.published_projects || 0)}</strong><span>Live sites</span></article>
+      <article><strong>${Number(stats.domain_queue || 0)}</strong><span>Domain queue</span></article>
+      <article><strong>${Number(stats.coupon_count || 0)}</strong><span>Coupons</span></article>
     `;
   }
 
@@ -138,6 +140,45 @@
         `).join('') || '<p>No billing records yet.</p>'}
       </div>
     `;
+  }
+
+  function renderOpsSnapshot(data) {
+    const target = $('adminOpsSnapshot');
+    if (!target) return;
+    const stats = data.stats || {};
+    const cards = [
+      {
+        label: 'Publish-ready drafts',
+        value: Number(stats.ready_drafts || 0),
+        detail: 'Paid or approved drafts waiting for final checks.',
+        href: '/admin/projects/'
+      },
+      {
+        label: 'Domain registration queue',
+        value: Number(stats.domain_queue || 0),
+        detail: 'Projects with a saved new-domain route.',
+        href: '/admin/projects/'
+      },
+      {
+        label: 'Stripe coupon system',
+        value: stats.stripe_coupons_enabled ? 'On' : 'Setup',
+        detail: stats.stripe_coupons_enabled ? 'Coupons can be created in Stripe.' : 'Add STRIPE_SECRET_KEY before creating coupons.',
+        href: '/admin/'
+      },
+      {
+        label: 'Support inbox',
+        value: Number((data.requests || []).find((item) => item.status === 'new')?.count || 0),
+        detail: 'New requests that need a first reply.',
+        href: '/admin/requests/'
+      }
+    ];
+    target.innerHTML = cards.map((card) => `
+      <a class="pbi-admin-op-card" href="${esc(card.href)}">
+        <strong>${esc(card.value)}</strong>
+        <span>${esc(card.label)}</span>
+        <small>${esc(card.detail)}</small>
+      </a>
+    `).join('');
   }
 
   function searchRecords(data, term) {
@@ -219,6 +260,107 @@
     }
   }
 
+  function formatCoupon(row = {}) {
+    if (Number(row.percent_off || 0) > 0) return `${Number(row.percent_off)}% off`;
+    const currency = String(row.currency || 'gbp').toUpperCase();
+    const amount = Number(row.amount_off || 0) / 100;
+    return `${currency} ${amount.toFixed(2)} off`;
+  }
+
+  function renderCouponList(coupons = [], stripeConnected = false) {
+    const target = $('adminCouponList');
+    if (!target) return;
+    if (!stripeConnected) {
+      target.innerHTML = '<p>Stripe is not connected yet. Add STRIPE_SECRET_KEY before generating coupons.</p>';
+      return;
+    }
+    target.innerHTML = coupons.length
+      ? coupons.map((coupon) => `
+        <article class="pbi-admin-item pbi-coupon-row">
+          <strong>${esc(coupon.code || 'Coupon')}</strong>
+          <span>${esc(coupon.name || 'PBI discount')} - ${esc(formatCoupon(coupon))}</span>
+          ${badges(coupon.duration || 'once', coupon.max_redemptions ? `${coupon.max_redemptions} uses` : 'no use limit', coupon.stripe_promotion_code_id ? 'Stripe ready' : 'Stripe pending')}
+        </article>
+      `).join('')
+      : '<p>No coupons created yet.</p>';
+  }
+
+  async function loadCoupons() {
+    if (!$('adminCouponList')) return;
+    const data = await api('/api/admin/coupons');
+    if (!data.ok) {
+      $('adminCouponList').innerHTML = `<p>${esc(data.error || data.message || 'Could not load coupons.')}</p>`;
+      return;
+    }
+    renderCouponList(data.coupons || [], data.stripe_connected);
+  }
+
+  function randomCouponCode() {
+    return `PBI-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
+  }
+
+  function couponPayload() {
+    const amount = $('adminCouponAmount')?.value || '';
+    const percent = $('adminCouponPercent')?.value || '';
+    return {
+      code: $('adminCouponCode')?.value || randomCouponCode(),
+      name: $('adminCouponName')?.value || 'PBI discount',
+      percent_off: amount ? 0 : Number(percent || 10),
+      amount_off: amount,
+      currency: $('adminCouponCurrency')?.value || 'gbp',
+      duration: $('adminCouponDuration')?.value || 'once',
+      duration_in_months: $('adminCouponMonths')?.value || '',
+      max_redemptions: $('adminCouponMax')?.value || '',
+      redeem_by: $('adminCouponRedeemBy')?.value || ''
+    };
+  }
+
+  function setCouponResult(text, type = 'info') {
+    const target = $('adminCouponResult');
+    if (!target) return;
+    target.style.display = 'block';
+    target.className = `notice domain-${type}`;
+    target.textContent = text;
+  }
+
+  function bindCoupons() {
+    const form = $('adminCouponForm');
+    if (!form || form.dataset.bound) return;
+    form.dataset.bound = '1';
+    $('adminGenerateCouponCode')?.addEventListener('click', () => {
+      if ($('adminCouponCode')) $('adminCouponCode').value = randomCouponCode();
+    });
+    $('adminRefreshCoupons')?.addEventListener('click', loadCoupons);
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const button = form.querySelector('button[type="submit"]');
+      if (button) {
+        button.disabled = true;
+        button.textContent = 'Creating...';
+      }
+      setCouponResult('Creating Stripe coupon...', 'info');
+      try {
+        const data = await api('/api/admin/coupons', {
+          method: 'POST',
+          body: JSON.stringify(couponPayload())
+        });
+        if (data.ok) {
+          setCouponResult(`Coupon ${data.coupon.code} is live in Stripe and can be used at checkout.`, 'success');
+          renderCouponList(data.coupons || [], true);
+        } else {
+          setCouponResult(data.error || data.message || 'Could not create coupon.', 'error');
+        }
+      } catch (err) {
+        setCouponResult(err?.message || 'Could not create coupon. Please try again.', 'error');
+      } finally {
+        if (button) {
+          button.disabled = false;
+          button.textContent = 'Create Stripe coupon';
+        }
+      }
+    });
+  }
+
   async function summary() {
     if (!$('adminKpiGrid')) return;
     const data = await api('/api/admin/summary');
@@ -231,8 +373,10 @@
     renderGooseBrief(data.goose_brief || {});
     renderLaunchQueue(data.launch_queue || []);
     renderBillingPulse(data);
+    renderOpsSnapshot(data);
     renderLatest(data);
     bindGlobalSearch(data);
+    loadCoupons();
   }
 
   async function requests() {
@@ -375,6 +519,7 @@
     requests();
     notifications();
     projects();
+    bindCoupons();
     $('adminRefreshSummary')?.addEventListener('click', summary);
     $('adminRefreshRequests')?.addEventListener('click', requests);
     $('adminRefreshNotifications')?.addEventListener('click', notifications);

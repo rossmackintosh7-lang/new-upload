@@ -177,6 +177,7 @@ export async function onRequestPost({ request, env }) {
 
   const params = new URLSearchParams();
   params.append('mode', 'subscription');
+  params.append('allow_promotion_codes', 'true');
   let lineItemIndex = appendPriceLine(params, 0, priceId);
   params.append('success_url', successUrl);
   params.append('cancel_url', cancelUrl);

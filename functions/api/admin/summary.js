@@ -119,6 +119,8 @@ export async function onRequestGet({ request, env }) {
   const suspendedUsers = await first(env, `SELECT COUNT(*) count FROM admin_user_controls WHERE status = 'suspended'`);
   const pastDueBilling = await first(env, `SELECT COUNT(*) count FROM projects WHERE lower(COALESCE(billing_status, '')) IN ('past_due','unpaid','failed','incomplete')`);
   const readyDrafts = await first(env, `SELECT COUNT(*) count FROM projects WHERE COALESCE(published, 0) != 1 AND lower(COALESCE(billing_status, '')) IN ('active','trialing','not_required','paid')`);
+  const domainQueue = await first(env, `SELECT COUNT(*) count FROM projects WHERE lower(COALESCE(domain_option, '')) = 'register_new'`);
+  const recentCoupons = await first(env, `SELECT COUNT(*) count FROM admin_coupons`);
   const billing_breakdown = await all(env, `SELECT COALESCE(NULLIF(billing_status, ''), 'unknown') AS status, COUNT(*) count FROM projects GROUP BY COALESCE(NULLIF(billing_status, ''), 'unknown') ORDER BY count DESC`);
   const launch_queue = await all(env, `
     SELECT projects.id, projects.name, projects.status, projects.plan, projects.billing_status, projects.published, projects.created_at, projects.updated_at, users.email AS user_email
@@ -160,7 +162,10 @@ export async function onRequestGet({ request, env }) {
       published_projects: publishedProjects?.count || 0,
       suspended_users: suspendedUsers?.count || 0,
       past_due_billing: priorityCounts.pastDueBilling,
-      ready_drafts: priorityCounts.readyDrafts
+      ready_drafts: priorityCounts.readyDrafts,
+      domain_queue: domainQueue?.count || 0,
+      coupon_count: recentCoupons?.count || 0,
+      stripe_coupons_enabled: Boolean(env.STRIPE_SECRET_KEY)
     }
   });
 }
