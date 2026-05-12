@@ -1,57 +1,577 @@
-(()=>{
- if(window.__PBI_IMAGE_TOOLS_V3__)return;window.__PBI_IMAGE_TOOLS_V3__=true;
- const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>Array.from(r.querySelectorAll(s));
- const uid=p=>`${p}-${Math.random().toString(36).slice(2,8)}-${Date.now().toString(36)}`;
- const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const get=()=>{try{return JSON.parse(localStorage.getItem('pbi_canvas_state')||'{}')}catch{return {}}};
- const save=s=>{localStorage.setItem('pbi_canvas_state',JSON.stringify(s));localStorage.setItem('pbi_plan',(s.plan||'starter').toLowerCase())};
- const curPage=s=>s.activePage||s.active_page||(s.selected_pages&&s.selected_pages[0])||'home';
- const demo=u=>!u||String(u).includes('/assets/demo-media/')||String(u).includes('cafe-hero')||String(u).includes('consultant-hero');
- const allBlocks=s=>Object.entries(s.blocksByPage||{}).flatMap(([p,a])=>(a||[]).map(b=>({p,b})));
- const pageBlocks=(s,p=curPage(s))=>(s.blocksByPage?.[p]||[]).map(b=>({p,b}));
- const domSelId=()=>$('.pbi-canvas-render-block.selected,[data-block-id].selected')?.dataset.blockId||null;
- const builderSelId=()=>window.PBIBuilderV2?.getSelectedBlockId?.()||null;
- const selId=()=>domSelId()||builderSelId()||null;
- function findBlockId(node){let el=node?.nodeType===1?node:node?.parentElement;return el?.closest?.('[data-block-id],.pbi-canvas-render-block')?.dataset?.blockId||null}
- function resolveDropBlockId(dropMeta){
-  let direct=findBlockId(dropMeta?.target||dropMeta);if(direct)return direct;
-  let path=Array.isArray(dropMeta?.path)?dropMeta.path:[];for(let i=0;i<path.length;i++){let fromPath=findBlockId(path[i]);if(fromPath)return fromPath}
-  if(Number.isFinite(dropMeta?.x)&&Number.isFinite(dropMeta?.y)){let pointEl=document.elementFromPoint(dropMeta.x,dropMeta.y);let fromPoint=findBlockId(pointEl);if(fromPoint)return fromPoint}
-  return selId()
- }
- function selected(s,dropMeta=null){let id=resolveDropBlockId(dropMeta);return id?allBlocks(s).find(x=>x.b.id===id):null}
- function mediaState(){let s=get();s.mediaLibrary=s.mediaLibrary||[];s.pageBackgrounds=s.pageBackgrounds||{};return s}
- function media(id){return (mediaState().mediaLibrary||[]).find(x=>x.id===id)}
- function block(type,x){return Object.assign({id:uid(type),type,layout:'standard',animation:'rise',background:'#fffaf4',accent:'#bf5c29',positionMode:'flow',publishable:true},x||{})}
- function isPremiumPlan(s){return ['business','plus'].includes(String(s.plan||localStorage.getItem('pbi_plan')||'starter').toLowerCase())}
- function dropPosition(meta,width=360){let zone=$('#canvasDropzone')||$('.pbi-canvas-dropzone');let rect=zone?.getBoundingClientRect?.();if(!rect||!Number.isFinite(meta?.x)||!Number.isFinite(meta?.y))return {x:70,y:80,width};return {x:Math.max(0,Math.round(meta.x-rect.left-(width/2))),y:Math.max(0,Math.round(meta.y-rect.top-110)),width}}
- function makeImageVisibleDom(s){
-  allBlocks(s).forEach(({b})=>{let el=document.querySelector(`[data-block-id="${CSS.escape(b.id)}"],.pbi-canvas-render-block[data-block-id="${CSS.escape(b.id)}"]`);if(!el)return;let placed=el.querySelector(':scope > .pbi-live-placed-image');if(placed&&b.image){placed.src=b.image;placed.alt=b.imageAlt||b.title||'Block image';return}let old=el.querySelector(':scope > .pbi-universal-block-image');if(!b.image||b.type==='image'){old?.remove();return}if(!old){old=document.createElement('img');old.className='pbi-universal-block-image';old.alt=b.imageAlt||b.title||'Block image';el.appendChild(old)}old.src=b.image;old.alt=b.imageAlt||b.title||'Block image';old.dataset.imagePlacement=b.imagePlacement||'inline'});
-  let p=curPage(s),bg=s.pageBackgrounds?.[p]||s.pages?.[p]?.backgroundImage;let drop=$('#canvasDropzone')||$('.pbi-canvas-dropzone');if(drop&&bg){drop.style.backgroundImage=`linear-gradient(rgba(255,250,244,.88),rgba(255,250,244,.88)),url(${bg})`;drop.style.backgroundSize='cover';drop.style.backgroundPosition='center'}
- }
- function apply(id,mode='selected',targetEl=null){let s=mediaState(),m=media(id);if(!m)return alert('Upload/select an image first.');let changed=false;let p=curPage(s);s.blocksByPage=s.blocksByPage||{};s.blocksByPage[p]=s.blocksByPage[p]||[];
-  if(mode==='selected'){let hit=selected(s,targetEl);if(!hit)return alert('Select a block first, then drop the image onto it, or use "New" to add a fresh image block.');hit.b.image=m.url;hit.b.imageAlt=m.alt||m.name||'';hit.b.imagePlacement=hit.b.imagePlacement||'inline';if(hit.b.type==='hero')s.heroImage=m.url;changed=true}
-  if(mode==='current'){pageBlocks(s,p).forEach(({b})=>{b.image=m.url;b.imageAlt=m.alt||m.name||'';b.imagePlacement=b.imagePlacement||'inline';changed=true});if(s.pages?.[p])s.pages[p].updatedImage=m.url}
-  if(mode==='all'){allBlocks(s).forEach(({b})=>{b.image=m.url;b.imageAlt=m.alt||m.name||'';b.imagePlacement=b.imagePlacement||'inline';changed=true});s.heroImage=m.url;changed=true}
-  if(mode==='replaceDemo'){s.heroImage=m.url;allBlocks(s).forEach(({b})=>{if(demo(b.image)||['hero','splitHero','gallery'].includes(b.type)){b.image=m.url;b.imageAlt=m.alt||m.name||'';b.imagePlacement=b.imagePlacement||'inline';changed=true}});changed=true}
-  if(mode==='background'){s.pageBackgrounds[p]=m.url;s.pages=s.pages||{};s.pages[p]=s.pages[p]||{};s.pages[p].backgroundImage=m.url;changed=true}
-  if(mode==='allBackgrounds'){s.pageBackgrounds=s.pageBackgrounds||{};(s.selected_pages||Object.keys(s.blocksByPage||{})).forEach(pg=>{s.pageBackgrounds[pg]=m.url;s.pages=s.pages||{};s.pages[pg]=s.pages[pg]||{};s.pages[pg].backgroundImage=m.url});changed=true}
-  if(mode==='place'||mode==='free'){let pos=dropPosition(targetEl,360);let b=block('image',{title:m.name||'Uploaded image',text:'',image:m.url,imageAlt:m.alt||m.name||'',background:'transparent',layout:'image',imagePlacement:'canvas'});if(isPremiumPlan(s)){b.positionMode='free';b.x=pos.x;b.y=pos.y;b.width=pos.width}else{b.positionMode='flow'}s.blocksByPage[p].push(b);changed=true}
-  if(changed){save(s);location.reload()}}
- function remove(mode='selected'){let s=get(),changed=false,p=curPage(s);
-  if(mode==='selected'){let hit=selected(s);if(!hit)return alert('Select a block/image first.');delete hit.b.image;delete hit.b.imageAlt;delete hit.b.imagePlacement;changed=true}
-  if(mode==='current'){pageBlocks(s,p).forEach(({b})=>{delete b.image;delete b.imageAlt;delete b.imagePlacement;changed=true});if(s.pageBackgrounds)delete s.pageBackgrounds[p];if(s.pages?.[p])delete s.pages[p].backgroundImage}
-  if(mode==='all'){allBlocks(s).forEach(({b})=>{delete b.image;delete b.imageAlt;delete b.imagePlacement;changed=true});delete s.heroImage;s.pageBackgrounds={};Object.values(s.pages||{}).forEach(pg=>delete pg.backgroundImage)}
-  if(mode==='demo'){allBlocks(s).forEach(({b})=>{if(demo(b.image)){delete b.image;delete b.imageAlt;delete b.imagePlacement;changed=true}});if(demo(s.heroImage)){delete s.heroImage;changed=true}}
-  if(changed){save(s);location.reload()}}
- function load(files){Array.from(files||[]).filter(f=>/^image\//.test(f.type)).forEach(f=>{let r=new FileReader();r.onload=()=>{let s=mediaState();s.mediaLibrary.unshift({id:uid('media'),name:f.name,url:String(r.result),alt:f.name.replace(/\.[^.]+$/,'')});save(s);render()};r.readAsDataURL(f)})}
- function render(){let grid=$('#pbiImgGrid');if(!grid)return;let s=mediaState();grid.innerHTML=(s.mediaLibrary||[]).map(i=>`<article draggable="true" data-mid="${esc(i.id)}"><img src="${esc(i.url)}"><span title="${esc(i.name||'Image')}">${esc(i.name||'Image')}</span><button data-use="${esc(i.id)}">Selected</button><button data-page="${esc(i.id)}">Page</button><button data-all="${esc(i.id)}">All pages</button><button data-bg="${esc(i.id)}">Bg</button><button data-free="${esc(i.id)}">New</button><button data-del="${esc(i.id)}">×</button></article>`).join('')||'<p class="muted">Upload images to use them on any block or page.</p>';$$('[data-mid]',grid).forEach(c=>c.ondragstart=e=>e.dataTransfer.setData('application/x-pbi-media-id',c.dataset.mid));$$('[data-use]',grid).forEach(b=>b.onclick=()=>apply(b.dataset.use,'selected'));$$('[data-page]',grid).forEach(b=>b.onclick=()=>apply(b.dataset.page,'current'));$$('[data-all]',grid).forEach(b=>b.onclick=()=>apply(b.dataset.all,'all'));$$('[data-bg]',grid).forEach(b=>b.onclick=()=>apply(b.dataset.bg,'background'));$$('[data-free]',grid).forEach(b=>b.onclick=()=>apply(b.dataset.free,'free'));$$('[data-del]',grid).forEach(b=>b.onclick=()=>{let s=mediaState();s.mediaLibrary=s.mediaLibrary.filter(x=>x.id!==b.dataset.del);save(s);render()})}
- function latest(){return mediaState().mediaLibrary?.[0]}
- function tray(){if($('#pbiImgTools'))return;let left=$('.pbi-studio-left')||$('.pbi-canvas-palette');if(!left)return;let box=document.createElement('section');box.id='pbiImgTools';box.className='pbi-hotfix-media';box.innerHTML=`<div class="pbi-hotfix-media-head"><strong>Images</strong><label>Upload<input id="pbiImgUpload" type="file" accept="image/*" multiple hidden></label></div><div class="pbi-image-tools"><button id="pbiUseLatest">Use on selected</button><button id="pbiCurrentPage">Use on current page</button><button id="pbiAllPages">Use on all pages</button><button id="pbiPageBg">Set page background</button><button id="pbiRemoveSelected">Remove selected</button><button id="pbiRemoveCurrent">Remove current page images</button><button id="pbiRemoveAll">Remove all images</button></div><div id="pbiImgDrop" class="pbi-hotfix-drop">Drop images here</div><div id="pbiImgGrid" class="pbi-hotfix-grid"></div>`;(($('.pbi-studio-tabs',left))||left.firstElementChild).after(box);$('#pbiImgUpload').onchange=e=>load(e.target.files);let d=$('#pbiImgDrop');d.ondragover=e=>{e.preventDefault();d.classList.add('active')};d.ondragleave=()=>d.classList.remove('active');d.ondrop=e=>{e.preventDefault();d.classList.remove('active');load(e.dataTransfer.files)};$('#pbiUseLatest').onclick=()=>latest()?apply(latest().id,'selected'):alert('Upload an image first.');$('#pbiCurrentPage').onclick=()=>latest()?apply(latest().id,'current'):alert('Upload an image first.');$('#pbiAllPages').onclick=()=>latest()?apply(latest().id,'all'):alert('Upload an image first.');$('#pbiPageBg').onclick=()=>latest()?apply(latest().id,'background'):alert('Upload an image first.');$('#pbiRemoveSelected').onclick=()=>remove('selected');$('#pbiRemoveCurrent').onclick=()=>remove('current');$('#pbiRemoveAll').onclick=()=>confirm('Remove images from all blocks/pages?')&&remove('all');render()}
- function inspector(){if($('#pbiImgInspector'))return;let input=$('#inspectorImage');if(!input)return;let box=document.createElement('div');box.id='pbiImgInspector';box.className='pbi-image-tools';box.innerHTML='<button type="button" id="pbiInsUse">Use latest here</button><button type="button" id="pbiInsPage">Use latest on page</button><button type="button" id="pbiInsClear">Remove selected image</button>';input.closest('.field')?.appendChild(box);$('#pbiInsUse').onclick=()=>latest()?apply(latest().id,'selected'):alert('Upload an image first.');$('#pbiInsPage').onclick=()=>latest()?apply(latest().id,'current'):alert('Upload an image first.');$('#pbiInsClear').onclick=()=>remove('selected')}
- function drops(){document.addEventListener('dragover',e=>{if(e.dataTransfer?.types?.includes('application/x-pbi-media-id'))e.preventDefault()});document.addEventListener('drop',e=>{let id=e.dataTransfer?.getData('application/x-pbi-media-id');if(!id)return;e.preventDefault();apply(id,'place',{target:e.target,x:e.clientX,y:e.clientY,path:e.composedPath?.()||[]})})}
- function ai(){let old=$('#canvasAiBuildBtn');if(!old||old.dataset.v3)return;let btn=old.cloneNode(true);btn.dataset.v3='1';old.replaceWith(btn);btn.onclick=()=>{let brief=($('#canvasAiBrief')?.value||'').trim();if(!brief)return alert('Describe the business first.');let s=get();let title=`Website built around ${brief}`;let text='A clear small-business website with services, proof, FAQs and one enquiry route.';Object.assign(s,{page_main_heading:title,sub_heading:text,activePage:'home',selected_pages:['home','about','services','gallery','faq','contact']});s.pages={home:{label:'Home',title,body:text}};s.blocksByPage={home:[block('hero',{title,text,image:s.heroImage||'/assets/demo-media/cafe-hero.jpg',button:'Send enquiry'}),block('services',{title:'Services made simple',text:'Main service | Fast enquiry | Local support | Friendly follow-up'}),block('contact',{title:'Ready to get started?',text:'Give visitors one clear route to enquire.',button:'Send enquiry'})]};save(s);location.reload()}}
- function css(){if($('#pbiImageV3Css'))return;let st=document.createElement('style');st.id='pbiImageV3Css';st.textContent='.pbi-universal-block-image{width:100%;max-height:260px;object-fit:cover;border-radius:18px;margin-top:14px;display:block}.pbi-hotfix-media{margin:14px 0;padding:14px;border:1px solid rgba(70,42,27,.12);border-radius:20px;background:#fffaf4}.pbi-hotfix-media-head{display:flex;justify-content:space-between;gap:10px;align-items:center}.pbi-hotfix-media-head label{cursor:pointer;border:1px solid rgba(70,42,27,.14);border-radius:999px;padding:8px 12px;background:#fff}.pbi-hotfix-drop{border:1px dashed rgba(191,92,41,.45);background:#fff;border-radius:14px;padding:10px;text-align:center;margin:10px 0;color:#75533d}.pbi-hotfix-drop.active{background:#fff0e6}.pbi-hotfix-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.pbi-hotfix-grid article{border:1px solid rgba(70,42,27,.12);border-radius:14px;background:#fff;overflow:hidden;padding-bottom:5px;cursor:grab}.pbi-hotfix-grid img{width:100%;aspect-ratio:1/1;object-fit:cover;display:block}.pbi-hotfix-grid span{display:block;padding:5px 6px;font-size:.7rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pbi-hotfix-grid button,.pbi-image-tools button{font-size:.72rem;margin:3px;border:1px solid rgba(70,42,27,.12);border-radius:999px;background:#fffaf4;padding:6px 8px;cursor:pointer}.pbi-image-tools{display:flex;gap:5px;flex-wrap:wrap;margin:8px 0}.pbi-image-tools button:nth-child(3),.pbi-image-tools button:nth-child(4){background:#bf5c29;color:white;border-color:#bf5c29}';document.head.appendChild(st)}
- function init(){css();ai();tray();drops();setTimeout(()=>{inspector();makeImageVisibleDom(get())},500);document.addEventListener('click',()=>setTimeout(()=>{inspector();makeImageVisibleDom(get())},80),true)}
- document.readyState==='loading'?document.addEventListener('DOMContentLoaded',init):setTimeout(init,0);
+(() => {
+  if (window.__PBI_IMAGE_TOOLS_V4__) return;
+  window.__PBI_IMAGE_TOOLS_V4__ = true;
+
+  const $ = (selector, root = document) => root.querySelector(selector);
+  const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
+  const uid = (prefix) => `${prefix}-${Math.random().toString(36).slice(2, 8)}-${Date.now().toString(36)}`;
+  const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (char) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  })[char]);
+  const selectorEscape = (value) => window.CSS?.escape ? CSS.escape(value) : String(value).replace(/["\\]/g, "\\$&");
+
+  function get() {
+    try {
+      return JSON.parse(localStorage.getItem("pbi_canvas_state") || "{}");
+    } catch {
+      return {};
+    }
+  }
+
+  function save(state) {
+    localStorage.setItem("pbi_canvas_state", JSON.stringify(state));
+    localStorage.setItem("pbi_plan", String(state.plan || "starter").toLowerCase());
+  }
+
+  function liveState() {
+    return window.PBIBuilderV2?.getState?.() || get();
+  }
+
+  function activePageFor(state, context = {}) {
+    return context.activePage || window.PBIBuilderV2?.getActivePage?.() || state.activePage || state.active_page || state.selected_pages?.[0] || "home";
+  }
+
+  function mediaState() {
+    const state = get();
+    state.mediaLibrary = state.mediaLibrary || [];
+    state.pageBackgrounds = state.pageBackgrounds || {};
+    return state;
+  }
+
+  function media(id) {
+    return (mediaState().mediaLibrary || []).find((item) => item.id === id);
+  }
+
+  function allBlocks(state) {
+    return Object.entries(state.blocksByPage || {}).flatMap(([page, blocks]) => (blocks || []).map((block) => ({ page, block })));
+  }
+
+  function pageBlocks(state, page = activePageFor(state)) {
+    return (state.blocksByPage?.[page] || []).map((block) => ({ page, block }));
+  }
+
+  function domSelectedId() {
+    return $(".pbi-canvas-render-block.selected,[data-block-id].selected")?.dataset.blockId || null;
+  }
+
+  function selectedId() {
+    return domSelectedId() || window.PBIBuilderV2?.getSelectedBlockId?.() || null;
+  }
+
+  function findBlockId(node) {
+    const element = node?.nodeType === 1 ? node : node?.parentElement;
+    return element?.closest?.("[data-block-id],.pbi-canvas-render-block")?.dataset?.blockId || null;
+  }
+
+  function resolveDropBlockId(dropMeta) {
+    const direct = findBlockId(dropMeta?.target || dropMeta);
+    if (direct) return direct;
+    const path = Array.isArray(dropMeta?.path) ? dropMeta.path : [];
+    for (const pathItem of path) {
+      const fromPath = findBlockId(pathItem);
+      if (fromPath) return fromPath;
+    }
+    if (Number.isFinite(dropMeta?.x) && Number.isFinite(dropMeta?.y)) {
+      const pointElement = document.elementFromPoint(dropMeta.x, dropMeta.y);
+      const fromPoint = findBlockId(pointElement);
+      if (fromPoint) return fromPoint;
+    }
+    return selectedId();
+  }
+
+  function selectedBlock(state, dropMeta = null) {
+    const id = resolveDropBlockId(dropMeta);
+    return id ? allBlocks(state).find((item) => item.block.id === id) : null;
+  }
+
+  function demoImage(url) {
+    return !url || String(url).includes("/assets/demo-media/") || String(url).includes("cafe-hero") || String(url).includes("consultant-hero");
+  }
+
+  function imageBlock(data = {}) {
+    return {
+      id: uid("image"),
+      type: "image",
+      layout: "image",
+      animation: "rise",
+      background: "transparent",
+      accent: "#bf5c29",
+      positionMode: "flow",
+      publishable: true,
+      ...data
+    };
+  }
+
+  function isPremiumPlan(state) {
+    return ["business", "plus"].includes(String(state.plan || localStorage.getItem("pbi_plan") || "starter").toLowerCase());
+  }
+
+  function dropPosition(meta, width = 360, height = 240) {
+    const zone = $("#canvasDropzone") || $(".pbi-canvas-dropzone");
+    const rect = zone?.getBoundingClientRect?.();
+    if (!rect || !Number.isFinite(meta?.x) || !Number.isFinite(meta?.y)) return { x: 70, y: 80, width };
+    return {
+      x: Math.max(0, Math.round(meta.x - rect.left - (width / 2))),
+      y: Math.max(0, Math.round(meta.y - rect.top - (height / 2))),
+      width
+    };
+  }
+
+  function makeImageVisibleDom(state) {
+    allBlocks(state).forEach(({ block }) => {
+      const safeId = selectorEscape(block.id);
+      const element = document.querySelector(`[data-block-id="${safeId}"],.pbi-canvas-render-block[data-block-id="${safeId}"]`);
+      if (!element) return;
+      const placed = element.querySelector(":scope > .pbi-live-placed-image");
+      if (placed && block.image) {
+        placed.src = block.image;
+        placed.alt = block.imageAlt || block.title || "Block image";
+        return;
+      }
+      let fallback = element.querySelector(":scope > .pbi-universal-block-image");
+      if (!block.image || block.type === "image") {
+        fallback?.remove();
+        return;
+      }
+      if (!fallback) {
+        fallback = document.createElement("img");
+        fallback.className = "pbi-universal-block-image";
+        element.appendChild(fallback);
+      }
+      fallback.src = block.image;
+      fallback.alt = block.imageAlt || block.title || "Block image";
+      fallback.dataset.imagePlacement = block.imagePlacement || "inline";
+    });
+
+    const page = activePageFor(state);
+    const background = state.pageBackgrounds?.[page] || state.pages?.[page]?.backgroundImage;
+    const dropzone = $("#canvasDropzone") || $(".pbi-canvas-dropzone");
+    if (dropzone && background) {
+      dropzone.style.backgroundImage = `linear-gradient(rgba(255,250,244,.88),rgba(255,250,244,.88)),url(${background})`;
+      dropzone.style.backgroundSize = "cover";
+      dropzone.style.backgroundPosition = "center";
+    }
+  }
+
+  function mutateCanvas(status, updater) {
+    const local = mediaState();
+    let result = { changed: false };
+
+    if (window.PBIBuilderV2?.updateState) {
+      window.PBIBuilderV2.updateState((state, context) => {
+        state.mediaLibrary = local.mediaLibrary || state.mediaLibrary || [];
+        state.pageBackgrounds = state.pageBackgrounds || {};
+        result = updater(state, context || {}) || result;
+        return state;
+      }, status);
+      return result;
+    }
+
+    const state = local;
+    result = updater(state, { activePage: activePageFor(state) }) || result;
+    if (result.changed) save(state);
+    return result;
+  }
+
+  function selectRenderedBlock(id) {
+    if (!id) return;
+    setTimeout(() => {
+      document.querySelector(`[data-block-id="${selectorEscape(id)}"]`)?.click();
+    }, 80);
+  }
+
+  function apply(id, mode = "selected", dropMeta = null) {
+    const item = media(id);
+    if (!item) {
+      alert("Upload or select an image first.");
+      return;
+    }
+
+    if (mode === "selected" && !selectedBlock(liveState(), dropMeta)) {
+      alert('Select a block first, drop the image onto a block, or use "New" to place it as a fresh image.');
+      return;
+    }
+
+    let newBlockId = "";
+    const result = mutateCanvas("Image updated", (state, context) => {
+      let changed = false;
+      const page = activePageFor(state, context);
+      state.blocksByPage = state.blocksByPage || {};
+      state.blocksByPage[page] = state.blocksByPage[page] || [];
+      state.pages = state.pages || {};
+      state.pageBackgrounds = state.pageBackgrounds || {};
+
+      if (mode === "selected") {
+        const hit = selectedBlock(state, dropMeta);
+        if (!hit) return { changed: false };
+        hit.block.image = item.url;
+        hit.block.imageAlt = item.alt || item.name || "";
+        hit.block.imagePlacement = hit.block.imagePlacement || "inline";
+        if (hit.block.type === "hero") state.heroImage = item.url;
+        changed = true;
+      }
+
+      if (mode === "current") {
+        pageBlocks(state, page).forEach(({ block }) => {
+          block.image = item.url;
+          block.imageAlt = item.alt || item.name || "";
+          block.imagePlacement = block.imagePlacement || "inline";
+          changed = true;
+        });
+        state.pages[page] = state.pages[page] || {};
+        state.pages[page].updatedImage = item.url;
+      }
+
+      if (mode === "all") {
+        allBlocks(state).forEach(({ block }) => {
+          block.image = item.url;
+          block.imageAlt = item.alt || item.name || "";
+          block.imagePlacement = block.imagePlacement || "inline";
+          changed = true;
+        });
+        state.heroImage = item.url;
+      }
+
+      if (mode === "replaceDemo") {
+        state.heroImage = item.url;
+        allBlocks(state).forEach(({ block }) => {
+          if (demoImage(block.image) || ["hero", "splitHero", "gallery"].includes(block.type)) {
+            block.image = item.url;
+            block.imageAlt = item.alt || item.name || "";
+            block.imagePlacement = block.imagePlacement || "inline";
+            changed = true;
+          }
+        });
+      }
+
+      if (mode === "background") {
+        state.pageBackgrounds[page] = item.url;
+        state.pages[page] = state.pages[page] || {};
+        state.pages[page].backgroundImage = item.url;
+        changed = true;
+      }
+
+      if (mode === "allBackgrounds") {
+        (state.selected_pages || Object.keys(state.blocksByPage || {})).forEach((pageKey) => {
+          state.pageBackgrounds[pageKey] = item.url;
+          state.pages[pageKey] = state.pages[pageKey] || {};
+          state.pages[pageKey].backgroundImage = item.url;
+        });
+        changed = true;
+      }
+
+      if (mode === "place" || mode === "free") {
+        const position = dropPosition(dropMeta, 360);
+        const block = imageBlock({
+          title: item.name || "Uploaded image",
+          text: "",
+          image: item.url,
+          imageAlt: item.alt || item.name || "",
+          imagePlacement: "canvas"
+        });
+        if (isPremiumPlan(state)) {
+          block.positionMode = "free";
+          block.x = position.x;
+          block.y = position.y;
+          block.width = position.width;
+          block.z = (state.blocksByPage[page].length || 0) + 20;
+        }
+        state.blocksByPage[page].push(block);
+        newBlockId = block.id;
+        changed = true;
+      }
+
+      return { changed };
+    });
+
+    if (result.changed) {
+      render();
+      makeImageVisibleDom(liveState());
+      selectRenderedBlock(newBlockId);
+    }
+  }
+
+  function remove(mode = "selected") {
+    if (mode === "selected" && !selectedBlock(liveState())) {
+      alert("Select a block or image first.");
+      return;
+    }
+
+    const result = mutateCanvas("Image removed", (state, context) => {
+      let changed = false;
+      const page = activePageFor(state, context);
+
+      if (mode === "selected") {
+        const hit = selectedBlock(state);
+        if (!hit) return { changed: false };
+        delete hit.block.image;
+        delete hit.block.imageAlt;
+        delete hit.block.imagePlacement;
+        changed = true;
+      }
+
+      if (mode === "current") {
+        pageBlocks(state, page).forEach(({ block }) => {
+          delete block.image;
+          delete block.imageAlt;
+          delete block.imagePlacement;
+          changed = true;
+        });
+        if (state.pageBackgrounds) delete state.pageBackgrounds[page];
+        if (state.pages?.[page]) delete state.pages[page].backgroundImage;
+      }
+
+      if (mode === "all") {
+        allBlocks(state).forEach(({ block }) => {
+          delete block.image;
+          delete block.imageAlt;
+          delete block.imagePlacement;
+          changed = true;
+        });
+        delete state.heroImage;
+        state.pageBackgrounds = {};
+        Object.values(state.pages || {}).forEach((pageData) => delete pageData.backgroundImage);
+      }
+
+      if (mode === "demo") {
+        allBlocks(state).forEach(({ block }) => {
+          if (demoImage(block.image)) {
+            delete block.image;
+            delete block.imageAlt;
+            delete block.imagePlacement;
+            changed = true;
+          }
+        });
+        if (demoImage(state.heroImage)) {
+          delete state.heroImage;
+          changed = true;
+        }
+      }
+
+      return { changed };
+    });
+
+    if (result.changed) {
+      render();
+      makeImageVisibleDom(liveState());
+    }
+  }
+
+  function load(files) {
+    Array.from(files || []).filter((file) => /^image\//.test(file.type)).forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const state = mediaState();
+        state.mediaLibrary.unshift({
+          id: uid("media"),
+          name: file.name,
+          url: String(reader.result),
+          alt: file.name.replace(/\.[^.]+$/, "")
+        });
+        save(state);
+        render();
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function render() {
+    const grid = $("#pbiImgGrid");
+    if (!grid) return;
+    const state = mediaState();
+    grid.innerHTML = (state.mediaLibrary || []).map((item) => `
+      <article draggable="true" data-mid="${esc(item.id)}">
+        <img src="${esc(item.url)}" alt="${esc(item.alt || item.name || "Uploaded image")}" draggable="false">
+        <span title="${esc(item.name || "Image")}">${esc(item.name || "Image")}</span>
+        <button type="button" data-use="${esc(item.id)}">Selected</button>
+        <button type="button" data-page="${esc(item.id)}">Page</button>
+        <button type="button" data-all="${esc(item.id)}">All pages</button>
+        <button type="button" data-bg="${esc(item.id)}">Bg</button>
+        <button type="button" data-free="${esc(item.id)}">New</button>
+        <button type="button" data-del="${esc(item.id)}">x</button>
+      </article>
+    `).join("") || '<p class="muted">Upload images to use them on any block or page.</p>';
+
+    $$("[data-mid]", grid).forEach((card) => {
+      card.addEventListener("dragstart", (event) => {
+        event.dataTransfer.effectAllowed = "copy";
+        event.dataTransfer.setData("application/x-pbi-media-id", card.dataset.mid);
+      });
+    });
+    $$("[data-use]", grid).forEach((button) => button.addEventListener("click", () => apply(button.dataset.use, "selected")));
+    $$("[data-page]", grid).forEach((button) => button.addEventListener("click", () => apply(button.dataset.page, "current")));
+    $$("[data-all]", grid).forEach((button) => button.addEventListener("click", () => apply(button.dataset.all, "all")));
+    $$("[data-bg]", grid).forEach((button) => button.addEventListener("click", () => apply(button.dataset.bg, "background")));
+    $$("[data-free]", grid).forEach((button) => button.addEventListener("click", () => apply(button.dataset.free, "free")));
+    $$("[data-del]", grid).forEach((button) => button.addEventListener("click", () => {
+      const state = mediaState();
+      state.mediaLibrary = state.mediaLibrary.filter((item) => item.id !== button.dataset.del);
+      save(state);
+      render();
+    }));
+  }
+
+  function latest() {
+    return mediaState().mediaLibrary?.[0];
+  }
+
+  function tray() {
+    if ($("#pbiImgTools")) return;
+    const left = $(".pbi-studio-left") || $(".pbi-canvas-palette");
+    if (!left) return;
+    const box = document.createElement("section");
+    box.id = "pbiImgTools";
+    box.className = "pbi-hotfix-media";
+    box.innerHTML = `
+      <div class="pbi-hotfix-media-head">
+        <strong>Images</strong>
+        <label>Upload<input id="pbiImgUpload" type="file" accept="image/*" multiple hidden></label>
+      </div>
+      <div class="pbi-image-tools">
+        <button type="button" id="pbiUseLatest">Use on selected</button>
+        <button type="button" id="pbiCurrentPage">Use on current page</button>
+        <button type="button" id="pbiAllPages">Use on all pages</button>
+        <button type="button" id="pbiPageBg">Set page background</button>
+        <button type="button" id="pbiRemoveSelected">Remove selected</button>
+        <button type="button" id="pbiRemoveCurrent">Remove current page images</button>
+        <button type="button" id="pbiRemoveAll">Remove all images</button>
+      </div>
+      <div id="pbiImgDrop" class="pbi-hotfix-drop">Drop images here</div>
+      <div id="pbiImgGrid" class="pbi-hotfix-grid"></div>
+    `;
+    (($(".pbi-studio-tabs", left)) || left.firstElementChild).after(box);
+
+    $("#pbiImgUpload").addEventListener("change", (event) => load(event.target.files));
+    const drop = $("#pbiImgDrop");
+    drop.addEventListener("dragover", (event) => {
+      event.preventDefault();
+      drop.classList.add("active");
+    });
+    drop.addEventListener("dragleave", () => drop.classList.remove("active"));
+    drop.addEventListener("drop", (event) => {
+      event.preventDefault();
+      drop.classList.remove("active");
+      load(event.dataTransfer.files);
+    });
+
+    $("#pbiUseLatest").addEventListener("click", () => latest() ? apply(latest().id, "selected") : alert("Upload an image first."));
+    $("#pbiCurrentPage").addEventListener("click", () => latest() ? apply(latest().id, "current") : alert("Upload an image first."));
+    $("#pbiAllPages").addEventListener("click", () => latest() ? apply(latest().id, "all") : alert("Upload an image first."));
+    $("#pbiPageBg").addEventListener("click", () => latest() ? apply(latest().id, "background") : alert("Upload an image first."));
+    $("#pbiRemoveSelected").addEventListener("click", () => remove("selected"));
+    $("#pbiRemoveCurrent").addEventListener("click", () => remove("current"));
+    $("#pbiRemoveAll").addEventListener("click", () => confirm("Remove images from all blocks/pages?") && remove("all"));
+    render();
+  }
+
+  function inspector() {
+    if ($("#pbiImgInspector")) return;
+    const input = $("#inspectorImage");
+    if (!input) return;
+    const box = document.createElement("div");
+    box.id = "pbiImgInspector";
+    box.className = "pbi-image-tools";
+    box.innerHTML = `
+      <button type="button" id="pbiInsUse">Use latest here</button>
+      <button type="button" id="pbiInsPage">Use latest on page</button>
+      <button type="button" id="pbiInsClear">Remove selected image</button>
+    `;
+    input.closest(".field")?.appendChild(box);
+    $("#pbiInsUse").addEventListener("click", () => latest() ? apply(latest().id, "selected") : alert("Upload an image first."));
+    $("#pbiInsPage").addEventListener("click", () => latest() ? apply(latest().id, "current") : alert("Upload an image first."));
+    $("#pbiInsClear").addEventListener("click", () => remove("selected"));
+  }
+
+  function drops() {
+    document.addEventListener("dragover", (event) => {
+      if (event.dataTransfer?.types?.includes("application/x-pbi-media-id")) event.preventDefault();
+    });
+    document.addEventListener("drop", (event) => {
+      const id = event.dataTransfer?.getData("application/x-pbi-media-id");
+      if (!id) return;
+      event.preventDefault();
+      apply(id, "place", {
+        target: event.target,
+        x: event.clientX,
+        y: event.clientY,
+        path: event.composedPath?.() || []
+      });
+    });
+  }
+
+  function ai() {
+    const old = $("#canvasAiBuildBtn");
+    if (!old || old.dataset.v4) return;
+    const button = old.cloneNode(true);
+    button.dataset.v4 = "1";
+    old.replaceWith(button);
+    button.addEventListener("click", () => {
+      const brief = ($("#canvasAiBrief")?.value || "").trim();
+      if (!brief) return alert("Describe the business first.");
+      const state = get();
+      const title = `Website built around ${brief}`;
+      const text = "A clear small-business website with services, proof, FAQs and one enquiry route.";
+      Object.assign(state, {
+        page_main_heading: title,
+        sub_heading: text,
+        activePage: "home",
+        selected_pages: ["home", "about", "services", "gallery", "faq", "contact"]
+      });
+      state.pages = { home: { label: "Home", title, body: text } };
+      state.blocksByPage = {
+        home: [
+          imageBlock({ type: "hero", layout: "standard", title, text, image: state.heroImage || "/assets/demo-media/cafe-hero.jpg", button: "Send enquiry" }),
+          imageBlock({ type: "services", title: "Services made simple", text: "Main service | Fast enquiry | Local support | Friendly follow-up" }),
+          imageBlock({ type: "contact", title: "Ready to get started?", text: "Give visitors one clear route to enquire.", button: "Send enquiry" })
+        ]
+      };
+      save(state);
+      location.reload();
+    });
+  }
+
+  function css() {
+    if ($("#pbiImageV4Css")) return;
+    const style = document.createElement("style");
+    style.id = "pbiImageV4Css";
+    style.textContent = `
+      .pbi-universal-block-image{width:100%;max-height:260px;object-fit:cover;border-radius:18px;margin-top:14px;display:block}
+      .pbi-hotfix-media{margin:14px 0;padding:14px;border:1px solid rgba(70,42,27,.12);border-radius:20px;background:#fffaf4}
+      .pbi-hotfix-media-head{display:flex;justify-content:space-between;gap:10px;align-items:center}
+      .pbi-hotfix-media-head label{cursor:pointer;border:1px solid rgba(70,42,27,.14);border-radius:999px;padding:8px 12px;background:#fff}
+      .pbi-hotfix-drop{border:1px dashed rgba(191,92,41,.45);background:#fff;border-radius:14px;padding:10px;text-align:center;margin:10px 0;color:#75533d}
+      .pbi-hotfix-drop.active{background:#fff0e6}
+      .pbi-hotfix-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+      .pbi-hotfix-grid article{border:1px solid rgba(70,42,27,.12);border-radius:14px;background:#fff;overflow:hidden;padding-bottom:5px;cursor:grab}
+      .pbi-hotfix-grid article:active{cursor:grabbing}
+      .pbi-hotfix-grid img{width:100%;aspect-ratio:1/1;object-fit:cover;display:block;user-select:none}
+      .pbi-hotfix-grid span{display:block;padding:5px 6px;font-size:.7rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .pbi-hotfix-grid button,.pbi-image-tools button{font-size:.72rem;margin:3px;border:1px solid rgba(70,42,27,.12);border-radius:999px;background:#fffaf4;padding:6px 8px;cursor:pointer}
+      .pbi-image-tools{display:flex;gap:5px;flex-wrap:wrap;margin:8px 0}
+      .pbi-image-tools button:nth-child(3),.pbi-image-tools button:nth-child(4){background:#bf5c29;color:white;border-color:#bf5c29}
+    `;
+    document.head.appendChild(style);
+  }
+
+  function init() {
+    css();
+    ai();
+    tray();
+    drops();
+    setTimeout(() => {
+      inspector();
+      makeImageVisibleDom(liveState());
+    }, 500);
+    document.addEventListener("click", () => setTimeout(() => {
+      inspector();
+      makeImageVisibleDom(liveState());
+    }, 80), true);
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
+  else setTimeout(init, 0);
 })();

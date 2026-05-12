@@ -771,6 +771,7 @@
       });
       el.addEventListener("dragover", (event) => event.preventDefault());
       el.addEventListener("drop", (event) => {
+        if (event.dataTransfer?.types?.includes("application/x-pbi-media-id")) return;
         event.preventDefault();
         const dragged = event.dataTransfer?.getData("application/x-pbi-block-id");
         if (dragged && dragged !== el.dataset.blockId) reorderBlockBefore(dragged, el.dataset.blockId);
@@ -1934,6 +1935,7 @@
 
     drop?.addEventListener("dragover", event => event.preventDefault());
     drop?.addEventListener("drop", event => {
+      if (event.dataTransfer?.types?.includes("application/x-pbi-media-id")) return;
       event.preventDefault();
       const type = event.dataTransfer?.getData("text/plain");
       if (type) addBlock(type);
