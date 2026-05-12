@@ -296,6 +296,9 @@
     if (["hero","splitHero"].includes(block.type)) {
       return `<section ${attrs}><div class="pbi-live-hero"><div><p class="eyebrow" ${editableAttr(block,'eyebrow')}>${eyebrow}</p><h1 ${editableAttr(block,'title')}>${title}</h1><p ${editableAttr(block,'text')}>${text}</p>${button ? `<a class="btn" style="background:${accent}" href="#contact"${buttonAria}>${button}</a>` : ""}</div><img src="${image}" alt="${imageAlt}"></div>${lockedOverlay(block)}</section>`;
     }
+    if (block.type === "image") {
+      return `<section ${attrs}><img class="pbi-live-placed-image" src="${image}" alt="${imageAlt}">${lockedOverlay(block)}</section>`;
+    }
     if (["services","process","stats","featureGrid","pricing","productGrid","retail","trustBand","logoCloud","cmsList","analyticsPanel","automationFlow","reviews","team","hours","courseList"].includes(block.type)) {
       const items = String(block.text || "").split("|").map(x => x.trim()).filter(Boolean);
       return `<section ${attrs}><div class="pbi-live-section"><p class="eyebrow">${eyebrow}</p><h2 ${editableAttr(block,'title')}>${title}</h2><div class="pbi-live-card-grid">${items.map(item => `<article><h3>${esc(item)}</h3><p>Edit this item from the inspector.</p></article>`).join("") || `<article><h3>Add item</h3><p>Use | between items.</p></article>`}</div></div>${lockedOverlay(block)}</section>`;
