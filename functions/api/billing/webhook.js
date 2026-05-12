@@ -150,6 +150,18 @@ async function handleEvent(env, event) {
     });
   }
 
+  if (event.type === 'customer.subscription.updated') {
+    const status = String(object.status || '').toLowerCase();
+    const billingStatus = status === 'canceled' ? 'cancelled' : (status || 'active');
+    return syncStripeBillingStatus(env, {
+      subscription: object.id || '',
+      customer: object.customer || '',
+      billingStatus,
+      published: billingStatus === 'cancelled' ? false : null,
+      eventType: event.type
+    });
+  }
+
   return { ok: true, skipped: true, event_type: event.type || '', message: 'Stripe event type not handled by PBI.' };
 }
 

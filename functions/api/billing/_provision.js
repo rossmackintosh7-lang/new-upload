@@ -2,7 +2,7 @@ import { ensureCoreTables } from '../../_lib/auth.js';
 import { validateProjectForPublish, cleanPlan } from '../../_lib/package-rules.js';
 import { createAdminNotification, ensurePbiOpsTables, uniqueSlug } from '../admin/_shared.js';
 import { runDomainRegistrationWorkflow } from '../domain/registration-agent.js';
-import { takeProjectDown } from './_cancellation.js';
+import { takeProjectDown, restoreProjectAfterBilling } from './_cancellation.js';
 
 function parseData(project) {
   try {
@@ -250,7 +250,7 @@ export async function syncStripeBillingStatus(env, { subscription = '', customer
   const where = sub ? 'stripe_subscription_id = ?' : 'stripe_customer_id = ?';
   const value = sub || cust;
   const project = await env.DB.prepare(`
-    SELECT id, user_id, name, status, published, billing_status, data_json
+    SELECT id, user_id, name, status, published, public_slug, billing_status, data_json
     FROM projects
     WHERE ${where}
     LIMIT 1
@@ -269,6 +269,39 @@ export async function syncStripeBillingStatus(env, { subscription = '', customer
       body: { subscription: sub, customer: cust, billing_status: 'cancelled', event_type: eventType, public_site_status: 'suspended' }
     });
     return { ok: true, project_id: project.id, billing_status: 'cancelled', published: false, suspended: true };
+  }
+
+  const projectData = parseData(project);
+  const shouldRestore = ['active', 'trialing'].includes(String(billingStatus || '').toLowerCase()) && (
+    projectData.service_stopped === true ||
+    String(projectData.public_site_status || '').toLowerCase() === 'suspended' ||
+    ['cancelled', 'past_due', 'unpaid', 'failed', 'incomplete'].includes(String(project.billing_status || '').toLowerCase())
+  );
+
+  if (shouldRestore) {
+    const restored = await restoreProjectAfterBilling(env, project, eventType || 'stripe');
+    await createAdminNotification(env, {
+      type: 'stripe_billing',
+      title: 'Website restored after billing recovery',
+      message: `${project.name || project.id} has been restored because Stripe reported the subscription as ${billingStatus}${eventType ? ` from ${eventType}` : ''}.`,
+      priority: 'normal',
+      project_id: project.id,
+      body: {
+        subscription: sub,
+        customer: cust,
+        billing_status: billingStatus,
+        event_type: eventType,
+        republished: Boolean(restored?.republished),
+        public_slug: restored?.public_slug || project.public_slug || ''
+      }
+    });
+    return {
+      ok: true,
+      project_id: project.id,
+      billing_status: 'active',
+      restored: true,
+      published: Boolean(restored?.republished)
+    };
   }
 
   const publishSql = published === null ? '' : ', published = ?, status = ?';

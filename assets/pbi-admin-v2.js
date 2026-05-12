@@ -69,6 +69,7 @@
       <article><strong>${Number(stats.past_due_billing || 0)}</strong><span>Payment issues</span></article>
       <article><strong>${Number(stats.total_users || 0)}</strong><span>Total users</span></article>
       <article><strong>${Number(stats.published_projects || 0)}</strong><span>Live sites</span></article>
+      <article><strong>${Number(stats.suspended_sites || 0)}</strong><span>Suspended sites</span></article>
       <article><strong>${Number(stats.domain_queue || 0)}</strong><span>Domain queue</span></article>
       <article><strong>${Number(stats.coupon_count || 0)}</strong><span>Coupons</span></article>
     `;
@@ -133,6 +134,8 @@
         <article><strong>${Number(stats.published_projects || 0)}</strong><span>Published</span></article>
         <article><strong>${Number(stats.ready_drafts || 0)}</strong><span>Ready drafts</span></article>
         <article><strong>${Number(stats.past_due_billing || 0)}</strong><span>Needs payment check</span></article>
+        <article><strong>${Number(stats.suspended_sites || 0)}</strong><span>Suspended sites</span></article>
+        <article><strong>${Number(stats.stripe_webhook_failures || 0)}</strong><span>Webhook failures</span></article>
       </div>
       <div class="pbi-billing-breakdown">
         ${breakdown.map((item) => `
@@ -160,10 +163,22 @@
         href: '/admin/projects/'
       },
       {
+        label: 'Domain automation',
+        value: stats.domain_automation_enabled ? 'On' : 'Setup',
+        detail: stats.domain_automation_enabled ? `${Number(stats.domain_followups || 0)} follow-up item(s) still need review.` : 'Connect registrar automation for true hands-off registration.',
+        href: '/admin/'
+      },
+      {
         label: 'Stripe coupon system',
         value: stats.stripe_coupons_enabled ? 'On' : 'Setup',
         detail: stats.stripe_coupons_enabled ? 'Coupons can be created in Stripe.' : 'Add STRIPE_SECRET_KEY before creating coupons.',
         href: '/admin/'
+      },
+      {
+        label: 'Webhook failures',
+        value: Number(stats.stripe_webhook_failures || 0),
+        detail: Number(stats.stripe_webhook_failures || 0) ? 'Stripe sent events that PBI did not finish processing.' : 'Webhook processing looks clean right now.',
+        href: '/admin/notifications/'
       },
       {
         label: 'Support inbox',

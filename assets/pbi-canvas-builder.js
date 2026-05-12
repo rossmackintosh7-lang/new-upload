@@ -1061,7 +1061,7 @@
     showFloatingBox("Pre-publish checklist", body, true);
   }
 
-  function showFloatingBox(title, message, html=false){
+  function ensureGuideBox(){
     let guide = $("#pbiFreeformGuideBox");
     if (!guide) {
       guide = document.createElement("div");
@@ -1069,8 +1069,164 @@
       guide.className = "pbi-freeform-guide-box";
       $(".pbi-studio-toolbar")?.after(guide);
     }
-    guide.innerHTML = `<strong>${esc(title)}</strong>${html ? message : `<p>${esc(message)}</p>`}<button type="button" class="btn-ghost" id="pbiCloseFreeformGuide">Got it</button>`;
-    $("#pbiCloseFreeformGuide")?.addEventListener("click", () => guide.remove());
+    return guide;
+  }
+
+  function showFloatingActionBox(title, bodyHtml, actions = []){
+    const guide = ensureGuideBox();
+    guide.innerHTML = `
+      <strong>${esc(title)}</strong>
+      ${bodyHtml}
+      <div class="pbi-domain-current-actions">
+        ${actions.map((action) => `
+          <button type="button" class="${action.className || "btn-ghost"}" id="${esc(action.id)}">${esc(action.label)}</button>
+        `).join("")}
+      </div>
+    `;
+    actions.forEach((action) => {
+      $(`#${action.id}`)?.addEventListener("click", () => action.onClick?.(guide));
+    });
+  }
+
+  function showFloatingBox(title, message, html=false){
+    showFloatingActionBox(title, html ? message : `<p>${esc(message)}</p>`, [
+      {
+        id: "pbiCloseFreeformGuide",
+        label: "Got it",
+        className: "btn-ghost",
+        onClick: (guide) => guide.remove()
+      }
+    ]);
+  }
+
+  function titleWordsShortened(text, maxWords){
+    const words = String(text || "").trim().split(/\s+/).filter(Boolean);
+    return words.length > maxWords ? words.slice(0, maxWords).join(" ") : String(text || "").trim();
+  }
+
+  function ensurePrimaryContactRoute(pageKey = "home"){
+    const blocks = Array.isArray(state.blocksByPage?.[pageKey]) ? state.blocksByPage[pageKey] : [];
+    const hasRoute = blocks.some((block) => ["quoteForm", "booking", "contact", "cta"].includes(block.type));
+    if (hasRoute) return 0;
+    blocks.push(generatedBlock("quoteForm", pageKey, {
+      title: "Ready to hear from customers?",
+      text: "Goose added a clear contact route so the page does not stop at information only.",
+      button: state.cta_button_text || "Send enquiry"
+    }));
+    state.blocksByPage[pageKey] = blocks;
+    return 1;
+  }
+
+  function runGooseAuditFixes(){
+    snapshot();
+    let changes = 0;
+
+    if (!state.seo) state.seo = {};
+    if (!state.seo.title) {
+      state.seo.title = `${state.business_name || "PBI Website"} | ${state.location || "Local business website"}`;
+      changes += 1;
+    }
+    if (!state.seo.description) {
+      state.seo.description = state.sub_heading || "A polished website with a clear offer, proof and a simple next step.";
+      changes += 1;
+    }
+
+    Object.values(state.blocksByPage || {}).forEach((blocks) => {
+      (blocks || []).forEach((block) => {
+        if ((block.image || block.backgroundImage) && !block.imageAlt) {
+          block.imageAlt = block.title || state.business_name || "Business image";
+          changes += 1;
+        }
+        if (block.button && !block.buttonAriaLabel) {
+          block.buttonAriaLabel = `${block.button} on ${block.title || state.business_name || "this website"}`;
+          changes += 1;
+        }
+        if (!block.publishable) {
+          block.publishable = true;
+          changes += 1;
+        }
+      });
+    });
+
+    changes += ensurePrimaryContactRoute("home");
+    render();
+    showFloatingBox("Goose audit complete", `${changes} launch-basics fix${changes === 1 ? "" : "es"} were applied to this site.`);
+    setStatus("Goose audit fixes applied");
+  }
+
+  function runGooseMobileFixes(){
+    snapshot();
+    let changes = 0;
+    Object.values(state.blocksByPage || {}).forEach((blocks) => {
+      (blocks || []).forEach((block) => {
+        if (block.positionMode === "free") {
+          block.positionMode = "flow";
+          changes += 1;
+        }
+        if (block.title) {
+          const shorterTitle = titleWordsShortened(block.title, 14);
+          if (shorterTitle && shorterTitle !== block.title) {
+            block.title = shorterTitle;
+            changes += 1;
+          }
+        }
+        if (block.button) {
+          const shorterButton = titleWordsShortened(block.button, 3);
+          if (shorterButton && shorterButton !== block.button) {
+            block.button = shorterButton;
+            changes += 1;
+          }
+        }
+        if (["full-bleed", "image-first", "masonry"].includes(String(block.layout || "").toLowerCase())) {
+          block.layout = "standard";
+          changes += 1;
+        }
+      });
+    });
+    render();
+    showFloatingBox("Goose mobile sweep complete", `${changes} mobile-safety change${changes === 1 ? "" : "s"} were applied across the current site.`);
+    setStatus("Goose mobile fixes applied");
+  }
+
+  function reviewFullSiteBuild(){
+    const brief = $("#canvasAiBrief")?.value?.trim();
+    if (!brief) return setStatus("Add a brief first");
+    const templateKey = inferTemplateFromBrief(brief);
+    const templatePreset = getPreset(templateKey);
+    const goal = inferGoalFromBrief(brief, $("#canvasAiGoal")?.value || "enquiries");
+    const style = $("#canvasStyleDirection")?.value || "";
+    const location = inferLocation(brief) || "your area";
+    const businessName = inferBusinessName(brief, templateKey);
+    const body = `
+      <p><strong>${esc(businessName)}</strong> will be rebuilt into a fuller multi-page site.</p>
+      <ul>
+        <li>Template direction: ${esc(templatePreset.label || templateKey)}</li>
+        <li>Primary goal: ${esc(goal)}</li>
+        <li>Location signal: ${esc(location)}</li>
+        <li>Style direction: ${esc(style || "practical, local, trustworthy")}</li>
+        <li>Goose will replace the current page structure with a stronger full-site layout, but undo stays available.</li>
+      </ul>
+    `;
+    showFloatingActionBox("Review Goose full-site plan", body, [
+      {
+        id: "pbiApplyGooseFullSite",
+        label: "Apply changes",
+        className: "btn",
+        onClick: (guide) => {
+          guide.remove();
+          buildFullSiteFromBrief(brief, {
+            goal,
+            style
+          });
+        }
+      },
+      {
+        id: "pbiCancelGooseFullSite",
+        label: "Cancel",
+        className: "btn-ghost",
+        onClick: (guide) => guide.remove()
+      }
+    ]);
   }
 
   function saveProject(){
@@ -1722,10 +1878,25 @@
           closeEditorMenus();
           return;
         }
+        if (action === "audit") {
+          runGooseAuditFixes();
+          closeEditorMenus();
+          return;
+        }
+        if (action === "mobile") {
+          runGooseMobileFixes();
+          closeEditorMenus();
+          return;
+        }
         if (action === "full-site") {
-          openEditorPanel("add", { tab:"blocks" });
-          $("#canvasAiBrief")?.focus();
-          setStatus("Add a brief, then Generate full multi-page site");
+          if ($("#canvasAiBrief")?.value?.trim()) {
+            reviewFullSiteBuild();
+          } else {
+            openEditorPanel("add", { tab:"blocks" });
+            $("#canvasAiBrief")?.focus();
+            setStatus("Add a brief, then review Goose's full-site plan");
+          }
+          closeEditorMenus();
         }
       });
     });
@@ -1788,11 +1959,7 @@
     });
     $("#canvasBackToBuilder")?.setAttribute("href", "/dashboard/");
     $("#canvasAiBuildBtn")?.addEventListener("click", () => {
-      const brief = $("#canvasAiBrief")?.value?.trim();
-      buildFullSiteFromBrief(brief, {
-        goal: $("#canvasAiGoal")?.value || "enquiries",
-        style: $("#canvasStyleDirection")?.value || ""
-      });
+      reviewFullSiteBuild();
     });
     $("#canvasAddPageBtn")?.addEventListener("click", addPage);
     $("#canvasDuplicatePageBtn")?.addEventListener("click", duplicatePage);

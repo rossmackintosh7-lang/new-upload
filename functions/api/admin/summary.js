@@ -117,10 +117,13 @@ export async function onRequestGet({ request, env }) {
   const activeBilling = await first(env, `SELECT COUNT(*) count FROM projects WHERE billing_status IN ('active','trialing','not_required')`);
   const publishedProjects = await first(env, `SELECT COUNT(*) count FROM projects WHERE published = 1`);
   const suspendedUsers = await first(env, `SELECT COUNT(*) count FROM admin_user_controls WHERE status = 'suspended'`);
+  const suspendedSites = await first(env, `SELECT COUNT(*) count FROM projects WHERE lower(COALESCE(status, '')) = 'cancelled' OR lower(COALESCE(billing_status, '')) = 'cancelled'`);
   const pastDueBilling = await first(env, `SELECT COUNT(*) count FROM projects WHERE lower(COALESCE(billing_status, '')) IN ('past_due','unpaid','failed','incomplete')`);
   const readyDrafts = await first(env, `SELECT COUNT(*) count FROM projects WHERE COALESCE(published, 0) != 1 AND lower(COALESCE(billing_status, '')) IN ('active','trialing','not_required','paid')`);
   const domainQueue = await first(env, `SELECT COUNT(*) count FROM projects WHERE lower(COALESCE(domain_option, '')) = 'register_new'`);
+  const domainFollowups = await first(env, `SELECT COUNT(*) count FROM projects WHERE lower(COALESCE(domain_option, '')) = 'register_new' AND (COALESCE(data_json, '') LIKE '%queued_for_registrar_follow_up%' OR COALESCE(data_json, '') LIKE '%automation_failed_registrar_follow_up%')`);
   const recentCoupons = await first(env, `SELECT COUNT(*) count FROM admin_coupons`);
+  const webhookFailures = await first(env, `SELECT COUNT(*) count FROM stripe_webhook_events WHERE status = 'failed'`);
   const billing_breakdown = await all(env, `SELECT COALESCE(NULLIF(billing_status, ''), 'unknown') AS status, COUNT(*) count FROM projects GROUP BY COALESCE(NULLIF(billing_status, ''), 'unknown') ORDER BY count DESC`);
   const launch_queue = await all(env, `
     SELECT projects.id, projects.name, projects.status, projects.plan, projects.billing_status, projects.published, projects.created_at, projects.updated_at, users.email AS user_email
@@ -161,11 +164,22 @@ export async function onRequestGet({ request, env }) {
       active_billing: activeBilling?.count || 0,
       published_projects: publishedProjects?.count || 0,
       suspended_users: suspendedUsers?.count || 0,
+      suspended_sites: suspendedSites?.count || 0,
       past_due_billing: priorityCounts.pastDueBilling,
       ready_drafts: priorityCounts.readyDrafts,
       domain_queue: domainQueue?.count || 0,
+      domain_followups: domainFollowups?.count || 0,
+      stripe_webhook_failures: webhookFailures?.count || 0,
       coupon_count: recentCoupons?.count || 0,
-      stripe_coupons_enabled: Boolean(env.STRIPE_SECRET_KEY)
+      stripe_coupons_enabled: Boolean(env.STRIPE_SECRET_KEY),
+      domain_automation_enabled: Boolean(
+        String(env.DOMAIN_REGISTRATION_AGENT_URL || env.DOMAIN_REGISTRATION_WEBHOOK_URL || '').trim() ||
+        (
+          String(env.DOMAIN_AUTO_REGISTER || '').toLowerCase() === 'true' &&
+          env.CLOUDFLARE_ACCOUNT_ID &&
+          env.CLOUDFLARE_API_TOKEN
+        )
+      )
     }
   });
 }
