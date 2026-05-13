@@ -102,10 +102,33 @@ async function openAiCanvas(env, body) {
   try { return JSON.parse(text); } catch { return null; }
 }
 
+function hasUsablePages(value) {
+  return value && typeof value === 'object' && !Array.isArray(value) && Object.keys(value).length > 0;
+}
+
+function hasUsableBlocks(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  return Object.values(value).some((blocks) => Array.isArray(blocks) && blocks.some((block) => block && typeof block === 'object' && block.type));
+}
+
+function normaliseCanvas(ai, fallback) {
+  if (!ai || typeof ai !== 'object' || Array.isArray(ai)) return fallback;
+  const merged = { ...fallback, ...ai };
+  if (!hasUsablePages(ai.pages)) merged.pages = fallback.pages;
+  if (!Array.isArray(ai.selected_pages) || ai.selected_pages.some((page) => !fallback.pages[page])) merged.selected_pages = fallback.selected_pages;
+  if (!Array.isArray(ai.selectedPages) || ai.selectedPages.some((page) => !fallback.pages[page])) merged.selectedPages = fallback.selectedPages;
+  if (!hasUsableBlocks(ai.blocksByPage)) merged.blocksByPage = fallback.blocksByPage;
+  merged.templateId = fallback.templateId;
+  merged.template_preset = fallback.template_preset;
+  merged.template = fallback.template;
+  merged.seo = { ...fallback.seo, ...(hasUsablePages(ai.seo) ? ai.seo : {}) };
+  return merged;
+}
+
 export async function onRequestPost({ request, env }) {
   const body = await request.json().catch(() => ({}));
   const fallback = fallbackCanvas(body);
   const ai = await openAiCanvas(env || {}, body).catch(() => null);
-  const canvas = ai ? { ...fallback, ...ai, blocksByPage: ai.blocksByPage || fallback.blocksByPage } : fallback;
+  const canvas = normaliseCanvas(ai, fallback);
   return json({ ok: true, source: ai ? 'openai' : 'fallback', canvas });
 }
