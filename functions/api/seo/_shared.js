@@ -60,7 +60,7 @@ export function defaultPages(env) {
     .filter(Boolean);
   return paths.map((path) => ({
     url: path.startsWith('http') ? path : `${base}${path}`,
-    title: path === '/' ? 'PBI Website Builder' : path.replace(/\//g, ' ').trim() || 'PBI page',
+    title: path === '/' ? 'PBI Design Studio' : path.replace(/\//g, ' ').trim() || 'PBI page',
     seo_score: 78,
     word_count: 0,
     last_checked: ''

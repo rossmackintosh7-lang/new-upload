@@ -6,7 +6,7 @@ const SEO_HOME_SECTION = `
     <div class="card readable-card">
       <p class="eyebrow">Google SEO ready</p>
       <h2>Free website builder for small businesses, only pay when you publish.</h2>
-      <p>PBI Website Builder helps cafés, trades, salons, shops, consultants, holiday lets and local service businesses create a professional website with AI-assisted setup, editable templates, mobile preview, launch checks and optional custom build support.</p>
+      <p>PBI Design Studio helps cafés, trades, salons, shops, consultants, holiday lets and local service businesses create a professional website with AI-assisted setup, editable templates, mobile preview, launch checks and optional custom build support.</p>
       <p>Every PBI site is built around clear page structure, helpful wording, internal links, image alt text prompts, launch readiness checks, sitemap support and search-friendly page titles and descriptions.</p>
       <div class="hero-actions">
         <a class="btn" href="/onboarding/">Start building for free</a>
@@ -20,7 +20,7 @@ const SEO_HOME_SECTION = `
         <li>Automatic sitemap and robots.txt support.</li>
         <li>Clear internal links between templates, pricing, help, contact and custom build pages.</li>
         <li>SEO titles, descriptions and Open Graph previews for stronger search snippets.</li>
-        <li>Structured data for the PBI Website Builder application and business information.</li>
+        <li>Structured data for the PBI Design Studio application and business information.</li>
         <li>Google Search Console friendly launch checklist for indexing and ongoing improvements.</li>
       </ul>
       <p class="muted small-note">No website builder can guarantee a number-one Google ranking, but PBI is structured to give small-business websites a cleaner crawl path and stronger SEO starting point.</p>
@@ -35,7 +35,7 @@ const SEO_JSON_LD = `
   "@graph":[
     {
       "@type":"WebSite",
-      "name":"PBI Website Builder",
+      "name":"PBI Design Studio",
       "url":"https://www.purbeckbusinessinnovations.co.uk/",
       "description":"Free small-business website builder. Build for free and only pay when you publish.",
       "publisher":{"@id":"https://www.purbeckbusinessinnovations.co.uk/#organization"},
@@ -48,9 +48,9 @@ const SEO_JSON_LD = `
     {
       "@type":"Organization",
       "@id":"https://www.purbeckbusinessinnovations.co.uk/#organization",
-      "name":"Purbeck Business Innovations",
+      "name":"PBI Design Studio",
       "url":"https://www.purbeckbusinessinnovations.co.uk/",
-      "logo":"https://www.purbeckbusinessinnovations.co.uk/assets/pbi-brand-logo-20260505.png"
+      "logo":"https://www.purbeckbusinessinnovations.co.uk/assets/pbi-design-studio-logo.svg"
     },
     {
       "@type":"FAQPage",

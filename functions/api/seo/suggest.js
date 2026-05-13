@@ -6,7 +6,7 @@ function suggestionFor(url) {
     page_url: url || '/',
     suggestion_type: 'page_title',
     current_value: '',
-    suggested_value: page === '/' ? 'PBI Website Builder for Small Businesses' : `PBI ${page.replace(/\//g, ' ').trim()}`,
+    suggested_value: page === '/' ? 'PBI Design Studio for Small Businesses' : `PBI ${page.replace(/\//g, ' ').trim()}`,
     reasoning: 'Use a clear, page-specific title that explains the offer and audience.'
   };
 }

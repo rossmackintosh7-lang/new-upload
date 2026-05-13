@@ -11,7 +11,7 @@
 .pbi-project-chip.calm{background:#f5efe9}
 .pbi-dashboard-panel .notice{margin-bottom:0}
 @media(max-width:980px){.pbi-dashboard-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
-.pbi-live-hero{display:grid;grid-template-columns:1.1fr .9fr;gap:28px;align-items:center;padding:34px}.pbi-live-hero h1{font-size:clamp(2rem,5vw,4.4rem);line-height:1}.pbi-live-hero img{width:100%;border-radius:28px;aspect-ratio:4/3;object-fit:cover;box-shadow:0 20px 60px rgba(0,0,0,.14)}.pbi-live-section{padding:32px}.pbi-live-card-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.pbi-live-card-grid article{border:1px solid rgba(40,25,15,.12);background:rgba(255,255,255,.72);border-radius:22px;padding:18px}.pbi-canvas-render-block{margin:16px;border:1px solid rgba(55,31,18,.13);border-radius:30px;background:rgba(255,255,255,.55);overflow:hidden}.pbi-canvas-render-block.selected{outline:3px solid var(--preview-accent,#b95624)}@media(max-width:800px){.pbi-live-hero,.pbi-live-card-grid{grid-template-columns:1fr}}
+.pbi-live-hero{display:grid;grid-template-columns:1.1fr .9fr;gap:28px;align-items:center;padding:34px}.pbi-live-hero h1{font-size:clamp(2rem,5vw,4.4rem);line-height:1}.pbi-live-hero img{width:100%;border-radius:28px;aspect-ratio:4/3;object-fit:cover;box-shadow:0 20px 60px rgba(0,0,0,.14)}.pbi-live-section{padding:32px}.pbi-live-card-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.pbi-live-card-grid article{border:1px solid rgba(40,25,15,.12);background:rgba(255,255,255,.72);border-radius:22px;padding:18px}.pbi-canvas-render-block{margin:16px;border:1px solid rgba(55,31,18,.13);border-radius:30px;background:rgba(255,255,255,.55);overflow:hidden}.pbi-canvas-render-block.selected{outline:3px solid var(--preview-accent,#b87a3d)}@media(max-width:800px){.pbi-live-hero,.pbi-live-card-grid{grid-template-columns:1fr}}
 
 /* Ross visual restore: use the correct PBI sun-ray mark without letting it dominate the header. */
 .pbi-public-brand img,
@@ -46,5 +46,5 @@
 .pbi-secret-agent-form textarea{width:100%;resize:vertical;border:1px solid rgba(105,74,49,.18);border-radius:16px;padding:12px;font:inherit;background:#fff;color:#2f1b12}
 .pbi-secret-agent-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
 .pbi-secret-agent-actions button{border:1px solid rgba(105,74,49,.18);border-radius:999px;background:#fff;color:#2f1b12;padding:9px 12px;font-weight:850;cursor:pointer}
-.pbi-secret-agent-actions .btn{background:#bf5c29;color:#fff;border-color:transparent}
+.pbi-secret-agent-actions .btn{background:#b87a3d;color:#fff;border-color:transparent}
 @media(max-width:560px){.pbi-secret-agent{right:10px;bottom:10px}.pbi-secret-agent-toggle strong{display:none}.pbi-secret-agent-panel{max-height:calc(100vh - 80px)}}

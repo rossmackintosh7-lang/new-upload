@@ -3,18 +3,29 @@
    ========================= */
 
 :root {
-  --pbi-orange: #c86f3d;
-  --pbi-orange-dark: #8a431d;
-  --pbi-orange-soft: #f3d5bf;
-  --pbi-cream: #fff8f1;
-  --pbi-cream-2: #f7efe7;
-  --pbi-card: rgba(255, 250, 245, 0.82);
-  --pbi-card-solid: #fffaf5;
-  --pbi-text: #2f1b12;
-  --pbi-muted: #735f52;
-  --pbi-border: rgba(138, 67, 29, 0.18);
-  --pbi-shadow: 0 22px 70px rgba(98, 50, 26, 0.14);
+  --pbi-brand-ivory: #f6f4ef;
+  --pbi-brand-warm-ivory: #fbf7ef;
+  --pbi-brand-stone: #dad6cf;
+  --pbi-brand-charcoal: #1e1e1e;
+  --pbi-brand-charcoal-soft: #2f2f2f;
+  --pbi-brand-copper: #b87a3d;
+  --pbi-brand-copper-soft: #d4af7a;
+  --pbi-brand-sage: #a7b1a6;
+  --pbi-brand-coastal-blue: #8fa3ad;
+  --pbi-orange: var(--pbi-brand-copper);
+  --pbi-orange-dark: #7d512d;
+  --pbi-orange-soft: var(--pbi-brand-copper-soft);
+  --pbi-cream: var(--pbi-brand-ivory);
+  --pbi-cream-2: var(--pbi-brand-warm-ivory);
+  --pbi-card: rgba(255, 253, 248, 0.86);
+  --pbi-card-solid: #fffdf8;
+  --pbi-text: #201a16;
+  --pbi-muted: #756a61;
+  --pbi-border: rgba(30, 30, 30, 0.14);
+  --pbi-shadow: 0 24px 70px rgba(30, 30, 30, 0.12);
   --pbi-radius: 28px;
+  --pbi-heading-font: Georgia, "Times New Roman", serif;
+  --pbi-body-font: Inter, Lato, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 * {
@@ -30,7 +41,7 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: var(--pbi-body-font);
   color: var(--pbi-text);
   background: transparent;
   overflow-x: hidden;
@@ -51,8 +62,8 @@ body::before {
   pointer-events: none;
   background-image:
     linear-gradient(
-      rgba(255, 248, 241, 0.70),
-      rgba(255, 248, 241, 0.70)
+      rgba(246, 244, 239, 0.76),
+      rgba(246, 244, 239, 0.76)
     ),
     url("/Website%20background%20image.png");
   background-size: cover, cover;
@@ -68,8 +79,8 @@ body::after {
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(circle at top right, rgba(255, 247, 238, 0.35), transparent 38%),
-    linear-gradient(135deg, rgba(255, 248, 241, 0.18), rgba(246, 229, 214, 0.12));
+    radial-gradient(circle at top right, rgba(212, 175, 122, 0.16), transparent 38%),
+    linear-gradient(135deg, rgba(251, 247, 239, 0.26), rgba(143, 163, 173, 0.10));
 }
 
 /* =========================
@@ -173,7 +184,7 @@ body::after {
   width: 46px;
   height: 46px;
   border-radius: 14px;
-  background: linear-gradient(135deg, #e99655, #b95624);
+  background: linear-gradient(135deg, #e99655, #b87a3d);
   box-shadow: 0 12px 30px rgba(180, 90, 38, 0.22);
   flex: 0 0 auto;
 }
@@ -3434,7 +3445,7 @@ body:has(.builder-app) .container {
   content: "✦";
   position: absolute;
   left: 0;
-  color: var(--pbi-orange, #c86f3d);
+  color: var(--pbi-orange, #b87a3d);
 }
 
 .template-label {
@@ -3843,7 +3854,7 @@ body:has(.builder-app) .container {
 
 .domain-option-card input {
   margin-top: 5px;
-  accent-color: var(--pbi-orange, #c86f3d);
+  accent-color: var(--pbi-orange, #b87a3d);
 }
 
 .domain-option-card strong {
@@ -3888,7 +3899,7 @@ body:has(.builder-app) .container {
   right: 14px;
   padding: 7px 10px;
   border-radius: 999px;
-  background: var(--pbi-orange, #c86f3d);
+  background: var(--pbi-orange, #b87a3d);
   color: #fff;
   font-size: 11px;
   font-weight: 950;
@@ -6134,7 +6145,7 @@ body.pbi-signup-page .auth-card{
   place-items: center;
   text-align: center;
   padding: 16px;
-  background: #b95624;
+  background: #b87a3d;
   color: #fffaf4;
   font-size: 12px;
   line-height: 1.1;
@@ -6240,7 +6251,7 @@ body.pbi-signup-page .auth-card{
   width: 38%;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg,#b95624,#537744);
+  background: linear-gradient(90deg,#b87a3d,#537744);
   animation: pbiMagicBar 1.8s ease-in-out infinite;
 }
 @keyframes pbiMagicBar{
@@ -6347,4 +6358,186 @@ body.pbi-signup-page .auth-card{
   .pbi-modal-card{
     border-radius: 18px;
   }
+}
+
+/* =========================
+   PBI DESIGN STUDIO PREVIEW REBRAND
+   Keeps existing content and photography, updates the shared brand wrapper.
+   ========================= */
+
+::selection{
+  background: rgba(184, 122, 61, 0.22);
+}
+
+body:not(.pbi-canvas-page):not(.pbi-app-page){
+  background-color: var(--pbi-brand-ivory);
+}
+
+body:not(.pbi-canvas-page):not(.pbi-app-page) h1,
+body:not(.pbi-canvas-page):not(.pbi-app-page) h2,
+body:not(.pbi-canvas-page):not(.pbi-app-page) .section-title,
+body:not(.pbi-canvas-page):not(.pbi-app-page) .hero-title,
+body:not(.pbi-canvas-page):not(.pbi-app-page) .pbi-home-copy h1,
+body:not(.pbi-canvas-page):not(.pbi-app-page) .pbi-page-intro h1,
+body:not(.pbi-canvas-page):not(.pbi-app-page) .pricing-card h3,
+body:not(.pbi-canvas-page):not(.pbi-app-page) .template-title{
+  font-family: var(--pbi-heading-font);
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--pbi-brand-charcoal);
+}
+
+body:not(.pbi-canvas-page):not(.pbi-app-page) h3,
+body:not(.pbi-canvas-page):not(.pbi-app-page) .eyebrow,
+body:not(.pbi-canvas-page):not(.pbi-app-page) .kicker,
+body:not(.pbi-canvas-page):not(.pbi-app-page) .muted{
+  letter-spacing: 0;
+}
+
+body:not(.pbi-canvas-page):not(.pbi-app-page) .eyebrow,
+body:not(.pbi-canvas-page):not(.pbi-app-page) .kicker,
+body:not(.pbi-canvas-page):not(.pbi-app-page) .label,
+body:not(.pbi-canvas-page):not(.pbi-app-page) .pill{
+  color: var(--pbi-brand-copper);
+}
+
+body:not(.pbi-canvas-page):not(.pbi-app-page) .nav,
+body:not(.pbi-canvas-page):not(.pbi-app-page) .pbi-public-nav{
+  background: rgba(251, 247, 239, 0.90);
+  border-bottom-color: rgba(30, 30, 30, 0.12);
+  box-shadow: 0 16px 44px rgba(30, 30, 30, 0.05);
+}
+
+body:not(.pbi-canvas-page):not(.pbi-app-page) .header-logo,
+body:not(.pbi-canvas-page):not(.pbi-app-page) .pbi-public-brand img,
+body:not(.pbi-canvas-page):not(.pbi-app-page) .brand-logo-only img{
+  object-fit: contain !important;
+  filter: none !important;
+}
+
+body.pbi-home-page .header-logo{
+  width: clamp(116px, 11vw, 162px) !important;
+}
+
+body:not(.pbi-home-page):not(.pbi-canvas-page):not(.pbi-app-page) .header-logo,
+body:not(.pbi-home-page):not(.pbi-canvas-page):not(.pbi-app-page) .pbi-public-brand img{
+  width: 104px !important;
+  max-height: 74px !important;
+}
+
+body.pbi-nav-compact:not(.pbi-canvas-page):not(.pbi-app-page) .header-logo,
+body.pbi-nav-compact:not(.pbi-canvas-page):not(.pbi-app-page) .pbi-public-brand img{
+  width: 74px !important;
+  max-height: 54px !important;
+}
+
+body:not(.pbi-canvas-page):not(.pbi-app-page) .btn,
+body:not(.pbi-canvas-page):not(.pbi-app-page) button.btn,
+body:not(.pbi-canvas-page):not(.pbi-app-page) input[type="submit"].btn{
+  background: var(--pbi-brand-copper);
+  border-color: var(--pbi-brand-copper);
+  color: #fff;
+  box-shadow: 0 16px 36px rgba(184, 122, 61, 0.22);
+}
+
+body:not(.pbi-canvas-page):not(.pbi-app-page) .btn:hover,
+body:not(.pbi-canvas-page):not(.pbi-app-page) button.btn:hover{
+  background: #9f6838;
+  border-color: #9f6838;
+}
+
+body:not(.pbi-canvas-page):not(.pbi-app-page) .btn-ghost,
+body:not(.pbi-canvas-page):not(.pbi-app-page) .btn-secondary,
+body:not(.pbi-canvas-page):not(.pbi-app-page) button.btn-ghost,
+body:not(.pbi-canvas-page):not(.pbi-app-page) button.btn-secondary{
+  background: rgba(255, 253, 248, 0.74);
+  border-color: rgba(30, 30, 30, 0.14);
+  color: var(--pbi-brand-charcoal);
+  box-shadow: none;
+}
+
+body:not(.pbi-canvas-page):not(.pbi-app-page) .btn-ghost:hover,
+body:not(.pbi-canvas-page):not(.pbi-app-page) .btn-secondary:hover,
+body:not(.pbi-canvas-page):not(.pbi-app-page) button.btn-ghost:hover,
+body:not(.pbi-canvas-page):not(.pbi-app-page) button.btn-secondary:hover{
+  border-color: rgba(184, 122, 61, 0.42);
+  background: rgba(251, 247, 239, 0.96);
+}
+
+body:not(.pbi-canvas-page):not(.pbi-app-page) .card,
+body:not(.pbi-canvas-page):not(.pbi-app-page) .glass-card,
+body:not(.pbi-canvas-page):not(.pbi-app-page) .pricing-card,
+body:not(.pbi-canvas-page):not(.pbi-app-page) .template-card,
+body:not(.pbi-canvas-page):not(.pbi-app-page) .pbi-template-card,
+body:not(.pbi-canvas-page):not(.pbi-app-page) .pbi-home-preview-card,
+body:not(.pbi-canvas-page):not(.pbi-app-page) .pbi-dashboard-panel,
+body:not(.pbi-canvas-page):not(.pbi-app-page) .form-card{
+  background: rgba(255, 253, 248, 0.84);
+  border-color: rgba(30, 30, 30, 0.12);
+  box-shadow: 0 18px 54px rgba(30, 30, 30, 0.08);
+}
+
+body:not(.pbi-canvas-page):not(.pbi-app-page) input,
+body:not(.pbi-canvas-page):not(.pbi-app-page) select,
+body:not(.pbi-canvas-page):not(.pbi-app-page) textarea{
+  background-color: rgba(255, 253, 248, 0.88);
+  border-color: rgba(30, 30, 30, 0.14);
+  color: var(--pbi-brand-charcoal);
+}
+
+body:not(.pbi-canvas-page):not(.pbi-app-page) input:focus,
+body:not(.pbi-canvas-page):not(.pbi-app-page) select:focus,
+body:not(.pbi-canvas-page):not(.pbi-app-page) textarea:focus{
+  outline-color: rgba(184, 122, 61, 0.34);
+  border-color: rgba(184, 122, 61, 0.58);
+}
+
+body:not(.pbi-canvas-page):not(.pbi-app-page) .site-footer,
+body:not(.pbi-canvas-page):not(.pbi-app-page) footer{
+  background: rgba(30, 30, 30, 0.96);
+  color: var(--pbi-brand-ivory);
+}
+
+body:not(.pbi-canvas-page):not(.pbi-app-page) .site-footer a,
+body:not(.pbi-canvas-page):not(.pbi-app-page) footer a{
+  color: var(--pbi-brand-warm-ivory);
+}
+
+body.pbi-canvas-page .pbi-wix-editor-topbar,
+body.pbi-canvas-page .pbi-canvas-topbar,
+body.pbi-framer-studio-page .pbi-studio-topbar{
+  background: rgba(255, 253, 248, 0.96) !important;
+  border-bottom-color: rgba(30, 30, 30, 0.12) !important;
+}
+
+body.pbi-canvas-page .pbi-wix-menu-bar button,
+body.pbi-canvas-page .pbi-wix-action-strip button,
+body.pbi-canvas-page .pbi-wix-action-strip a,
+body.pbi-canvas-page .pbi-wix-page-control,
+body.pbi-canvas-page .pbi-plan-control{
+  border-color: rgba(30, 30, 30, 0.14) !important;
+}
+
+body.pbi-canvas-page .pbi-wix-action-strip .btn,
+body.pbi-canvas-page #canvasPublishBtn,
+body.pbi-canvas-page .pbi-canvas-top-actions .btn{
+  background: var(--pbi-brand-copper) !important;
+  color: #fff !important;
+  border-color: var(--pbi-brand-copper) !important;
+}
+
+body.pbi-canvas-page .pbi-wix-side-rail,
+body.pbi-canvas-page .pbi-editor-floating-panel,
+body.pbi-canvas-page .pbi-wix-floating-toolbar,
+body.pbi-canvas-page #pbiReadinessBox{
+  background: rgba(255, 253, 248, 0.94) !important;
+  border-color: rgba(30, 30, 30, 0.12) !important;
+  box-shadow: 0 20px 56px rgba(30, 30, 30, 0.12) !important;
+}
+
+body.pbi-canvas-page .pbi-wix-side-rail button.is-active,
+body.pbi-canvas-page .pbi-plan-control button.active,
+body.pbi-canvas-page .pbi-device-switcher button.active{
+  background: var(--pbi-brand-charcoal) !important;
+  color: #fff !important;
 }

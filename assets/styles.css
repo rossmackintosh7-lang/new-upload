@@ -9,19 +9,19 @@ img:not([src]), img[src=''] { display:none; }
 /* --- HARDENED CANVAS/BUILDER RECOVERY CSS ---
    This protects the builder from loading as unstyled HTML or showing the PBI logo full-size. */
 :root{
-  --pbi-ink:#2b160e;
-  --pbi-muted:#725542;
-  --pbi-line:rgba(70,42,27,.12);
-  --pbi-soft:#fffaf4;
-  --pbi-wash:#f4e5d7;
-  --pbi-accent:#bf5c29;
+  --pbi-ink:#201a16;
+  --pbi-muted:#756a61;
+  --pbi-line:rgba(30,30,30,.14);
+  --pbi-soft:#fbf7ef;
+  --pbi-wash:#f2ede5;
+  --pbi-accent:#b87a3d;
 }
 *{box-sizing:border-box;}
 body.pbi-canvas-page,
 body.pbi-framer-studio-page{
   margin:0;
   min-height:100vh;
-  background:linear-gradient(135deg,#fffaf4 0%,#f6eadf 100%);
+  background:linear-gradient(135deg,#f6f4ef 0%,#fbf7ef 58%,#eef3f4 100%);
   color:var(--pbi-ink);
   font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 }
@@ -33,7 +33,7 @@ body.pbi-framer-studio-page{
   justify-content:space-between;
   gap:16px;
   padding:14px 28px;
-  background:rgba(255,250,244,.92);
+  background:rgba(255,253,248,.94);
   border-bottom:1px solid var(--pbi-line);
   position:sticky;
   top:0;
@@ -84,7 +84,7 @@ body.pbi-canvas-page header img{
 .pbi-device-switcher button{
   appearance:none;
   border:1px solid var(--pbi-line);
-  background:#fffaf4;
+  background:#fffdf8;
   color:var(--pbi-ink);
   border-radius:999px;
   min-height:42px;
@@ -111,12 +111,12 @@ body.pbi-canvas-page header img{
   padding:4px;
   border:1px solid var(--pbi-line);
   border-radius:999px;
-  background:rgba(255,255,255,.45);
+  background:rgba(255,253,248,.62);
 }
-.pbi-plan-control span{font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.14em;color:#8b4a2a;padding-left:8px;}
+.pbi-plan-control span{font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.14em;color:#7d512d;padding-left:8px;}
 .pbi-plan-control button.active,
 .pbi-device-switcher button.active{
-  background:#2b160e!important;
+  background:#1e1e1e!important;
   color:#fff!important;
 }
 .pbi-canvas-app,
@@ -837,7 +837,7 @@ body.pbi-admin-body::after{
 }
 .pbi-builder-v2-checks button span{
   border-radius:999px;
-  background:#b95624;
+  background:#b87a3d;
   color:#fff;
   padding:3px 6px;
   font-size:10px;
@@ -1426,7 +1426,7 @@ body.pbi-home-page .pbi-home-template-grid .pbi-premium-template-copy > .row .bt
   color: var(--pbi-text,#2f1b12) !important;
 }
 body.pbi-home-page .pbi-home-template-grid .pbi-premium-template-copy > .row .btn{
-  background: linear-gradient(135deg,var(--pbi-orange,#c86f3d),#a64e21) !important;
+  background: linear-gradient(135deg,var(--pbi-orange,#b87a3d),#a64e21) !important;
   border: 1px solid transparent !important;
   box-shadow: 0 12px 24px rgba(170,82,31,.18) !important;
   color: #fffaf5 !important;

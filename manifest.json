@@ -1,11 +1,11 @@
 {
-  "name": "PBI Website Builder",
+  "name": "PBI Design Studio",
   "short_name": "PBI Builder",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "background_color": "#ece6de",
-  "theme_color": "#b95624",
+  "theme_color": "#b87a3d",
   "icons": [
     {
       "src": "/android-chrome-192x192.png",

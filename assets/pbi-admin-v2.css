@@ -231,7 +231,7 @@ body.pbi-admin-body::after{
   border-color:rgba(191,92,41,.34);
 }
 .pbi-admin-body .pbi-priority-item.high strong{
-  background:#bf5c29;
+  background:#b87a3d;
   color:#fff;
 }
 .pbi-admin-body .pbi-priority-item.medium strong{
@@ -372,7 +372,7 @@ body.pbi-admin-body::after{
   cursor:pointer;
 }
 .pbi-admin-body .btn{
-  background:#bf5c29;
+  background:#b87a3d;
   color:#fff;
   border-color:transparent;
 }

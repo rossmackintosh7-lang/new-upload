@@ -276,7 +276,7 @@ export function renderSuspendedLanding(project = {}, env = {}) {
   const data = parseJson(project.data_json, {});
   const name = businessName(data, project);
   const pbiBase = String(env.PBI_BASE_URL || 'https://www.purbeckbusinessinnovations.co.uk').replace(/\/+$/, '');
-  const logo = assetUrl('/assets/pbi-brand-logo-20260505.png', env);
+  const logo = assetUrl('/assets/pbi-design-studio-logo.svg', env);
   return `<!doctype html>
 <html lang="en-GB">
 <head>
