@@ -75,7 +75,7 @@
   }
 
   if (grid) {
-    grid.innerHTML = presets.map(card).join('') || '<article class="pbi-project-card"><h3>No templates found</h3><p>Open a blank canvas instead.</p><a class="btn" href="/canvas-builder/">Open PBI Designs</a></article>';
+    grid.innerHTML = presets.map(card).join('') || '<article class="pbi-project-card"><h3>No templates found</h3><p>Open a blank canvas instead.</p><a class="btn" href="/canvas-builder/">Open PBI Designer</a></article>';
   }
 
   document.querySelectorAll('[data-use-template]').forEach((a) => {

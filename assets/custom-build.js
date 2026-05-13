@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (error) {
       show(error.message || 'Could not submit your custom build request.', 'error');
     } finally {
-      if (submit) { submit.disabled = false; submit.textContent = 'Submit Custom Build Request'; }
+      if (submit) { submit.disabled = false; submit.textContent = 'Submit custom build request'; }
     }
   });
 });

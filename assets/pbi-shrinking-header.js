@@ -1,10 +1,22 @@
 (function(){
+  const body = document.body;
+  if (!body || body.classList.contains('pbi-app-page') || body.classList.contains('pbi-canvas-page')) return;
+
+  body.classList.add('pbi-shrink-header');
+
+  let ticking = false;
   function updateHeaderState() {
-    document.body.classList.toggle('pbi-nav-compact', window.scrollY > 72);
+    body.classList.toggle('pbi-nav-compact', window.scrollY > 18);
+    ticking = false;
   }
 
-  if (!document.body?.classList.contains('pbi-shrink-header')) return;
+  function requestUpdate() {
+    if (ticking) return;
+    ticking = true;
+    window.requestAnimationFrame(updateHeaderState);
+  }
+
   updateHeaderState();
-  window.addEventListener('scroll', updateHeaderState, { passive: true });
-  window.addEventListener('resize', updateHeaderState);
+  window.addEventListener('scroll', requestUpdate, { passive: true });
+  window.addEventListener('resize', requestUpdate, { passive: true });
 })();
