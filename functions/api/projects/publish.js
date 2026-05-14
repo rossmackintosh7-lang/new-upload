@@ -1,10 +1,7 @@
 import { json, error } from '../../_lib/json.js';
 import { requireUser, ensureCoreTables } from '../../_lib/auth.js';
 import { validateProjectForPublish, cleanPlan } from '../../_lib/package-rules.js';
-
-function slugify(value) {
-  return String(value || 'site').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '').slice(0, 70) || 'site';
-}
+import { publishProjectToHosting } from '../hosting/_shared.js';
 
 async function verifyStripeCheckout(env, sessionId, projectId) {
   if (!env.STRIPE_SECRET_KEY || !sessionId) return { active: false };
@@ -43,7 +40,7 @@ export async function onRequestPost({ request, env }) {
   if (!projectId) return error('Project id is required.');
 
   let project = await env.DB.prepare(`
-    SELECT id, user_id, name, plan, billing_status, public_slug, stripe_session_id, data_json
+    SELECT id, user_id, name, plan, billing_status, public_slug, stripe_session_id, stripe_customer_id, stripe_subscription_id, data_json
     FROM projects
     WHERE id = ? AND user_id = ?
     LIMIT 1
@@ -91,6 +88,12 @@ export async function onRequestPost({ request, env }) {
             updated_at = CURRENT_TIMESTAMP
         WHERE id = ? AND user_id = ?
       `).bind(stripeSessionId, verified.customer || '', verified.subscription || '', verified.plan || plan, projectId, auth.user.id).run();
+      project = {
+        ...project,
+        billing_status: 'active',
+        stripe_customer_id: verified.customer || '',
+        stripe_subscription_id: verified.subscription || ''
+      };
     } else if (verified.error) {
       return error(verified.error, 400);
     }
@@ -98,19 +101,21 @@ export async function onRequestPost({ request, env }) {
 
   if (requiresPayment && !paid) {
     return json({
-      ok: true,
+      ok: false,
       payment_required: true,
       message: 'Payment is required before this website can be published.',
       checkout_url: `/payment/?project=${encodeURIComponent(projectId)}&plan=${encodeURIComponent(plan)}`
-    });
+    }, 402);
   }
 
-  const slug = project.public_slug || `${slugify(project.name)}-${project.id.slice(0, 8)}`;
-  await env.DB.prepare(`
-    UPDATE projects
-    SET published = 1, public_slug = ?, status = 'published', published_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
-    WHERE id = ? AND user_id = ?
-  `).bind(slug, projectId, auth.user.id).run();
-
-  return json({ ok: true, published: true, live_url: `/site/canvas/${encodeURIComponent(slug)}/`, warnings: validation.warnings || [] });
+  return publishProjectToHosting({
+    request,
+    env,
+    user: auth.user,
+    project: {
+      ...project,
+      billing_status: billing || project.billing_status || 'active'
+    },
+    body: { ...body, plan, site_slug: project.public_slug || body.site_slug || '' }
+  });
 }

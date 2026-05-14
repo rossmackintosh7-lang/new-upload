@@ -1,4 +1,5 @@
 import { ensureCoreTables } from './auth.js';
+import { ensureHostingTables } from './hosting.js';
 
 const PBI_HOSTS = new Set([
   'purbeckbusinessinnovations.co.uk',
@@ -78,9 +79,24 @@ export async function findProjectByCustomDomain(env, hostname = '') {
   if (!env?.DB) return null;
   const candidates = hostCandidates(hostname);
   if (!candidates.length) return null;
-  await ensureSiteColumns(env);
+  await ensureHostingTables(env);
 
   const placeholders = candidates.map(() => '?').join(',');
+  const hosted = await env.DB.prepare(`
+    SELECT p.id, p.user_id, p.name, p.status, p.data_json, p.published, p.public_slug, p.plan, p.billing_status,
+           p.domain_option, COALESCE(ps.custom_domain, p.custom_domain) AS custom_domain,
+           p.updated_at, p.published_at, p.unpublished_at
+    FROM site_domains sd
+    INNER JOIN published_sites ps ON ps.id = sd.site_id
+    INNER JOIN projects p ON p.id = ps.project_id
+    WHERE LOWER(COALESCE(sd.domain, sd.domain_name, '')) IN (${placeholders})
+      AND COALESCE(sd.status, '') != 'removed'
+    ORDER BY sd.is_primary DESC, datetime(COALESCE(sd.updated_at, sd.created_at, '1970-01-01')) DESC
+    LIMIT 1
+  `).bind(...candidates).first().catch(() => null);
+  if (hosted) return hosted;
+
+  await ensureSiteColumns(env);
   return await env.DB.prepare(`
     SELECT id, user_id, name, status, data_json, published, public_slug, plan, billing_status, domain_option, custom_domain, updated_at, published_at, unpublished_at
     FROM projects

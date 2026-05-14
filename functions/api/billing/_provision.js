@@ -3,6 +3,7 @@ import { validateProjectForPublish, cleanPlan } from '../../_lib/package-rules.j
 import { createAdminNotification, ensurePbiOpsTables, uniqueSlug } from '../admin/_shared.js';
 import { runDomainRegistrationWorkflow } from '../domain/registration-agent.js';
 import { takeProjectDown, restoreProjectAfterBilling } from './_cancellation.js';
+import { markHostingBillingState, publishValidatedProject, sitePublicUrl } from '../../_lib/hosting.js';
 
 function parseData(project) {
   try {
@@ -156,23 +157,31 @@ export async function provisionPaidCheckoutSession(env, session = {}) {
   }
 
   const slug = project.public_slug || await uniqueSlug(env, project.name || 'website', project.id);
-  const liveUrl = `/site/canvas/${encodeURIComponent(slug)}/`;
+  const liveUrl = sitePublicUrl(env, slug);
   const publishedData = {
     ...dataWithBilling,
     live_url: liveUrl,
     published_at: new Date().toISOString()
   };
 
-  await env.DB.prepare(`
-    UPDATE projects
-    SET published = 1,
-        public_slug = ?,
-        status = 'published',
-        published_at = COALESCE(published_at, CURRENT_TIMESTAMP),
-        data_json = ?,
-        updated_at = CURRENT_TIMESTAMP
-    WHERE id = ? AND user_id = ?
-  `).bind(slug, JSON.stringify(publishedData), project.id, project.user_id).run();
+  await publishValidatedProject(env, {
+    project: {
+      ...project,
+      public_slug: slug,
+      plan,
+    billing_status: 'active',
+    stripe_customer_id: stripeCustomerId || project.stripe_customer_id || '',
+    stripe_subscription_id: stripeSubscriptionId || project.stripe_subscription_id || ''
+    },
+    data: publishedData,
+    siteSlug: slug,
+    plan,
+    paymentStatus: 'active',
+    stripeCheckoutSessionId: stripeSessionId,
+    projectBillingStatus: 'active',
+    readinessScore: validation.score || 0,
+    notes: `Stripe checkout ${stripeSessionId || 'unknown'} completed.`
+  });
 
   let domainResult = null;
   const domainName = selectedDomainName(project, publishedData);
@@ -260,6 +269,7 @@ export async function syncStripeBillingStatus(env, { subscription = '', customer
 
   if (billingStatus === 'cancelled' || published === false) {
     await takeProjectDown(env, project, eventType || 'stripe');
+    await markHostingBillingState(env, { project, billingStatus: 'cancelled', published: false, eventType: eventType || 'stripe' });
     await createAdminNotification(env, {
       type: 'stripe_billing',
       title: 'Website taken down after subscription cancellation',
@@ -280,6 +290,7 @@ export async function syncStripeBillingStatus(env, { subscription = '', customer
 
   if (shouldRestore) {
     const restored = await restoreProjectAfterBilling(env, project, eventType || 'stripe');
+    await markHostingBillingState(env, { project, billingStatus: 'active', published: true, eventType: eventType || 'stripe' });
     await createAdminNotification(env, {
       type: 'stripe_billing',
       title: 'Website restored after billing recovery',
@@ -314,6 +325,7 @@ export async function syncStripeBillingStatus(env, { subscription = '', customer
     SET billing_status = ?${publishSql}, updated_at = CURRENT_TIMESTAMP
     WHERE id = ?
   `).bind(...bindValues).run();
+  await markHostingBillingState(env, { project, billingStatus, published, eventType: eventType || 'stripe' });
 
   await createAdminNotification(env, {
     type: 'stripe_billing',

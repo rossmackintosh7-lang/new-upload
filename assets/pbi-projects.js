@@ -59,24 +59,41 @@ function pbiMergeProjects(listProjects = [], billingProjects = []) {
 }
 
 async function pbiFetchProjects() {
-  const [billing, list] = await Promise.all([
+  const [billing, list, hosting] = await Promise.all([
     pbiFetchJson('/api/billing/subscription-status'),
-    pbiFetchJson('/api/projects/list')
+    pbiFetchJson('/api/projects/list'),
+    pbiFetchJson('/api/hosting/list')
   ]);
+  const hostingByProject = new Map((hosting.data?.sites || []).map((site) => [site.project_id, site]));
 
   if (billing.ok) {
+    const projects = pbiMergeProjects(list.data?.projects || [], billing.data?.projects || []).map((project) => {
+      const site = hostingByProject.get(project.id);
+      return site ? {
+        ...project,
+        published: site.status === 'live',
+        live_url: site.live_url || project.live_url || '',
+        status: site.status || project.status,
+        billing_status: site.payment_status || project.billing_status,
+        hosting_site: site
+      } : project;
+    });
     return {
       ok: true,
       authenticated: true,
-      projects: pbiMergeProjects(list.data?.projects || [], billing.data?.projects || [])
+      projects
     };
   }
 
   if (list.ok) {
+    const projects = list.data?.authenticated ? (list.data?.projects || []).map((project) => {
+      const site = hostingByProject.get(project.id);
+      return site ? { ...project, live_url: site.live_url || '', published: site.status === 'live', hosting_site: site } : project;
+    }) : pbiLocalProjects();
     return {
       ok: true,
       authenticated: Boolean(list.data?.authenticated),
-      projects: list.data?.authenticated ? (list.data?.projects || []) : pbiLocalProjects()
+      projects
     };
   }
 

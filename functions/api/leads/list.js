@@ -1,8 +1,10 @@
 import { json, error } from '../../_lib/json.js';
 import { requireUser, ensureCoreTables } from '../../_lib/auth.js';
+import { ensureHostingTables } from '../../_lib/hosting.js';
 
 export async function onRequestGet({ request, env }) {
   await ensureCoreTables(env);
+  await ensureHostingTables(env);
   const auth = await requireUser(env, request);
   if (!auth.ok) return auth.response;
   const url = new URL(request.url);

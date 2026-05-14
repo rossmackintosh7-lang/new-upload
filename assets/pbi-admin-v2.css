@@ -162,6 +162,32 @@ body.pbi-admin-body::after{
   display:grid;
   gap:10px;
 }
+.pbi-admin-body .pbi-admin-kpis{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(132px,1fr));
+  gap:10px;
+}
+.pbi-admin-body .pbi-admin-kpis span,
+.pbi-admin-body .pbi-admin-mini-list{
+  display:block;
+  padding:12px;
+  border:1px solid rgba(55,31,18,.12);
+  border-radius:16px;
+  background:#fffaf4;
+  color:#6f5b50;
+}
+.pbi-admin-body .pbi-admin-kpis strong{
+  display:block;
+  color:#21130d;
+  font-size:1.25rem;
+}
+.pbi-admin-body .pbi-admin-mini-list{
+  display:grid;
+  gap:6px;
+}
+.pbi-admin-body .pbi-admin-mini-list strong{
+  color:#21130d;
+}
 .pbi-admin-body .pbi-admin-item{
   width:100%;
   display:block;
