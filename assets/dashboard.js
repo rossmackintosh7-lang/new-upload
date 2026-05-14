@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function planLabel(plan) {
-    return { starter: 'Starter Launch', business: 'Business Launch', plus: 'Business Plus', free_preview: 'Free preview', custom_build_deposit: 'Custom build deposit' }[plan] || 'Free preview';
+    return { starter: 'Starter Launch', business: 'Business Launch', plus: 'Business Plus', free_preview: 'Free preview', assisted_setup: 'Assisted Setup', custom_build_deposit: 'Custom build deposit' }[plan] || 'Free preview';
   }
 
   function statusLabel(project) {
@@ -241,6 +241,44 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  async function confirmCheckoutReturn() {
+    const params = new URLSearchParams(window.location.search);
+    const checkout = String(params.get('checkout') || '').toLowerCase();
+    const projectId = params.get('project') || '';
+    const sessionId = params.get('session_id') || '';
+    const success = params.get('success') === '1';
+    const cancelled = params.get('cancelled') === '1';
+    const addOn = ['assisted_setup', 'custom_build_deposit'].includes(checkout) ? checkout : '';
+
+    if (!addOn) return;
+
+    if (cancelled) {
+      showMessage('Checkout was cancelled. Your project is still saved.', 'info');
+      history.replaceState({}, '', '/dashboard/');
+      return;
+    }
+
+    if (!success || !projectId || !sessionId) return;
+
+    showMessage(addOn === 'assisted_setup'
+      ? 'Payment received. PBI is unlocking Assisted Setup and creating the admin work item now...'
+      : 'Payment received. PBI is recording the custom build deposit now...', 'info');
+
+    try {
+      const data = await api('/api/billing/confirm-checkout', {
+        method: 'POST',
+        body: JSON.stringify({ project_id: projectId, session_id: sessionId })
+      });
+      if (!data.ok && !data.result?.ok) throw new Error(data.result?.message || 'Checkout confirmation did not complete.');
+      showMessage(addOn === 'assisted_setup'
+        ? 'Assisted Setup is paid and has been sent to PBI admin with direct project edit links.'
+        : 'Custom build deposit is paid and has been sent to PBI admin.', 'success');
+      history.replaceState({}, '', '/dashboard/');
+    } catch (error) {
+      showMessage(error.message || 'Payment succeeded, but PBI could not confirm the add-on automatically. Please contact support.', 'error');
+    }
+  }
+
   async function create() {
     const name = prompt('Project name:', 'New website');
     if (name === null) return;
@@ -257,5 +295,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (newProjectBtn) newProjectBtn.onclick = create;
   if (logoutBtn) logoutBtn.onclick = logout;
-  load();
+  confirmCheckoutReturn().finally(load);
 });

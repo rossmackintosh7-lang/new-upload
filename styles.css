@@ -290,6 +290,13 @@ a {
    BUTTONS
    ========================= */
 
+button,
+input[type="button"],
+input[type="submit"],
+input[type="reset"] {
+  text-align: center;
+}
+
 .btn,
 .btn-ghost,
 .btn-secondary {
@@ -304,6 +311,7 @@ a {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  text-align: center;
   min-height: 48px;
   transition:
     transform 0.16s ease,

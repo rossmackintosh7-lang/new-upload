@@ -94,6 +94,7 @@ body.pbi-canvas-page header img{
   display:inline-flex;
   align-items:center;
   justify-content:center;
+  text-align:center;
   white-space:nowrap;
   cursor:pointer;
 }

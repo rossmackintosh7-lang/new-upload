@@ -12,8 +12,15 @@ function countFrom(rows, status) {
 function numberValue(row) {
   return Number(row?.count || 0);
 }
-function buildPriorities({ newNotifications, newRequests, pastDueBilling, readyDrafts, suspendedUsers }) {
+function buildPriorities({ newNotifications, newRequests, paidAssistedSetups, pastDueBilling, readyDrafts, suspendedUsers }) {
   const items = [
+    {
+      label: 'Paid Assisted Setup',
+      count: paidAssistedSetups,
+      detail: paidAssistedSetups ? 'Customers have paid for hands-on setup. Open the project and make the changes for them.' : 'No paid Assisted Setup work waiting.',
+      href: '/admin/assisted-builds/',
+      priority: paidAssistedSetups ? 'high' : 'calm'
+    },
     {
       label: 'New customer requests',
       count: newRequests,
@@ -55,8 +62,9 @@ function buildPriorities({ newNotifications, newRequests, pastDueBilling, readyD
     return rank[a.priority] - rank[b.priority] || b.count - a.count;
   });
 }
-function buildGooseBrief({ newNotifications, newRequests, pastDueBilling, readyDrafts, latestProjects }) {
+function buildGooseBrief({ newNotifications, newRequests, paidAssistedSetups, pastDueBilling, readyDrafts, latestProjects }) {
   const lines = [];
+  if (paidAssistedSetups) lines.push(`${paidAssistedSetups} paid Assisted Setup project${paidAssistedSetups === 1 ? ' is' : 's are'} ready for admin edits.`);
   if (newRequests) lines.push(`${newRequests} new request${newRequests === 1 ? '' : 's'} need a first look.`);
   if (newNotifications) lines.push(`${newNotifications} unread notification${newNotifications === 1 ? '' : 's'} are waiting in the inbox.`);
   if (pastDueBilling) lines.push(`${pastDueBilling} project${pastDueBilling === 1 ? ' has' : 's have'} a payment issue to check before any launch work.`);
@@ -119,6 +127,7 @@ export async function onRequestGet({ request, env }) {
   const suspendedUsers = await first(env, `SELECT COUNT(*) count FROM admin_user_controls WHERE status = 'suspended'`);
   const suspendedSites = await first(env, `SELECT COUNT(*) count FROM projects WHERE lower(COALESCE(status, '')) = 'cancelled' OR lower(COALESCE(billing_status, '')) = 'cancelled'`);
   const pastDueBilling = await first(env, `SELECT COUNT(*) count FROM projects WHERE lower(COALESCE(billing_status, '')) IN ('past_due','unpaid','failed','incomplete')`);
+  const paidAssistedSetups = await first(env, `SELECT COUNT(*) count FROM admin_requests WHERE request_type = 'assisted_build' AND payment_status = 'paid' AND lower(COALESCE(status, 'new')) NOT IN ('complete','cancelled')`);
   const readyDrafts = await first(env, `SELECT COUNT(*) count FROM projects WHERE COALESCE(published, 0) != 1 AND lower(COALESCE(billing_status, '')) IN ('active','trialing','not_required','paid')`);
   const domainQueue = await first(env, `SELECT COUNT(*) count FROM projects WHERE lower(COALESCE(domain_option, '')) = 'register_new'`);
   const domainFollowups = await first(env, `SELECT COUNT(*) count FROM projects WHERE lower(COALESCE(domain_option, '')) = 'register_new' AND (COALESCE(data_json, '') LIKE '%queued_for_registrar_follow_up%' OR COALESCE(data_json, '') LIKE '%automation_failed_registrar_follow_up%')`);
@@ -141,6 +150,7 @@ export async function onRequestGet({ request, env }) {
   const priorityCounts = {
     newNotifications,
     newRequests,
+    paidAssistedSetups: numberValue(paidAssistedSetups),
     pastDueBilling: numberValue(pastDueBilling),
     readyDrafts: numberValue(readyDrafts),
     suspendedUsers: numberValue(suspendedUsers)
@@ -166,6 +176,7 @@ export async function onRequestGet({ request, env }) {
       suspended_users: suspendedUsers?.count || 0,
       suspended_sites: suspendedSites?.count || 0,
       past_due_billing: priorityCounts.pastDueBilling,
+      paid_assisted_setups: priorityCounts.paidAssistedSetups,
       ready_drafts: priorityCounts.readyDrafts,
       domain_queue: domainQueue?.count || 0,
       domain_followups: domainFollowups?.count || 0,

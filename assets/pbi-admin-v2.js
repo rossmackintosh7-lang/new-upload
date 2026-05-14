@@ -24,6 +24,50 @@
     return `<div class="pbi-admin-badges">${values.map((item) => `<span class="pbi-admin-badge">${esc(String(item).replaceAll('_', ' '))}</span>`).join('')}</div>`;
   }
 
+  function parseBody(value) {
+    try { return typeof value === 'string' ? JSON.parse(value || '{}') : (value || {}); }
+    catch { return {}; }
+  }
+
+  function paidWorkPanel(project = {}, requests = []) {
+    const data = project.data || parseBody(project.data_json);
+    const assistedPaid = data.assisted_setup_paid === true;
+    const customDepositPaid = data.custom_build_deposit_paid === true;
+    if (!assistedPaid && !customDepositPaid && !requests.length) return '';
+
+    const rows = requests.length
+      ? requests.map((request) => {
+        const body = parseBody(request.body_json);
+        return `
+          <article class="pbi-admin-work-row">
+            <div>
+              <strong>${esc(request.package_name || request.request_type || 'Paid work')}</strong>
+              <span>${esc(request.customer_message || request.brief || body.message || 'No customer note yet.')}</span>
+              ${badges(request.status, request.priority, request.payment_status)}
+            </div>
+            <a class="btn-ghost" href="/admin/requests/?id=${encodeURIComponent(request.id)}">Open work item</a>
+          </article>
+        `;
+      }).join('')
+      : '<p class="muted">Paid flag is on, but no request note has been sent yet.</p>';
+
+    return `
+      <section class="pbi-admin-paid-work">
+        <div>
+          <p class="eyebrow">Paid admin work</p>
+          <h4>${assistedPaid ? 'Assisted Setup is paid' : 'Custom build deposit is paid'}</h4>
+          <p class="muted">Use the buttons below to open the customer project and make the changes for them.</p>
+        </div>
+        <div class="pbi-admin-actions">
+          <a class="btn" href="/canvas-builder/?project=${encodeURIComponent(project.id)}&admin=1">Open PBI Designer</a>
+          <a class="btn-ghost" href="/builder/?project=${encodeURIComponent(project.id)}&admin=1">Open guided builder</a>
+          <a class="btn-ghost" href="/projects/?project=${encodeURIComponent(project.id)}">Customer view</a>
+        </div>
+        <div class="pbi-admin-work-list">${rows}</div>
+      </section>
+    `;
+  }
+
   function listReq(items, target) {
     if (!target) return;
     target.innerHTML = items.length
@@ -65,6 +109,7 @@
     grid.innerHTML = `
       <article><strong>${Number(notifications)}</strong><span>New notifications</span></article>
       <article><strong>${Number(requests)}</strong><span>New requests</span></article>
+      <article><strong>${Number(stats.paid_assisted_setups || 0)}</strong><span>Paid Assisted Setup</span></article>
       <article><strong>${Number(stats.ready_drafts || 0)}</strong><span>Publish-ready drafts</span></article>
       <article><strong>${Number(stats.past_due_billing || 0)}</strong><span>Payment issues</span></article>
       <article><strong>${Number(stats.total_users || 0)}</strong><span>Total users</span></article>
@@ -418,6 +463,8 @@
       target.innerHTML = '<p>Request not found.</p>';
       return;
     }
+    const requestBody = parseBody(request.body_json);
+    const projectEditUrl = requestBody.edit_url || (request.project_id ? `/canvas-builder/?project=${encodeURIComponent(request.project_id)}&admin=1` : '');
     target.innerHTML = `
       <h3>${esc(request.business_name || request.customer_name || request.request_type)}</h3>
       ${badges(request.status, request.priority, request.request_type, request.payment_status)}
@@ -429,7 +476,8 @@
       <textarea id="rdNotes" rows="5">${esc(request.internal_notes || '')}</textarea>
       <div class="pbi-admin-actions">
         <button class="btn" id="rdSave">Save</button>
-        ${request.project_id ? `<a class="btn-ghost" href="/admin/projects/?project_id=${encodeURIComponent(request.project_id)}">Open project</a><a class="btn-ghost" href="/builder/?project=${encodeURIComponent(request.project_id)}&admin=1">Admin edit</a>` : ''}
+        ${projectEditUrl ? `<a class="btn" href="${esc(projectEditUrl)}">Open PBI Designer</a>` : ''}
+        ${request.project_id ? `<a class="btn-ghost" href="/admin/projects/?project_id=${encodeURIComponent(request.project_id)}">Project record</a><a class="btn-ghost" href="/builder/?project=${encodeURIComponent(request.project_id)}&admin=1">Guided builder</a>` : ''}
       </div>
       <pre>${esc(JSON.stringify(request, null, 2))}</pre>
     `;
@@ -481,7 +529,7 @@
       <button class="pbi-admin-item" data-p="${esc(project.id)}">
         <strong>${esc(project.name || project.business_name || project.id)}</strong>
         <span>${esc(project.user_email || project.status || '')}</span>
-        ${badges(project.status || 'project')}
+        ${badges(project.status || 'project', project.data?.assisted_setup_paid ? 'assisted paid' : '', project.data?.custom_build_deposit_paid ? 'deposit paid' : '')}
       </button>
     `).join('') || '<p>No projects found.</p>';
     target.querySelectorAll('[data-p]').forEach((button) => {
@@ -504,6 +552,7 @@
         <a class="btn-ghost" href="/canvas-builder/?project=${encodeURIComponent(id)}&admin=1">Advanced editor</a>
         <button class="btn-ghost" id="scanProject">Scan readiness</button>
       </div>
+      ${paidWorkPanel(project, data.assisted_requests || [])}
       <div id="scanOut"></div>
       <h4>Sections</h4>
       ${(data.sections || []).map((section) => `<div class="pbi-section-mini"><strong>${esc(section.title || section.section_type)}</strong><br>${esc(section.section_type)} - ${esc(section.layout)}</div>`).join('') || '<p>No section records yet.</p>'}

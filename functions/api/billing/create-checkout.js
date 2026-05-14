@@ -7,6 +7,27 @@ function priceIdForPlan(env, plan) {
   return env[envName] || '';
 }
 
+const ADD_ON_CHECKOUTS = {
+  assisted_setup: {
+    priceEnv: 'STRIPE_PRICE_ASSISTED_SETUP',
+    label: 'Assisted Setup'
+  },
+  custom_build_deposit: {
+    priceEnv: 'STRIPE_PRICE_CUSTOM_DEPOSIT',
+    label: 'Custom Build Deposit'
+  }
+};
+
+function normaliseCheckoutKind(value = '') {
+  const key = String(value || '').trim().toLowerCase().replace(/-/g, '_');
+  return ADD_ON_CHECKOUTS[key] ? key : '';
+}
+
+function parseProjectData(value) {
+  try { return typeof value === 'string' ? JSON.parse(value || '{}') : (value || {}); }
+  catch { return {}; }
+}
+
 function baseUrlFromRequest(request, env) {
   return String(env.PBI_BASE_URL || new URL(request.url).origin).replace(/\/+$/, '');
 }
@@ -106,10 +127,81 @@ export async function onRequestPost({ request, env }) {
 
   if (!project) return error('Project not found.', 404);
 
+  const checkoutKind = normaliseCheckoutKind(body.checkout_kind || body.addon || body.plan || '');
+  if (checkoutKind) {
+    const addOn = ADD_ON_CHECKOUTS[checkoutKind];
+    const priceId = env[addOn.priceEnv] || '';
+
+    if (!env.STRIPE_SECRET_KEY || !priceId) {
+      return json({
+        ok: true,
+        setup_required: true,
+        checkout_kind: checkoutKind,
+        expected_price_env: addOn.priceEnv,
+        price_id_missing: !priceId,
+        message: `Stripe is not fully connected for ${addOn.label}. Add STRIPE_SECRET_KEY and ${addOn.priceEnv} in Cloudflare.`
+      });
+    }
+
+    const baseUrl = baseUrlFromRequest(request, env);
+    const successUrl = `${baseUrl}/dashboard/?checkout=${encodeURIComponent(checkoutKind)}&project=${encodeURIComponent(projectId)}&success=1&session_id={CHECKOUT_SESSION_ID}`;
+    const cancelUrl = `${baseUrl}/dashboard/?checkout=${encodeURIComponent(checkoutKind)}&project=${encodeURIComponent(projectId)}&cancelled=1`;
+
+    const params = new URLSearchParams();
+    params.append('mode', 'payment');
+    params.append('allow_promotion_codes', 'true');
+    appendPriceLine(params, 0, priceId);
+    params.append('success_url', successUrl);
+    params.append('cancel_url', cancelUrl);
+    params.append('client_reference_id', projectId);
+    params.append('customer_email', auth.user.email);
+    params.append('metadata[project_id]', projectId);
+    params.append('metadata[user_id]', auth.user.id);
+    params.append('metadata[checkout_kind]', checkoutKind);
+    params.append('metadata[addon_type]', checkoutKind);
+    params.append('metadata[plan]', project.plan || 'starter');
+    params.append('metadata[pbi_auto_provision]', 'true');
+
+    const stripeResponse = await fetch('https://api.stripe.com/v1/checkout/sessions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${env.STRIPE_SECRET_KEY}`,
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: params
+    });
+
+    const stripe = await stripeResponse.json().catch(() => ({}));
+    if (!stripeResponse.ok) {
+      return error(stripe.error?.message || 'Stripe checkout could not be created.', 502, { stripe_error: stripe.error || null });
+    }
+
+    const existingData = parseProjectData(project.data_json);
+    const pendingData = {
+      ...existingData,
+      [`${checkoutKind}_checkout_session_id`]: stripe.id || '',
+      [`${checkoutKind}_payment_status`]: 'pending'
+    };
+
+    await env.DB.prepare(`
+      UPDATE projects
+      SET data_json = ?, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ? AND user_id = ?
+    `).bind(JSON.stringify(pendingData), projectId, auth.user.id).run();
+
+    return json({
+      ok: true,
+      url: stripe.url,
+      id: stripe.id,
+      checkout_kind: checkoutKind,
+      price_env: addOn.priceEnv
+    });
+  }
+
   const requested = cleanPlan(body.plan || '');
   const saved = cleanPlan(project.plan || 'starter');
   const plan = requested || saved || 'starter';
-  const existingData = JSON.parse(project.data_json || '{}');
+  const existingData = parseProjectData(project.data_json);
   const domainOption = String(body.domain_option || existingData.domain_option || project.domain_option || 'pbi_subdomain');
   const fallbackDomainName = body.custom_domain || existingData.custom_domain || project.custom_domain || '';
   const domainRegistration = body.domain_registration || existingData.domain_registration || null;

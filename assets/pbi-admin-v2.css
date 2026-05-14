@@ -352,6 +352,44 @@ body.pbi-admin-body::after{
   grid-column:1/-1;
   justify-self:start;
 }
+.pbi-admin-body .pbi-admin-paid-work{
+  display:grid;
+  gap:14px;
+  margin:16px 0;
+  padding:16px;
+  border:1px solid rgba(47,140,101,.24);
+  border-radius:22px;
+  background:#effaf4;
+}
+.pbi-admin-body .pbi-admin-paid-work h4{
+  margin:0 0 4px;
+  font-size:22px;
+  line-height:1;
+}
+.pbi-admin-body .pbi-admin-work-list{
+  display:grid;
+  gap:10px;
+}
+.pbi-admin-body .pbi-admin-work-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:12px;
+  align-items:center;
+  padding:12px;
+  border:1px solid rgba(47,140,101,.18);
+  border-radius:16px;
+  background:rgba(255,255,255,.82);
+}
+.pbi-admin-body .pbi-admin-work-row strong,
+.pbi-admin-body .pbi-admin-work-row span{
+  display:block;
+}
+.pbi-admin-body .pbi-admin-work-row span{
+  color:#5f7567;
+  font-size:13px;
+  line-height:1.35;
+  margin-top:4px;
+}
 .pbi-admin-body .pbi-admin-coupon-panel .notice{
   margin-top:12px;
 }
@@ -370,6 +408,13 @@ body.pbi-admin-body::after{
   font:850 14px/1 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   text-decoration:none;
   cursor:pointer;
+  text-align:center;
+}
+.pbi-admin-body .btn,
+.pbi-admin-body .btn-ghost{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
 }
 .pbi-admin-body .btn{
   background:#bf5c29;
@@ -401,4 +446,5 @@ body.pbi-admin-body::after{
   .pbi-admin-body .pbi-admin-op-grid,
   .pbi-admin-body .pbi-admin-coupon-form{grid-template-columns:1fr}
   .pbi-admin-body .sticky-panel{position:static}
+  .pbi-admin-body .pbi-admin-work-row{grid-template-columns:1fr}
 }
