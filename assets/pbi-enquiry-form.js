@@ -8,15 +8,35 @@
       popup = document.createElement('div');
       popup.id = 'pbiEnquirySentPopup';
       popup.className = 'pbi-modal-backdrop pbi-enquiry-popup';
-      popup.innerHTML = `
-        <div class="pbi-modal-card" role="dialog" aria-modal="true" aria-labelledby="pbiEnquirySentTitle">
-          <button class="pbi-modal-close" type="button" aria-label="Close">x</button>
-          <p class="eyebrow">Enquiry sent</p>
-          <h2 id="pbiEnquirySentTitle"></h2>
-          <p data-popup-message></p>
-          <a class="btn" href="/help/">View help guides</a>
-        </div>
-      `;
+      const card = document.createElement('div');
+      card.className = 'pbi-modal-card';
+      card.setAttribute('role', 'dialog');
+      card.setAttribute('aria-modal', 'true');
+      card.setAttribute('aria-labelledby', 'pbiEnquirySentTitle');
+
+      const close = document.createElement('button');
+      close.className = 'pbi-modal-close';
+      close.type = 'button';
+      close.setAttribute('aria-label', 'Close');
+      close.textContent = 'x';
+
+      const eyebrow = document.createElement('p');
+      eyebrow.className = 'eyebrow';
+      eyebrow.textContent = 'Enquiry sent';
+
+      const heading = document.createElement('h2');
+      heading.id = 'pbiEnquirySentTitle';
+
+      const copy = document.createElement('p');
+      copy.dataset.popupMessage = '';
+
+      const guide = document.createElement('a');
+      guide.className = 'btn';
+      guide.href = '/help/';
+      guide.textContent = 'View help guides';
+
+      card.append(close, eyebrow, heading, copy, guide);
+      popup.appendChild(card);
       document.body.appendChild(popup);
       popup.addEventListener('click', (event) => {
         if (event.target === popup || event.target.closest('.pbi-modal-close')) popup.hidden = true;
@@ -60,7 +80,7 @@
         form.reset();
         if (message) {
           message.className = 'notice domain-success';
-          message.innerHTML = `<strong>Enquiry sent.</strong> PBI has received your message and will follow up.`;
+          message.textContent = 'Enquiry sent. PBI has received your message and will follow up.';
         }
         showPopup('Thanks, your enquiry has been sent.', `PBI has received your message${payload.subject ? ` about "${payload.subject}"` : ''}.`);
       } catch (error) {

@@ -4,7 +4,7 @@
   const load = (src) => {
     if ([...document.scripts].some(s => s.src.includes(src))) return;
     const script = document.createElement('script');
-    script.src = src + '?v=20260512-pbi-designs-image-drop';
+    script.src = src + '?v=20260514-image-placement-polish';
     script.defer = true;
     document.head.appendChild(script);
   };
@@ -12,7 +12,7 @@
     if ([...document.styleSheets].some(s => (s.href || '').includes(href))) return;
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = href + '?v=20260512-pbi-designs-image-drop';
+    link.href = href + '?v=20260514-image-placement-polish';
     document.head.appendChild(link);
   };
   const init = () => {

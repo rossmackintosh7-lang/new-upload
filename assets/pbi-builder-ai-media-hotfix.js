@@ -387,11 +387,11 @@
       <article draggable="true" data-mid="${esc(item.id)}">
         <img src="${esc(item.url)}" alt="${esc(item.alt || item.name || "Uploaded image")}" draggable="false">
         <span title="${esc(item.name || "Image")}">${esc(item.name || "Image")}</span>
+        <button type="button" data-free="${esc(item.id)}">Place</button>
         <button type="button" data-use="${esc(item.id)}">Selected</button>
         <button type="button" data-page="${esc(item.id)}">Page</button>
         <button type="button" data-all="${esc(item.id)}">All pages</button>
         <button type="button" data-bg="${esc(item.id)}">Bg</button>
-        <button type="button" data-free="${esc(item.id)}">New</button>
         <button type="button" data-del="${esc(item.id)}">x</button>
       </article>
     `).join("") || '<p class="muted">Upload images to use them on any block or page.</p>';

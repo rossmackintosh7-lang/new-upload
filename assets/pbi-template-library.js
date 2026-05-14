@@ -28,7 +28,11 @@
     link.textContent = 'Opening...';
 
     try {
-      const response = await fetch('/api/auth/me', { credentials: 'include' });
+      const response = await fetch('/api/auth/me', {
+        credentials: 'include',
+        cache: 'no-store',
+        headers: { Accept: 'application/json' }
+      });
       const data = await response.json().catch(() => ({}));
       window.location.href = data.authenticated ? target : signupUrlFor(id);
     } catch (_) {

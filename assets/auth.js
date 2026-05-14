@@ -27,10 +27,40 @@ window.PBIAuth = (() => {
   function attachSignup(formId, messageId) {
     const form = document.getElementById(formId);
     if (!form) return;
+
+    function safeNext(value) {
+      if (!value) return '';
+      try {
+        const url = new URL(value, window.location.origin);
+        if (url.origin !== window.location.origin) return '';
+        if (!url.pathname.startsWith('/')) return '';
+        return `${url.pathname}${url.search}${url.hash}`;
+      } catch {
+        return '';
+      }
+    }
+
+    function signupTarget(next, projectId, templatePreset, selectedPlan) {
+      const fallback = projectId
+        ? `/canvas-builder/?project=${encodeURIComponent(projectId)}&preset=${encodeURIComponent(templatePreset)}&template=${encodeURIComponent(templatePreset)}&plan=${encodeURIComponent(selectedPlan)}`
+        : '/dashboard/';
+      const safe = safeNext(next);
+      if (!safe) return fallback;
+      const url = new URL(safe, window.location.origin);
+      if (projectId && url.pathname === '/canvas-builder/') {
+        url.searchParams.set('project', projectId);
+        if (!url.searchParams.get('preset')) url.searchParams.set('preset', templatePreset);
+        if (!url.searchParams.get('template')) url.searchParams.set('template', templatePreset);
+        url.searchParams.set('plan', selectedPlan);
+      }
+      return `${url.pathname}${url.search}${url.hash}`;
+    }
+
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
       const fd = new FormData(form);
       const btn = form.querySelector('button[type="submit"]');
+      const originalButtonText = btn?.textContent || 'Create account';
       if (btn) { btn.disabled = true; btn.textContent = 'Creating account...'; }
       try {
         const params = new URLSearchParams(window.location.search);
@@ -48,15 +78,13 @@ window.PBIAuth = (() => {
           turnstileToken: fd.get('cf-turnstile-response')
         });
         showMessage(messageId, 'success', 'Account created. Redirecting...');
-        const target = data.project?.id
-          ? `/canvas-builder/?project=${encodeURIComponent(data.project.id)}&preset=${encodeURIComponent(templatePreset)}&plan=${encodeURIComponent(selectedPlan)}`
-          : '/dashboard/';
+        const target = signupTarget(params.get('next'), data.project?.id || '', templatePreset, selectedPlan);
         setTimeout(() => { location.href = target; }, 500);
       } catch (err) {
         if (window.turnstile) window.turnstile.reset();
         showMessage(messageId, 'error', err.message || 'Request failed.');
       } finally {
-        if (btn) { btn.disabled = false; btn.textContent = 'Create account'; }
+        if (btn) { btn.disabled = false; btn.textContent = originalButtonText; }
       }
     });
   }

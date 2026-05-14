@@ -176,7 +176,7 @@
           <textarea name="message" rows="3" placeholder="Ask Goose anything about PBI: pricing, domains, templates, publishing, SEO, admin, custom builds or this page."></textarea>
           <div class="pbi-secret-agent-actions">
             <button type="button" data-agent-prompt="What should I do next on this PBI page?">Next step</button>
-            <button type="button" data-agent-prompt="Explain the PBI pricing and publish route.">Pricing</button>
+            <button type="button" data-agent-prompt="Explain the PBI packages and publish route.">Packages</button>
             <button type="button" data-agent-prompt="How should I handle domains for this project?">Domains</button>
             <button class="btn" type="submit">Ask Goose</button>
           </div>

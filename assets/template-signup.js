@@ -13,6 +13,6 @@
     if (!notice || !preset) return;
     notice.style.display = 'block';
     notice.className = 'notice domain-success';
-    notice.innerHTML = `<strong>Selected starting template:</strong> ${preset.businessName} (${preset.label}). Your first project will open in the builder with this demo preloaded.`;
+    notice.textContent = `Selected starting template: ${preset.businessName} (${preset.label}). Your first project will open in PBI Designer with this demo preloaded.`;
   });
 })();
