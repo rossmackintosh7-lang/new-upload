@@ -42,7 +42,7 @@
   }
 
   function currentPlan(){
-    return rules.cleanPlan(qs.get("plan") || state.plan || state.package || localStorage.getItem("pbi_plan") || "starter");
+    return rules.cleanPlan(state?.plan || state?.package || localStorage.getItem("pbi_plan") || qs.get("plan") || "starter");
   }
 
   function isPremium(){ return ["business","plus"].includes(currentPlan()); }
@@ -437,6 +437,10 @@
         state.plan = newPlan;
         state.package = newPlan;
         localStorage.setItem("pbi_plan", newPlan);
+        if (qs.has("plan")) {
+          qs.set("plan", newPlan);
+          window.history.replaceState(null, "", `${location.pathname}?${qs.toString()}`);
+        }
         enforcePlan({ downgrade: oldPlan !== newPlan });
         render();
         if (oldPlan !== newPlan) showPackageChangeNotice(oldPlan, newPlan);

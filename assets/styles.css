@@ -2229,6 +2229,8 @@ body.pbi-canvas-page .pbi-wix-menu-bar{
   min-width:0!important;
   overflow-x:auto!important;
   scrollbar-width:none;
+  position:relative!important;
+  z-index:1!important;
 }
 body.pbi-canvas-page .pbi-wix-menu-bar::-webkit-scrollbar,
 body.pbi-canvas-page .pbi-wix-action-strip::-webkit-scrollbar{
@@ -2240,6 +2242,8 @@ body.pbi-canvas-page .pbi-wix-action-strip{
   overflow-x:auto!important;
   justify-content:flex-end!important;
   gap:8px!important;
+  position:relative!important;
+  z-index:3!important;
 }
 body.pbi-canvas-page .pbi-wix-action-strip .pbi-wix-icon-btn,
 body.pbi-canvas-page .pbi-wix-action-strip .pbi-wix-publish-btn{
@@ -2282,12 +2286,15 @@ body.pbi-login-page .auth-card,
 body.pbi-signup-page .auth-card{
   max-width:760px;
 }
-@media(max-width:1320px){
+@media(max-width:1560px){
   body.pbi-canvas-page .pbi-wix-editor-topbar{
     grid-template-columns:auto minmax(190px,1fr) auto!important;
   }
   body.pbi-canvas-page .pbi-wix-device-control{
     display:none!important;
+  }
+  body.pbi-canvas-page .pbi-wix-menu-bar{
+    justify-content:flex-start!important;
   }
   body.pbi-canvas-page .pbi-wix-action-strip{
     grid-column:1/-1!important;

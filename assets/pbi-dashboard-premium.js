@@ -8,7 +8,17 @@
   const slot = document.getElementById('dashboardAdminSlot');
   if (slot && me?.is_admin) slot.hidden = false;
 
-  const plan = (me?.plan || localStorage.getItem('pbi_plan') || 'starter').toLowerCase();
+  const allowedPlans = ['starter', 'business', 'plus'];
+  const plan = allowedPlans.includes(String(me?.plan || '').toLowerCase())
+    ? String(me.plan).toLowerCase()
+    : allowedPlans.includes(String(localStorage.getItem('pbi_plan') || '').toLowerCase())
+      ? String(localStorage.getItem('pbi_plan')).toLowerCase()
+      : 'starter';
+  try { localStorage.setItem('pbi_plan', plan); } catch {}
+
+  document.querySelectorAll('a[href="/canvas-builder/"]').forEach((link) => {
+    link.href = `/canvas-builder/?plan=${encodeURIComponent(plan)}`;
+  });
   const planEl = document.getElementById('dashPlan');
   if (planEl) planEl.textContent = plan.charAt(0).toUpperCase() + plan.slice(1);
 
