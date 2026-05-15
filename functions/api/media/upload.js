@@ -42,10 +42,11 @@ export async function onRequestPost({ request, env }) {
   let url = dataUrl;
   let storageKey = '';
 
-  if (env.MEDIA_BUCKET) {
+  const mediaBucket = env.MEDIA_BUCKET || env.PBI_ASSETS;
+  if (mediaBucket) {
     storageKey = `projects/${projectId}/${id}.${ext(mime)}`;
-    await env.MEDIA_BUCKET.put(storageKey, bytes, { httpMetadata: { contentType: mime } });
-    const base = String(env.PBI_MEDIA_PUBLIC_URL || '').replace(/\/+$/, '');
+    await mediaBucket.put(storageKey, bytes, { httpMetadata: { contentType: mime } });
+    const base = String(env.PBI_MEDIA_PUBLIC_URL || env.PBI_ASSETS_PUBLIC_URL || '').replace(/\/+$/, '');
     url = base ? `${base}/${storageKey}` : dataUrl;
   }
 
