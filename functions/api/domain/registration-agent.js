@@ -426,13 +426,15 @@ export async function runDomainRegistrationWorkflow(env, { project, user = {}, b
     ? { configured: false, ok: false, manual_only: true }
     : await submitAutomaticRegistration(env, orderPayload, domain);
 
-  const automaticSubmitted = !manualRegistrationOnly && registration.configured === true;
+  const registrationAccepted = !manualRegistrationOnly && registration.configured === true && registration.ok === true;
+  const automationAttempted = !manualRegistrationOnly && registration.configured === true;
   const agent = {
     id: orderPayload.order_id,
     domain_name: domain.name,
     requested_at: orderPayload.requested_at,
-    registrar_connected: automaticSubmitted,
-    actual_purchase_attempted: automaticSubmitted,
+    registrar_connected: automationAttempted,
+    actual_purchase_attempted: automationAttempted,
+    registration_started: registrationAccepted,
     status: manualRegistrationOnly ? 'queued_for_registrar_follow_up' : (registration.configured
       ? (registration.ok ? (registration.registrar === 'cloudflare' ? 'registration_in_progress' : 'submitted_to_registration_agent') : 'automation_failed_registrar_follow_up')
       : 'queued_for_registrar_follow_up'),
@@ -466,6 +468,7 @@ export async function runDomainRegistrationWorkflow(env, { project, user = {}, b
     agent,
     actual_purchase_attempted: agent.actual_purchase_attempted,
     registrar_connected: agent.registrar_connected,
+    registration_started: agent.registration_started,
     message: agent.message
   };
 }

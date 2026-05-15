@@ -405,7 +405,7 @@ export async function provisionPaidCheckoutSession(env, session = {}) {
   await createAdminNotification(env, {
     type: 'site_published',
     title: 'Website published after payment',
-    message: `${project.name || project.id} is live at ${liveUrl}${domainResult?.agent?.domain_name ? ` and domain automation has started for ${domainResult.agent.domain_name}` : ''}.`,
+    message: `${project.name || project.id} is live at ${liveUrl}${domainResult?.agent?.domain_name ? ` and ${domainResult.agent.registration_started ? 'domain automation has started' : 'domain follow-up is queued'} for ${domainResult.agent.domain_name}` : ''}.`,
     priority: 'normal',
     project_id: project.id,
     body: { session_id: stripeSessionId, live_url: liveUrl, domain_result: domainResult }

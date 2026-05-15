@@ -212,10 +212,22 @@ document.addEventListener('DOMContentLoaded', () => {
           live_url: liveUrl
         })
       });
-      const suffix = result.actual_purchase_attempted
-        ? 'The domain registration automation has been started.'
-        : 'The domain registration request is saved for the registrar workflow.';
-      showMessage(`Your website is live: ${liveUrl}. ${suffix} ${result.message || ''}`.trim(), 'success');
+      const agent = result.agent || {};
+      const status = String(agent.status || result.status || '').toLowerCase();
+      const detail = String(agent.message || result.message || '').replace(/\s*\.+\s*$/, '');
+      const domainName = agent.domain_name || domain.name;
+
+      if (result.registration_started || ['registration_in_progress', 'submitted_to_registration_agent', 'registered', 'completed'].includes(status)) {
+        showMessage(`Your website is live: ${liveUrl}. Automatic domain registration has started for ${domainName}.${detail ? ` ${detail}.` : ''}`, 'success');
+        return;
+      }
+
+      if (['queued_for_registrar_follow_up', 'automation_failed_registrar_follow_up'].includes(status)) {
+        showMessage(`Your website is live: ${liveUrl}. The domain request for ${domainName} has been saved, but it could not be safely purchased automatically yet.${detail ? ` ${detail}.` : ''}`, 'warning');
+        return;
+      }
+
+      showMessage(`Your website is live: ${liveUrl}. The domain request for ${domainName} has been saved for the registrar workflow.${detail ? ` ${detail}.` : ''}`, 'info');
     } catch (error) {
       showMessage(`Your website is live: ${liveUrl}. Domain registration still needs attention: ${error.message || 'Domain agent could not start.'}`, 'error');
     }

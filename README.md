@@ -6,8 +6,8 @@ The builder checks live domain availability and returns available suggestions. C
 
 Required Cloudflare env vars:
 
-- `CLOUDFLARE_ACCOUNT_ID`
-- `CLOUDFLARE_API_TOKEN` with Registrar permissions
+- `CLOUDFLARE_REGISTRAR_ACCOUNT_ID` (or the older fallback `CLOUDFLARE_ACCOUNT_ID`)
+- `CLOUDFLARE_REGISTRAR_TOKEN` (or the older fallback `CLOUDFLARE_API_TOKEN`) with Cloudflare Registrar permissions
 
 Required/optional domain payment env vars:
 

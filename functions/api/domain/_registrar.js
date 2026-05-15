@@ -1,9 +1,17 @@
 export function cloudflareRegistrarConfigured(env = {}) {
-  return Boolean(env.CLOUDFLARE_ACCOUNT_ID && env.CLOUDFLARE_API_TOKEN);
+  return Boolean(cloudflareRegistrarAccountId(env) && cloudflareRegistrarToken(env));
 }
 
 export function autoRegisterEnabled(env = {}) {
   return String(env.DOMAIN_AUTO_REGISTER || '').toLowerCase() === 'true';
+}
+
+export function cloudflareRegistrarAccountId(env = {}) {
+  return String(env.CLOUDFLARE_REGISTRAR_ACCOUNT_ID || env.CLOUDFLARE_ACCOUNT_ID || '').trim();
+}
+
+export function cloudflareRegistrarToken(env = {}) {
+  return String(env.CLOUDFLARE_REGISTRAR_TOKEN || env.CLOUDFLARE_API_TOKEN || '').trim();
 }
 
 function cloudflareError(data = {}, status = 0) {
@@ -14,6 +22,8 @@ function cloudflareError(data = {}, status = 0) {
 }
 
 async function cloudflareRegistrarFetch(env, path, body, options = {}) {
+  const accountId = cloudflareRegistrarAccountId(env);
+  const token = cloudflareRegistrarToken(env);
   if (!cloudflareRegistrarConfigured(env)) {
     return {
       configured: false,
@@ -23,10 +33,10 @@ async function cloudflareRegistrarFetch(env, path, body, options = {}) {
     };
   }
 
-  const response = await fetch(`https://api.cloudflare.com/client/v4/accounts/${encodeURIComponent(env.CLOUDFLARE_ACCOUNT_ID)}${path}`, {
+  const response = await fetch(`https://api.cloudflare.com/client/v4/accounts/${encodeURIComponent(accountId)}${path}`, {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${env.CLOUDFLARE_API_TOKEN}`,
+      'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json',
       ...(options.headers || {})
     },

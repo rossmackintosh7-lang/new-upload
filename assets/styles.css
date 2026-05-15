@@ -342,6 +342,7 @@ body.pbi-canvas-page header img{
 .notice{background:#fff7ee;border:1px solid rgba(191,92,41,.25);border-radius:16px;padding:12px;color:#513321;}
 .domain-error{border-color:rgba(180,75,62,.35);background:#fff0ed;color:#6f241d;}
 .domain-success{border-color:rgba(47,140,101,.35);background:#effaf4;color:#214f3b;}
+.domain-warning{border-color:rgba(191,125,45,.4);background:#fff8e8;color:#684315;}
 .pbi-studio-domain-topper{
   grid-column:1/-1;
   background:rgba(255,250,244,.92);

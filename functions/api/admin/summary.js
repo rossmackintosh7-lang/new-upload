@@ -187,8 +187,8 @@ export async function onRequestGet({ request, env }) {
         String(env.DOMAIN_REGISTRATION_AGENT_URL || env.DOMAIN_REGISTRATION_WEBHOOK_URL || '').trim() ||
         (
           String(env.DOMAIN_AUTO_REGISTER || '').toLowerCase() === 'true' &&
-          env.CLOUDFLARE_ACCOUNT_ID &&
-          env.CLOUDFLARE_API_TOKEN
+          (env.CLOUDFLARE_REGISTRAR_ACCOUNT_ID || env.CLOUDFLARE_ACCOUNT_ID) &&
+          (env.CLOUDFLARE_REGISTRAR_TOKEN || env.CLOUDFLARE_API_TOKEN)
         )
       )
     }
