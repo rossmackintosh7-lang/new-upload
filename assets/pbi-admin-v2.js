@@ -613,6 +613,7 @@
       <div class="pbi-admin-actions">
         <a class="btn" href="/builder/?project=${encodeURIComponent(id)}&admin=1">Admin edit project</a>
         <a class="btn-ghost" href="/canvas-builder/?project=${encodeURIComponent(id)}&admin=1">Advanced editor</a>
+        <a class="btn-ghost" href="/api/admin/project-export?project_id=${encodeURIComponent(id)}">Download website zip</a>
         <button class="btn-ghost" id="scanProject">Scan readiness</button>
       </div>
       ${paidWorkPanel(project, data.assisted_requests || [])}

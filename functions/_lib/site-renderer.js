@@ -245,7 +245,7 @@ function renderNav(data, project) {
   </header>`;
 }
 
-function renderPublishedSite(project, env = {}) {
+export function renderPublishedSite(project, env = {}) {
   const data = parseJson(project.data_json, {});
   const blocks = getHomeBlocks(data);
   const fallbackHero = {

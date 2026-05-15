@@ -193,6 +193,7 @@
         </div>
         <div class="admin-action-row">
           <a class="btn" href="/builder/?project=${encodeURIComponent(project.id)}&admin=1">Open builder</a>
+          <a class="btn-ghost" href="/api/admin/project-export?project_id=${encodeURIComponent(project.id)}">Download website zip</a>
           ${liveUrl ? `<a class="btn-ghost" href="${esc(liveUrl)}" target="_blank" rel="noopener">View live site</a>` : ''}
           <button class="btn-ghost" id="adminPublishBtn" type="button">Publish</button>
         </div>
