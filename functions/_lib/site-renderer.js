@@ -122,9 +122,8 @@ function assetUrl(src = '', env = {}) {
   const value = String(src || '').trim();
   if (!value) return '';
   if (/^https?:\/\//i.test(value) || value.startsWith('data:')) return value;
-  const assetBase = String(env.PBI_ASSETS_PUBLIC_URL || env.PBI_BASE_URL || 'https://www.purbeckbusinessinnovations.co.uk').replace(/\/+$/, '');
   const pbiBase = String(env.PBI_BASE_URL || 'https://www.purbeckbusinessinnovations.co.uk').replace(/\/+$/, '');
-  if (value.startsWith('/assets/')) return `${assetBase}${value}`;
+  if (value.startsWith('/assets/')) return `${pbiBase}${value}`;
   if (value.startsWith('/')) return `${pbiBase}${value}`;
   return value;
 }

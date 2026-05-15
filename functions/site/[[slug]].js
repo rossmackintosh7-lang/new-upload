@@ -37,10 +37,9 @@ function assetUrl(src = '', env = {}) {
   if (!value) return '';
   if (/^https?:\/\//i.test(value) || value.startsWith('data:')) return value;
   const mediaBase = getHostingConfig(env).mediaPublicUrl;
-  const assetBase = String(env.PBI_ASSETS_PUBLIC_URL || env.PBI_BASE_URL || '').replace(/\/+$/g, '');
   const siteBase = String(env.PBI_BASE_URL || '').replace(/\/+$/g, '');
   if (value.startsWith('projects/') && mediaBase) return `${mediaBase}/${value}`;
-  if (value.startsWith('/assets/')) return assetBase ? `${assetBase}${value}` : value;
+  if (value.startsWith('/assets/')) return siteBase ? `${siteBase}${value}` : value;
   if (value.startsWith('/')) return siteBase ? `${siteBase}${value}` : value;
   return value;
 }
