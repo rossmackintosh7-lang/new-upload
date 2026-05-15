@@ -48,7 +48,3 @@ database_id = "f4c649dc-8047-43c3-940a-fa3854d18c21"
 [[r2_buckets]]
 binding = "PBI_ASSETS"
 bucket_name = "pbi-assets"
-
-[[r2_buckets]]
-binding = "MEDIA_BUCKET"
-bucket_name = "pbi-assets"
