@@ -1,5 +1,6 @@
 import { json, error, readBody, getUserFromSession } from '../projects/_shared.js';
 import { takeProjectDown } from './_cancellation.js';
+import { markHostingBillingState } from '../../_lib/hosting.js';
 
 function parseJson(value, fallback = {}) {
   try { return typeof value === 'string' ? JSON.parse(value || '{}') : (value || fallback); }
@@ -38,6 +39,7 @@ export async function onRequestPost({ request, env }) {
   if (stripe.ok === false) return error(stripe.error || 'Stripe cancellation failed.', 500, { stripe });
 
   await takeProjectDown(env, project, 'customer');
+  await markHostingBillingState(env, { project, billingStatus: 'cancelled', published: false, eventType: 'customer_cancel' });
 
   return json({
     ok: true,

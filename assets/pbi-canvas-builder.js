@@ -1964,7 +1964,34 @@
       showChecklist(result);
       if (!result.ok) return setStatus("Fix checklist issues before publishing");
       await saveProject();
-      location.href = `/payment/?project=${encodeURIComponent(getProjectId())}&plan=${encodeURIComponent(currentPlan())}`;
+      setStatus("Running managed hosting publish check...");
+      try {
+        const response = await fetch("/api/hosting/publish", {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ project_id: getProjectId(), plan: currentPlan() })
+        });
+        const data = await response.json().catch(() => ({}));
+        if (data.payment_required && data.checkout_url) {
+          setStatus("Payment required before the managed site goes live");
+          location.href = data.checkout_url;
+          return;
+        }
+        if (!response.ok || data.ok === false) {
+          setStatus(data.message || data.error || "Publish check failed");
+          if (data.issues?.length) showFloatingBox("Publish blocked", `<ul>${data.issues.map(i=>`<li>${esc(i)}</li>`).join("")}</ul>`, true);
+          return;
+        }
+        if (data.published && data.live_url) {
+          setStatus(`Site is live: ${data.live_url}`);
+          showFloatingBox("Site published", `<p>Your managed PBI site is live.</p><p><a class="pbi-btn-primary" href="${esc(data.live_url)}" target="_blank" rel="noopener">View live site</a></p>`, true);
+          return;
+        }
+        setStatus(data.message || "Publish status returned");
+      } catch (err) {
+        setStatus(err?.message || "Could not publish right now");
+      }
     });
     $("#canvasBackToBuilder")?.setAttribute("href", "/dashboard/");
     $("#canvasAiBuildBtn")?.addEventListener("click", () => {

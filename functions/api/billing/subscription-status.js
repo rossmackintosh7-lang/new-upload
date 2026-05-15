@@ -1,11 +1,12 @@
 import { json, error, getUserFromSession } from '../projects/_shared.js';
+import { ensureHostingTables, sitePublicUrl } from '../../_lib/hosting.js';
 
 function parseJson(value, fallback = {}) {
   try { return typeof value === 'string' ? JSON.parse(value || '{}') : (value || fallback); }
   catch { return fallback; }
 }
 
-function liveUrl(project) {
+function legacyLiveUrl(project) {
   if (Number(project.published || 0) !== 1 || !project.public_slug) return '';
   return `/site/canvas/${encodeURIComponent(project.public_slug)}/`;
 }
@@ -13,6 +14,7 @@ function liveUrl(project) {
 export async function onRequestGet({ request, env }) {
   const user = await getUserFromSession(env, request);
   if (!user) return error('Unauthorized.', 401);
+  await ensureHostingTables(env);
 
   const url = new URL(request.url);
   const projectId = String(url.searchParams.get('project_id') || '').trim();
@@ -26,15 +28,21 @@ export async function onRequestGet({ request, env }) {
     ORDER BY datetime(COALESCE(updated_at, created_at, '1970-01-01')) DESC
   `).bind(...binds).all();
 
+  const sites = await env.DB.prepare(`SELECT project_id, site_slug, status, payment_status FROM published_sites WHERE user_id = ?`).bind(user.id).all().catch(() => ({ results: [] }));
+  const siteByProject = new Map((sites.results || []).map((site) => [site.project_id, site]));
+
   const projects = (rows.results || []).map((project) => {
     const data = parseJson(project.data_json, {});
+    const site = siteByProject.get(project.id);
+    const hostedUrl = site?.site_slug && site.status === 'live' ? sitePublicUrl(env, site.site_slug, '', new URL(request.url).origin) : '';
     return {
       id: project.id,
       name: project.name || data.business_name || 'Untitled website',
       plan: project.plan || 'free_preview',
       billing_status: project.billing_status || 'draft',
       published: Number(project.published || 0) === 1,
-      live_url: liveUrl(project),
+      live_url: hostedUrl || legacyLiveUrl(project),
+      hosting_site: site || null,
       stripe_subscription_id: project.stripe_subscription_id || data.stripe_subscription_id || '',
       website_subscription_status: data.website_subscription_status || project.billing_status || '',
       domain_management: data.domain_management || null,

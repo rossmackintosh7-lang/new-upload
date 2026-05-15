@@ -355,6 +355,68 @@
     renderCouponList(data.coupons || [], data.stripe_connected);
   }
 
+  function hostingActions(site = {}) {
+    const buttons = [];
+    if (site.status === 'live') {
+      buttons.push(`<button class="btn-ghost pbiAdminHostingAction" data-site="${esc(site.id)}" data-action="suspend" type="button">Suspend</button>`);
+    } else {
+      buttons.push(`<button class="btn-ghost pbiAdminHostingAction" data-site="${esc(site.id)}" data-action="unsuspend" type="button">Set live</button>`);
+    }
+    buttons.push(`<button class="btn-ghost pbiAdminHostingAction" data-site="${esc(site.id)}" data-action="unpublish" type="button">Unpublish</button>`);
+    buttons.push(`<a class="btn-ghost" href="/admin/projects/?project_id=${encodeURIComponent(site.project_id || '')}">Project</a>`);
+    if (site.site_slug) buttons.push(`<a class="btn" href="/site/${encodeURIComponent(site.site_slug)}/" target="_blank" rel="noopener">View</a>`);
+    return buttons.join('');
+  }
+
+  async function loadHosting() {
+    const target = $('adminHostingPanel');
+    if (!target) return;
+    const data = await api('/api/admin/hosting');
+    if (!data.ok) {
+      target.innerHTML = `<p>${esc(data.error || data.message || 'Could not load hosting.')}</p>`;
+      return;
+    }
+    const stats = data.stats || {};
+    const storageMb = Number(stats.storage_bytes || 0) ? `${(Number(stats.storage_bytes || 0) / 1048576).toFixed(1)} MB` : '0 MB';
+    const statsMarkup = `
+      <div class="pbi-admin-kpis">
+        <span><strong>${Number(stats.live || 0)}</strong> live</span>
+        <span><strong>${Number(stats.suspended || 0)}</strong> suspended</span>
+        <span><strong>${Number(stats.payment_required || 0)}</strong> payment required</span>
+        <span><strong>${Number(stats.custom_domains || 0)}</strong> domains</span>
+        <span><strong>${Number(stats.new_leads || 0)}</strong> new leads</span>
+        <span><strong>${esc(storageMb)}</strong> storage</span>
+      </div>`;
+    const leadsMarkup = (data.recent_leads || []).length
+      ? `<div class="pbi-admin-mini-list"><strong>Recent leads</strong>${(data.recent_leads || []).map((lead) => `<span>${esc(lead.name || lead.email || lead.phone || 'Lead')} · ${esc(lead.project_name || lead.project_id || '')}</span>`).join('')}</div>`
+      : '';
+    const errorsMarkup = (data.recent_errors || []).length
+      ? `<div class="pbi-admin-mini-list"><strong>Recent hosting errors</strong>${(data.recent_errors || []).map((event) => `<span>${esc(event.event_type)} · ${esc(event.message || '')}</span>`).join('')}</div>`
+      : '';
+    const sitesMarkup = (data.sites || []).length
+      ? (data.sites || []).map((site) => `
+        <article class="pbi-admin-item">
+          <strong>${esc(site.project_name || site.site_slug || 'Hosted site')}</strong>
+          <span>${esc(site.customer_email || site.project_id || '')}</span>
+          ${badges(site.status, site.payment_status, site.plan, site.custom_domain || site.primary_domain)}
+          <div class="pbi-admin-actions">${hostingActions(site)}</div>
+        </article>
+      `).join('')
+      : '<p>No managed hosting records yet.</p>';
+    target.innerHTML = `${statsMarkup}${leadsMarkup}${errorsMarkup}${sitesMarkup}`;
+    target.querySelectorAll('.pbiAdminHostingAction').forEach((button) => {
+      button.addEventListener('click', async () => {
+        button.disabled = true;
+        const result = await api('/api/admin/hosting', {
+          method: 'POST',
+          body: JSON.stringify({ site_id: button.dataset.site, action: button.dataset.action })
+        });
+        if (!result.ok) alert(result.error || result.message || 'Hosting action failed.');
+        await loadHosting();
+      });
+    });
+  }
+
   function randomCouponCode() {
     return `PBI-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
   }
@@ -437,6 +499,7 @@
     renderLatest(data);
     bindGlobalSearch(data);
     loadCoupons();
+    loadHosting();
   }
 
   async function requests() {
@@ -584,6 +647,7 @@
     notifications();
     projects();
     bindCoupons();
+    $('adminRefreshHosting')?.addEventListener('click', loadHosting);
     $('adminRefreshSummary')?.addEventListener('click', summary);
     $('adminRefreshRequests')?.addEventListener('click', requests);
     $('adminRefreshNotifications')?.addEventListener('click', notifications);

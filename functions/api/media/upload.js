@@ -1,5 +1,6 @@
 import { requireUser, ensureCoreTables } from '../../_lib/auth.js';
 import { json, error, ensurePlatformTables } from '../../_lib/platform.js';
+import { ensureHostingTables } from '../../_lib/hosting.js';
 
 function mimeFromDataUrl(dataUrl) {
   const match = String(dataUrl || '').match(/^data:([^;]+);base64,/);
@@ -22,6 +23,7 @@ function ext(mime) {
 export async function onRequestPost({ request, env }) {
   await ensureCoreTables(env);
   await ensurePlatformTables(env);
+  await ensureHostingTables(env);
   const auth = await requireUser(env, request);
   if (!auth.ok) return auth.response;
 
@@ -41,18 +43,24 @@ export async function onRequestPost({ request, env }) {
   const id = crypto.randomUUID();
   let url = dataUrl;
   let storageKey = '';
+  let siteId = '';
+  const bucket = env.MEDIA_BUCKET || env.PBI_ASSETS;
 
-  const mediaBucket = env.MEDIA_BUCKET || env.PBI_ASSETS;
-  if (mediaBucket) {
+  try {
+    const site = await env.DB.prepare(`SELECT id FROM published_sites WHERE project_id = ? AND user_id = ? LIMIT 1`).bind(projectId, auth.user.id).first();
+    siteId = site?.id || '';
+  } catch (_) {}
+
+  if (bucket) {
     storageKey = `projects/${projectId}/${id}.${ext(mime)}`;
-    await mediaBucket.put(storageKey, bytes, { httpMetadata: { contentType: mime } });
+    await bucket.put(storageKey, bytes, { httpMetadata: { contentType: mime } });
     const base = String(env.PBI_MEDIA_PUBLIC_URL || env.PBI_ASSETS_PUBLIC_URL || '').replace(/\/+$/, '');
     url = base ? `${base}/${storageKey}` : dataUrl;
   }
 
-  await env.DB.prepare(`INSERT INTO media_assets (id, user_id, project_id, filename, content_type, size, url, alt, storage_key, created_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`)
-    .bind(id, auth.user.id, projectId, filename, mime, bytes.length, url, alt, storageKey).run();
+  await env.DB.prepare(`INSERT INTO media_assets (id, user_id, project_id, site_id, filename, content_type, size, url, alt, storage_key, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`)
+    .bind(id, auth.user.id, projectId, siteId, filename, mime, bytes.length, url, alt, storageKey).run();
 
-  return json({ ok: true, asset: { id, project_id: projectId, filename, content_type: mime, size: bytes.length, url, alt, storage_key: storageKey } });
+  return json({ ok: true, persistent: Boolean(bucket && storageKey), asset: { id, project_id: projectId, site_id: siteId, filename, content_type: mime, size: bytes.length, url, alt, storage_key: storageKey } });
 }
