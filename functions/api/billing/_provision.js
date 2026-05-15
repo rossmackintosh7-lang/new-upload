@@ -23,6 +23,12 @@ function objectId(value) {
   return String(value.id || '');
 }
 
+function checkoutKind(session = {}) {
+  const raw = session.metadata?.checkout_kind || session.metadata?.addon_type || '';
+  const key = String(raw || '').trim().toLowerCase().replace(/-/g, '_');
+  return ['assisted_setup', 'custom_build_deposit'].includes(key) ? key : '';
+}
+
 async function ensurePublishColumns(env) {
   const alters = [
     `ALTER TABLE projects ADD COLUMN readiness_score INTEGER DEFAULT 0`,
@@ -64,9 +70,172 @@ async function getProjectUser(env, userId) {
   return await env.DB.prepare(`SELECT id, email FROM users WHERE id = ? LIMIT 1`).bind(userId).first() || { id: userId, email: '' };
 }
 
+async function ensureAdminRequest(env, payload = {}) {
+  await ensurePbiOpsTables(env);
+  const id = payload.id || crypto.randomUUID();
+  await env.DB.prepare(`
+    INSERT OR IGNORE INTO admin_requests (
+      id, request_type, status, priority, customer_name, customer_email, customer_phone,
+      business_name, business_type, project_id, package_name, payment_status, brief,
+      requested_pages, uploaded_assets_json, internal_notes, customer_message, body_json,
+      created_at, updated_at
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+  `).bind(
+    id,
+    String(payload.request_type || 'assisted_build'),
+    String(payload.status || 'new'),
+    String(payload.priority || 'high'),
+    String(payload.customer_name || ''),
+    String(payload.customer_email || ''),
+    String(payload.customer_phone || ''),
+    String(payload.business_name || ''),
+    String(payload.business_type || ''),
+    String(payload.project_id || ''),
+    String(payload.package_name || ''),
+    String(payload.payment_status || 'paid'),
+    String(payload.brief || ''),
+    String(payload.requested_pages || ''),
+    JSON.stringify(payload.uploaded_assets || []),
+    String(payload.internal_notes || ''),
+    String(payload.customer_message || ''),
+    JSON.stringify(payload.body || {})
+  ).run();
+
+  await env.DB.prepare(`
+    UPDATE admin_requests
+    SET payment_status = ?,
+        priority = ?,
+        project_id = COALESCE(NULLIF(project_id, ''), ?),
+        updated_at = CURRENT_TIMESTAMP
+    WHERE id = ?
+  `).bind(
+    String(payload.payment_status || 'paid'),
+    String(payload.priority || 'high'),
+    String(payload.project_id || ''),
+    id
+  ).run();
+
+  return id;
+}
+
 function selectedDomainName(project, data) {
   if (String(data.domain_option || project.domain_option || '') !== 'register_new') return '';
   return String(data.domain_registration?.name || data.custom_domain || project.custom_domain || '').trim().toLowerCase();
+}
+
+async function provisionPaidAddOnCheckoutSession(env, session, kind) {
+  const project = await getProjectForSession(env, session);
+  if (!project) {
+    await createAdminNotification(env, {
+      type: 'stripe_webhook',
+      title: 'Paid add-on has no matching project',
+      message: `${kind.replaceAll('_', ' ')} checkout ${session.id || 'unknown'} completed, but PBI could not find the project.`,
+      priority: 'high',
+      body: { session_id: session.id || '', metadata: session.metadata || {} }
+    });
+    return { ok: false, project_missing: true, checkout_kind: kind, message: 'No project matched this paid add-on Checkout Session.' };
+  }
+
+  const user = await getProjectUser(env, project.user_id);
+  const existingData = parseData(project);
+  const now = new Date().toISOString();
+  const stripeCustomerId = objectId(session.customer);
+  const stripeSessionId = String(session.id || '');
+  const amountTotal = Number(session.amount_total || 0);
+  const currency = String(session.currency || 'gbp').toLowerCase();
+  const isAssistedSetup = kind === 'assisted_setup';
+  const requestType = isAssistedSetup ? 'assisted_build' : 'custom_build';
+  const paidFlag = isAssistedSetup ? 'assisted_setup_paid' : 'custom_build_deposit_paid';
+  const paidAt = isAssistedSetup ? 'assisted_setup_paid_at' : 'custom_build_deposit_paid_at';
+  const sessionKey = isAssistedSetup ? 'assisted_setup_checkout_session_id' : 'custom_build_deposit_checkout_session_id';
+  const statusKey = isAssistedSetup ? 'assisted_setup_status' : 'custom_build_status';
+  const label = isAssistedSetup ? 'Assisted Setup' : 'Custom Build Deposit';
+  const projectName = project.name || existingData.business_name || existingData.project_name || project.id;
+
+  const requestId = `${kind}_${stripeSessionId || crypto.randomUUID()}`;
+  const existingRequest = await env.DB.prepare(`
+    SELECT id
+    FROM admin_requests
+    WHERE id = ?
+    LIMIT 1
+  `).bind(requestId).first();
+  const requestAlreadyExists = Boolean(existingRequest?.id);
+  const updatedData = {
+    ...existingData,
+    [paidFlag]: true,
+    [paidAt]: existingData[paidAt] || now,
+    [sessionKey]: stripeSessionId,
+    [`${kind}_amount_minor`]: amountTotal,
+    [`${kind}_currency`]: currency,
+    [`${kind}_payment_status`]: 'paid',
+    [statusKey]: isAssistedSetup ? 'paid_ready_for_admin' : 'deposit_paid_ready_for_scope',
+    assisted_setup_admin_url: isAssistedSetup ? `/admin/projects/?project_id=${encodeURIComponent(project.id)}` : existingData.assisted_setup_admin_url,
+    assisted_setup_builder_url: isAssistedSetup ? `/canvas-builder/?project=${encodeURIComponent(project.id)}&admin=1` : existingData.assisted_setup_builder_url
+  };
+
+  await env.DB.prepare(`
+    UPDATE projects
+    SET data_json = ?,
+        stripe_customer_id = COALESCE(NULLIF(?, ''), stripe_customer_id),
+        updated_at = CURRENT_TIMESTAMP
+    WHERE id = ? AND user_id = ?
+  `).bind(JSON.stringify(updatedData), stripeCustomerId, project.id, project.user_id).run();
+
+  await ensureAdminRequest(env, {
+    id: requestId,
+    request_type: requestType,
+    status: 'new',
+    priority: 'high',
+    customer_email: user.email || '',
+    business_name: projectName,
+    project_id: project.id,
+    package_name: label,
+    payment_status: 'paid',
+    brief: isAssistedSetup
+      ? 'Customer has paid for Assisted Setup. Open the project and make the requested setup changes for them.'
+      : 'Customer has paid a custom build deposit. Open the project and begin scoping the build.',
+    internal_notes: `Stripe Checkout Session: ${stripeSessionId}`,
+    body: {
+      checkout_kind: kind,
+      session_id: stripeSessionId,
+      amount_total: amountTotal,
+      currency,
+      customer: stripeCustomerId,
+      project_id: project.id,
+      edit_url: `/canvas-builder/?project=${encodeURIComponent(project.id)}&admin=1`
+    }
+  });
+
+  if (!requestAlreadyExists) {
+    await createAdminNotification(env, {
+      type: isAssistedSetup ? 'assisted_setup_paid' : 'custom_build_deposit_paid',
+      title: `${label} paid`,
+      message: `${projectName} is ready for admin work. Open the project from the admin panel and edit it directly.`,
+      priority: 'high',
+      customer_email: user.email || '',
+      project_id: project.id,
+      request_id: requestId,
+      body: {
+        checkout_kind: kind,
+        session_id: stripeSessionId,
+        amount_total: amountTotal,
+        currency,
+        admin_project_url: `/admin/projects/?project_id=${encodeURIComponent(project.id)}`,
+        builder_url: `/canvas-builder/?project=${encodeURIComponent(project.id)}&admin=1`
+      }
+    });
+  }
+
+  return {
+    ok: true,
+    checkout_kind: kind,
+    project_id: project.id,
+    request_id: requestId,
+    paid: true,
+    admin_project_url: `/admin/projects/?project_id=${encodeURIComponent(project.id)}`,
+    builder_url: `/canvas-builder/?project=${encodeURIComponent(project.id)}&admin=1`
+  };
 }
 
 export async function provisionPaidCheckoutSession(env, session = {}) {
@@ -82,6 +251,9 @@ export async function provisionPaidCheckoutSession(env, session = {}) {
       message: 'Checkout Session is not paid or complete yet.'
     };
   }
+
+  const kind = checkoutKind(session);
+  if (kind) return provisionPaidAddOnCheckoutSession(env, session, kind);
 
   const project = await getProjectForSession(env, session);
   if (!project) {
