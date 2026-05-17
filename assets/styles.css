@@ -1198,7 +1198,7 @@ body.pbi-new-home .pbi-public-brand img{
 body.pbi-new-home .pbi-public-links{
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: center;
   gap: clamp(7px,1vw,12px);
   flex: 1 1 auto;
   min-width: 0;
@@ -2175,7 +2175,7 @@ body.pbi-nav-compact .nav-inner{
 .pbi-main-nav,
 .nav-inner > .row{
   flex-wrap:wrap;
-  justify-content:flex-end;
+  justify-content:center;
   align-items:center;
   row-gap:8px;
 }
@@ -2839,4 +2839,91 @@ body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) .site-footer,
 body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) footer{
   background:linear-gradient(135deg,var(--pbi-charcoal),#3a1d13)!important;
   color:var(--pbi-peach)!important;
+}
+
+/* Public page centring pass.
+   Keeps forms readable while making every marketing page feel deliberately centred. */
+body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) .page-hero .container,
+body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) .hero .container,
+body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) .pbi-trust-hero .container,
+body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) .pbi-template-hero .container,
+body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) .pbi-page-intro .container{
+  display:grid;
+  justify-items:center;
+  text-align:center;
+}
+
+body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) .page-hero h1,
+body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) .hero h1,
+body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) .pbi-trust-hero h1,
+body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) .pbi-template-hero h1,
+body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) .section-title{
+  margin-left:auto;
+  margin-right:auto;
+  text-align:center;
+}
+
+body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) .page-hero p,
+body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) .hero-text,
+body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) .pbi-trust-hero p:not(.eyebrow),
+body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) .pbi-template-hero p:not(.eyebrow),
+body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) .pbi-page-intro p{
+  max-width:920px;
+  margin-left:auto;
+  margin-right:auto;
+  text-align:center;
+}
+
+body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) .hero-actions,
+body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) .cta-buttons,
+body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) .row:has(.btn),
+body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) .pbi-route-card-footer{
+  justify-content:center;
+}
+
+body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) .pbi-section-head{
+  justify-content:center;
+  text-align:center;
+}
+
+body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) .pbi-section-head > div,
+body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) .pbi-section-head > p{
+  max-width:980px;
+  margin-left:auto;
+  margin-right:auto;
+}
+
+body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) .pbi-pricing-grid,
+body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) .pbi-addon-grid,
+body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) .pricing-grid,
+body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) .pbi-service-chip-grid,
+body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) .pbi-seo-link-grid,
+body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) .pbi-premium-template-grid{
+  justify-content:center;
+}
+
+body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) .pbi-price-card,
+body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) .pbi-addon-card,
+body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) .price-card,
+body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) .pbi-template-card{
+  text-align:center;
+}
+
+body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) .pbi-price-card ul,
+body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) .pbi-addon-card ul,
+body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) .price-card ul{
+  width:fit-content;
+  max-width:100%;
+  margin-left:auto;
+  margin-right:auto;
+  text-align:left;
+}
+
+body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) form,
+body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) .auth-card,
+body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) .pbi-form-card,
+body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) .pbi-custom-form-card,
+body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) .help-article,
+body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) article.prose{
+  text-align:left;
 }
