@@ -2506,16 +2506,21 @@ body.pbi-home-page .pbi-dual-hero{
 body.pbi-home-page .pbi-dual-hero .container{
   display:grid;
   gap:20px;
+  justify-items:center;
+  text-align:center;
 }
 body.pbi-home-page .pbi-dual-hero h1{
   max-width:1120px;
 }
 body.pbi-home-page .pbi-dual-hero .hero-text{
   max-width:920px;
+  margin-left:auto;
+  margin-right:auto;
 }
 .pbi-dual-hero-actions{
   display:flex;
   flex-wrap:wrap;
+  justify-content:center;
   gap:12px;
   margin-top:4px;
 }
@@ -2527,6 +2532,7 @@ body.pbi-home-page .pbi-dual-hero .hero-text{
 .pbi-home-trust-row{
   display:flex;
   flex-wrap:wrap;
+  justify-content:center;
   gap:10px;
   margin-top:8px;
 }
@@ -2546,6 +2552,15 @@ body.pbi-home-page .pbi-dual-hero .hero-text{
   display:grid;
   grid-template-columns:repeat(2,minmax(0,1fr));
   gap:clamp(18px,2.4vw,30px);
+}
+.pbi-route-section .pbi-section-head{
+  justify-content:center;
+  text-align:center;
+}
+.pbi-route-section .pbi-section-head > div{
+  max-width:980px;
+  margin-left:auto;
+  margin-right:auto;
 }
 .pbi-route-card{
   display:grid;
@@ -2578,9 +2593,15 @@ body.pbi-home-page .pbi-dual-hero .hero-text{
   color:#fffaf4!important;
 }
 .pbi-route-build .eyebrow,
+.pbi-route-build h2,
+.pbi-route-build strong,
 .pbi-route-build p,
 .pbi-route-build li{
   color:#fff1e5!important;
+}
+.pbi-route-build h2{
+  color:#fffaf4!important;
+  text-shadow:0 2px 18px rgba(0,0,0,.18);
 }
 .pbi-route-ai{
   background:linear-gradient(135deg,#fffaf4,#f2eadc)!important;
