@@ -59,6 +59,7 @@
       </div>
       <p class="muted" data-currency-notice>Prices shown in GBP.</p>
     </div>
+    <div data-service-checkout-message class="notice" style="display:none;margin-bottom:18px"></div>
     <div class="pbi-package-choice-grid">
       <a class="pbi-package-choice-card" href="#packages">
         <span>Build it myself</span>
@@ -82,13 +83,13 @@
         <span>Grow on Google</span>
         <strong>SEO Care</strong>
         <p>Monthly search support, page improvements and practical ranking work.</p>
-        <em>From £99/month</em>
+        <em>£499/month</em>
       </a>
       <a class="pbi-package-choice-card" href="#support-addons">
         <span>Add support</span>
         <strong>Add-ons and maintenance</strong>
         <p>Logo, assisted setup, domain management and ongoing support.</p>
-        <em>From £75/month</em>
+        <em>From £250/month</em>
       </a>
     </div>
   </div>
@@ -158,7 +159,7 @@
       <p class="muted">These guide prices are for quoted custom work. The self-build plans above remain the monthly publishing packages. Final pricing depends on pages, products, integrations, copy, imagery, checkout complexity and launch support.</p>
     </div>
   </div>
-  <div class="pbi-pricing-grid">
+  <div class="pbi-pricing-grid pbi-service-checkout-grid">
     <article class="card pbi-price-card">
       <p class="eyebrow">Custom website</p>
       <h3>Basic Website</h3>
@@ -171,7 +172,10 @@
         <li>Basic SEO setup</li>
         <li>Launch checklist support</li>
       </ul>
-      <a class="btn" href="/custom-build/?package=basic_website">Enquire about Basic Website</a>
+      <div class="pbi-card-actions">
+        <a class="btn" href="/api/billing/service-checkout?service=basic_build">Book Basic Build</a>
+        <a class="btn-ghost" href="/custom-build/?package=basic_website">Ask first</a>
+      </div>
     </article>
     <article class="card pbi-price-card featured">
       <p class="eyebrow">Most common custom build</p>
@@ -185,13 +189,32 @@
         <li>SEO titles, descriptions and page basics</li>
         <li>Support for launch edits and final checks</li>
       </ul>
-      <a class="btn" href="/custom-build/?package=standard_website">Enquire about Standard Website</a>
+      <div class="pbi-card-actions">
+        <a class="btn" href="/api/billing/service-checkout?service=standard_build">Book Standard Build</a>
+        <a class="btn-ghost" href="/custom-build/?package=standard_website">Ask first</a>
+      </div>
+    </article>
+    <article class="card pbi-price-card">
+      <p class="eyebrow">More design depth</p>
+      <h3>Premium Website</h3>
+      <p class="price-line">From £2,995</p>
+      <p>A more developed website for businesses that need stronger positioning, content depth and conversion polish.</p>
+      <ul>
+        <li>Expanded page structure and conversion planning</li>
+        <li>More detailed copy and visual direction</li>
+        <li>Stronger mobile, trust and enquiry flow</li>
+        <li>Launch review and improvement pass</li>
+      </ul>
+      <div class="pbi-card-actions">
+        <a class="btn" href="/api/billing/service-checkout?service=premium_build">Book Premium Build</a>
+        <a class="btn-ghost" href="/custom-build/?package=premium_build">Ask first</a>
+      </div>
     </article>
     <article class="card pbi-price-card" id="ecommerce-builds">
       <p class="eyebrow">Online store</p>
       <h3>E-Commerce Store</h3>
       <p class="price-line">From £2,995</p>
-      <p>A quoted Stripe e-commerce build for businesses that need products, checkout and a more serious selling route. Larger stores, subscriptions, memberships and integrations are scoped individually.</p>
+      <p>A quoted Stripe e-commerce build for businesses that need products, checkout and a more serious selling route. There is no fixed upper cap: larger stores, subscriptions, memberships and integrations are scoped individually.</p>
       <ul>
         <li>Stripe payment setup support</li>
         <li>Product catalogue planning</li>
@@ -199,7 +222,26 @@
         <li>Shipping, tax and fulfilment guidance</li>
         <li>Larger catalogues and integrations scoped separately</li>
       </ul>
-      <a class="btn" href="/custom-build/?package=ecommerce_store">Enquire about E-Commerce</a>
+      <div class="pbi-card-actions">
+        <a class="btn" href="/api/billing/service-checkout?service=ecommerce_build">Book E-Commerce Build</a>
+        <a class="btn-ghost" href="/custom-build/?package=ecommerce_store">Ask first</a>
+      </div>
+    </article>
+    <article class="card pbi-price-card">
+      <p class="eyebrow">Advanced systems</p>
+      <h3>Complex Build</h3>
+      <p class="price-line">From £4,995</p>
+      <p>For booking systems, membership areas, dashboards, custom workflows, integrations and heavier web app style builds.</p>
+      <ul>
+        <li>Discovery and technical scope</li>
+        <li>Custom workflow and page planning</li>
+        <li>Integration route and launch support</li>
+        <li>Quote confirmed before deeper development</li>
+      </ul>
+      <div class="pbi-card-actions">
+        <a class="btn" href="/api/billing/service-checkout?service=complex_build">Book Complex Build</a>
+        <a class="btn-ghost" href="/custom-build/?package=complex_build">Ask first</a>
+      </div>
     </article>
   </div>
 </div></section>
@@ -212,8 +254,8 @@
     <article class="card pbi-addon-card"><h3>Domain Management</h3><p class="price-line"><span data-gbp="10" data-price-suffix="/year plus domain cost">£10/year plus domain cost</span></p><p>Help managing the domain route, renewals and connection checks when the website goes live.</p><a class="btn-ghost" href="/help/domain-renewals/">Domain guide</a></article>
     <article class="card pbi-addon-card"><h3>Assisted Setup</h3><p class="price-line"><span data-gbp="99" data-price-suffix=" one-time">£99 one-time</span></p><p>Optional help polishing wording, page flow, image choices and launch readiness before publishing.</p><a class="btn-ghost" href="/custom-build/?type=assisted_setup">Request setup help</a></article>
     <article class="card pbi-addon-card"><h3>Custom Build</h3><p class="price-line">Quoted after scope</p><p>For businesses that want PBI to handle the structure, content flow and build with a more hands-on process.</p><a class="btn-ghost" href="/custom-build/">Start custom enquiry</a></article>
-    <article class="card pbi-addon-card"><h3>Monthly SEO Care</h3><p class="price-line"><span data-gbp="99" data-price-suffix="/month">£99/month</span></p><p>Ongoing checks, page improvements and local SEO support after the website is live.</p><a class="btn-ghost" href="/seo-care/">See SEO Care</a></article>
-    <article class="card pbi-addon-card"><h3>Maintenance & Support</h3><p class="price-line">from <span data-gbp="75" data-price-suffix="/month">£75/month</span></p><p>Updates, small edits, checks and priority support for businesses that want PBI nearby after launch.</p><a class="btn-ghost" href="/contact/?subject=Maintenance%20and%20support">Ask about maintenance</a></article>
+    <article class="card pbi-addon-card"><h3>SEO Care Plan</h3><p class="price-line"><span data-gbp="499" data-price-suffix="/month">£499/month</span></p><p>Ongoing search work, content improvements and practical ranking support after the website is live.</p><a class="btn-ghost" href="/api/billing/service-checkout?service=seo_care_plan">Start SEO Care</a></article>
+    <article class="card pbi-addon-card"><h3>Website Care Plan</h3><p class="price-line"><span data-gbp="250" data-price-suffix="/month">£250/month</span></p><p>Updates, small edits, checks and priority support for businesses that want PBI nearby after launch.</p><a class="btn-ghost" href="/api/billing/service-checkout?service=website_care_plan">Start Website Care</a></article>
   </div>
   <p class="muted pbi-pricing-note">Domain registration and renewals may be charged separately. Domain registrations can be non-refundable once processed.</p>
 </div></section>
@@ -226,38 +268,28 @@
       <p class="muted">SEO Care is separate from the website builder. It is for businesses that want regular search improvements, local landing page work, Search Console checks and clearer content without being promised impossible rankings.</p>
     </div>
   </div>
-  <div class="pbi-pricing-grid">
-    <article class="card pbi-price-card">
-      <p class="eyebrow">Light maintenance</p>
-      <h3>SEO Care Lite</h3>
-      <p class="price-line"><span data-gbp="99" data-price-suffix="/month">£99/month</span></p>
-      <p>Basic monthly SEO housekeeping for smaller websites.</p>
-      <ul><li>Monthly site check</li><li>Search Console review</li><li>Page title and meta description improvements</li><li>One small content update</li></ul>
-      <a class="btn-ghost" href="/seo-care/">View SEO Care</a>
-    </article>
+  <div class="pbi-pricing-grid pbi-service-checkout-grid">
     <article class="card pbi-price-card featured">
-      <p class="eyebrow">Best starting point</p>
-      <h3>Local SEO Growth</h3>
-      <p class="price-line"><span data-gbp="299" data-price-suffix="/month">£299/month</span></p>
-      <p>A proper monthly push for local and service businesses.</p>
-      <ul><li>Everything in Lite</li><li>Google Business Profile guidance</li><li>Local keyword and competitor checks</li><li>Two content or page improvements per month</li></ul>
-      <a class="btn" href="/seo-care/">View SEO Growth</a>
+      <p class="eyebrow">Monthly ranking work</p>
+      <h3>SEO Care Plan</h3>
+      <p class="price-line"><span data-gbp="499" data-price-suffix="/month">£499/month</span></p>
+      <p>A practical monthly SEO plan for businesses relying on Google, with clear work on content, page structure and search visibility.</p>
+      <ul><li>Search Console and page health checks</li><li>Keyword and competitor review</li><li>Content, title and description improvements</li><li>Local/service landing page recommendations</li><li>Monthly improvement summary</li></ul>
+      <div class="pbi-card-actions">
+        <a class="btn" href="/api/billing/service-checkout?service=seo_care_plan">Start SEO Care</a>
+        <a class="btn-ghost" href="/seo-care/">Read the SEO Care details</a>
+      </div>
     </article>
     <article class="card pbi-price-card">
-      <p class="eyebrow">More competitive</p>
-      <h3>SEO Growth Pro</h3>
-      <p class="price-line"><span data-gbp="599" data-price-suffix="/month">£599/month</span></p>
-      <p>More content momentum, technical checks and competitor tracking.</p>
-      <ul><li>Everything in Growth</li><li>Content plan and page briefs</li><li>Four content or page improvements per month</li><li>Internal linking and conversion recommendations</li></ul>
-      <a class="btn-ghost" href="/seo-care/">View SEO Pro</a>
-    </article>
-    <article class="card pbi-price-card">
-      <p class="eyebrow">Online shops</p>
-      <h3>E-Commerce SEO</h3>
-      <p class="price-line">From <span data-gbp="799" data-price-suffix="/month">£799/month</span></p>
-      <p>SEO for product, collection, category and buying-intent pages.</p>
-      <ul><li>Product and collection SEO</li><li>Store structure checks</li><li>Schema and technical review</li><li>Larger stores quoted after scope</li></ul>
-      <a class="btn-ghost" href="/seo-care/">View E-Commerce SEO</a>
+      <p class="eyebrow">Ongoing website support</p>
+      <h3>Website Care Plan</h3>
+      <p class="price-line"><span data-gbp="250" data-price-suffix="/month">£250/month</span></p>
+      <p>For clients who want PBI to stay close after launch with small edits, support, checks and practical maintenance.</p>
+      <ul><li>Small content updates</li><li>Website checks and support</li><li>Priority route for launch fixes</li><li>Admin follow-up for requested changes</li></ul>
+      <div class="pbi-card-actions">
+        <a class="btn" href="/api/billing/service-checkout?service=website_care_plan">Start Website Care</a>
+        <a class="btn-ghost" href="/contact/?subject=Website%20Care%20Plan">Ask first</a>
+      </div>
     </article>
   </div>
 </div></section>
@@ -312,6 +344,7 @@
 </script>
 
 <script src="/assets/pbi-shrinking-header.js" defer></script>
+<script src="/assets/pbi-service-checkout-message.js"></script>
 <script src="/assets/pbi-pricing-existing-account.js"></script>
 <script src="/assets/currency.js"></script>
 <script src="/assets/pbi-cookie-banner.js" defer></script>

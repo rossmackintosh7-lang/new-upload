@@ -2512,6 +2512,20 @@ input[type="submit"]{
 .price-card{
   min-width:0;
 }
+.pbi-card-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  align-items:center;
+  justify-content:center;
+  margin-top:auto;
+}
+.pbi-card-actions .btn,
+.pbi-card-actions .btn-ghost{
+  flex:1 1 180px;
+  min-height:48px;
+  margin:0;
+}
 .pbi-price-card .btn,
 .pbi-price-card .btn-ghost,
 .pbi-addon-card .btn,
@@ -2520,6 +2534,12 @@ input[type="submit"]{
   width:100%;
   max-width:100%;
   white-space:normal;
+}
+.pbi-price-card .pbi-card-actions .btn,
+.pbi-price-card .pbi-card-actions .btn-ghost,
+.pbi-addon-card .pbi-card-actions .btn,
+.pbi-addon-card .pbi-card-actions .btn-ghost{
+  width:auto;
 }
 @media(max-width:768px){
   body{

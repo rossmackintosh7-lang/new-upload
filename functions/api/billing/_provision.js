@@ -29,6 +29,23 @@ function checkoutKind(session = {}) {
   return ['assisted_setup', 'custom_build_deposit'].includes(key) ? key : '';
 }
 
+const SERVICE_CHECKOUTS = {
+  basic_build: { label: 'Basic Build', request_type: 'custom_build_paid', priority: 'high' },
+  standard_build: { label: 'Standard Build', request_type: 'custom_build_paid', priority: 'high' },
+  premium_build: { label: 'Premium Build', request_type: 'custom_build_paid', priority: 'high' },
+  ecommerce_build: { label: 'E-Commerce Build', request_type: 'ecommerce_build_paid', priority: 'high' },
+  complex_build: { label: 'Complex Build', request_type: 'complex_build_paid', priority: 'high' },
+  website_care_plan: { label: 'Website Care Plan', request_type: 'care_plan_paid', priority: 'normal' },
+  seo_care_plan: { label: 'SEO Care Plan', request_type: 'seo_care_paid', priority: 'normal' }
+};
+
+function serviceCheckoutKind(session = {}) {
+  if (String(session.metadata?.pbi_service_checkout || '').toLowerCase() !== 'true') return '';
+  const raw = session.metadata?.service_checkout_kind || session.metadata?.service || session.client_reference_id || '';
+  const key = String(raw || '').trim().toLowerCase().replace(/-/g, '_');
+  return SERVICE_CHECKOUTS[key] ? key : '';
+}
+
 async function ensurePublishColumns(env) {
   const alters = [
     `ALTER TABLE projects ADD COLUMN readiness_score INTEGER DEFAULT 0`,
@@ -117,6 +134,87 @@ async function ensureAdminRequest(env, payload = {}) {
   ).run();
 
   return id;
+}
+
+async function provisionServiceCheckoutSession(env, session, serviceKey) {
+  const service = SERVICE_CHECKOUTS[serviceKey];
+  const stripeSessionId = String(session.id || '');
+  const stripeCustomerId = objectId(session.customer);
+  const stripeSubscriptionId = objectId(session.subscription);
+  const customerDetails = session.customer_details || {};
+  const customerName = String(customerDetails.name || session.metadata?.customer_name || '');
+  const customerEmail = String(customerDetails.email || session.customer_email || session.metadata?.customer_email || '');
+  const customerPhone = String(customerDetails.phone || session.metadata?.customer_phone || '');
+  const amountTotal = Number(session.amount_total || 0);
+  const currency = String(session.currency || 'gbp').toLowerCase();
+  const requestId = `service_${stripeSessionId || crypto.randomUUID()}`;
+
+  const existingRequest = await env.DB.prepare(`
+    SELECT id
+    FROM admin_requests
+    WHERE id = ?
+    LIMIT 1
+  `).bind(requestId).first();
+  const requestAlreadyExists = Boolean(existingRequest?.id);
+
+  await ensureAdminRequest(env, {
+    id: requestId,
+    request_type: service.request_type,
+    status: 'new',
+    priority: service.priority,
+    customer_name: customerName,
+    customer_email: customerEmail,
+    customer_phone: customerPhone,
+    business_name: customerName || customerEmail || service.label,
+    project_id: '',
+    package_name: service.label,
+    payment_status: 'paid',
+    brief: `${service.label} has been purchased through Stripe. Review the customer details, contact them, and attach the work to a project if needed.`,
+    internal_notes: `Stripe Checkout Session: ${stripeSessionId}`,
+    customer_message: '',
+    body: {
+      checkout_kind: 'service_checkout',
+      service_key: serviceKey,
+      service_label: service.label,
+      session_id: stripeSessionId,
+      customer: stripeCustomerId,
+      subscription: stripeSubscriptionId,
+      amount_total: amountTotal,
+      currency,
+      customer_details: customerDetails,
+      metadata: session.metadata || {}
+    }
+  });
+
+  if (!requestAlreadyExists) {
+    await createAdminNotification(env, {
+      type: service.request_type,
+      title: `${service.label} paid`,
+      message: customerEmail
+        ? `${customerEmail} has purchased ${service.label}. Open admin requests to follow up.`
+        : `${service.label} has been purchased. Open admin requests to follow up.`,
+      priority: service.priority,
+      customer_email: customerEmail,
+      request_id: requestId,
+      body: {
+        checkout_kind: 'service_checkout',
+        service_key: serviceKey,
+        session_id: stripeSessionId,
+        amount_total: amountTotal,
+        currency,
+        customer: stripeCustomerId,
+        subscription: stripeSubscriptionId
+      }
+    });
+  }
+
+  return {
+    ok: true,
+    checkout_kind: 'service_checkout',
+    service_key: serviceKey,
+    request_id: requestId,
+    paid: true
+  };
 }
 
 function selectedDomainName(project, data) {
@@ -251,6 +349,9 @@ export async function provisionPaidCheckoutSession(env, session = {}) {
       message: 'Checkout Session is not paid or complete yet.'
     };
   }
+
+  const serviceKey = serviceCheckoutKind(session);
+  if (serviceKey) return provisionServiceCheckoutSession(env, session, serviceKey);
 
   const kind = checkoutKind(session);
   if (kind) return provisionPaidAddOnCheckoutSession(env, session, kind);
