@@ -2189,6 +2189,57 @@ body.pbi-nav-compact .nav-inner{
   justify-content:center;
   white-space:nowrap;
 }
+.pbi-nav-group-start{
+  position:relative;
+}
+@media(min-width:900px){
+  .pbi-public-links .pbi-nav-group-start,
+  .pbi-main-nav .pbi-nav-group-start{
+    margin-left:12px;
+  }
+  .pbi-public-links .pbi-nav-group-start::before,
+  .pbi-main-nav .pbi-nav-group-start::before{
+    content:"";
+    position:absolute;
+    left:-9px;
+    top:50%;
+    width:1px;
+    height:26px;
+    transform:translateY(-50%);
+    background:rgba(70,42,27,.16);
+  }
+}
+@media(min-width:900px) and (max-width:1320px){
+  .pbi-public-nav-inner,
+  .nav-inner{
+    width:min(96vw,1280px);
+    gap:10px!important;
+  }
+  .pbi-public-links,
+  .pbi-main-nav,
+  .nav-inner > .row{
+    flex:1 1 auto;
+    justify-content:flex-end;
+    gap:6px;
+  }
+  .pbi-public-links .btn,
+  .pbi-public-links .btn-ghost,
+  .pbi-main-nav .btn,
+  .pbi-main-nav .btn-ghost{
+    min-height:38px;
+    padding:11px 14px;
+    font-size:14px;
+  }
+  .pbi-public-links .pbi-nav-group-start,
+  .pbi-main-nav .pbi-nav-group-start{
+    margin-left:6px;
+  }
+  .pbi-public-links .pbi-nav-group-start::before,
+  .pbi-main-nav .pbi-nav-group-start::before{
+    left:-5px;
+    height:22px;
+  }
+}
 .pbi-home-template-grid .pbi-premium-template-copy > .row,
 .pbi-premium-template-copy > .row{
   display:flex!important;
@@ -2407,6 +2458,55 @@ input[type="submit"]{
   grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));
   gap:clamp(16px,2vw,28px);
 }
+.pbi-package-chooser-section{
+  padding-top:clamp(22px,3vw,42px);
+}
+.pbi-package-choice-grid{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:clamp(12px,1.4vw,18px);
+}
+.pbi-package-choice-card{
+  display:flex;
+  min-height:100%;
+  flex-direction:column;
+  gap:10px;
+  padding:clamp(18px,2vw,24px);
+  border:1px solid rgba(70,42,27,.14);
+  border-radius:24px;
+  background:rgba(255,250,244,.82);
+  color:var(--pbi-ink,#2b160e);
+  text-decoration:none;
+  box-shadow:0 18px 40px rgba(54,29,13,.07);
+  transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;
+}
+.pbi-package-choice-card:hover{
+  transform:translateY(-3px);
+  border-color:rgba(191,92,41,.34);
+  box-shadow:0 22px 52px rgba(54,29,13,.11);
+}
+.pbi-package-choice-card span{
+  color:#9b512d;
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+}
+.pbi-package-choice-card strong{
+  font-size:clamp(20px,1.7vw,28px);
+  line-height:1;
+}
+.pbi-package-choice-card p{
+  margin:0;
+  color:var(--pbi-muted,#725542);
+  line-height:1.45;
+}
+.pbi-package-choice-card em{
+  margin-top:auto;
+  color:#bf5c29;
+  font-style:normal;
+  font-weight:900;
+}
 .pbi-price-card,
 .pbi-addon-card,
 .price-card{
@@ -2475,8 +2575,14 @@ input[type="submit"]{
   }
   .pbi-pricing-grid,
   .pbi-addon-grid,
-  .pricing-grid{
+  .pricing-grid,
+  .pbi-package-choice-grid{
     grid-template-columns:1fr;
+  }
+}
+@media(min-width:769px) and (max-width:1180px){
+  .pbi-package-choice-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
   }
 }
 @media(max-width:520px){
@@ -2496,6 +2602,25 @@ input[type="submit"]{
     min-height:38px;
     padding:9px 12px;
     font-size:13px;
+  }
+  body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) .pbi-trust-hero h1,
+  body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) .pbi-template-hero h1,
+  body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) .page-hero h1,
+  body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) .hero h1{
+    max-width:calc(100vw - 28px)!important;
+    font-size:clamp(30px,8.6vw,34px)!important;
+    line-height:1.08!important;
+    letter-spacing:0!important;
+    overflow-wrap:normal!important;
+    word-break:normal!important;
+  }
+  body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) .pbi-trust-hero p:not(.eyebrow),
+  body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) .pbi-template-hero p:not(.eyebrow),
+  body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) .page-hero p,
+  body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) .hero p{
+    max-width:calc(100vw - 36px)!important;
+    margin-left:auto;
+    margin-right:auto;
   }
 }
 
