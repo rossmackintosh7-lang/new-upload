@@ -18,6 +18,15 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   if (!form) return;
+
+  const routeSelect = document.getElementById('customBudget');
+  const params = new URLSearchParams(window.location.search);
+  const requestedRoute = params.get('package') || params.get('type') || '';
+  if (routeSelect && requestedRoute) {
+    const allowed = Array.from(routeSelect.options).map((option) => option.value);
+    if (allowed.includes(requestedRoute)) routeSelect.value = requestedRoute;
+  }
+
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     const payload = Object.fromEntries(new FormData(form).entries());
