@@ -3072,3 +3072,126 @@ body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) .help-article
 body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) article.prose{
   text-align:left;
 }
+
+/* Public header overlap guard.
+   The shared public nav has more links now, so laptop widths need a wrapped header
+   before the buttons start clipping at the viewport edges. */
+@media(max-width:1180px) and (min-width:761px){
+  body.pbi-new-home .pbi-public-nav-inner{
+    min-height:104px!important;
+    height:auto!important;
+    padding:10px 18px!important;
+    flex-wrap:wrap!important;
+    justify-content:center!important;
+    align-items:center!important;
+    row-gap:8px!important;
+  }
+  body.pbi-new-home .pbi-public-brand{
+    flex:0 0 100%!important;
+    display:flex!important;
+    justify-content:center!important;
+    max-width:100%!important;
+  }
+  body.pbi-new-home .pbi-public-brand img{
+    width:76px!important;
+    max-width:76px!important;
+    max-height:44px!important;
+  }
+  body.pbi-new-home .pbi-public-links{
+    flex:0 1 100%!important;
+    width:100%!important;
+    min-width:0!important;
+    display:flex!important;
+    justify-content:center!important;
+    align-items:center!important;
+    flex-wrap:wrap!important;
+    overflow:visible!important;
+    gap:7px!important;
+  }
+  body.pbi-new-home .pbi-public-links .btn,
+  body.pbi-new-home .pbi-public-links .btn-ghost{
+    min-height:38px!important;
+    padding:10px 14px!important;
+    font-size:14px!important;
+    line-height:1.05!important;
+  }
+  body.pbi-new-home .pbi-public-links .pbi-nav-group-start{
+    margin-left:0!important;
+  }
+  body.pbi-new-home .pbi-public-links .pbi-nav-group-start::before{
+    display:none!important;
+  }
+}
+
+@media(max-width:760px){
+  body.pbi-new-home .pbi-public-nav-inner{
+    display:grid!important;
+    grid-template-columns:auto minmax(0,1fr)!important;
+    flex-wrap:nowrap!important;
+    justify-content:normal!important;
+    min-height:62px!important;
+    padding:8px 14px!important;
+    gap:10px!important;
+    width:100%!important;
+    max-width:100vw!important;
+  }
+  body.pbi-new-home .pbi-public-brand{
+    flex:0 0 auto!important;
+    max-width:88px!important;
+  }
+  body.pbi-new-home .pbi-public-links{
+    flex:1 1 auto!important;
+    width:100%!important;
+    min-width:0!important;
+    justify-content:flex-end!important;
+    overflow:visible!important;
+  }
+  body.pbi-new-home .pbi-public-links .btn{
+    max-width:100%!important;
+    min-width:0!important;
+    padding-left:12px!important;
+    padding-right:12px!important;
+  }
+  body.pbi-new-home .pbi-trust-hero,
+  body.pbi-new-home .pbi-template-hero,
+  body.pbi-new-home .pbi-page-intro,
+  body.pbi-new-home .page-hero{
+    max-width:100vw!important;
+    overflow:hidden!important;
+  }
+  body.pbi-new-home .pbi-trust-hero .container,
+  body.pbi-new-home .pbi-template-hero .container,
+  body.pbi-new-home .pbi-page-intro .container,
+  body.pbi-new-home .page-hero .container{
+    width:calc(100vw - 28px)!important;
+    max-width:calc(100vw - 28px)!important;
+    padding-left:0!important;
+    padding-right:0!important;
+    margin-left:auto!important;
+    margin-right:auto!important;
+    min-width:0!important;
+  }
+  body.pbi-new-home .pbi-trust-hero h1,
+  body.pbi-new-home .pbi-template-hero h1,
+  body.pbi-new-home .pbi-page-intro h1,
+  body.pbi-new-home .page-hero h1{
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    font-size:clamp(30px,8.8vw,36px)!important;
+    line-height:1.05!important;
+    letter-spacing:0!important;
+    overflow-wrap:anywhere!important;
+    word-break:normal!important;
+    text-wrap:balance;
+  }
+  body.pbi-new-home .pbi-trust-hero p:not(.eyebrow),
+  body.pbi-new-home .pbi-template-hero p:not(.eyebrow),
+  body.pbi-new-home .pbi-page-intro p,
+  body.pbi-new-home .page-hero p{
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    overflow-wrap:break-word!important;
+  }
+}
