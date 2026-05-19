@@ -35,7 +35,8 @@ const SERVICE_CHECKOUTS = {
   premium_build: { label: 'Premium Build', request_type: 'custom_build_paid', priority: 'high' },
   ecommerce_build: { label: 'E-Commerce Build', request_type: 'ecommerce_build_paid', priority: 'high' },
   complex_build: { label: 'Complex Build', request_type: 'complex_build_paid', priority: 'high' },
-  website_care_plan: { label: 'Website Care Plan', request_type: 'care_plan_paid', priority: 'normal' },
+  website_management: { label: 'Website Management', request_type: 'website_management_paid', priority: 'normal' },
+  website_care_plan: { label: 'Website Management', request_type: 'website_management_paid', priority: 'normal' },
   seo_care_plan: { label: 'SEO Care Plan', request_type: 'seo_care_paid', priority: 'normal' }
 };
 

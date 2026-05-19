@@ -41,13 +41,21 @@ const SERVICE_CHECKOUTS = {
     successPath: '/custom-build/',
     cancelPath: '/custom-build/'
   },
-  website_care_plan: {
-    label: 'Website Care Plan',
+  website_management: {
+    label: 'Website Management',
     priceEnv: 'STRIPE_PRICE_WEBSITE_CARE_PLAN',
     mode: 'subscription',
-    category: 'care_plan',
-    successPath: '/pricing/',
-    cancelPath: '/pricing/'
+    category: 'website_management',
+    successPath: '/website-management/',
+    cancelPath: '/website-management/'
+  },
+  website_care_plan: {
+    label: 'Website Management',
+    priceEnv: 'STRIPE_PRICE_WEBSITE_CARE_PLAN',
+    mode: 'subscription',
+    category: 'website_management',
+    successPath: '/website-management/',
+    cancelPath: '/website-management/'
   },
   seo_care_plan: {
     label: 'SEO Care Plan',

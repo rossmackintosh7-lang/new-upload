@@ -5,7 +5,8 @@
     premium_build: 'Premium Build',
     ecommerce_build: 'E-Commerce Build',
     complex_build: 'Complex Build',
-    website_care_plan: 'Website Care Plan',
+    website_management: 'Website Management',
+    website_care_plan: 'Website Management',
     seo_care_plan: 'SEO Care Plan'
   };
 
