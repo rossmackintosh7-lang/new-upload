@@ -180,8 +180,22 @@
   function selectRenderedBlock(id) {
     if (!id) return;
     setTimeout(() => {
+      if (window.PBIBuilderV2?.selectBlock) {
+        window.PBIBuilderV2.selectBlock(id);
+        return;
+      }
       document.querySelector(`[data-block-id="${selectorEscape(id)}"]`)?.click();
     }, 80);
+  }
+
+  function repaintCanvas(statusText = "") {
+    try {
+      if (window.PBIBuilderV2?.renderNow) {
+        window.PBIBuilderV2.renderNow(statusText);
+        return;
+      }
+      window.dispatchEvent(new CustomEvent("pbi:builder-v2-updated", { detail: { state: liveState() } }));
+    } catch {}
   }
 
   function apply(id, mode = "selected", dropMeta = null) {
@@ -289,6 +303,7 @@
     });
 
     if (result.changed) {
+      repaintCanvas(newBlockId ? "Image placed on the canvas" : "Image updated");
       render();
       makeImageVisibleDom(liveState());
       selectRenderedBlock(newBlockId);
@@ -356,6 +371,7 @@
     });
 
     if (result.changed) {
+      repaintCanvas("Image removed");
       render();
       makeImageVisibleDom(liveState());
     }
@@ -385,9 +401,9 @@
     const state = mediaState();
     grid.innerHTML = (state.mediaLibrary || []).map((item) => `
       <article draggable="true" data-mid="${esc(item.id)}">
-        <img src="${esc(item.url)}" alt="${esc(item.alt || item.name || "Uploaded image")}" draggable="false">
+        <img src="${esc(item.url)}" alt="${esc(item.alt || item.name || "Uploaded image")}" draggable="true" data-mid="${esc(item.id)}">
         <span title="${esc(item.name || "Image")}">${esc(item.name || "Image")}</span>
-        <button type="button" data-free="${esc(item.id)}">Place</button>
+        <button type="button" data-free="${esc(item.id)}">Place on canvas</button>
         <button type="button" data-use="${esc(item.id)}">Selected</button>
         <button type="button" data-page="${esc(item.id)}">Page</button>
         <button type="button" data-all="${esc(item.id)}">All pages</button>
@@ -493,9 +509,11 @@
     document.addEventListener("drop", (event) => {
       const id = event.dataTransfer?.getData("application/x-pbi-media-id");
       if (!id) return;
+      const target = event.target?.closest?.("#canvasDropzone,.pbi-canvas-dropzone,[data-block-id],.pbi-canvas-render-block");
+      if (!target) return;
       event.preventDefault();
       apply(id, "place", {
-        target: event.target,
+        target,
         x: event.clientX,
         y: event.clientY,
         path: event.composedPath?.() || []

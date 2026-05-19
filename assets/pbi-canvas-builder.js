@@ -2046,6 +2046,15 @@
       const block = activeBlocks().find((item) => item.id === selectedId);
       return block ? JSON.parse(JSON.stringify(block)) : null;
     },
+    renderNow(statusText = "") {
+      render();
+      if (statusText) setStatus(statusText);
+      return this.getState();
+    },
+    selectBlock(id) {
+      if (id) selectBlock(id);
+      return this.getSelectedBlock();
+    },
     addBlock(type) {
       addBlock(type);
       return this.getState();

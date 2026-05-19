@@ -32,6 +32,74 @@ async function ensureCancellationColumns(env) {
   for (const sql of alters) await safeRun(env, sql);
 }
 
+async function suspendHostingRows(env, projectId) {
+  await safeRun(
+    env,
+    `UPDATE published_sites
+     SET status = 'suspended',
+         payment_status = 'cancelled',
+         suspended_at = COALESCE(suspended_at, CURRENT_TIMESTAMP),
+         unpublished_at = COALESCE(unpublished_at, CURRENT_TIMESTAMP),
+         updated_at = CURRENT_TIMESTAMP
+     WHERE project_id = ?`,
+    projectId
+  );
+  await safeRun(
+    env,
+    `UPDATE site_domains
+     SET status = CASE
+           WHEN LOWER(COALESCE(status, '')) IN ('removed', 'deleted') THEN status
+           ELSE 'suspended'
+         END,
+         updated_at = CURRENT_TIMESTAMP
+     WHERE project_id = ?`,
+    projectId
+  );
+  await safeRun(
+    env,
+    `INSERT INTO site_events (id, project_id, event_type, message, data_json, created_at)
+     VALUES (?, ?, 'site_suspended', ?, ?, CURRENT_TIMESTAMP)`,
+    crypto.randomUUID(),
+    projectId,
+    'Website suspended automatically after billing cancellation.',
+    stringify({ reason: 'subscription_cancelled' })
+  );
+}
+
+async function restoreHostingRows(env, projectId, shouldRepublish) {
+  await safeRun(
+    env,
+    `UPDATE published_sites
+     SET status = CASE WHEN ? = 1 THEN 'live' ELSE status END,
+         payment_status = 'active',
+         suspended_at = NULL,
+         updated_at = CURRENT_TIMESTAMP
+     WHERE project_id = ?`,
+    shouldRepublish ? 1 : 0,
+    projectId
+  );
+  await safeRun(
+    env,
+    `UPDATE site_domains
+     SET status = CASE
+           WHEN LOWER(COALESCE(status, '')) = 'suspended' THEN 'pending_dns'
+           ELSE status
+         END,
+         updated_at = CURRENT_TIMESTAMP
+     WHERE project_id = ?`,
+    projectId
+  );
+  await safeRun(
+    env,
+    `INSERT INTO site_events (id, project_id, event_type, message, data_json, created_at)
+     VALUES (?, ?, 'site_restored', ?, ?, CURRENT_TIMESTAMP)`,
+    crypto.randomUUID(),
+    projectId,
+    'Website restored automatically after billing became active again.',
+    stringify({ republished: Boolean(shouldRepublish) })
+  );
+}
+
 export async function takeProjectDown(env, project, cancelledBy = 'stripe') {
   if (!env?.DB || !project?.id) return { ok: false, skipped: true };
   await ensureCancellationColumns(env);
@@ -73,6 +141,7 @@ export async function takeProjectDown(env, project, cancelledBy = 'stripe') {
 
   await safeRun(env, `UPDATE project_canvas SET status = 'cancelled', published_json = NULL, updated_at = CURRENT_TIMESTAMP WHERE project_id = ?`, project.id);
   await safeRun(env, `UPDATE project_cms_entries SET status = 'draft', updated_at = CURRENT_TIMESTAMP WHERE project_id = ?`, project.id);
+  await suspendHostingRows(env, project.id);
 
   return { ok: true, data: nextData };
 }
@@ -129,6 +198,7 @@ export async function restoreProjectAfterBilling(env, project, restoredBy = 'str
   if (hadPublicRoute) {
     await safeRun(env, `UPDATE project_canvas SET status = 'published', updated_at = CURRENT_TIMESTAMP WHERE project_id = ?`, project.id);
   }
+  await restoreHostingRows(env, project.id, hadPublicRoute);
 
   return { ok: true, restored: true, republished: hadPublicRoute, public_slug: publicSlug, data: nextData };
 }
