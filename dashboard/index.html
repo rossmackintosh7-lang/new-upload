@@ -7,6 +7,7 @@
   <meta name="description" content="Your PBI dashboard for projects, publishing, billing and premium canvas tools.">
   <link rel="stylesheet" href="/assets/styles.css">
   <link rel="stylesheet" href="/assets/pbi-premium-flow.css">
+  <link rel="stylesheet" href="/assets/pbi-goose-missions.css?v=20260520-goose-missions">
 </head>
 <body class="pbi-new-home pbi-dashboard-premium-page">
   <header class="pbi-public-nav">
@@ -41,6 +42,7 @@
           <strong>PREMIUM</strong>
           <a class="active" href="/dashboard/">Overview</a>
           <a href="/projects/">Projects</a>
+          <a href="#goose-missions">Goose Missions</a>
           <a href="/canvas-builder/">PBI Designer</a>
           <a href="/templates/">Templates</a>
           <a href="/account/billing/">Billing</a>
@@ -98,6 +100,46 @@
             </div>
           </section>
 
+          <section class="pbi-dashboard-panel pbi-goose-mission-panel" id="goose-missions">
+            <div class="pbi-section-head">
+              <div>
+                <p class="eyebrow">Goose Missions</p>
+                <h2>Give Goose a goal and track the work.</h2>
+                <p>Turn a launch, SEO, custom build, automation or quality goal into a saved mission with clear steps and progress.</p>
+              </div>
+              <a class="btn-ghost" href="/admin/goose-missions/" id="gooseAdminMissionLink" hidden>Admin mission control</a>
+            </div>
+            <form id="gooseMissionForm" class="pbi-goose-mission-form">
+              <label>
+                Mission type
+                <select id="gooseMissionType">
+                  <option value="">Let Goose choose</option>
+                  <option value="launch">Launch</option>
+                  <option value="seo_growth">SEO growth</option>
+                  <option value="custom_build">Custom build</option>
+                  <option value="automation">Automation</option>
+                  <option value="quality">Quality check</option>
+                  <option value="business_growth">Business growth</option>
+                </select>
+              </label>
+              <label>
+                Project
+                <select id="gooseMissionProject">
+                  <option value="">No specific project</option>
+                </select>
+              </label>
+              <label class="pbi-goose-mission-goal">
+                Goal
+                <textarea id="gooseMissionGoal" rows="4" placeholder="Example: prepare this website for launch, check SEO, improve mobile layout and make sure the calls to action are clear."></textarea>
+              </label>
+              <button class="btn" type="submit">Create Goose mission</button>
+            </form>
+            <div id="gooseMissionMessage" class="notice" style="display:none"></div>
+            <div id="gooseMissionList" class="pbi-goose-mission-grid">
+              <p class="muted">Loading Goose missions...</p>
+            </div>
+          </section>
+
           <section class="pbi-dashboard-grid">
             <article>
               <h3>Subscription lifecycle</h3>
@@ -134,5 +176,6 @@
   </main>
 
   <script src="/assets/pbi-dashboard-premium.js?v=20260514-unified-canvas-check" defer></script>
+  <script src="/assets/pbi-goose-missions.js?v=20260520-goose-missions" defer></script>
 </body>
 </html>

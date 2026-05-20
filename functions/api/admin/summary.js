@@ -1,4 +1,5 @@
 import { json, requireAdmin, ensurePbiOpsTables } from './_shared.js';
+import { ensureGooseMissionTables } from '../goose/_shared.js';
 
 async function all(env, sql, ...binds) {
   try { return (await env.DB.prepare(sql).bind(...binds).all()).results || []; } catch { return []; }
@@ -12,8 +13,15 @@ function countFrom(rows, status) {
 function numberValue(row) {
   return Number(row?.count || 0);
 }
-function buildPriorities({ newNotifications, newRequests, paidAssistedSetups, pastDueBilling, readyDrafts, suspendedUsers }) {
+function buildPriorities({ newNotifications, newRequests, paidAssistedSetups, pastDueBilling, readyDrafts, suspendedUsers, activeGooseMissions, gooseMissionApproval }) {
   const items = [
+    {
+      label: 'Goose Missions',
+      count: activeGooseMissions,
+      detail: gooseMissionApproval ? `${gooseMissionApproval} mission${gooseMissionApproval === 1 ? '' : 's'} need approval or review.` : activeGooseMissions ? 'Goal-driven Goose plans are in motion.' : 'No active Goose missions.',
+      href: '/admin/goose-missions/',
+      priority: gooseMissionApproval ? 'high' : activeGooseMissions ? 'medium' : 'calm'
+    },
     {
       label: 'Paid Assisted Setup',
       count: paidAssistedSetups,
@@ -62,8 +70,10 @@ function buildPriorities({ newNotifications, newRequests, paidAssistedSetups, pa
     return rank[a.priority] - rank[b.priority] || b.count - a.count;
   });
 }
-function buildGooseBrief({ newNotifications, newRequests, paidAssistedSetups, pastDueBilling, readyDrafts, latestProjects }) {
+function buildGooseBrief({ newNotifications, newRequests, paidAssistedSetups, pastDueBilling, readyDrafts, activeGooseMissions, gooseMissionApproval, latestProjects }) {
   const lines = [];
+  if (activeGooseMissions) lines.push(`${activeGooseMissions} Goose mission${activeGooseMissions === 1 ? ' is' : 's are'} active across customer goals.`);
+  if (gooseMissionApproval) lines.push(`${gooseMissionApproval} mission${gooseMissionApproval === 1 ? '' : 's'} need approval or a Ross-side decision.`);
   if (paidAssistedSetups) lines.push(`${paidAssistedSetups} paid Assisted Setup project${paidAssistedSetups === 1 ? ' is' : 's are'} ready for admin edits.`);
   if (newRequests) lines.push(`${newRequests} new request${newRequests === 1 ? '' : 's'} need a first look.`);
   if (newNotifications) lines.push(`${newNotifications} unread notification${newNotifications === 1 ? '' : 's'} are waiting in the inbox.`);
@@ -96,6 +106,7 @@ export async function onRequestGet({ request, env }) {
   const { response } = await requireAdmin(env, request);
   if (response) return response;
   await ensurePbiOpsTables(env);
+  await ensureGooseMissionTables(env);
   await ensureUserControls(env);
 
   const notifications = await all(env, `SELECT status, COUNT(*) count FROM admin_notifications GROUP BY status`);
@@ -133,6 +144,8 @@ export async function onRequestGet({ request, env }) {
   const domainFollowups = await first(env, `SELECT COUNT(*) count FROM projects WHERE lower(COALESCE(domain_option, '')) = 'register_new' AND (COALESCE(data_json, '') LIKE '%queued_for_registrar_follow_up%' OR COALESCE(data_json, '') LIKE '%automation_failed_registrar_follow_up%')`);
   const recentCoupons = await first(env, `SELECT COUNT(*) count FROM admin_coupons`);
   const webhookFailures = await first(env, `SELECT COUNT(*) count FROM stripe_webhook_events WHERE status = 'failed'`);
+  const activeGooseMissions = await first(env, `SELECT COUNT(*) count FROM goose_missions WHERE lower(COALESCE(status, 'active')) IN ('active','planning')`);
+  const gooseMissionApproval = await first(env, `SELECT COUNT(*) count FROM goose_missions WHERE lower(COALESCE(status, '')) = 'needs_approval'`);
   const billing_breakdown = await all(env, `SELECT COALESCE(NULLIF(billing_status, ''), 'unknown') AS status, COUNT(*) count FROM projects GROUP BY COALESCE(NULLIF(billing_status, ''), 'unknown') ORDER BY count DESC`);
   const launch_queue = await all(env, `
     SELECT projects.id, projects.name, projects.status, projects.plan, projects.billing_status, projects.published, projects.created_at, projects.updated_at, users.email AS user_email
@@ -153,7 +166,9 @@ export async function onRequestGet({ request, env }) {
     paidAssistedSetups: numberValue(paidAssistedSetups),
     pastDueBilling: numberValue(pastDueBilling),
     readyDrafts: numberValue(readyDrafts),
-    suspendedUsers: numberValue(suspendedUsers)
+    suspendedUsers: numberValue(suspendedUsers),
+    activeGooseMissions: numberValue(activeGooseMissions),
+    gooseMissionApproval: numberValue(gooseMissionApproval)
   };
 
   return json({
@@ -182,6 +197,8 @@ export async function onRequestGet({ request, env }) {
       domain_followups: domainFollowups?.count || 0,
       stripe_webhook_failures: webhookFailures?.count || 0,
       coupon_count: recentCoupons?.count || 0,
+      active_goose_missions: priorityCounts.activeGooseMissions,
+      goose_mission_approval: priorityCounts.gooseMissionApproval,
       stripe_coupons_enabled: Boolean(env.STRIPE_SECRET_KEY),
       domain_automation_enabled: Boolean(
         String(env.DOMAIN_REGISTRATION_AGENT_URL || env.DOMAIN_REGISTRATION_WEBHOOK_URL || '').trim() ||

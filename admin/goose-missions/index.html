@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>PBI Admin - Goose Missions</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="stylesheet" href="/assets/styles.css?v=20260520-goose-missions">
+  <link rel="stylesheet" href="/assets/pbi-premium-flow.css">
+  <link rel="stylesheet" href="/assets/pbi-admin-v2.css?v=20260520-goose-missions">
+  <link rel="stylesheet" href="/assets/pbi-goose-missions.css?v=20260520-goose-missions">
+</head>
+<body class="pbi-admin-body pbi-admin-premium">
+  <aside class="pbi-admin-sidebar">
+    <a class="pbi-admin-logo" href="/admin/">
+      <img src="/assets/pbi-header-logo-no-bg-20260502c.png?v=20260502c" alt="PBI">
+      <span>Admin</span>
+    </a>
+    <nav>
+      <a href="/admin/">Command Centre</a>
+      <a href="/admin/seo/">SEO Agent</a>
+      <a href="/admin/goose-missions/" class="active">Goose Missions</a>
+      <a href="/admin/users/">User Manager</a>
+      <a href="/admin/requests/">Requests</a>
+      <a href="/admin/projects/">Projects</a>
+      <a href="/admin/assisted-builds/">Assisted Builds</a>
+      <a href="/admin/notifications/">Notifications</a>
+      <a href="/projects/">Customer Projects</a>
+      <a href="/dashboard/">Dashboard</a>
+      <a href="/account/billing/">Billing</a>
+    </nav>
+  </aside>
+
+  <main class="pbi-admin-main">
+    <header class="pbi-admin-header">
+      <div>
+        <p class="eyebrow">Goal-driven agent work</p>
+        <h1>Goose Mission Control</h1>
+        <p>Plan, assign and track Goose work across launches, SEO growth, custom builds, automations and quality checks.</p>
+      </div>
+      <div class="row">
+        <a class="btn-ghost" href="/admin/">Command Centre</a>
+        <a class="btn" href="/dashboard/#goose-missions">Customer view</a>
+      </div>
+    </header>
+
+    <section class="pbi-goose-admin-stat-grid" id="adminGooseMissionKpis">
+      <article><strong>0</strong><span>Loading missions</span></article>
+    </section>
+
+    <section class="pbi-admin-panel pbi-goose-mission-panel">
+      <div class="pbi-section-head">
+        <div>
+          <p class="eyebrow">Create mission</p>
+          <h2>Give Goose an outcome.</h2>
+          <p>Use a project ID when the mission belongs to a specific customer website. Goose will attach the plan to that customer account.</p>
+        </div>
+      </div>
+      <form id="adminGooseMissionForm" class="pbi-goose-mission-form">
+        <label>
+          Mission type
+          <select id="adminGooseMissionType">
+            <option value="">Let Goose choose</option>
+            <option value="launch">Launch</option>
+            <option value="seo_growth">SEO growth</option>
+            <option value="custom_build">Custom build</option>
+            <option value="automation">Automation</option>
+            <option value="quality">Quality check</option>
+            <option value="business_growth">Business growth</option>
+          </select>
+        </label>
+        <label>
+          Project ID
+          <input id="adminGooseMissionProject" placeholder="project_... or local-...">
+        </label>
+        <label class="pbi-goose-mission-goal">
+          Goal
+          <textarea id="adminGooseMissionGoal" rows="4" placeholder="Example: prepare this customer project for launch and create the SEO/content actions Ross needs to review."></textarea>
+        </label>
+        <button class="btn" type="submit">Create mission</button>
+      </form>
+      <div id="adminGooseMissionMessage" class="notice" style="display:none"></div>
+    </section>
+
+    <section class="pbi-admin-panel">
+      <div class="pbi-admin-panel-head">
+        <div>
+          <p class="eyebrow">Mission queue</p>
+          <h2>Active Goose work</h2>
+        </div>
+        <button class="btn-ghost" id="adminGooseRefresh" type="button">Refresh</button>
+      </div>
+      <div id="adminGooseMissionList" class="pbi-goose-mission-grid">
+        <p>Loading Goose missions...</p>
+      </div>
+    </section>
+  </main>
+
+  <script src="/assets/pbi-admin-goose-missions.js?v=20260520-goose-missions" defer></script>
+</body>
+</html>

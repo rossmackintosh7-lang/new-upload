@@ -109,6 +109,7 @@
     grid.innerHTML = `
       <article><strong>${Number(notifications)}</strong><span>New notifications</span></article>
       <article><strong>${Number(requests)}</strong><span>New requests</span></article>
+      <article><strong>${Number(stats.active_goose_missions || 0)}</strong><span>Goose Missions</span></article>
       <article><strong>${Number(stats.paid_assisted_setups || 0)}</strong><span>Paid Assisted Setup</span></article>
       <article><strong>${Number(stats.ready_drafts || 0)}</strong><span>Publish-ready drafts</span></article>
       <article><strong>${Number(stats.past_due_billing || 0)}</strong><span>Payment issues</span></article>
@@ -146,6 +147,7 @@
       <ul>${lines.map((line) => `<li>${esc(line)}</li>`).join('')}</ul>
       <div class="pbi-admin-actions">
         <a class="btn" href="/admin/requests/">Open requests</a>
+        <a class="btn-ghost" href="/admin/goose-missions/">Goose missions</a>
         <a class="btn-ghost" href="/admin/projects/">Review projects</a>
       </div>
     `;
@@ -195,6 +197,12 @@
     if (!target) return;
     const stats = data.stats || {};
     const cards = [
+      {
+        label: 'Goose Missions',
+        value: Number(stats.active_goose_missions || 0),
+        detail: Number(stats.goose_mission_approval || 0) ? `${Number(stats.goose_mission_approval || 0)} mission(s) need review.` : 'Goal-driven Goose work across customers.',
+        href: '/admin/goose-missions/'
+      },
       {
         label: 'Publish-ready drafts',
         value: Number(stats.ready_drafts || 0),

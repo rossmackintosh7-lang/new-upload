@@ -1,0 +1,245 @@
+.pbi-goose-mission-panel{
+  display:grid;
+  gap:18px;
+}
+
+.pbi-goose-mission-form{
+  display:grid;
+  grid-template-columns:minmax(160px,.7fr) minmax(180px,1fr) minmax(280px,2fr) auto;
+  gap:12px;
+  align-items:end;
+  padding:16px;
+  border:1px solid var(--pbi-line,#eaded4);
+  border-radius:22px;
+  background:rgba(255,250,244,.72);
+}
+
+.pbi-goose-mission-form label{
+  display:grid;
+  gap:7px;
+  font-weight:800;
+  color:var(--pbi-ink,#2b1710);
+}
+
+.pbi-goose-mission-form input,
+.pbi-goose-mission-form select,
+.pbi-goose-mission-form textarea{
+  width:100%;
+  border:1px solid var(--pbi-line,#eaded4);
+  border-radius:16px;
+  padding:12px 14px;
+  background:#fff;
+  color:var(--pbi-ink,#2b1710);
+  font:inherit;
+}
+
+.pbi-goose-mission-form textarea{
+  resize:vertical;
+  min-height:92px;
+}
+
+.pbi-goose-mission-form .btn{
+  min-height:48px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  white-space:normal;
+}
+
+.pbi-goose-mission-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:14px;
+}
+
+.pbi-goose-mission-card{
+  border:1px solid var(--pbi-line,#eaded4);
+  border-radius:24px;
+  background:#fff;
+  padding:18px;
+  box-shadow:var(--pbi-glow,0 18px 60px rgba(62,35,22,.08));
+  display:grid;
+  gap:14px;
+}
+
+.pbi-goose-mission-card header{
+  display:grid;
+  gap:10px;
+}
+
+.pbi-goose-mission-card h3{
+  margin:0;
+  font-size:clamp(1.25rem,2vw,1.75rem);
+  line-height:1.05;
+}
+
+.pbi-goose-mission-card p{
+  margin:0;
+  color:var(--pbi-muted,#75665e);
+}
+
+.pbi-goose-mission-meta,
+.pbi-goose-step-meta{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+
+.pbi-goose-mission-meta span,
+.pbi-goose-step-meta span,
+.pbi-goose-status-pill{
+  border:1px solid var(--pbi-line,#eaded4);
+  border-radius:999px;
+  padding:6px 9px;
+  background:#fffaf4;
+  color:var(--pbi-ink,#2b1710);
+  font-weight:800;
+  font-size:.78rem;
+  line-height:1;
+  text-transform:capitalize;
+}
+
+.pbi-goose-status-pill.active,
+.pbi-goose-status-pill.planning{
+  background:#eef8e8;
+  border-color:#cadfbd;
+  color:#49683b;
+}
+
+.pbi-goose-status-pill.needs_approval{
+  background:#fff3db;
+  border-color:#edcf93;
+  color:#7a4a18;
+}
+
+.pbi-goose-status-pill.completed{
+  background:#e7f7ee;
+  border-color:#b8dec6;
+  color:#2d6b49;
+}
+
+.pbi-goose-progress{
+  display:grid;
+  gap:7px;
+}
+
+.pbi-goose-progress > div{
+  height:10px;
+  border-radius:999px;
+  background:#f2e8df;
+  overflow:hidden;
+}
+
+.pbi-goose-progress > div span{
+  display:block;
+  height:100%;
+  width:0;
+  border-radius:999px;
+  background:linear-gradient(90deg,#b86537,#5d3322);
+}
+
+.pbi-goose-progress small{
+  color:var(--pbi-muted,#75665e);
+  font-weight:800;
+}
+
+.pbi-goose-steps{
+  display:grid;
+  gap:10px;
+}
+
+.pbi-goose-step{
+  display:grid;
+  gap:8px;
+  border:1px solid var(--pbi-line,#eaded4);
+  border-radius:18px;
+  padding:12px;
+  background:#fffaf4;
+}
+
+.pbi-goose-step.done{
+  background:#f3fbef;
+  border-color:#c9e2be;
+}
+
+.pbi-goose-step strong{
+  line-height:1.2;
+}
+
+.pbi-goose-step button,
+.pbi-goose-mission-actions button,
+.pbi-goose-mission-actions a{
+  min-height:40px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+}
+
+.pbi-goose-mission-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+
+.pbi-goose-mission-empty{
+  border:1px dashed var(--pbi-line,#eaded4);
+  border-radius:22px;
+  padding:20px;
+  background:#fffaf4;
+}
+
+body.pbi-admin-body .pbi-goose-mission-form{
+  grid-template-columns:minmax(180px,.8fr) minmax(180px,.8fr) minmax(320px,2fr) auto;
+}
+
+body.pbi-admin-body .pbi-goose-mission-grid{
+  grid-template-columns:repeat(auto-fit,minmax(340px,1fr));
+}
+
+body.pbi-admin-body .pbi-goose-mission-card{
+  box-shadow:none;
+}
+
+.pbi-goose-admin-stat-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:12px;
+}
+
+.pbi-goose-admin-stat-grid article{
+  border:1px solid var(--pbi-line,#eaded4);
+  border-radius:20px;
+  padding:16px;
+  background:#fffaf4;
+}
+
+.pbi-goose-admin-stat-grid strong{
+  display:block;
+  font-size:1.8rem;
+  line-height:1;
+}
+
+.pbi-goose-admin-stat-grid span{
+  color:var(--pbi-muted,#75665e);
+  font-weight:800;
+}
+
+@media(max-width:980px){
+  .pbi-goose-mission-form,
+  body.pbi-admin-body .pbi-goose-mission-form{
+    grid-template-columns:1fr;
+  }
+}
+
+@media(max-width:650px){
+  .pbi-goose-mission-grid,
+  body.pbi-admin-body .pbi-goose-mission-grid{
+    grid-template-columns:1fr;
+  }
+
+  .pbi-goose-mission-actions{
+    display:grid;
+  }
+}
