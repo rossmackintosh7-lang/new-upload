@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>PBI Admin - SEO Agent</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="stylesheet" href="/assets/styles.css?v=20260520-seo-agent">
+  <link rel="stylesheet" href="/assets/pbi-premium-flow.css">
+  <link rel="stylesheet" href="/assets/pbi-admin-v2.css?v=20260520-seo-agent">
+  <link rel="stylesheet" href="/assets/pbi-admin-seo.css?v=20260520-seo-agent">
+</head>
+<body class="pbi-admin-body pbi-admin-premium pbi-admin-seo-body">
+  <aside class="pbi-admin-sidebar">
+    <a class="pbi-admin-logo" href="/admin/">
+      <img src="/assets/pbi-header-logo-no-bg-20260502c.png?v=20260502c" alt="PBI">
+      <span>Admin</span>
+    </a>
+    <nav>
+      <a href="/admin/">Command Centre</a>
+      <a href="/admin/seo/" class="active">SEO Agent</a>
+      <a href="/admin/users/">User Manager</a>
+      <a href="/admin/requests/">Requests</a>
+      <a href="/admin/projects/">Projects</a>
+      <a href="/admin/assisted-builds/">Assisted Builds</a>
+      <a href="/admin/notifications/">Notifications</a>
+      <a href="/projects/">Customer Projects</a>
+      <a href="/dashboard/">Dashboard</a>
+      <a href="/account/billing/">Billing</a>
+    </nav>
+  </aside>
+
+  <main class="pbi-admin-main pbi-seo-admin-main">
+    <header class="pbi-admin-header pbi-seo-admin-header">
+      <div>
+        <p class="eyebrow">National SEO operations</p>
+        <h1>SEO Agent</h1>
+        <p>AI-powered websites, automation and operational systems for UK small businesses.</p>
+      </div>
+      <div class="row pbi-seo-actions">
+        <button class="btn" id="seoRunAudit" type="button">Run audit</button>
+        <button class="btn-ghost" id="seoCreateReport" type="button">Create report</button>
+        <a class="btn-ghost" href="/">Open site</a>
+      </div>
+    </header>
+
+    <div class="notice pbi-seo-status" id="seoStatus" role="status">Loading SEO Agent...</div>
+
+    <section class="pbi-seo-hero-panel">
+      <div class="pbi-seo-score-ring" aria-label="Overall SEO Score">
+        <strong id="seoOverallScore">0</strong>
+        <span>Overall score</span>
+      </div>
+      <div>
+        <p class="eyebrow">SEO command layer</p>
+        <h2>National search architecture, technical audits, keyword tracking and editable AI fixes.</h2>
+        <p>The system scans live pages, creates prioritised SEO tasks, prepares structured fixes for approval, tracks keyword groups and strengthens the internal link graph.</p>
+      </div>
+      <div class="pbi-seo-mini-actions">
+        <button class="btn-ghost" id="seoGenerateCluster" type="button">Generate cluster</button>
+        <input id="seoClusterTopic" value="UK small business websites and automation" aria-label="Content cluster topic">
+      </div>
+    </section>
+
+    <section class="pbi-admin-kpi-grid pbi-seo-kpi-grid" id="seoKpiGrid"></section>
+
+    <section class="pbi-admin-grid wide-left">
+      <div class="pbi-admin-panel">
+        <div class="pbi-admin-panel-head">
+          <div>
+            <p class="eyebrow">Task engine</p>
+            <h2>Priority SEO tasks</h2>
+          </div>
+          <button class="btn-ghost" id="seoRefreshTasks" type="button">Refresh</button>
+        </div>
+        <div id="seoTaskList" class="pbi-seo-task-list"><p>Loading tasks...</p></div>
+      </div>
+
+      <div class="pbi-admin-panel pbi-seo-preview-panel">
+        <div class="pbi-admin-panel-head">
+          <div>
+            <p class="eyebrow">Fix preview</p>
+            <h2>Editable apply queue</h2>
+          </div>
+          <button class="btn-ghost" id="seoClearPreview" type="button">Clear</button>
+        </div>
+        <form id="seoPreviewForm" class="pbi-seo-preview-form">
+          <input type="hidden" id="seoPreviewId">
+          <label>Page URL<input id="seoPreviewUrl" readonly></label>
+          <label>Title<input id="seoPreviewTitle" maxlength="80"></label>
+          <label>Meta description<textarea id="seoPreviewDescription" rows="3" maxlength="220"></textarea></label>
+          <label>H1<input id="seoPreviewH1" maxlength="120"></label>
+          <label>Schema JSON-LD<textarea id="seoPreviewSchema" rows="5" spellcheck="false"></textarea></label>
+          <label>Content block HTML<textarea id="seoPreviewContent" rows="5" spellcheck="false"></textarea></label>
+          <label>Internal links HTML<textarea id="seoPreviewLinks" rows="4" spellcheck="false"></textarea></label>
+          <button class="btn" type="submit">Apply approved fix</button>
+        </form>
+      </div>
+    </section>
+
+    <section class="pbi-admin-grid wide-left">
+      <div class="pbi-admin-panel">
+        <div class="pbi-admin-panel-head">
+          <div>
+            <p class="eyebrow">Page scores</p>
+            <h2>Top and lowest performing pages</h2>
+          </div>
+        </div>
+        <div class="pbi-seo-page-columns">
+          <div>
+            <h3>Lowest</h3>
+            <div id="seoLowestPages" class="pbi-seo-page-list"></div>
+          </div>
+          <div>
+            <h3>Top</h3>
+            <div id="seoTopPages" class="pbi-seo-page-list"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pbi-admin-panel">
+        <p class="eyebrow">Issue breakdown</p>
+        <h2>Audit mix</h2>
+        <div id="seoIssueChart" class="pbi-seo-chart"></div>
+      </div>
+    </section>
+
+    <section class="pbi-admin-grid wide-left">
+      <div class="pbi-admin-panel">
+        <div class="pbi-admin-panel-head">
+          <div>
+            <p class="eyebrow">Keyword tracking</p>
+            <h2>National, industry and local support keywords</h2>
+          </div>
+        </div>
+        <form id="seoKeywordForm" class="pbi-seo-keyword-form">
+          <input id="seoKeyword" placeholder="Keyword" required>
+          <input id="seoKeywordTarget" placeholder="Target URL">
+          <select id="seoKeywordGroup">
+            <option value="national">National</option>
+            <option value="industry">Industry</option>
+            <option value="local support">Local support</option>
+            <option value="informational">Informational</option>
+            <option value="transactional">Transactional</option>
+          </select>
+          <select id="seoKeywordIntent">
+            <option value="commercial">Commercial</option>
+            <option value="transactional">Transactional</option>
+            <option value="informational">Informational</option>
+          </select>
+          <input id="seoKeywordPosition" type="number" min="1" placeholder="Position">
+          <input id="seoKeywordImpressions" type="number" min="0" placeholder="Impressions">
+          <button class="btn-ghost" type="submit">Add keyword</button>
+        </form>
+        <div id="seoKeywordList" class="pbi-seo-keyword-list"></div>
+      </div>
+
+      <div class="pbi-admin-panel">
+        <p class="eyebrow">Keyword trend</p>
+        <h2>Tracked group split</h2>
+        <div id="seoKeywordChart" class="pbi-seo-chart"></div>
+      </div>
+    </section>
+
+    <section class="pbi-admin-grid">
+      <div class="pbi-admin-panel">
+        <div class="pbi-admin-panel-head">
+          <div>
+            <p class="eyebrow">Internal link engine</p>
+            <h2>Suggested contextual links</h2>
+          </div>
+        </div>
+        <div id="seoInternalLinks" class="pbi-seo-link-list"></div>
+      </div>
+
+      <div class="pbi-admin-panel">
+        <div class="pbi-admin-panel-head">
+          <div>
+            <p class="eyebrow">Content engine</p>
+            <h2>Topical authority clusters</h2>
+          </div>
+        </div>
+        <div id="seoClusters" class="pbi-seo-cluster-list"></div>
+      </div>
+    </section>
+
+    <section class="pbi-admin-panel">
+      <div class="pbi-admin-panel-head">
+        <div>
+          <p class="eyebrow">Reports</p>
+          <h2>SEO operations history</h2>
+        </div>
+        <button class="btn-ghost" id="seoRefreshReports" type="button">Refresh reports</button>
+      </div>
+      <div id="seoReports" class="pbi-seo-report-list"></div>
+    </section>
+  </main>
+
+  <script src="/assets/pbi-admin-seo.js?v=20260520-seo-agent" defer></script>
+</body>
+</html>
