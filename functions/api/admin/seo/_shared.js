@@ -30,6 +30,7 @@ const BASE_PATHS = [
   '/pricing/',
   '/seo-care/',
   '/website-management/',
+  '/website-audit/',
   '/templates/',
   '/e-commerce/',
   '/contact/'

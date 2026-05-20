@@ -3505,3 +3505,160 @@ body:not(.pbi-canvas-page):not(.pbi-app-page):not(.pbi-admin-body) article.prose
     overflow-x:hidden!important;
   }
 }
+
+/* Free audit conversion funnel and revenue-path reinforcement. */
+.pbi-audit-hero{
+  padding:clamp(98px,9vw,150px) 0 clamp(48px,7vw,86px);
+}
+
+.pbi-audit-hero-grid,
+.pbi-audit-form-layout{
+  display:grid;
+  grid-template-columns:minmax(0,1.08fr) minmax(300px,.72fr);
+  gap:clamp(20px,3vw,38px);
+  align-items:center;
+}
+
+.pbi-audit-hero h1{
+  max-width:980px;
+}
+
+.pbi-audit-hero-card,
+.pbi-audit-results-card{
+  display:grid;
+  gap:14px;
+  background:linear-gradient(135deg,rgba(255,250,244,.96),rgba(246,233,219,.86))!important;
+}
+
+.pbi-audit-hero-card ul,
+.pbi-audit-results-card ul{
+  display:grid;
+  gap:10px;
+  margin:0;
+  padding-left:20px;
+}
+
+.pbi-audit-check-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:clamp(14px,1.8vw,22px);
+}
+
+.pbi-revenue-accelerator-grid,
+.pbi-seo-revenue-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:clamp(14px,1.8vw,22px);
+}
+
+.pbi-audit-check-grid .card,
+.pbi-revenue-accelerator-card,
+.pbi-seo-revenue-card{
+  display:grid;
+  align-content:start;
+  gap:10px;
+  min-height:100%;
+  border:1px solid rgba(105,74,49,.15);
+  background:rgba(255,250,244,.9);
+}
+
+.pbi-audit-check-grid h3,
+.pbi-revenue-accelerator-card h3,
+.pbi-seo-revenue-card h3{
+  margin:0;
+  font-size:clamp(1.45rem,2vw,2rem);
+  letter-spacing:0;
+}
+
+.pbi-audit-form-card{
+  scroll-margin-top:120px;
+}
+
+.pbi-audit-form-card .textarea{
+  min-height:150px;
+}
+
+.pbi-revenue-accelerator-section{
+  padding-top:clamp(26px,4vw,54px);
+}
+
+.pbi-revenue-accelerator-card strong{
+  color:#9b512d;
+  font-size:12px;
+  font-weight:950;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+}
+
+.pbi-revenue-accelerator-card p,
+.pbi-seo-revenue-card p{
+  margin:0;
+}
+
+.pbi-revenue-accelerator-card .btn,
+.pbi-revenue-accelerator-card .btn-ghost,
+.pbi-seo-revenue-card .btn,
+.pbi-seo-revenue-card .btn-ghost{
+  width:fit-content;
+  margin-top:auto;
+}
+
+.pbi-package-choice-grid{
+  grid-template-columns:repeat(auto-fit,minmax(min(190px,100%),1fr));
+}
+
+.pbi-package-choice-audit{
+  background:linear-gradient(135deg,#2b160e,#6e3519)!important;
+  color:#fffaf4!important;
+}
+
+.pbi-package-choice-audit span,
+.pbi-package-choice-audit strong,
+.pbi-package-choice-audit p,
+.pbi-package-choice-audit em{
+  color:#fffaf4!important;
+}
+
+.pbi-contact-custom-offer,
+.pbi-contact-audit-offer{
+  display:grid;
+  gap:10px;
+  margin-top:18px;
+  padding:18px;
+  border:1px solid rgba(185,92,41,.24);
+  border-radius:20px;
+  background:rgba(255,250,244,.86);
+}
+
+.pbi-contact-audit-offer{
+  background:linear-gradient(135deg,rgba(255,250,244,.96),rgba(243,231,217,.9));
+}
+
+@media(max-width:1040px){
+  .pbi-audit-hero-grid,
+  .pbi-audit-form-layout{
+    grid-template-columns:1fr;
+  }
+  .pbi-audit-check-grid,
+  .pbi-revenue-accelerator-grid,
+  .pbi-seo-revenue-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+
+@media(max-width:680px){
+  .pbi-audit-hero{
+    padding-top:104px;
+  }
+  .pbi-audit-check-grid,
+  .pbi-revenue-accelerator-grid,
+  .pbi-seo-revenue-grid{
+    grid-template-columns:1fr;
+  }
+  .pbi-revenue-accelerator-card .btn,
+  .pbi-revenue-accelerator-card .btn-ghost,
+  .pbi-seo-revenue-card .btn,
+  .pbi-seo-revenue-card .btn-ghost{
+    width:100%;
+  }
+}
