@@ -1,4 +1,10 @@
 User-agent: *
 Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /account/
+Disallow: /dashboard/
+Disallow: /projects/
+Disallow: /payment/
 
 Sitemap: https://www.purbeckbusinessinnovations.co.uk/sitemap.xml
